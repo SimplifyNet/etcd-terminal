@@ -3,6 +3,15 @@ using EtcdTerminal.Console.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
+Console.CancelKeyPress += (_, args) =>
+{
+	args.Cancel = true;
+	Console.ResetColor();
+	Console.WriteLine();
+	AnsiConsole.MarkupLine("[yellow]Shutting down...[/]");
+	Environment.Exit(0);
+};
+
 DIContainer.Current.RegisterAll()
 	.Verify();
 
