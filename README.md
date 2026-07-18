@@ -8,7 +8,7 @@
 - Support for multiple etcd instances with switching on startup
 - SSL/TLS and non-secure (HTTP) connections
 - Login/password authentication for secured instances
-- Configuration from `~/.config/etcd-terminal/appsettings.json`
+- Configuration from `~/.config/etcd-terminal/config.json`
 
 ### Key operations (CRUD)
 - **Browse** — key overview with prefix-based navigation (Tree view)
@@ -58,27 +58,25 @@ The application is built on **Domain-Driven Design** and **Onion Architecture** 
 
 ## Configuration
 
-Configuration files are stored at `~/.config/etcd-terminal/appsettings.json`.
+Configuration files are stored at `~/.config/etcd-terminal/config.json`.
 
 Example configuration:
 
 ```json
 {
-  "EtcdTerminal": {
-    "Instances": [
-      {
-        "Name": "Local etcd",
-        "ConnectionString": "http://localhost:2379",
-        "UseSsl": false
-      },
-      {
-        "Name": "Production cluster",
-        "ConnectionString": "https://etcd.example.com:2379",
-        "UseSsl": true,
-        "Username": "admin",
-        "Password": "secret"
-      }
-    ]
-  }
+  "Instances": [
+    {
+      "Name": "Local etcd",
+      "ConnectionString": "http://localhost:2379",
+      "UseSsl": false
+    },
+    {
+      "Name": "Production cluster",
+      "ConnectionString": "https://etcd.example.com:2379",
+      "UseSsl": true,
+      "Username": "admin",
+      "Password": "secret"
+    }
+  ]
 }
 ```

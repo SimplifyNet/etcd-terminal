@@ -6,7 +6,7 @@ namespace EtcdTerminal.Infrastructure.Configuration;
 public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 {
 	private const string ConfigDir = ".config/etcd-terminal";
-	private const string ConfigFile = "appsettings.json";
+	private const string ConfigFile = "config.json";
 
 	private readonly string _configPath;
 	private readonly JsonSerializerOptions _jsonOptions;
@@ -28,7 +28,6 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 			var json = File.ReadAllText(_configPath);
 			var doc = JsonDocument.Parse(json);
 			var instances = doc.RootElement
-				.GetProperty("EtcdTerminal")
 				.GetProperty("Instances")
 				.EnumerateArray();
 
@@ -69,17 +68,14 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 
 		var json = JsonSerializer.Serialize(new
 		{
-			EtcdTerminal = new
+			Instances = instances.Select(i => new
 			{
-				Instances = instances.Select(i => new
-				{
-					i.Name,
-					i.ConnectionString,
-					i.UseSsl,
-					i.Username,
-					i.Password
-				})
-			}
+				i.Name,
+				i.ConnectionString,
+				i.UseSsl,
+				i.Username,
+				i.Password
+			})
 		}, _jsonOptions);
 
 		File.WriteAllText(_configPath, json);

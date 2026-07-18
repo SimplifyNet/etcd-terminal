@@ -12,7 +12,7 @@ s# План разработки etcd-terminal
 
 ## Этап 3: Infrastructure Layer
 - [x] Реализация EtcdClientAdapter (адаптер для dotnet-etcd)
-- [x] Реализация ConnectionConfigRepository (чтение/запись appsettings.json)
+- [x] Реализация JsonBasedConfigRepository (чтение/запись config.json)
 - [ ] Логирование через Simplify.Log
 - [x] Обработка ошибок подключения (try-catch в адаптере, RpcException)
 
@@ -30,8 +30,8 @@ s# План разработки etcd-terminal
 - [x] PermissionViewScreen — просмотр пермишенов пользователей
 
 ## Этап 5: Конфигурация
-- [x] appsettings.json с примерами инстансов
-- [ ] Создание директории ~/.config/etcd-terminal/ при первом запуске (реализовано в ConnectionConfigRepository при сохранении)
+- [x] config.json с примерами инстансов
+- [x] Создание директории ~/.config/etcd-terminal/ при первом запуске (реализовано в JsonBasedConfigRepository при сохранении)
 - [ ] Валидация конфигурации
 
 ## Этап 6: Дополнительно
