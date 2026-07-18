@@ -1,3 +1,4 @@
+using EtcdTerminal;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -10,42 +11,142 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.Blue));
 		AnsiConsole.MarkupLine("[grey]Console client for etcd v3+[/]\n");
 
-		var instances = _configRepo.LoadInstances();
-
-		if (instances.Count == 0)
+		while (true)
 		{
-			AnsiConsole.MarkupLine("[yellow]No etcd instances configured.[/]");
-			AnsiConsole.MarkupLine($"Create config at: [cyan]~/.config/etcd-terminal/appsettings.json[/]");
-			AnsiConsole.WriteLine();
+			var instances = _configRepo.LoadInstances();
 
-			return null;
+			var choice = PromptForChoice(instances);
+
+			if (choice == "Manage Configs")
+			{
+				ManageConfigs(instances);
+			}
+			else if (choice == "Exit")
+			{
+				return null;
+			}
+			else
+			{
+				var selected = instances.First(i => i.Name == choice);
+
+				try
+				{
+					await AnsiConsole.Status()
+						.StartAsync("Connecting...", async ctx =>
+						{
+							await _etcdClient.ConnectAsync(selected);
+						});
+
+					AnsiConsole.MarkupLine("[green]Connected successfully![/]");
+
+					return selected;
+				}
+				catch (Exception ex)
+				{
+					AnsiConsole.MarkupLine($"[red]Failed to connect: {ex.Message}[/]");
+					AnsiConsole.WriteLine();
+
+					AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+					System.Console.ReadKey(true);
+				}
+			}
 		}
+	}
 
-		var selected = AnsiConsole.Prompt(
-			new SelectionPrompt<EtcdConnectionConfig>()
+	private string PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
+	{
+		var choices = new List<string>();
+		choices.AddRange(instances.Select(i => i.Name));
+		choices.Add("Manage Configs");
+		choices.Add("Exit");
+
+		return AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
 				.Title("Select etcd instance:")
 				.PageSize(10)
-				.AddChoices(instances)
-				.UseConverter(c => $"{c.Name}  [grey]({c.ConnectionString})[/]"));
-
-		try
-		{
-			await AnsiConsole.Status()
-				.StartAsync("Connecting...", async ctx =>
+				.AddChoices(choices)
+				.UseConverter(c =>
 				{
-					await _etcdClient.ConnectAsync(selected);
-				});
+					var instance = instances.FirstOrDefault(i => i.Name == c);
 
-			AnsiConsole.MarkupLine("[green]Connected successfully![/]");
+					return instance is not null
+						? $"{instance.Name}  [grey]({instance.ConnectionString})[/]"
+						: c;
+				}));
+	}
 
-			return selected;
-		}
-		catch (Exception ex)
+	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
+	{
+		AnsiConsole.Clear();
+
+		var manageChoices = new List<string> { "Add Instance" };
+
+		if (instances.Count > 0)
+			manageChoices.Add("Remove Instance");
+
+		manageChoices.Add("Back");
+
+		var action = AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
+				.Title("Manage Configs")
+				.AddChoices(manageChoices));
+
+		if (action == "Add Instance")
 		{
-			AnsiConsole.MarkupLine($"[red]Failed to connect: {ex.Message}[/]");
-			AnsiConsole.WriteLine();
-
-			return null;
+			AddInstanceInteractive();
 		}
+		else if (action == "Remove Instance")
+		{
+			RemoveInstanceInteractive(instances);
+		}
+	}
+
+	private void AddInstanceInteractive()
+	{
+		var name = AnsiConsole.Ask<string>("Enter instance name:");
+		var connectionString = AnsiConsole.Ask<string>("Enter connection string:", "http://localhost:2379");
+		var useSsl = AnsiConsole.Confirm("Use SSL?", false);
+		var username = AnsiConsole.Ask<string>("Enter username (optional, leave empty for none):");
+		var password = string.Empty;
+
+		if (!string.IsNullOrEmpty(username))
+		{
+			password = AnsiConsole.Prompt(
+				new TextPrompt<string>("Enter password:")
+					.Secret());
+		}
+
+		var config = new EtcdConnectionConfig
+		{
+			Name = name,
+			ConnectionString = connectionString,
+			UseSsl = useSsl,
+			Username = string.IsNullOrEmpty(username) ? null : username,
+			Password = string.IsNullOrEmpty(password) ? null : password
+		};
+
+		_configRepo.AddInstance(config);
+
+		AnsiConsole.MarkupLine("[green]Instance added successfully![/]");
+		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		System.Console.ReadKey(true);
+	}
+
+	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
+	{
+		var nameToRemove = AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
+				.Title("Select instance to remove:")
+				.AddChoices(instances.Select(i => i.Name)));
+
+		if (AnsiConsole.Confirm($"Are you sure you want to remove [red]{nameToRemove}[/]?"))
+		{
+			_configRepo.RemoveInstance(nameToRemove);
+
+			AnsiConsole.MarkupLine("[green]Instance removed successfully![/]");
+		}
+
+		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		System.Console.ReadKey(true);
 	}
 }
