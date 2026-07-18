@@ -7,11 +7,16 @@ public static class StatusBar
 {
 	public static void Render(EtcdConnectionConfig config)
 	{
-		var ssl = config.UseSsl ? "[green]SSL[/]" : "[grey]no SSL[/]";
-		var auth = config.IsAuthenticationEnabled ? "[yellow]auth[/]" : "[grey]no auth[/]";
+		var dot = "[green]●[/]";
+		var connStr = config.ConnectionString.Length > 50
+			? config.ConnectionString[..50] + "..."
+			: config.ConnectionString;
+		var auth = config.IsAuthenticationEnabled
+			? $" [grey]│[/] [yellow]{config.Username}[/]"
+			: "";
 
 		AnsiConsole.WriteLine();
-		AnsiConsole.Write(new Rule($"[bold cyan]{config.Name}[/]  [grey]│[/]  [grey]{config.ConnectionString}[/]  [grey]│[/]  {ssl}  [grey]│[/]  {auth}")
+		AnsiConsole.Write(new Rule($"{dot} [bold cyan]{config.Name}[/] [grey]│[/] [grey]{connStr}[/]{auth}")
 		{
 			Style = Style.Parse("grey37"),
 			Border = BoxBorder.Ascii

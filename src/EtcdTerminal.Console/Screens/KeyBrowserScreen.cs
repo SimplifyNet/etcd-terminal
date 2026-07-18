@@ -8,6 +8,7 @@ public sealed class KeyBrowserScreen(IEtcdClient _etcdClient)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
+		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
 		var prefix = AnsiConsole.Ask<string>("Enter key prefix (default: [green]/[/]):", "/");

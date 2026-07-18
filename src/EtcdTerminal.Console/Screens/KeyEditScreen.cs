@@ -8,6 +8,7 @@ public sealed class KeyEditScreen(IEtcdClient _etcdClient)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
+		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
 		var key = AnsiConsole.Ask<string>("Enter key to edit:");
