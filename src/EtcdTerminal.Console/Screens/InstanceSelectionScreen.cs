@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -6,7 +5,6 @@ namespace EtcdTerminal.Console.Screens;
 
 public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient)
 {
-
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
 		AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.Blue));

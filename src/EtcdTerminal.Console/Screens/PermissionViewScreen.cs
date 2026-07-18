@@ -1,11 +1,9 @@
-using EtcdTerminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		await AnsiConsole.Status()

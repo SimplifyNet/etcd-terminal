@@ -1,11 +1,9 @@
-using EtcdTerminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class KeyBrowserScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		var prefix = AnsiConsole.Ask<string>("Enter key prefix (default: [green]/[/]):", "/");
@@ -20,6 +18,7 @@ public sealed class KeyBrowserScreen(IEtcdClient _etcdClient)
 		else
 		{
 			var table = new Table();
+
 			table.AddColumn("Key");
 			table.AddColumn("Value");
 			table.AddColumn("Version");
@@ -28,6 +27,7 @@ public sealed class KeyBrowserScreen(IEtcdClient _etcdClient)
 			foreach (var kv in keys)
 			{
 				var value = kv.Value.Length > 80 ? kv.Value[..80] + "..." : kv.Value;
+
 				table.AddRow(
 					Markup.Escape(kv.Key),
 					Markup.Escape(value),

@@ -1,11 +1,9 @@
-using EtcdTerminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		var running = true;

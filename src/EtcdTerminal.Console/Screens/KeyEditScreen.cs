@@ -1,11 +1,9 @@
-using EtcdTerminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class KeyEditScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		var key = AnsiConsole.Ask<string>("Enter key to edit:");

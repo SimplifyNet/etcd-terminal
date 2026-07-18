@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -6,7 +5,6 @@ namespace EtcdTerminal.Console.Screens;
 
 public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		var running = true;
@@ -145,6 +143,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 	{
 		var roleName = AnsiConsole.Ask<string>("Enter role name:");
 		var keyPrefix = AnsiConsole.Ask<string>("Enter key prefix:");
+
 		var permType = AnsiConsole.Prompt(
 			new SelectionPrompt<PermissionType>()
 				.Title("Select permission type:")

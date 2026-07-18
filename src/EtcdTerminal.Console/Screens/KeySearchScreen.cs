@@ -1,11 +1,9 @@
-using EtcdTerminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class KeySearchScreen(IEtcdClient _etcdClient)
 {
-
 	public async Task ShowAsync()
 	{
 		var searchTerm = AnsiConsole.Ask<string>("Enter search term:");
@@ -23,6 +21,7 @@ public sealed class KeySearchScreen(IEtcdClient _etcdClient)
 				else
 				{
 					var table = new Table();
+
 					table.AddColumn("Key");
 					table.AddColumn("Value");
 					table.AddColumn("Matched In");
@@ -34,6 +33,7 @@ public sealed class KeySearchScreen(IEtcdClient _etcdClient)
 							: "Value";
 
 						var value = kv.Value.Length > 80 ? kv.Value[..80] + "..." : kv.Value;
+
 						table.AddRow(
 							Markup.Escape(kv.Key),
 							Markup.Escape(value),

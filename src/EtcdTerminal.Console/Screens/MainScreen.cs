@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -14,7 +13,6 @@ public sealed class MainScreen(
 	RoleManagementScreen _roleManagement,
 	PermissionViewScreen _permissionView)
 {
-
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		var running = true;
