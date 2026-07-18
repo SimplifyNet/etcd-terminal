@@ -1,11 +1,15 @@
+using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Models;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class KeyBrowserScreen(IEtcdClient _etcdClient)
 {
-	public async Task ShowAsync()
+	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
+		StatusBar.Render(config);
+
 		var prefix = AnsiConsole.Ask<string>("Enter key prefix (default: [green]/[/]):", "/");
 
 		if (string.IsNullOrWhiteSpace(prefix))

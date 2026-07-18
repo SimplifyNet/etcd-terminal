@@ -1,3 +1,4 @@
+using EtcdTerminal.Console.Helpers;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -20,6 +21,7 @@ public sealed class MainScreen(
 		while (running)
 		{
 			AnsiConsole.Clear();
+			Helpers.StatusBar.Render(config);
 
 			var choice = AnsiConsole.Prompt(
 				new SelectionPrompt<string>()
@@ -39,28 +41,28 @@ public sealed class MainScreen(
 			switch (choice)
 			{
 				case "Browse Keys":
-					await _keyBrowser.ShowAsync();
+					await _keyBrowser.ShowAsync(config);
 					break;
 				case "Search Keys":
-					await _keySearch.ShowAsync();
+					await _keySearch.ShowAsync(config);
 					break;
 				case "Create Key":
-					await _keyCreate.ShowAsync();
+					await _keyCreate.ShowAsync(config);
 					break;
 				case "Edit Key":
-					await _keyEdit.ShowAsync();
+					await _keyEdit.ShowAsync(config);
 					break;
 				case "Delete Key":
 					await DeleteKeyAsync();
 					break;
 				case "Manage Users":
-					await _userManagement.ShowAsync();
+					await _userManagement.ShowAsync(config);
 					break;
 				case "Manage Roles":
-					await _roleManagement.ShowAsync();
+					await _roleManagement.ShowAsync(config);
 					break;
 				case "View Permissions":
-					await _permissionView.ShowAsync();
+					await _permissionView.ShowAsync(config);
 					break;
 				case "Disconnect":
 					await _etcdClient.DisconnectAsync();

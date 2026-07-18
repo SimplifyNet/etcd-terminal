@@ -1,3 +1,4 @@
+using EtcdTerminal.Console.Helpers;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -5,13 +6,14 @@ namespace EtcdTerminal.Console.Screens;
 
 public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
-	public async Task ShowAsync()
+	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		var running = true;
 
 		while (running)
 		{
 			AnsiConsole.Clear();
+			StatusBar.Render(config);
 
 			var choice = AnsiConsole.Prompt(
 				new SelectionPrompt<string>()

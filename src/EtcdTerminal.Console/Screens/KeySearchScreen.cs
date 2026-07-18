@@ -1,11 +1,15 @@
+using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Models;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
 public sealed class KeySearchScreen(IEtcdClient _etcdClient)
 {
-	public async Task ShowAsync()
+	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
+		StatusBar.Render(config);
+
 		var searchTerm = AnsiConsole.Ask<string>("Enter search term:");
 
 		if (string.IsNullOrWhiteSpace(searchTerm))
