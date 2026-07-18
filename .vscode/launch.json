@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Launch etcd-terminal",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"program": "${workspaceFolder}/src/EtcdTerminal.Console/bin/Debug/net10.0/etcd-terminal.dll",
+			"cwd": "${workspaceFolder}/src/EtcdTerminal.Console/bin/Debug/net10.0/",
+			"internalConsoleOptions": "openOnSessionStart",
+			"env": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			}
+		}
+	]
+}

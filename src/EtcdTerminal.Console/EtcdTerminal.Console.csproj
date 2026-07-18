@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<AssemblyName>etcd-terminal</AssemblyName>
+		<RootNamespace>EtcdTerminal.Console</RootNamespace>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\EtcdTerminal\EtcdTerminal.csproj" />
+		<ProjectReference Include="..\EtcdTerminal.Infrastructure\EtcdTerminal.Infrastructure.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Spectre.Console" Version="0.57.2" />
+		<PackageReference Include="Simplify.DI" Version="4.3.0" />
+	</ItemGroup>
+</Project>
