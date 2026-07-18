@@ -1,4 +1,5 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Engine;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -11,8 +12,15 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
-		var key = AnsiConsole.Ask<string>("Enter key:");
-		var value = AnsiConsole.Ask<string>("Enter value:");
+		var key = Prompt.Ask("Enter key:");
+
+		if (key is null)
+			return;
+
+		var value = Prompt.Ask("Enter value:");
+
+		if (value is null)
+			return;
 
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 

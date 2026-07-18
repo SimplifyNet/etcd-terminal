@@ -1,4 +1,4 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 

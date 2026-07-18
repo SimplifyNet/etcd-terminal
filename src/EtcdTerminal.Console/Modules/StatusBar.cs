@@ -1,7 +1,7 @@
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Helpers;
+namespace EtcdTerminal.Console.Modules;
 
 public static class StatusBar
 {

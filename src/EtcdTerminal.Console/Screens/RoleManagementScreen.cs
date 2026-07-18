@@ -1,4 +1,5 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Engine;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -8,23 +9,22 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		var running = true;
-
-		while (running)
+		while (true)
 		{
 			AnsiConsole.Clear();
 			StatusBar.Render(config);
 
-			var choice = AnsiConsole.Prompt(
-				new SelectionPrompt<string>()
-					.Title("Role Management")
-					.PageSize(10)
-					.AddChoices(
-						"List Roles",
-						"Create Role",
-						"Delete Role",
-						"Grant Permission",
-						"Revoke Permission"));
+			var choice = Menu.Show("Role Management", new[]
+			{
+				"List Roles",
+				"Create Role",
+				"Delete Role",
+				"Grant Permission",
+				"Revoke Permission"
+			});
+
+			if (choice is null)
+				break;
 
 			switch (choice)
 			{
@@ -83,7 +83,10 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = AnsiConsole.Ask<string>("Enter role name:");
+		var roleName = Prompt.Ask("Enter role name:");
+
+		if (roleName is null)
+			return;
 
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
@@ -98,9 +101,14 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = AnsiConsole.Ask<string>("Enter role name to delete:");
+		var roleName = Prompt.Ask("Enter role name to delete:");
 
-		if (!AnsiConsole.Confirm($"Are you sure you want to delete role [red]{roleName}[/]?"))
+		if (roleName is null)
+			return;
+
+		var confirm = Prompt.Confirm($"Are you sure you want to delete role {roleName}?");
+
+		if (confirm is not true)
 			return;
 
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
@@ -116,12 +124,27 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task GrantPermissionAsync()
 	{
-		var roleName = AnsiConsole.Ask<string>("Enter role name:");
-		var keyPrefix = AnsiConsole.Ask<string>("Enter key prefix:");
-		var permType = AnsiConsole.Prompt(
-			new SelectionPrompt<PermissionType>()
-				.Title("Select permission type:")
-				.AddChoices(PermissionType.Read, PermissionType.Write, PermissionType.ReadWrite));
+		var roleName = Prompt.Ask("Enter role name:");
+
+		if (roleName is null)
+			return;
+
+		var keyPrefix = Prompt.Ask("Enter key prefix:");
+
+		if (keyPrefix is null)
+			return;
+
+		var permStr = Menu.Show("Select permission type:", new[] { "Read", "Write", "ReadWrite" });
+
+		if (permStr is null)
+			return;
+
+		var permType = permStr switch
+		{
+			"Read" => PermissionType.Read,
+			"Write" => PermissionType.Write,
+			_ => PermissionType.ReadWrite
+		};
 
 		try
 		{
@@ -139,13 +162,27 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task RevokePermissionAsync()
 	{
-		var roleName = AnsiConsole.Ask<string>("Enter role name:");
-		var keyPrefix = AnsiConsole.Ask<string>("Enter key prefix:");
+		var roleName = Prompt.Ask("Enter role name:");
 
-		var permType = AnsiConsole.Prompt(
-			new SelectionPrompt<PermissionType>()
-				.Title("Select permission type:")
-				.AddChoices(PermissionType.Read, PermissionType.Write, PermissionType.ReadWrite));
+		if (roleName is null)
+			return;
+
+		var keyPrefix = Prompt.Ask("Enter key prefix:");
+
+		if (keyPrefix is null)
+			return;
+
+		var permStr = Menu.Show("Select permission type:", new[] { "Read", "Write", "ReadWrite" });
+
+		if (permStr is null)
+			return;
+
+		var permType = permStr switch
+		{
+			"Read" => PermissionType.Read,
+			"Write" => PermissionType.Write,
+			_ => PermissionType.ReadWrite
+		};
 
 		try
 		{

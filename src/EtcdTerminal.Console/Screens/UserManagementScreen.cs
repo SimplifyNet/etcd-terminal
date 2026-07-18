@@ -1,4 +1,5 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Engine;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -8,24 +9,23 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		var running = true;
-
-		while (running)
+		while (true)
 		{
 			AnsiConsole.Clear();
 			StatusBar.Render(config);
 
-			var choice = AnsiConsole.Prompt(
-				new SelectionPrompt<string>()
-					.Title("User Management")
-					.PageSize(10)
-					.AddChoices(
-						"List Users",
-						"Create User",
-						"Delete User",
-						"Change Password",
-						"Assign Role to User",
-						"Remove Role from User"));
+			var choice = Menu.Show("User Management", new[]
+			{
+				"List Users",
+				"Create User",
+				"Delete User",
+				"Change Password",
+				"Assign Role to User",
+				"Remove Role from User"
+			});
+
+			if (choice is null)
+				break;
 
 			switch (choice)
 			{
@@ -80,10 +80,15 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task CreateUserAsync()
 	{
-		var username = AnsiConsole.Ask<string>("Enter username:");
-		var password = AnsiConsole.Prompt(
-			new TextPrompt<string>("Enter password:")
-				.Secret());
+		var username = Prompt.Ask("Enter username:");
+
+		if (username is null)
+			return;
+
+		var password = Prompt.Secret("Enter password:");
+
+		if (password is null)
+			return;
 
 		var result = await _etcdClient.CreateUserAsync(username, password);
 
@@ -98,9 +103,14 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task DeleteUserAsync()
 	{
-		var username = AnsiConsole.Ask<string>("Enter username to delete:");
+		var username = Prompt.Ask("Enter username to delete:");
 
-		if (!AnsiConsole.Confirm($"Are you sure you want to delete user [red]{username}[/]?"))
+		if (username is null)
+			return;
+
+		var confirm = Prompt.Confirm($"Are you sure you want to delete user {username}?");
+
+		if (confirm is not true)
 			return;
 
 		var result = await _etcdClient.DeleteUserAsync(username);
@@ -116,10 +126,15 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task ChangePasswordAsync()
 	{
-		var username = AnsiConsole.Ask<string>("Enter username:");
-		var newPassword = AnsiConsole.Prompt(
-			new TextPrompt<string>("Enter new password:")
-				.Secret());
+		var username = Prompt.Ask("Enter username:");
+
+		if (username is null)
+			return;
+
+		var newPassword = Prompt.Secret("Enter new password:");
+
+		if (newPassword is null)
+			return;
 
 		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
 
@@ -134,8 +149,15 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task AssignRoleAsync()
 	{
-		var username = AnsiConsole.Ask<string>("Enter username:");
-		var roleName = AnsiConsole.Ask<string>("Enter role name:");
+		var username = Prompt.Ask("Enter username:");
+
+		if (username is null)
+			return;
+
+		var roleName = Prompt.Ask("Enter role name:");
+
+		if (roleName is null)
+			return;
 
 		try
 		{
@@ -153,8 +175,15 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task RevokeRoleAsync()
 	{
-		var username = AnsiConsole.Ask<string>("Enter username:");
-		var roleName = AnsiConsole.Ask<string>("Enter role name to remove:");
+		var username = Prompt.Ask("Enter username:");
+
+		if (username is null)
+			return;
+
+		var roleName = Prompt.Ask("Enter role name to remove:");
+
+		if (roleName is null)
+			return;
 
 		try
 		{

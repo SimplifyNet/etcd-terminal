@@ -1,4 +1,5 @@
 using EtcdTerminal;
+using EtcdTerminal.Console.Engine;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -13,9 +14,14 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		while (true)
 		{
+			AnsiConsole.Clear();
+
 			var instances = _configRepo.LoadInstances();
 
 			var choice = PromptForChoice(instances);
+
+			if (choice is null)
+				return null;
 
 			if (choice == "Manage Connections")
 			{
@@ -53,26 +59,21 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		}
 	}
 
-	private string PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
+	private string? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
 		var choices = new List<string>();
 		choices.AddRange(instances.Select(i => i.Name));
 		choices.Add("Manage Connections");
 		choices.Add("Exit");
 
-		return AnsiConsole.Prompt(
-			new SelectionPrompt<string>()
-				.Title("Select etcd instance:")
-				.PageSize(10)
-				.AddChoices(choices)
-				.UseConverter(c =>
-				{
-					var instance = instances.FirstOrDefault(i => i.Name == c);
+		return Menu.Show("Select etcd instance:", choices, c =>
+		{
+			var instance = instances.FirstOrDefault(i => i.Name == c);
 
-					return instance is not null
-						? $"{instance.Name}  [grey]({instance.ConnectionString})[/]"
-						: c;
-				}));
+			return instance is not null
+				? $"{instance.Name}  [grey]({instance.ConnectionString})[/]"
+				: c;
+		});
 	}
 
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -84,10 +85,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (instances.Count > 0)
 			manageChoices.Add("Remove Instance");
 
-		var action = AnsiConsole.Prompt(
-			new SelectionPrompt<string>()
-				.Title("Manage Connections")
-				.AddChoices(manageChoices));
+		var action = Menu.Show("Manage Connections", manageChoices);
+
+		if (action is null)
+			return;
 
 		if (action == "Add Instance")
 		{
@@ -101,7 +102,11 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void AddInstanceInteractive()
 	{
-		var name = AnsiConsole.Ask<string>("Enter instance name:");
+		var name = Prompt.Ask("Enter instance name:");
+
+		if (name is null)
+			return;
+
 		name = name.Trim();
 
 		if (string.IsNullOrWhiteSpace(name))
@@ -113,7 +118,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 		}
 
-		var connectionString = AnsiConsole.Ask<string>("Enter connection string:", "http://localhost:2379");
+		var connectionString = Prompt.Ask("Enter connection string:", "http://localhost:2379");
+
+		if (connectionString is null)
+			return;
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
@@ -124,22 +132,31 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 		}
 
-		var useSsl = AnsiConsole.Confirm("Use SSL?", false);
-		var username = AnsiConsole.Ask<string>("Enter username (optional, leave empty for none):");
+		var useSsl = Prompt.Confirm("Use SSL?");
+
+		if (useSsl is null)
+			return;
+
+		var username = Prompt.Ask("Enter username (optional, leave empty for none):");
+
+		if (username is null)
+			return;
+
 		var password = string.Empty;
 
 		if (!string.IsNullOrEmpty(username))
 		{
-			password = AnsiConsole.Prompt(
-				new TextPrompt<string>("Enter password:")
-					.Secret());
+			password = Prompt.Secret("Enter password:");
+
+			if (password is null)
+				return;
 		}
 
 		var config = new EtcdConnectionConfig
 		{
 			Name = name,
 			ConnectionString = connectionString,
-			UseSsl = useSsl,
+			UseSsl = useSsl.Value,
 			Username = string.IsNullOrEmpty(username) ? null : username,
 			Password = string.IsNullOrEmpty(password) ? null : password
 		};
@@ -153,12 +170,14 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = AnsiConsole.Prompt(
-			new SelectionPrompt<string>()
-				.Title("Select instance to remove:")
-				.AddChoices(instances.Select(i => i.Name)));
+		var nameToRemove = Menu.Show("Select instance to remove:", instances.Select(i => i.Name));
 
-		if (AnsiConsole.Confirm($"Are you sure you want to remove [red]{nameToRemove}[/]?"))
+		if (nameToRemove is null)
+			return;
+
+		var confirm = Prompt.Confirm($"Are you sure you want to remove {nameToRemove}?");
+
+		if (confirm is not true)
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 

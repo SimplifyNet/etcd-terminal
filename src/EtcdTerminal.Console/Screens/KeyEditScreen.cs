@@ -1,4 +1,5 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Engine;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -11,7 +12,10 @@ public sealed class KeyEditScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
-		var key = AnsiConsole.Ask<string>("Enter key to edit:");
+		var key = Prompt.Ask("Enter key to edit:");
+
+		if (key is null)
+			return;
 
 		var existing = await _etcdClient.GetKeyAsync(key);
 
@@ -26,7 +30,10 @@ public sealed class KeyEditScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.MarkupLine($"Current value: [cyan]{Markup.Escape(existing.Value)}[/]");
 
-		var newValue = AnsiConsole.Ask<string>("Enter new value:");
+		var newValue = Prompt.Ask("Enter new value:");
+
+		if (newValue is null)
+			return;
 
 		var result = await _etcdClient.UpdateKeyAsync(key, newValue);
 

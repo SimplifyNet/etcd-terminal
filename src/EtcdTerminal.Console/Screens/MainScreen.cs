@@ -1,4 +1,5 @@
-using EtcdTerminal.Console.Helpers;
+using EtcdTerminal.Console.Engine;
+using EtcdTerminal.Console.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -16,27 +17,31 @@ public sealed class MainScreen(
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		var running = true;
-
-		while (running)
+		while (true)
 		{
 			AnsiConsole.Clear();
-			Helpers.StatusBar.Render(config);
+			StatusBar.Render(config);
 
-			var choice = AnsiConsole.Prompt(
-				new SelectionPrompt<string>()
-					.Title($"[bold]Connected to:[/] [cyan]{config.Name}[/]")
-					.PageSize(10)
-					.AddChoices(
-						"Browse Keys",
-						"Search Keys",
-						"Create Key",
-						"Edit Key",
-						"Delete Key",
-						"Manage Users",
-						"Manage Roles",
-						"View Permissions",
-						"Disconnect"));
+			var choice = Menu.Show(
+				$"Connected to: {config.Name}",
+				new[]
+				{
+					"Browse Keys",
+					"Search Keys",
+					"Create Key",
+					"Edit Key",
+					"Delete Key",
+					"Manage Users",
+					"Manage Roles",
+					"View Permissions",
+					"Disconnect"
+				});
+
+			if (choice is null)
+			{
+				await _etcdClient.DisconnectAsync();
+				return;
+			}
 
 			switch (choice)
 			{
@@ -66,17 +71,21 @@ public sealed class MainScreen(
 					break;
 				case "Disconnect":
 					await _etcdClient.DisconnectAsync();
-					running = false;
-					break;
+					return;
 			}
 		}
 	}
 
 	private async Task DeleteKeyAsync()
 	{
-		var key = AnsiConsole.Ask<string>("Enter key to delete:");
+		var key = Prompt.Ask("Enter key to delete:");
 
-		if (!AnsiConsole.Confirm($"Are you sure you want to delete [red]{key}[/]?"))
+		if (key is null)
+			return;
+
+		var confirm = Prompt.Confirm($"Are you sure you want to delete {key}?");
+
+		if (confirm is not true)
 			return;
 
 		var result = await _etcdClient.DeleteKeyAsync(key);
