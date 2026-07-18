@@ -24,8 +24,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 						"Create Role",
 						"Delete Role",
 						"Grant Permission",
-						"Revoke Permission",
-						"Back"));
+						"Revoke Permission"));
 
 			switch (choice)
 			{
@@ -43,9 +42,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 					break;
 				case "Revoke Permission":
 					await RevokePermissionAsync();
-					break;
-				case "Back":
-					running = false;
 					break;
 			}
 		}

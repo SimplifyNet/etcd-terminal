@@ -84,8 +84,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (instances.Count > 0)
 			manageChoices.Add("Remove Instance");
 
-		manageChoices.Add("Back");
-
 		var action = AnsiConsole.Prompt(
 			new SelectionPrompt<string>()
 				.Title("Manage Connections")
@@ -155,15 +153,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var choices = instances.Select(i => i.Name).Append("Back").ToList();
-
 		var nameToRemove = AnsiConsole.Prompt(
 			new SelectionPrompt<string>()
 				.Title("Select instance to remove:")
-				.AddChoices(choices));
-
-		if (nameToRemove == "Back")
-			return;
+				.AddChoices(instances.Select(i => i.Name)));
 
 		if (AnsiConsole.Confirm($"Are you sure you want to remove [red]{nameToRemove}[/]?"))
 		{

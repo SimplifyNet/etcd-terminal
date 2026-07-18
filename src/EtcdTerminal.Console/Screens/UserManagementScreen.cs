@@ -25,8 +25,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 						"Delete User",
 						"Change Password",
 						"Assign Role to User",
-						"Remove Role from User",
-						"Back"));
+						"Remove Role from User"));
 
 			switch (choice)
 			{
@@ -47,9 +46,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 					break;
 				case "Remove Role from User":
 					await RevokeRoleAsync();
-					break;
-				case "Back":
-					running = false;
 					break;
 			}
 		}
