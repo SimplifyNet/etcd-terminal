@@ -1,10 +1,9 @@
 using System.Text.Json;
-using EtcdTerminal;
 using EtcdTerminal.Models;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class ConnectionConfigRepository : IConnectionConfigRepository
+public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 {
 	private const string ConfigDir = ".config/etcd-terminal";
 	private const string ConfigFile = "appsettings.json";
@@ -12,7 +11,7 @@ public sealed class ConnectionConfigRepository : IConnectionConfigRepository
 	private readonly string _configPath;
 	private readonly JsonSerializerOptions _jsonOptions;
 
-	public ConnectionConfigRepository()
+	public JsonBasedConfigRepository()
 	{
 		var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 		_configPath = Path.Combine(home, ConfigDir, ConfigFile);
@@ -33,14 +32,14 @@ public sealed class ConnectionConfigRepository : IConnectionConfigRepository
 				.GetProperty("Instances")
 				.EnumerateArray();
 
-			return instances.Select(i => new EtcdConnectionConfig
+			return [.. instances.Select(i => new EtcdConnectionConfig
 			{
 				Name = i.GetProperty("Name").GetString() ?? string.Empty,
 				ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
 				UseSsl = i.GetProperty("UseSsl").GetBoolean(),
 				Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
 				Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
-			}).ToList();
+			})];
 		}
 		catch
 		{

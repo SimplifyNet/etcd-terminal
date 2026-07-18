@@ -17,10 +17,10 @@ public static class IocRegistrations
 	}
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
-		.Register<IConnectionConfigRepository, ConnectionConfigRepository>(LifetimeType.Singleton);
+		.Register<IConnectionConfigRepository, JsonBasedConfigRepository>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdClient, EtcdClientAdapter>(LifetimeType.Singleton);
+		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)

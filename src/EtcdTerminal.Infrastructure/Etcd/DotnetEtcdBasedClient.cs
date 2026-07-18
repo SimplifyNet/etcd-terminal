@@ -1,4 +1,3 @@
-using System.Reflection;
 using Authpb;
 using dotnet_etcd;
 using dotnet_etcd.interfaces;
@@ -7,21 +6,18 @@ using EtcdTerminal.Models;
 using Google.Protobuf;
 using Grpc.Core;
 using Mvccpb;
-using IEtcdClient = EtcdTerminal.IEtcdClient;
 
 namespace EtcdTerminal.Infrastructure.Etcd;
 
-public sealed class EtcdClientAdapter : IEtcdClient
+public sealed class DotnetEtcdBasedClient : IEtcdClient
 {
 	private EtcdClient? _client;
-	private EtcdConnectionConfig? _config;
 
 	public bool IsConnected => _client is not null;
 
 	public Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
 	{
 		Disconnect();
-		_config = config;
 
 		var connectionString = config.ConnectionString;
 
@@ -56,7 +52,6 @@ public sealed class EtcdClientAdapter : IEtcdClient
 	{
 		_client?.Dispose();
 		_client = null;
-		_config = null;
 	}
 
 	public void Dispose() => Disconnect();
@@ -75,18 +70,17 @@ public sealed class EtcdClientAdapter : IEtcdClient
 	{
 		var response = await _client!.GetRangeAsync(prefix, cancellationToken: ct);
 
-		return response.Kvs.Select(MapKeyValue).ToList();
+		return [.. response.Kvs.Select(MapKeyValue)];
 	}
 
 	public async Task<IReadOnlyList<EtcdKeyValue>> SearchKeysAsync(string searchTerm, CancellationToken ct = default)
 	{
 		var allKeys = await GetKeysByPrefixAsync("/", ct);
 
-		return allKeys
+		return [.. allKeys
 			.Where(kv =>
 				kv.Key.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-				kv.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-			.ToList();
+				kv.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))];
 	}
 
 	public async Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default)
@@ -131,7 +125,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 			users.Add(new EtcdUser
 			{
 				Username = user,
-				Roles = userInfo.Roles.ToList()
+				Roles = [.. userInfo.Roles]
 			});
 		}
 
@@ -148,7 +142,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 			return new EtcdUser
 			{
 				Username = username,
-				Roles = response.Roles.ToList()
+				Roles = [.. response.Roles]
 			};
 		}
 		catch (RpcException)
@@ -214,7 +208,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 			roles.Add(new EtcdRole
 			{
 				Name = role,
-				Permissions = roleInfo.Perm.Select(MapPermission).ToList()
+				Permissions = [.. roleInfo.Perm.Select(MapPermission)]
 			});
 		}
 
@@ -231,7 +225,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 			return new EtcdRole
 			{
 				Name = roleName,
-				Permissions = response.Perm.Select(MapPermission).ToList()
+				Permissions = [.. response.Perm.Select(MapPermission)]
 			};
 		}
 		catch (RpcException)
@@ -318,7 +312,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 					   m.GetParameters()[0].ParameterType == typeof(AuthStatusRequest));
 
 			var call = authStatusMethod.Invoke(authClient,
-				new object?[] { new AuthStatusRequest(), null, null, ct });
+				[new AuthStatusRequest(), null, null, ct]);
 
 			var responseAsyncProp = call!.GetType().GetProperty("ResponseAsync")!;
 			var responseTask = (Task)responseAsyncProp.GetValue(call)!;
@@ -364,7 +358,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 		}
 	}
 
-	private static EtcdKeyValue MapKeyValue(KeyValue kv) => new EtcdKeyValue
+	private static EtcdKeyValue MapKeyValue(KeyValue kv) => new()
 	{
 		Key = kv.Key.ToStringUtf8(),
 		Value = kv.Value.ToStringUtf8(),
@@ -374,7 +368,7 @@ public sealed class EtcdClientAdapter : IEtcdClient
 		Lease = kv.Lease
 	};
 
-	private static EtcdPermission MapPermission(Permission perm) => new EtcdPermission
+	private static EtcdPermission MapPermission(Permission perm) => new()
 	{
 		Type = perm.PermType switch
 		{
