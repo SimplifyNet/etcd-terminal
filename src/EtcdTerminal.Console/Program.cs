@@ -3,9 +3,13 @@ using EtcdTerminal.Console.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.Write("\x1b]11;#252629\x07");
+
 Console.CancelKeyPress += (_, args) =>
 {
 	args.Cancel = true;
+	Console.Write("\x1b]111\x07");
 	Console.ResetColor();
 	Console.WriteLine();
 	AnsiConsole.MarkupLine("[yellow]Shutting down...[/]");

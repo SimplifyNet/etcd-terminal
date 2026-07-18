@@ -14,13 +14,15 @@ public static class StatusBar
 		var auth = config.IsAuthenticationEnabled
 			? $" [grey]│[/] [yellow]{config.Username}[/]"
 			: "";
+		var bg = new Style(background: Color.FromHex("1b1c1e"));
 
-		AnsiConsole.WriteLine();
-		AnsiConsole.Write(new Rule($"{dot} [bold cyan]{config.Name}[/] [grey]│[/] [grey]{connStr}[/]{auth}")
+		AnsiConsole.Write(new Rule(" ") { Style = bg, Border = BoxBorder.None });
+		AnsiConsole.Write(new Rule($"     {dot} [bold cyan]{config.Name}[/] [grey]│[/] [grey]{connStr}[/]{auth}     ")
 		{
-			Style = Style.Parse("grey37"),
-			Border = BoxBorder.Ascii
+			Style = bg,
+			Border = BoxBorder.None
 		});
+		AnsiConsole.Write(new Rule(" ") { Style = bg, Border = BoxBorder.None });
 		AnsiConsole.WriteLine();
 	}
 }
