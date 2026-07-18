@@ -19,9 +19,13 @@ public static class Menu
 		var menuStart = System.Console.CursorTop;
 
 		System.Console.ResetColor();
-		System.Console.WriteLine();
-		System.Console.WriteLine(title);
-		System.Console.WriteLine();
+
+		if (!string.IsNullOrEmpty(title))
+		{
+			System.Console.WriteLine();
+			System.Console.WriteLine(title);
+			System.Console.WriteLine();
+		}
 
 		var firstItemTop = System.Console.CursorTop;
 

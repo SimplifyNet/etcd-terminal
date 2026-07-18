@@ -23,7 +23,7 @@ public sealed class MainScreen(
 			StatusBar.Render(config);
 
 			var choice = Menu.Show(
-				$"Connected to: {config.Name}",
+				"",
 				new[]
 				{
 					"Browse Keys",
