@@ -1,46 +1,36 @@
+using EtcdTerminal;
 using EtcdTerminal.Console.Screens;
 using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Etcd;
-using EtcdTerminal;
 using Simplify.DI;
 
 namespace EtcdTerminal.Console.DI;
 
 public static class IocRegistrations
 {
-    public static IDIContainerProvider RegisterAll(this IDIContainerProvider provider)
-    {
-        provider.RegisterConfiguration()
-               .RegisterIEtcdClient()
-               .RegisterScreens()
-               .Verify();
+	public static IDIContainerProvider RegisterAll(this IDIContainerProvider provider)
+	{
+		provider.RegisterConfiguration()
+			   .RegisterIEtcdClient()
+			   .RegisterScreens();
 
-        return provider;
-    }
+		return provider;
+	}
 
-    private static IDIContainerProvider RegisterConfiguration(this IDIContainerProvider provider)
-    {
-        provider.Register<IConnectionConfigRepository, ConnectionConfigRepository>(LifetimeType.Singleton);
-        return provider;
-    }
+	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
+		.Register<IConnectionConfigRepository, ConnectionConfigRepository>(LifetimeType.Singleton);
 
-    private static IDIContainerProvider RegisterIEtcdClient(this IDIContainerProvider provider)
-    {
-        provider.Register<IEtcdClient, EtcdClientAdapter>(LifetimeType.Singleton);
-        return provider;
-    }
+	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdClient, EtcdClientAdapter>(LifetimeType.Singleton);
 
-    private static IDIContainerProvider RegisterScreens(this IDIContainerProvider provider)
-    {
-        provider.Register<InstanceSelectionScreen>(LifetimeType.Transient);
-        provider.Register<MainScreen>(LifetimeType.Transient);
-        provider.Register<KeyBrowserScreen>(LifetimeType.Transient);
-        provider.Register<KeySearchScreen>(LifetimeType.Transient);
-        provider.Register<KeyCreateScreen>(LifetimeType.Transient);
-        provider.Register<KeyEditScreen>(LifetimeType.Transient);
-        provider.Register<UserManagementScreen>(LifetimeType.Transient);
-        provider.Register<RoleManagementScreen>(LifetimeType.Transient);
-        provider.Register<PermissionViewScreen>(LifetimeType.Transient);
-        return provider;
-    }
+	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
+		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
+		.Register<MainScreen>(LifetimeType.Transient)
+		.Register<KeyBrowserScreen>(LifetimeType.Transient)
+		.Register<KeySearchScreen>(LifetimeType.Transient)
+		.Register<KeyCreateScreen>(LifetimeType.Transient)
+		.Register<KeyEditScreen>(LifetimeType.Transient)
+		.Register<UserManagementScreen>(LifetimeType.Transient)
+		.Register<RoleManagementScreen>(LifetimeType.Transient)
+		.Register<PermissionViewScreen>(LifetimeType.Transient);
 }

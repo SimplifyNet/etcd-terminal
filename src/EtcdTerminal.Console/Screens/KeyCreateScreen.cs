@@ -3,27 +3,22 @@ using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
 
-public sealed class KeyCreateScreen
+public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 {
-    private readonly IEtcdClient _etcdClient;
 
-    public KeyCreateScreen(IEtcdClient etcdClient)
-    {
-        _etcdClient = etcdClient;
-    }
+	public async Task ShowAsync()
+	{
+		var key = AnsiConsole.Ask<string>("Enter key:");
+		var value = AnsiConsole.Ask<string>("Enter value:");
 
-    public async Task ShowAsync()
-    {
-        var key = AnsiConsole.Ask<string>("Enter key:");
-        var value = AnsiConsole.Ask<string>("Enter value:");
+		var result = await _etcdClient.CreateKeyAsync(key, value);
 
-        var result = await _etcdClient.CreateKeyAsync(key, value);
-        if (result)
-            AnsiConsole.MarkupLine("[green]Key created successfully![/]");
-        else
-            AnsiConsole.MarkupLine("[red]Key already exists or could not be created.[/]");
+		if (result)
+			AnsiConsole.MarkupLine("[green]Key created successfully![/]");
+		else
+			AnsiConsole.MarkupLine("[red]Key already exists or could not be created.[/]");
 
-        AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-        System.Console.ReadKey(true);
-    }
+		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		System.Console.ReadKey(true);
+	}
 }

@@ -3,7 +3,8 @@ using EtcdTerminal.Console.Screens;
 using Simplify.DI;
 using Spectre.Console;
 
-DIContainer.Current.RegisterAll();
+DIContainer.Current.RegisterAll()
+	.Verify();
 
 while (true)
 {
