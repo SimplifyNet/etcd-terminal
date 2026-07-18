@@ -25,37 +25,6 @@
 - **Access grants** — assign/revoke key permissions for roles
 - **Info** — view the full picture: which users have which roles and their permissions
 
-## Architecture
-
-The application is built on **Domain-Driven Design** and **Onion Architecture** principles:
-
-```
-┌──────────────────────────────────────────┐
-│  EtcdTerminal.Console (Presentation)     │
-│  Spectre.Console + Simplify.DI           │
-├──────────────────────────────────────────┤
-│  EtcdTerminal.Infrastructure             │
-│  dotnet-etcd, Configuration              │
-├──────────────────────────────────────────┤
-│  EtcdTerminal (Domain)                   │
-│  Models, Interfaces                      │
-└──────────────────────────────────────────┘
-```
-
-### Projects
-- **EtcdTerminal** (Domain) — data models and interfaces (IEtcdClient, IConnectionConfigRepository). No external dependencies.
-- **EtcdTerminal.Infrastructure** — interface implementations via the `dotnet-etcd` library, JSON configuration loading.
-- **EtcdTerminal.Console** (Presentation) — console user interface with Spectre.Console, DI container with Simplify.DI.
-
-## Technologies
-
-- **.NET 10**
-- **Spectre.Console** — TUI for the console application
-- **Simplify.DI** — Dependency Injection container
-- **Simplify.System** — Simplify utilities
-- **dotnet-etcd** — gRPC client for etcd v3+
-- **Microsoft.Extensions.Configuration** — JSON configuration loading
-
 ## Configuration
 
 Configuration files are stored at `~/.config/etcd-terminal/config.json`.
