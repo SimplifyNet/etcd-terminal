@@ -9,12 +9,11 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
-		AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.Blue));
-		AnsiConsole.MarkupLine("[grey]Console client for etcd v3+[/]\n");
-
 		while (true)
 		{
 			AnsiConsole.Clear();
+			AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.Blue));
+			AnsiConsole.MarkupLine("[grey]Console client for etcd v3+[/]\n");
 
 			var instances = _configRepo.LoadInstances();
 
