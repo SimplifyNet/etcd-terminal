@@ -104,7 +104,28 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private void AddInstanceInteractive()
 	{
 		var name = AnsiConsole.Ask<string>("Enter instance name:");
+		name = name.Trim();
+
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			AnsiConsole.MarkupLine("[red]Instance name cannot be empty.[/]");
+			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+			System.Console.ReadKey(true);
+
+			return;
+		}
+
 		var connectionString = AnsiConsole.Ask<string>("Enter connection string:", "http://localhost:2379");
+
+		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+		{
+			AnsiConsole.MarkupLine("[red]Invalid connection string. Must be a valid http or https URL.[/]");
+			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+			System.Console.ReadKey(true);
+
+			return;
+		}
+
 		var useSsl = AnsiConsole.Confirm("Use SSL?", false);
 		var username = AnsiConsole.Ask<string>("Enter username (optional, leave empty for none):");
 		var password = string.Empty;

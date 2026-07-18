@@ -31,19 +31,49 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 				.GetProperty("Instances")
 				.EnumerateArray();
 
-			return [.. instances.Select(i => new EtcdConnectionConfig
-			{
-				Name = i.GetProperty("Name").GetString() ?? string.Empty,
-				ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
-				UseSsl = i.GetProperty("UseSsl").GetBoolean(),
-				Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
-				Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
-			})];
+			return [.. instances
+				.Select(i =>
+				{
+					try
+					{
+						return new EtcdConnectionConfig
+						{
+							Name = i.GetProperty("Name").GetString() ?? string.Empty,
+							ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
+							UseSsl = i.GetProperty("UseSsl").GetBoolean(),
+							Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
+							Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
+						};
+					}
+					catch
+					{
+						return null;
+					}
+				})
+				.Where(c => c is not null && IsValid(c))
+				.Cast<EtcdConnectionConfig>()];
 		}
 		catch
 		{
 			return Array.Empty<EtcdConnectionConfig>();
 		}
+	}
+
+	private static bool IsValid(EtcdConnectionConfig config)
+	{
+		if (string.IsNullOrWhiteSpace(config.Name))
+			return false;
+
+		if (string.IsNullOrWhiteSpace(config.ConnectionString))
+			return false;
+
+		if (!Uri.TryCreate(config.ConnectionString, UriKind.Absolute, out var uri))
+			return false;
+
+		if (uri.Scheme is not ("http" or "https"))
+			return false;
+
+		return true;
 	}
 
 	public void AddInstance(EtcdConnectionConfig config)
