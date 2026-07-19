@@ -1,5 +1,3 @@
-using EtcdTerminal;
-using System.Reflection;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Models;
 using Simplify.System;
@@ -34,9 +32,14 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		while (true)
 		{
 			AnsiConsole.Clear();
+
 			AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.OrangeRed1).Centered());
-			AnsiConsole.MarkupLineInterpolated($"[grey]Version: {GetVersion()}[/]");
-			AnsiConsole.MarkupLine(ConsoleClientDesc);
+
+			AnsiConsole.Write(Align.Center(new Markup($"[grey]Version: [/][white]{GetVersion()}[/]")));
+			Console.WriteLine();
+
+			AnsiConsole.Write(Align.Center(new Markup(ConsoleClientDesc)));
+			Console.WriteLine();
 
 			var instances = _configRepo.LoadInstances();
 
