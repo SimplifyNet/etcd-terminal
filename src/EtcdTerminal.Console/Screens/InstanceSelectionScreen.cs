@@ -1,6 +1,7 @@
-using EtcdTerminal;
+using System.Reflection;
 using EtcdTerminal.Console.Engine;
 using EtcdTerminal.Models;
+using Simplify.System;
 using Spectre.Console;
 
 namespace EtcdTerminal.Console.Screens;
@@ -12,8 +13,9 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		while (true)
 		{
 			AnsiConsole.Clear();
-			AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.Blue));
-			AnsiConsole.MarkupLine("[grey]Console client for etcd v3+[/]\n");
+			AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.OrangeRed1).Centered());
+			AnsiConsole.MarkupLineInterpolated($"[grey]Version: {GetVersion()}[/]");
+			AnsiConsole.MarkupLine("[grey]Console client for etcd v3+[/]");
 
 			var instances = _configRepo.LoadInstances();
 
@@ -185,5 +187,12 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
 		System.Console.ReadKey(true);
+	}
+
+	private string GetVersion()
+	{
+		var version = AssemblyInfo.Entry.Version;
+
+		return $"{version.Major}.{version.Minor}" + (version.Build != 0 ? "." + version.Build : "");
 	}
 }

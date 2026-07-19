@@ -4,6 +4,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<Version>0.1</Version>
+
 		<AssemblyName>etcd-terminal</AssemblyName>
 		<RootNamespace>EtcdTerminal.Console</RootNamespace>
 		<OutputType>Exe</OutputType>
@@ -15,5 +17,6 @@
 	<ItemGroup>
 		<PackageReference Include="Spectre.Console" Version="0.57.2" />
 		<PackageReference Include="Simplify.DI" Version="4.3.0" />
+		<PackageReference Include="Simplify.System" Version="1.6.3" />
 	</ItemGroup>
 </Project>
