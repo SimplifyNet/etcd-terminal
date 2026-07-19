@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
@@ -8,7 +7,7 @@ namespace EtcdTerminal.App.Screens;
 
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
-	private const int PageSize = 10;
+	private const int PageSize = 30;
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
 	private const int SearchBarRow = 4;
