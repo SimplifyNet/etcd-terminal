@@ -257,7 +257,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			var kv = pageKeys[i];
 			var isSelected = i == _selectedIndex;
 
-			var prefix = isSelected ? " ▶ " : "    ";
+			var prefix = isSelected ? "  ❯ " : "    ";
 			var key = TruncateText(kv.Key, keyWidth);
 			var value = TruncateText(kv.Value, valueWidth);
 			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
