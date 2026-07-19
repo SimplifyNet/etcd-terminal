@@ -75,7 +75,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.Write(table);
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -98,7 +98,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Failed to create user.[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -121,7 +121,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Failed to delete user.[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -144,7 +144,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Failed to change password.[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -170,7 +170,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to assign role.[/]");
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -196,7 +196,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to remove role.[/]");
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 }

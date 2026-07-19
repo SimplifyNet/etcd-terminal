@@ -30,7 +30,7 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Key already exists or could not be created.[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 }

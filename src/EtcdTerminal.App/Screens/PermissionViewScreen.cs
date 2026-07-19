@@ -1,4 +1,5 @@
 using EtcdTerminal;
+using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
@@ -52,7 +53,7 @@ public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 				}
 			});
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 }

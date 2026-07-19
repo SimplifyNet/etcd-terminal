@@ -291,7 +291,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		}
 
 		Console.WriteLine();
-		AnsiConsole.Markup("[grey]Press any key to continue...[/]");
+		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -326,7 +326,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		}
 
 		Console.WriteLine();
-		AnsiConsole.Markup("[grey]Press any key to continue...[/]");
+		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 

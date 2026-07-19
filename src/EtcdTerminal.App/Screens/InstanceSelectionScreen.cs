@@ -54,7 +54,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 					AnsiConsole.MarkupLine($"[red]Failed to connect: {ex.Message}[/]");
 					AnsiConsole.WriteLine();
 
-					AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+					AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 					Console.ReadKey(true);
 				}
 			}
@@ -114,7 +114,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			AnsiConsole.MarkupLine("[red]Instance name cannot be empty.[/]");
-			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 			Console.ReadKey(true);
 
 			return;
@@ -128,7 +128,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
 			AnsiConsole.MarkupLine("[red]Invalid connection string. Must be a valid http or https URL.[/]");
-			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 			Console.ReadKey(true);
 
 			return;
@@ -166,7 +166,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine("[green]Instance added successfully![/]");
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -186,7 +186,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			AnsiConsole.MarkupLine("[green]Instance removed successfully![/]");
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 

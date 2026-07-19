@@ -6,16 +6,20 @@ namespace EtcdTerminal.App.Engine;
 
 public static class Prompt
 {
+	private const string PromptFormat = "[bold]{0}[/] ";
+	private const string ConfirmFormat = "[bold]{0}[/] [grey][y/N][/] ";
+	public const string PressAnyKeyMarkup = "[grey]Press any key to continue...[/]";
+
 	public static string? Ask(string prompt)
 	{
-		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] ");
+		AnsiConsole.Markup(PromptFormat, Markup.Escape(prompt));
 
 		return ReadLine();
 	}
 
 	public static string? Ask(string prompt, string defaultValue)
 	{
-		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] ");
+		AnsiConsole.Markup(PromptFormat, Markup.Escape(prompt));
 
 		var input = ReadLine(defaultValue);
 
@@ -24,14 +28,14 @@ public static class Prompt
 
 	public static string? Secret(string prompt)
 	{
-		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] ");
+		AnsiConsole.Markup(PromptFormat, Markup.Escape(prompt));
 
 		return ReadSecret();
 	}
 
 	public static bool? Confirm(string prompt)
 	{
-		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] [grey][y/N][/] ");
+		AnsiConsole.Markup(ConfirmFormat, Markup.Escape(prompt));
 
 		while (true)
 		{

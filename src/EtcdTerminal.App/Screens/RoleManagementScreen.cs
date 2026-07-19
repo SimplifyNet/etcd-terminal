@@ -78,7 +78,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			}
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -96,7 +96,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Failed to create role (may already exist).[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -119,7 +119,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine("[red]Failed to delete role.[/]");
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -157,7 +157,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to grant permission.[/]");
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 
@@ -195,7 +195,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to revoke permission.[/]");
 		}
 
-		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
 }
