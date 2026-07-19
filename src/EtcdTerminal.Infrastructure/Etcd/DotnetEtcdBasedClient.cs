@@ -41,6 +41,22 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		return Task.CompletedTask;
 	}
 
+	public async Task<bool> PingAsync(CancellationToken ct = default)
+	{
+		if (_client is null) return false;
+
+		try
+		{
+			await _client!.GetAsync("\0", cancellationToken: ct);
+
+			return true;
+		}
+		catch
+		{
+			return false;
+		}
+	}
+
 	public Task DisconnectAsync()
 	{
 		Disconnect();

@@ -7,6 +7,7 @@ public interface IEtcdClient : IDisposable
 	bool IsConnected { get; }
 
 	Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default);
+	Task<bool> PingAsync(CancellationToken ct = default);
 	Task DisconnectAsync();
 
 	Task<EtcdKeyValue?> GetKeyAsync(string key, CancellationToken ct = default);

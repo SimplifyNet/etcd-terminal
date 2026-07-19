@@ -58,6 +58,11 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 						.StartAsync(Connecting, async ctx =>
 						{
 							await _etcdClient.ConnectAsync(selected);
+
+							var healthy = await _etcdClient.PingAsync();
+
+							if (!healthy)
+								throw new Exception("Server did not respond.");
 						});
 
 					AnsiConsole.MarkupLine(ConnectedSuccess);
