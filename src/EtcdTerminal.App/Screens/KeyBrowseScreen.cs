@@ -10,10 +10,8 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private const int PageSize = 30;
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
-	private const int SearchBarRow = 4;
 	private const int EditValueMaxLength = 200;
 
-	private const string SearchPlaceholder = "[grey]🔍  Type to search keys...[/]";
 	private const string NoKeysFound = "  [grey]No keys found.[/]";
 	private const string EditAction = "[bold yellow][[E]][/] [white]Edit[/]    ";
 	private const string DeleteAction = "[bold yellow][[D]][/] [white]Delete[/]    ";
@@ -37,6 +35,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private EtcdKeyValue? _selectedKey;
 	private EtcdConnectionConfig _config = default!;
 	private int _searchEndCol;
+	private int _searchBarRow;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -212,11 +211,8 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		Header.Render();
 
-		Console.Write(new string(' ', LinePadding));
 		RenderSearchBar();
-		_searchEndCol = Console.CursorLeft;
-
-		Console.WriteLine();
+		Console.SetCursorPosition(0, Console.CursorTop + 2);
 		RenderKeyList();
 
 		Console.WriteLine();
@@ -226,16 +222,32 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		StatusBar.Render(_config);
 
-		Console.CursorTop = SearchBarRow;
+		Console.CursorTop = _searchBarRow;
 		Console.CursorLeft = _searchEndCol;
 	}
 
 	private void RenderSearchBar()
 	{
+		var bgSeq = "\x1b[48;2;27;28;30m";
+		var resetSeq = "\x1b[0m";
+		var fill = new string(' ', Console.WindowWidth);
+
+		Console.Write(bgSeq + fill + resetSeq);
+		Console.WriteLine();
+
+		Console.Write(bgSeq);
 		if (_searchQuery.Length == 0)
-			AnsiConsole.Markup(SearchPlaceholder);
+			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search keys...[/]");
 		else
-			AnsiConsole.Markup($"[yellow]🔍[/] [white]{Markup.Escape(_searchQuery)}[/]");
+			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(_searchQuery)}[/]");
+		_searchEndCol = Console.CursorLeft;
+		_searchBarRow = Console.CursorTop;
+		var remaining = Console.WindowWidth - _searchEndCol;
+		if (remaining > 0)
+			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
+		Console.WriteLine();
+
+		Console.Write(bgSeq + fill + resetSeq);
 	}
 
 	private void RenderKeyList()
@@ -271,11 +283,25 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private void RenderPagination()
 	{
+		var bgSeq = "\x1b[48;2;27;28;30m";
+		var resetSeq = "\x1b[0m";
+		var fill = new string(' ', Console.WindowWidth);
+
 		var totalPages = GetTotalPages();
 		var totalKeys = _filteredKeys.Count;
 		var currentPageLabel = _currentPage + 1;
 
-		AnsiConsole.MarkupLine($"  [grey]Page {currentPageLabel}/{totalPages}  •  {totalKeys} total keys[/]");
+		Console.Write(bgSeq + fill + resetSeq);
+		Console.WriteLine();
+
+		Console.Write(bgSeq);
+		AnsiConsole.Markup($"[grey]  Page {currentPageLabel}/{totalPages}  •  {totalKeys} total keys[/]");
+		var remaining = Console.WindowWidth - Console.CursorLeft;
+		if (remaining > 0)
+			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
+		Console.WriteLine();
+
+		Console.Write(bgSeq + fill + resetSeq);
 	}
 
 	private void RenderActionBar()
