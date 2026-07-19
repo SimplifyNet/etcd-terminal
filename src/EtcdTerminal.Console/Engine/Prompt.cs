@@ -14,11 +14,11 @@ public static class Prompt
 
 	public static string? Ask(string prompt, string defaultValue)
 	{
-		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] [grey]({defaultValue})[/] ");
+		AnsiConsole.Markup($"[bold]{Markup.Escape(prompt)}[/] ");
 
-		var input = ReadLine();
+		var input = ReadLine(defaultValue);
 
-		return string.IsNullOrEmpty(input) ? defaultValue : input;
+		return input ?? defaultValue;
 	}
 
 	public static string? Secret(string prompt)
@@ -60,9 +60,14 @@ public static class Prompt
 		}
 	}
 
-	private static string? ReadLine()
+	private static string? ReadLine() => ReadLine(null);
+
+	private static string? ReadLine(string? prefill)
 	{
-		var input = new StringBuilder();
+		var input = new StringBuilder(prefill ?? "");
+
+		if (!string.IsNullOrEmpty(prefill))
+			System.Console.Write(prefill);
 
 		while (true)
 		{
