@@ -19,7 +19,7 @@ public sealed class MainScreen(
 		while (true)
 		{
 			AnsiConsole.Clear();
-			StatusBar.Render(config);
+			ConnectionStatusBar.Render(config);
 
 			var choice = Menu.Show(
 				"",

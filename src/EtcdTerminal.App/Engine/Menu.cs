@@ -1,4 +1,5 @@
 using EtcdTerminal;
+using EtcdTerminal.App.Modules;
 using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
@@ -7,7 +8,6 @@ public static class Menu
 {
 	private const string _arrow = "  ❯ ";
 	private const string _emptyIndent = "    ";
-	private const string _navHint = "(\u2191/\u2193 navigate, Enter confirm, Esc back)";
 	private const string _clearAnsi = "\x1b[J";
 
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null)
@@ -50,10 +50,10 @@ public static class Menu
 			Console.WriteLine();
 		}
 
-		Console.WriteLine();
-		Console.ForegroundColor = ConsoleColor.DarkGray;
-		Console.Write(_navHint);
-		Console.ResetColor();
+		var menuEnd = Console.CursorTop;
+		StatusBar.Render();
+		Console.CursorTop = menuEnd;
+		Console.CursorLeft = 0;
 
 		while (true)
 		{

@@ -14,7 +14,7 @@ public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		AnsiConsole.Clear();
-		StatusBar.Render(config);
+		ConnectionStatusBar.Render(config);
 
 		await AnsiConsole.Status()
 			.StartAsync(LoadingPermissions, async ctx =>

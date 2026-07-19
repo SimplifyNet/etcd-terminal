@@ -201,7 +201,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private void Render()
 	{
 		AnsiConsole.Clear();
-		StatusBar.Render(_config);
+		ConnectionStatusBar.Render(_config);
 
 		Console.Write(new string(' ', LinePadding));
 		RenderSearchBar();
@@ -290,7 +290,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 
 		AnsiConsole.Clear();
-		StatusBar.Render(_config);
+		ConnectionStatusBar.Render(_config);
 		AnsiConsole.MarkupLine($"Editing key: [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
@@ -303,7 +303,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.UpdateKeyAsync(_selectedKey.Key, newValue);
 
 		AnsiConsole.Clear();
-		StatusBar.Render(_config);
+		ConnectionStatusBar.Render(_config);
 
 		if (result)
 		{
@@ -326,7 +326,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 
 		AnsiConsole.Clear();
-		StatusBar.Render(_config);
+		ConnectionStatusBar.Render(_config);
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
 		Console.WriteLine();
 
@@ -338,7 +338,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.DeleteKeyAsync(_selectedKey.Key);
 
 		AnsiConsole.Clear();
-		StatusBar.Render(_config);
+		ConnectionStatusBar.Render(_config);
 
 		if (result)
 		{

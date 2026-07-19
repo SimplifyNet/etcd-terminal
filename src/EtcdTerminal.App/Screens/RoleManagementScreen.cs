@@ -34,7 +34,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		while (true)
 		{
 			AnsiConsole.Clear();
-			StatusBar.Render(config);
+			ConnectionStatusBar.Render(config);
 
 			var choice = Menu.Show(Title, new[]
 			{
