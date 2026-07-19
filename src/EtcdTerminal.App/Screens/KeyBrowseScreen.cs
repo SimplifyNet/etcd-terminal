@@ -97,6 +97,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		while (true)
 		{
 			Render();
+			SetCursorAfterSearch();
 
 			var keyInfo = Console.ReadKey(true);
 
@@ -379,6 +380,19 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private int GetTotalPages() =>
 		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / PageSize);
+
+	private void SetCursorAfterSearch()
+	{
+		var col = 2;
+
+		if (_searchQuery.Length == 0)
+			col += 27;
+		else
+			col += 3 + _searchQuery.Length;
+
+		Console.CursorTop = 4;
+		Console.CursorLeft = col;
+	}
 
 	private static string TruncateText(string text, int maxLength) =>
 		text.Length <= maxLength ? text : text[..maxLength] + "...";

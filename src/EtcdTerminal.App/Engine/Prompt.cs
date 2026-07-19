@@ -130,7 +130,7 @@ public static class Prompt
 					if (!char.IsControl(key.KeyChar))
 					{
 						input.Insert(cursor, key.KeyChar);
-						RedrawInput(startCol, input.ToString(), cursor);
+						RedrawInput(startCol, input.ToString(), cursor + 1);
 						cursor++;
 					}
 					break;
