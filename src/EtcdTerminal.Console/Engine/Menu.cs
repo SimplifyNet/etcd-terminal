@@ -4,6 +4,8 @@ namespace EtcdTerminal.Console.Engine;
 
 public static class Menu
 {
+	private const string _arrow = "  ❯ ";
+
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null)
 	{
 		var items = choices.ToList();
@@ -31,7 +33,7 @@ public static class Menu
 
 		for (var i = 0; i < items.Count; i++)
 		{
-			System.Console.Write(i == 0 ? "  > " : "    ");
+			System.Console.Write(i == 0 ? _arrow : "    ");
 
 			if (i == 0)
 				System.Console.ForegroundColor = ConsoleColor.Yellow;
@@ -85,7 +87,7 @@ public static class Menu
 			System.Console.CursorTop = firstItemTop + index;
 			System.Console.CursorLeft = 0;
 			System.Console.ForegroundColor = ConsoleColor.Yellow;
-			System.Console.Write("  > ");
+			System.Console.Write(_arrow);
 
 			WriteTruncated(plain[index]);
 
