@@ -14,6 +14,18 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private const int SearchBarRow = 4;
 	private const int EditValueMaxLength = 200;
 
+	private const string SearchPlaceholder = "[grey]🔍  Type to search keys...[/]";
+	private const string NoKeysFound = "  [grey]No keys found.[/]";
+	private const string EditAction = "[bold yellow][[E]][/] [white]Edit[/]    ";
+	private const string DeleteAction = "[bold yellow][[D]][/] [white]Delete[/]    ";
+	private const string CancelAction = "[bold yellow][[Esc]][/] [white]Cancel[/]";
+	private const string KeyUpdated = "[green]Key updated successfully![/]";
+	private const string CouldNotUpdateKey = "[red]Could not update key.[/]";
+	private const string KeyDeleted = "[green]Key deleted successfully![/]";
+	private const string KeyCouldNotBeDeleted = "[red]Key could not be deleted.[/]";
+	private const string EnterNewValue = "Enter new value:";
+	private const string AreYouSure = "Are you sure?";
+
 	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
 	private static int ValueColumnWidth => Console.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
@@ -210,7 +222,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private void RenderSearchBar()
 	{
 		if (_searchQuery.Length == 0)
-			AnsiConsole.Markup("[grey]🔍  Type to search keys...[/]");
+			AnsiConsole.Markup(SearchPlaceholder);
 		else
 			AnsiConsole.Markup($"[yellow]🔍[/] [white]{Markup.Escape(_searchQuery)}[/]");
 	}
@@ -221,7 +233,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		if (_filteredKeys.Count == 0)
 		{
-			AnsiConsole.MarkupLine("  [grey]No keys found.[/]");
+			AnsiConsole.MarkupLine(NoKeysFound);
 
 			return;
 		}
@@ -266,9 +278,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.MarkupLine($"  [grey]Selected:[/] [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.Markup("  ");
-		AnsiConsole.Markup("[bold yellow][[E]][/] [white]Edit[/]    ");
-		AnsiConsole.Markup("[bold yellow][[D]][/] [white]Delete[/]    ");
-		AnsiConsole.Markup("[bold yellow][[Esc]][/] [white]Cancel[/]");
+		AnsiConsole.Markup(EditAction);
+		AnsiConsole.Markup(DeleteAction);
+		AnsiConsole.Markup(CancelAction);
 		Console.WriteLine();
 	}
 
@@ -283,7 +295,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
 
-		var newValue = Prompt.Ask("Enter new value:", _selectedKey.Value);
+		var newValue = Prompt.Ask(EnterNewValue, _selectedKey.Value);
 
 		if (newValue is null)
 			return;
@@ -295,12 +307,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine("[green]Key updated successfully![/]");
+			AnsiConsole.MarkupLine(KeyUpdated);
 			await ReloadAsync();
 		}
 		else
 		{
-			AnsiConsole.MarkupLine("[red]Could not update key.[/]");
+			AnsiConsole.MarkupLine(CouldNotUpdateKey);
 		}
 
 		Console.WriteLine();
@@ -318,7 +330,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
 		Console.WriteLine();
 
-		var confirm = Prompt.Confirm("Are you sure?");
+		var confirm = Prompt.Confirm(AreYouSure);
 
 		if (confirm is not true)
 			return;
@@ -330,12 +342,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine("[green]Key deleted successfully![/]");
+			AnsiConsole.MarkupLine(KeyDeleted);
 			await ReloadAsync();
 		}
 		else
 		{
-			AnsiConsole.MarkupLine("[red]Key could not be deleted.[/]");
+			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
 		}
 
 		Console.WriteLine();

@@ -8,17 +8,22 @@ namespace EtcdTerminal.App.Screens;
 
 public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 {
+	private const string EnterKeyPrompt = "Enter key:";
+	private const string EnterValuePrompt = "Enter value:";
+	private const string KeyCreated = "[green]Key created successfully![/]";
+	private const string KeyCreateFailed = "[red]Key already exists or could not be created.[/]";
+
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
-		var key = Prompt.Ask("Enter key:");
+		var key = Prompt.Ask(EnterKeyPrompt);
 
 		if (key is null)
 			return;
 
-		var value = Prompt.Ask("Enter value:");
+		var value = Prompt.Ask(EnterValuePrompt);
 
 		if (value is null)
 			return;
@@ -26,9 +31,9 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
 		if (result)
-			AnsiConsole.MarkupLine("[green]Key created successfully![/]");
+			AnsiConsole.MarkupLine(KeyCreated);
 		else
-			AnsiConsole.MarkupLine("[red]Key already exists or could not be created.[/]");
+			AnsiConsole.MarkupLine(KeyCreateFailed);
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);

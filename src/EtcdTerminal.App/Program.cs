@@ -1,19 +1,24 @@
 using EtcdTerminal;
-﻿using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
+const string SetBgCommand = "\x1b]11;#252629\x07";
+const string ResetBgCommand = "\x1b]111\x07";
+const string ShuttingDown = "[yellow]Shutting down...[/]";
+const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
+
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-Console.Write("\x1b]11;#252629\x07");
+Console.Write(SetBgCommand);
 
 Console.CancelKeyPress += (_, args) =>
 {
 	args.Cancel = true;
-	Console.Write("\x1b]111\x07");
+	Console.Write(ResetBgCommand);
 	Console.ResetColor();
 	Console.WriteLine();
-	AnsiConsole.MarkupLine("[yellow]Shutting down...[/]");
+	AnsiConsole.MarkupLine(ShuttingDown);
 	Environment.Exit(0);
 };
 
@@ -38,7 +43,7 @@ while (true)
 	catch (Exception ex)
 	{
 		AnsiConsole.WriteException(ex);
-		AnsiConsole.MarkupLine("\n[grey]Press any key to restart...[/]");
+		AnsiConsole.MarkupLine(PressAnyKeyRestart);
 		Console.ReadKey(true);
 	}
 }

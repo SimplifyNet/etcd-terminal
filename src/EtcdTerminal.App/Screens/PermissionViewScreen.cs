@@ -8,20 +8,23 @@ namespace EtcdTerminal.App.Screens;
 
 public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 {
+	private const string LoadingPermissions = "Loading permissions...";
+	private const string NoUsersOrRoles = "[yellow]No users or roles found.[/]";
+
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		AnsiConsole.Clear();
 		StatusBar.Render(config);
 
 		await AnsiConsole.Status()
-			.StartAsync("Loading permissions...", async ctx =>
+			.StartAsync(LoadingPermissions, async ctx =>
 			{
 				var users = await _etcdClient.GetUsersAsync();
 				var roles = await _etcdClient.GetRolesAsync();
 
 				if (users.Count == 0 && roles.Count == 0)
 				{
-					AnsiConsole.MarkupLine("[yellow]No users or roles found.[/]");
+					AnsiConsole.MarkupLine(NoUsersOrRoles);
 
 					return;
 				}

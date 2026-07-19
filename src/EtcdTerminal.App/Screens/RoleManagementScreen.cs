@@ -8,6 +8,27 @@ namespace EtcdTerminal.App.Screens;
 
 public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
+	private const string Title = "Role Management";
+	private const string ListRoles = "List Roles";
+	private const string CreateRole = "Create Role";
+	private const string DeleteRole = "Delete Role";
+	private const string GrantPermission = "Grant Permission";
+	private const string RevokePermission = "Revoke Permission";
+	private const string NoRolesFound = "[yellow]No roles found.[/]";
+	private const string EnterRoleName = "Enter role name:";
+	private const string RoleCreated = "[green]Role created successfully![/]";
+	private const string FailedCreateRole = "[red]Failed to create role (may already exist).[/]";
+	private const string EnterRoleNameToDelete = "Enter role name to delete:";
+	private const string DeleteRoleConfirm = "Are you sure you want to delete role {0}?";
+	private const string RoleDeleted = "[green]Role deleted successfully![/]";
+	private const string FailedDeleteRole = "[red]Failed to delete role.[/]";
+	private const string EnterKeyPrefix = "Enter key prefix:";
+	private const string SelectPermissionType = "Select permission type:";
+	private const string PermissionGranted = "[green]Permission granted successfully![/]";
+	private const string FailedGrantPermission = "[red]Failed to grant permission.[/]";
+	private const string PermissionRevoked = "[green]Permission revoked successfully![/]";
+	private const string FailedRevokePermission = "[red]Failed to revoke permission.[/]";
+
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		while (true)
@@ -15,13 +36,13 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.Clear();
 			StatusBar.Render(config);
 
-			var choice = Menu.Show("Role Management", new[]
+			var choice = Menu.Show(Title, new[]
 			{
-				"List Roles",
-				"Create Role",
-				"Delete Role",
-				"Grant Permission",
-				"Revoke Permission"
+				ListRoles,
+				CreateRole,
+				DeleteRole,
+				GrantPermission,
+				RevokePermission
 			});
 
 			if (choice is null)
@@ -53,7 +74,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		var roles = await _etcdClient.GetRolesAsync();
 
 		if (roles.Count == 0)
-			AnsiConsole.MarkupLine("[yellow]No roles found.[/]");
+			AnsiConsole.MarkupLine(NoRolesFound);
 		else
 		{
 			foreach (var role in roles)
@@ -84,7 +105,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = Prompt.Ask("Enter role name:");
+		var roleName = Prompt.Ask(EnterRoleName);
 
 		if (roleName is null)
 			return;
@@ -92,9 +113,9 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine("[green]Role created successfully![/]");
+			AnsiConsole.MarkupLine(RoleCreated);
 		else
-			AnsiConsole.MarkupLine("[red]Failed to create role (may already exist).[/]");
+			AnsiConsole.MarkupLine(FailedCreateRole);
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
@@ -102,12 +123,12 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = Prompt.Ask("Enter role name to delete:");
+		var roleName = Prompt.Ask(EnterRoleNameToDelete);
 
 		if (roleName is null)
 			return;
 
-		var confirm = Prompt.Confirm($"Are you sure you want to delete role {roleName}?");
+		var confirm = Prompt.Confirm(string.Format(DeleteRoleConfirm, roleName));
 
 		if (confirm is not true)
 			return;
@@ -115,9 +136,9 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine("[green]Role deleted successfully![/]");
+			AnsiConsole.MarkupLine(RoleDeleted);
 		else
-			AnsiConsole.MarkupLine("[red]Failed to delete role.[/]");
+			AnsiConsole.MarkupLine(FailedDeleteRole);
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
@@ -125,17 +146,17 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task GrantPermissionAsync()
 	{
-		var roleName = Prompt.Ask("Enter role name:");
+		var roleName = Prompt.Ask(EnterRoleName);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = Prompt.Ask("Enter key prefix:");
+		var keyPrefix = Prompt.Ask(EnterKeyPrefix);
 
 		if (keyPrefix is null)
 			return;
 
-		var permStr = Menu.Show("Select permission type:", new[] { "Read", "Write", "ReadWrite" });
+		var permStr = Menu.Show(SelectPermissionType, new[] { "Read", "Write", "ReadWrite" });
 
 		if (permStr is null)
 			return;
@@ -150,11 +171,11 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		try
 		{
 			await _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix);
-			AnsiConsole.MarkupLine("[green]Permission granted successfully![/]");
+			AnsiConsole.MarkupLine(PermissionGranted);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine("[red]Failed to grant permission.[/]");
+			AnsiConsole.MarkupLine(FailedGrantPermission);
 		}
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
@@ -163,17 +184,17 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task RevokePermissionAsync()
 	{
-		var roleName = Prompt.Ask("Enter role name:");
+		var roleName = Prompt.Ask(EnterRoleName);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = Prompt.Ask("Enter key prefix:");
+		var keyPrefix = Prompt.Ask(EnterKeyPrefix);
 
 		if (keyPrefix is null)
 			return;
 
-		var permStr = Menu.Show("Select permission type:", new[] { "Read", "Write", "ReadWrite" });
+		var permStr = Menu.Show(SelectPermissionType, new[] { "Read", "Write", "ReadWrite" });
 
 		if (permStr is null)
 			return;
@@ -188,11 +209,11 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		try
 		{
 			await _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix);
-			AnsiConsole.MarkupLine("[green]Permission revoked successfully![/]");
+			AnsiConsole.MarkupLine(PermissionRevoked);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine("[red]Failed to revoke permission.[/]");
+			AnsiConsole.MarkupLine(FailedRevokePermission);
 		}
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
