@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Engine;
-using EtcdTerminal.Console.Modules;
+using EtcdTerminal;
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
 	IEtcdClient _etcdClient,

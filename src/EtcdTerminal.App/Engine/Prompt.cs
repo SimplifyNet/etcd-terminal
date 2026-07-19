@@ -1,7 +1,8 @@
+using EtcdTerminal;
 using System.Text;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Engine;
+namespace EtcdTerminal.App.Engine;
 
 public static class Prompt
 {
@@ -34,25 +35,25 @@ public static class Prompt
 
 		while (true)
 		{
-			var key = System.Console.ReadKey(true);
+			var key = Console.ReadKey(true);
 
 			switch (key.Key)
 			{
 				case ConsoleKey.Escape:
-					System.Console.WriteLine();
+					Console.WriteLine();
 					return null;
 				case ConsoleKey.Enter:
-					System.Console.WriteLine("n");
+					Console.WriteLine("n");
 					return false;
 				default:
 					if (key.KeyChar is 'y' or 'Y')
 					{
-						System.Console.WriteLine("y");
+						Console.WriteLine("y");
 						return true;
 					}
 					if (key.KeyChar is 'n' or 'N')
 					{
-						System.Console.WriteLine("n");
+						Console.WriteLine("n");
 						return false;
 					}
 					break;
@@ -66,44 +67,44 @@ public static class Prompt
 	{
 		var input = new StringBuilder(prefill ?? "");
 		var cursor = input.Length;
-		var startCol = System.Console.CursorLeft;
+		var startCol = Console.CursorLeft;
 
 		if (!string.IsNullOrEmpty(prefill))
-			System.Console.Write(prefill);
+			Console.Write(prefill);
 
 		while (true)
 		{
-			var key = System.Console.ReadKey(true);
+			var key = Console.ReadKey(true);
 
 			switch (key.Key)
 			{
 				case ConsoleKey.Escape:
 					ClearInput(startCol);
-					System.Console.WriteLine();
+					Console.WriteLine();
 					return null;
 				case ConsoleKey.Enter:
-					System.Console.WriteLine();
+					Console.WriteLine();
 					return input.ToString();
 				case ConsoleKey.LeftArrow:
 					if (cursor > 0)
 					{
 						cursor--;
-						System.Console.CursorLeft--;
+						Console.CursorLeft--;
 					}
 					break;
 				case ConsoleKey.RightArrow:
 					if (cursor < input.Length)
 					{
-						System.Console.Write(input[cursor]);
+						Console.Write(input[cursor]);
 						cursor++;
 					}
 					break;
 				case ConsoleKey.Home:
-					System.Console.CursorLeft = startCol;
+					Console.CursorLeft = startCol;
 					cursor = 0;
 					break;
 				case ConsoleKey.End:
-					System.Console.CursorLeft = startCol + input.Length;
+					Console.CursorLeft = startCol + input.Length;
 					cursor = input.Length;
 					break;
 				case ConsoleKey.Backspace:
@@ -135,18 +136,18 @@ public static class Prompt
 
 	private static void ClearInput(int startCol)
 	{
-		var endCol = System.Console.CursorLeft;
+		var endCol = Console.CursorLeft;
 
-		System.Console.CursorLeft = startCol;
-		System.Console.Write(new string(' ', Math.Max(0, endCol - startCol + 1)));
-		System.Console.CursorLeft = startCol;
+		Console.CursorLeft = startCol;
+		Console.Write(new string(' ', Math.Max(0, endCol - startCol + 1)));
+		Console.CursorLeft = startCol;
 	}
 
 	private static void RedrawInput(int startCol, string text, int cursorPos)
 	{
-		System.Console.CursorLeft = startCol;
-		System.Console.Write(text + ' ');
-		System.Console.CursorLeft = startCol + cursorPos;
+		Console.CursorLeft = startCol;
+		Console.Write(text + ' ');
+		Console.CursorLeft = startCol + cursorPos;
 	}
 
 	private static string? ReadSecret()
@@ -155,28 +156,28 @@ public static class Prompt
 
 		while (true)
 		{
-			var key = System.Console.ReadKey(true);
+			var key = Console.ReadKey(true);
 
 			switch (key.Key)
 			{
 				case ConsoleKey.Escape:
-					System.Console.WriteLine();
+					Console.WriteLine();
 					return null;
 				case ConsoleKey.Enter:
-					System.Console.WriteLine();
+					Console.WriteLine();
 					return input.ToString();
 				case ConsoleKey.Backspace:
 					if (input.Length > 0)
 					{
 						input.Length--;
-						System.Console.Write("\b \b");
+						Console.Write("\b \b");
 					}
 					break;
 				default:
 					if (!char.IsControl(key.KeyChar))
 					{
 						input.Append(key.KeyChar);
-						System.Console.Write('*');
+						Console.Write('*');
 					}
 					break;
 			}

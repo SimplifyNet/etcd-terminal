@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Engine;
-using EtcdTerminal.Console.Modules;
+using EtcdTerminal;
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
@@ -78,7 +79,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task CreateRoleAsync()
@@ -96,7 +97,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to create role (may already exist).[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task DeleteRoleAsync()
@@ -119,7 +120,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to delete role.[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task GrantPermissionAsync()
@@ -157,7 +158,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task RevokePermissionAsync()
@@ -195,6 +196,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 }

@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Screens;
+using EtcdTerminal;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Etcd;
 using Simplify.DI;
 
-namespace EtcdTerminal.Console.Setup;
+namespace EtcdTerminal.App.Setup;
 
 public static class IocRegistrations
 {

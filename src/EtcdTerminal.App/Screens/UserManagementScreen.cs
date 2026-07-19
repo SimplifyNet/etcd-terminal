@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Engine;
-using EtcdTerminal.Console.Modules;
+using EtcdTerminal;
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {
@@ -75,7 +76,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task CreateUserAsync()
@@ -98,7 +99,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to create user.[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task DeleteUserAsync()
@@ -121,7 +122,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to delete user.[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task ChangePasswordAsync()
@@ -144,7 +145,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Failed to change password.[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task AssignRoleAsync()
@@ -170,7 +171,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task RevokeRoleAsync()
@@ -196,6 +197,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 }

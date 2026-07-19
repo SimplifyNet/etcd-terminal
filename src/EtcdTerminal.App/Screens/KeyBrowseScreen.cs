@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Engine;
-using EtcdTerminal.Console.Modules;
+using EtcdTerminal;
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
@@ -97,7 +98,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		{
 			Render();
 
-			var keyInfo = System.Console.ReadKey(true);
+			var keyInfo = Console.ReadKey(true);
 
 			if (_showActions)
 			{
@@ -184,13 +185,13 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(_config);
 
-		System.Console.Write("  ");
+		Console.Write("  ");
 		RenderSearchBar();
 
-		System.Console.WriteLine();
+		Console.WriteLine();
 		RenderKeyList();
 
-		System.Console.WriteLine();
+		Console.WriteLine();
 		RenderPagination();
 
 		RenderActionBar();
@@ -245,7 +246,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	{
 		if (!_showActions || _selectedKey is null)
 		{
-			System.Console.WriteLine();
+			Console.WriteLine();
 
 			return;
 		}
@@ -255,7 +256,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Markup("[bold yellow][[E]][/] [white]Edit[/]    ");
 		AnsiConsole.Markup("[bold yellow][[D]][/] [white]Delete[/]    ");
 		AnsiConsole.Markup("[bold yellow][[Esc]][/] [white]Cancel[/]");
-		System.Console.WriteLine();
+		Console.WriteLine();
 	}
 
 	private async Task EditKeyAsync()
@@ -267,7 +268,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		StatusBar.Render(_config);
 		AnsiConsole.MarkupLine($"Editing key: [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, 200))}[/]");
-		System.Console.WriteLine();
+		Console.WriteLine();
 
 		var newValue = Prompt.Ask("Enter new value:", _selectedKey.Value);
 
@@ -289,9 +290,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Could not update key.[/]");
 		}
 
-		System.Console.WriteLine();
+		Console.WriteLine();
 		AnsiConsole.Markup("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task DeleteKeyAsync()
@@ -302,7 +303,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(_config);
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
-		System.Console.WriteLine();
+		Console.WriteLine();
 
 		var confirm = Prompt.Confirm("Are you sure?");
 
@@ -324,9 +325,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Key could not be deleted.[/]");
 		}
 
-		System.Console.WriteLine();
+		Console.WriteLine();
 		AnsiConsole.Markup("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private async Task ReloadAsync()

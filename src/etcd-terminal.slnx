@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="EtcdTerminal.Console/EtcdTerminal.Console.csproj" />
+    <Project Path="EtcdTerminal.App/EtcdTerminal.App.csproj" />
     <Project Path="EtcdTerminal.Infrastructure/EtcdTerminal.Infrastructure.csproj" />
     <Project Path="EtcdTerminal/EtcdTerminal.csproj" />
   </Folder>

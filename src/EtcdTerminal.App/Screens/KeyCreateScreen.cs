@@ -1,9 +1,10 @@
-using EtcdTerminal.Console.Engine;
-using EtcdTerminal.Console.Modules;
+using EtcdTerminal;
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Modules;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 {
@@ -30,6 +31,6 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine("[red]Key already exists or could not be created.[/]");
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 }

@@ -7,7 +7,7 @@
 		<Version>0.1</Version>
 
 		<AssemblyName>etcd-terminal</AssemblyName>
-		<RootNamespace>EtcdTerminal.Console</RootNamespace>
+		<RootNamespace>EtcdTerminal.App</RootNamespace>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 	<ItemGroup>

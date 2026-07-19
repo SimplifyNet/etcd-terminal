@@ -1,10 +1,11 @@
+using EtcdTerminal;
 using System.Reflection;
-using EtcdTerminal.Console.Engine;
+using EtcdTerminal.App.Engine;
 using EtcdTerminal.Models;
 using Simplify.System;
 using Spectre.Console;
 
-namespace EtcdTerminal.Console.Screens;
+namespace EtcdTerminal.App.Screens;
 
 public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient)
 {
@@ -54,7 +55,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 					AnsiConsole.WriteLine();
 
 					AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-					System.Console.ReadKey(true);
+					Console.ReadKey(true);
 				}
 			}
 		}
@@ -114,7 +115,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		{
 			AnsiConsole.MarkupLine("[red]Instance name cannot be empty.[/]");
 			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-			System.Console.ReadKey(true);
+			Console.ReadKey(true);
 
 			return;
 		}
@@ -128,7 +129,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		{
 			AnsiConsole.MarkupLine("[red]Invalid connection string. Must be a valid http or https URL.[/]");
 			AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-			System.Console.ReadKey(true);
+			Console.ReadKey(true);
 
 			return;
 		}
@@ -166,7 +167,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		AnsiConsole.MarkupLine("[green]Instance added successfully![/]");
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -186,7 +187,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		}
 
 		AnsiConsole.MarkupLine("[grey]Press any key to continue...[/]");
-		System.Console.ReadKey(true);
+		Console.ReadKey(true);
 	}
 
 	private string GetVersion()

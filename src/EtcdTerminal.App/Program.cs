@@ -1,5 +1,6 @@
-﻿using EtcdTerminal.Console.Screens;
-using EtcdTerminal.Console.Setup;
+using EtcdTerminal;
+﻿using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
