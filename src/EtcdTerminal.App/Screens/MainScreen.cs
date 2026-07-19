@@ -1,6 +1,6 @@
 using EtcdTerminal;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Modules;
+using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -19,7 +19,7 @@ public sealed class MainScreen(
 		while (true)
 		{
 			AnsiConsole.Clear();
-			ConnectionStatusBar.Render(config);
+			Header.Render();
 
 			var choice = Menu.Show(
 				"",
@@ -31,7 +31,8 @@ public sealed class MainScreen(
 					"Manage Roles",
 					"View Permissions",
 					"Disconnect"
-				});
+				},
+				config: config);
 
 			if (choice is null)
 			{

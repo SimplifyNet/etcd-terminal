@@ -1,5 +1,6 @@
 using EtcdTerminal;
-using EtcdTerminal.App.Modules;
+using EtcdTerminal.App.Components;
+using EtcdTerminal.Models;
 using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
@@ -10,7 +11,7 @@ public static class Menu
 	private const string _emptyIndent = "    ";
 	private const string _clearAnsi = "\x1b[J";
 
-	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null)
+	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
 		var items = choices.ToList();
 		var index = 0;
@@ -51,7 +52,7 @@ public static class Menu
 		}
 
 		var menuEnd = Console.CursorTop;
-		StatusBar.Render();
+		StatusBar.Render(config);
 		Console.CursorTop = menuEnd;
 		Console.CursorLeft = 0;
 

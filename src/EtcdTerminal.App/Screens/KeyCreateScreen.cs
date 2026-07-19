@@ -1,6 +1,6 @@
 using EtcdTerminal;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Modules;
+using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -16,7 +16,11 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(config);
+		Header.Render();
+		var savedTop = Console.CursorTop;
+		StatusBar.Render(config);
+		Console.CursorTop = savedTop;
+		Console.CursorLeft = 0;
 
 		var key = Prompt.Ask(EnterKeyPrompt);
 

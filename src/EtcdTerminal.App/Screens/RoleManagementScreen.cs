@@ -1,6 +1,6 @@
 using EtcdTerminal;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Modules;
+using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -34,7 +34,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		while (true)
 		{
 			AnsiConsole.Clear();
-			ConnectionStatusBar.Render(config);
+			Header.Render();
 
 			var choice = Menu.Show(Title, new[]
 			{
@@ -43,7 +43,8 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 				DeleteRole,
 				GrantPermission,
 				RevokePermission
-			});
+			},
+			config: config);
 
 			if (choice is null)
 				break;

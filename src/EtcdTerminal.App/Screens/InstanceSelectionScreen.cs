@@ -1,6 +1,6 @@
+using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Models;
-using Simplify.System;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
@@ -12,7 +12,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string ConnectedSuccess = "[green]Connected successfully![/]";
 	private const string NameEmpty = "[red]Instance name cannot be empty.[/]";
 	private const string InvalidConnStr = "[red]Invalid connection string. Must be a valid http or https URL.[/]";
-	private const string ConsoleClientDesc = "[grey]Console client for etcd v3+[/]";
 	private const string ManageConnections = "Manage Connections";
 	private const string AddInstance = "Add Instance";
 	private const string RemoveInstance = "Remove Instance";
@@ -32,14 +31,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		while (true)
 		{
 			AnsiConsole.Clear();
-
-			AnsiConsole.Write(new FigletText("etcd-terminal").Color(Color.OrangeRed1).Centered());
-
-			AnsiConsole.Write(Align.Center(new Markup($"[grey]Version: [/][white]{GetVersion()}[/]")));
-			Console.WriteLine();
-
-			AnsiConsole.Write(Align.Center(new Markup(ConsoleClientDesc)));
-			Console.WriteLine();
+			Header.Render();
 
 			var instances = _configRepo.LoadInstances();
 
@@ -213,10 +205,4 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		Console.ReadKey(true);
 	}
 
-	private string GetVersion()
-	{
-		var version = AssemblyInfo.Entry.Version;
-
-		return $"{version.Major}.{version.Minor}" + (version.Build != 0 ? "." + version.Build : "");
-	}
 }

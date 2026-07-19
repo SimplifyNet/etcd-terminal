@@ -1,6 +1,6 @@
 using EtcdTerminal;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Modules;
+using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -201,7 +201,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private void Render()
 	{
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(_config);
+		Header.Render();
 
 		Console.Write(new string(' ', LinePadding));
 		RenderSearchBar();
@@ -214,6 +214,8 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		RenderPagination();
 
 		RenderActionBar();
+
+		StatusBar.Render(_config);
 
 		Console.CursorTop = SearchBarRow;
 		Console.CursorLeft = _searchEndCol;
@@ -290,7 +292,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(_config);
+		Header.Render();
+		var savedTop = Console.CursorTop;
+		StatusBar.Render(_config);
+		Console.CursorTop = savedTop;
+		Console.CursorLeft = 0;
 		AnsiConsole.MarkupLine($"Editing key: [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
@@ -303,7 +309,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.UpdateKeyAsync(_selectedKey.Key, newValue);
 
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(_config);
+		Header.Render();
+		savedTop = Console.CursorTop;
+		StatusBar.Render(_config);
+		Console.CursorTop = savedTop;
+		Console.CursorLeft = 0;
 
 		if (result)
 		{
@@ -326,7 +336,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(_config);
+		Header.Render();
+		var savedTop = Console.CursorTop;
+		StatusBar.Render(_config);
+		Console.CursorTop = savedTop;
+		Console.CursorLeft = 0;
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
 		Console.WriteLine();
 
@@ -338,7 +352,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.DeleteKeyAsync(_selectedKey.Key);
 
 		AnsiConsole.Clear();
-		ConnectionStatusBar.Render(_config);
+		Header.Render();
+		savedTop = Console.CursorTop;
+		StatusBar.Render(_config);
+		Console.CursorTop = savedTop;
+		Console.CursorLeft = 0;
 
 		if (result)
 		{
