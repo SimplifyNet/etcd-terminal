@@ -168,11 +168,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 				case ConsoleKey.Escape:
 					return;
 				default:
-					var c = keyInfo.KeyChar;
-
-					if (c >= ' ' && c <= '~')
+					if (!char.IsControl(keyInfo.KeyChar))
 					{
-						_searchQuery += c;
+						_searchQuery += keyInfo.KeyChar;
 						ApplyFilter();
 					}
 					break;
