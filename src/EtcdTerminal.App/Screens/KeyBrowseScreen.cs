@@ -9,6 +9,13 @@ namespace EtcdTerminal.App.Screens;
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
 	private const int PageSize = 10;
+	private const int LinePadding = 2;
+	private const int PrefixWidth = 4;
+	private const int SearchBarRow = 4;
+	private const int EditValueMaxLength = 200;
+
+	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
+	private static int ValueColumnWidth => Console.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
@@ -18,6 +25,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private bool _showActions;
 	private EtcdKeyValue? _selectedKey;
 	private EtcdConnectionConfig _config = default!;
+	private int _searchEndCol;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -97,7 +105,6 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		while (true)
 		{
 			Render();
-			SetCursorAfterSearch();
 
 			var keyInfo = Console.ReadKey(true);
 
@@ -184,8 +191,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(_config);
 
-		Console.Write("  ");
+		Console.Write(new string(' ', LinePadding));
 		RenderSearchBar();
+		_searchEndCol = Console.CursorLeft;
 
 		Console.WriteLine();
 		RenderKeyList();
@@ -194,6 +202,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		RenderPagination();
 
 		RenderActionBar();
+
+		Console.CursorTop = SearchBarRow;
+		Console.CursorLeft = _searchEndCol;
 	}
 
 	private void RenderSearchBar()
@@ -215,15 +226,18 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 		}
 
+		var keyWidth = KeyColumnWidth;
+		var valueWidth = ValueColumnWidth;
+
 		for (var i = 0; i < pageKeys.Count; i++)
 		{
 			var kv = pageKeys[i];
 			var isSelected = i == _selectedIndex;
 
 			var prefix = isSelected ? " ▶ " : "    ";
-			var key = TruncateText(kv.Key, 60);
-			var value = TruncateText(kv.Value, 60);
-			var line = $"{prefix}{key,-62} {value}";
+			var key = TruncateText(kv.Key, keyWidth);
+			var value = TruncateText(kv.Value, valueWidth);
+			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
 
 			if (isSelected)
 				AnsiConsole.MarkupLine($"  [cyan]{Markup.Escape(line)}[/]");
@@ -266,7 +280,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		StatusBar.Render(_config);
 		AnsiConsole.MarkupLine($"Editing key: [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
-		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, 200))}[/]");
+		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
 
 		var newValue = Prompt.Ask("Enter new value:", _selectedKey.Value);
@@ -380,19 +394,6 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private int GetTotalPages() =>
 		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / PageSize);
-
-	private void SetCursorAfterSearch()
-	{
-		var col = 2;
-
-		if (_searchQuery.Length == 0)
-			col += 27;
-		else
-			col += 3 + _searchQuery.Length;
-
-		Console.CursorTop = 4;
-		Console.CursorLeft = col;
-	}
 
 	private static string TruncateText(string text, int maxLength) =>
 		text.Length <= maxLength ? text : text[..maxLength] + "...";
