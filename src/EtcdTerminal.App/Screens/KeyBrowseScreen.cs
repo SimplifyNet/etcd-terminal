@@ -56,9 +56,19 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	{
 		var authEnabled = await _etcdClient.IsAuthenticationEnabledAsync();
 
+		async Task<List<EtcdKeyValue>> LoadAllKeysAsync()
+		{
+			var keys = await _etcdClient.GetKeysByPrefixAsync("");
+
+			if (keys.Count > 0)
+				return [.. keys];
+
+			return [.. await _etcdClient.GetKeysByPrefixAsync("/")];
+		}
+
 		if (!authEnabled)
 		{
-			_allKeys = [.. await _etcdClient.GetKeysByPrefixAsync("")];
+			_allKeys = await LoadAllKeysAsync();
 		}
 		else
 		{
@@ -66,7 +76,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 			if (username is null)
 			{
-				_allKeys = [.. await _etcdClient.GetKeysByPrefixAsync("")];
+				_allKeys = await LoadAllKeysAsync();
 				_filteredKeys = [.. _allKeys];
 
 				return;
@@ -74,9 +84,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 			var user = await _etcdClient.GetUserAsync(username);
 
-			if (user is null || user.Roles.Count == 0)
+			if (user is null || user.Roles.Count == 0 || user.Roles.Contains("root"))
 			{
-				_allKeys = [.. await _etcdClient.GetKeysByPrefixAsync("")];
+				_allKeys = await LoadAllKeysAsync();
 			}
 			else
 			{
