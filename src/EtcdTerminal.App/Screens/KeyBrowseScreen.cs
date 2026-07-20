@@ -84,9 +84,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			var user = await _etcdClient.GetUserAsync(username);
 
 			if (user is null || user.Roles.Count == 0 || user.Roles.Contains("root"))
-			{
 				_allKeys = await LoadAllKeysAsync();
-			}
 			else
 			{
 				var keys = new List<EtcdKeyValue>();
@@ -236,15 +234,20 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		Console.WriteLine();
 
 		Console.Write(bgSeq);
+
 		if (_searchQuery.Length == 0)
 			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search keys...[/]");
 		else
 			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(_searchQuery)}[/]");
+
 		_searchEndCol = Console.CursorLeft;
 		_searchBarRow = Console.CursorTop;
+
 		var remaining = Console.WindowWidth - _searchEndCol;
+
 		if (remaining > 0)
 			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
+
 		Console.WriteLine();
 
 		Console.Write(bgSeq + fill + resetSeq);
@@ -284,6 +287,8 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private void RenderPagination()
 	{
 		var bgSeq = "\x1b[48;2;27;28;30m";
+		var greySeq = "\x1b[38;2;128;128;128m";
+		var whiteSeq = "\x1b[38;2;255;255;255m";
 		var resetSeq = "\x1b[0m";
 		var fill = new string(' ', Console.WindowWidth);
 
@@ -294,13 +299,13 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		Console.Write(bgSeq + fill + resetSeq);
 		Console.WriteLine();
 
-		Console.Write(bgSeq);
-		AnsiConsole.Markup($"[grey]  Page {currentPageLabel}/{totalPages}  •  {totalKeys} total keys[/]");
+		Console.Write(bgSeq + greySeq + "  Page " + whiteSeq + currentPageLabel + "/" + totalPages + greySeq + "  •  " + whiteSeq + totalKeys + greySeq + " total keys" + resetSeq);
 		var remaining = Console.WindowWidth - Console.CursorLeft;
+
 		if (remaining > 0)
 			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
-		Console.WriteLine();
 
+		Console.WriteLine();
 		Console.Write(bgSeq + fill + resetSeq);
 	}
 
@@ -328,7 +333,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.Clear();
 		Header.Render();
+
 		var savedTop = Console.CursorTop;
+
 		StatusBar.Render(_config);
 		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
@@ -345,7 +352,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.Clear();
 		Header.Render();
+
 		savedTop = Console.CursorTop;
+
 		StatusBar.Render(_config);
 		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
@@ -353,12 +362,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		if (result)
 		{
 			AnsiConsole.MarkupLine(KeyUpdated);
+
 			await ReloadAsync();
 		}
 		else
-		{
 			AnsiConsole.MarkupLine(CouldNotUpdateKey);
-		}
 
 		Console.WriteLine();
 		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
@@ -372,7 +380,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.Clear();
 		Header.Render();
+
 		var savedTop = Console.CursorTop;
+
 		StatusBar.Render(_config);
 		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
@@ -388,7 +398,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		AnsiConsole.Clear();
 		Header.Render();
+
 		savedTop = Console.CursorTop;
+
 		StatusBar.Render(_config);
 		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
@@ -396,12 +408,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		if (result)
 		{
 			AnsiConsole.MarkupLine(KeyDeleted);
+
 			await ReloadAsync();
 		}
 		else
-		{
 			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
-		}
 
 		Console.WriteLine();
 		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
@@ -423,9 +434,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private void ApplyFilter()
 	{
 		if (string.IsNullOrEmpty(_searchQuery))
-		{
 			_filteredKeys = [.. _allKeys];
-		}
 		else
 		{
 			var query = _searchQuery;
@@ -444,7 +453,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	{
 		var start = _currentPage * PageSize;
 
-		return _filteredKeys.Skip(start).Take(PageSize).ToList();
+		return [.. _filteredKeys.Skip(start).Take(PageSize)];
 	}
 
 	private EtcdKeyValue? GetCurrentPageKey()
