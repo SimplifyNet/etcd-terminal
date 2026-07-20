@@ -23,7 +23,7 @@ public static class Prompt
 
 		var input = ReadLine(defaultValue);
 
-		return input ?? defaultValue;
+		return input;
 	}
 
 	public static string? Secret(string prompt)
