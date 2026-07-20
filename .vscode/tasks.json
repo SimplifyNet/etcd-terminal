@@ -7,13 +7,15 @@
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/src/etcd-terminal.slnx"
 			],
 			"problemMatcher": "$msCompile",
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
+			},
+			"options": {
+				"cwd": "src"
+			},
 		}
 	]
 }
