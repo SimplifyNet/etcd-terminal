@@ -1,12 +1,10 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
-const string SetBgCommand = "\x1b]11;#0a0a0a\x07";
+const string SetBgCommand = "\x1b]11;#100b09\x07";
 const string ResetBgCommand = "\x1b]111\x07";
-const string ShuttingDown = "[yellow]Shutting down...[/]";
 const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
 
 DIContainer.Current
@@ -16,38 +14,48 @@ DIContainer.Current
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 Console.Write(SetBgCommand);
 
+static void Cleanup()
+{
+	Console.Write("\x1b[2J\x1b[H");
+	Console.Write(ResetBgCommand);
+	Console.ResetColor();
+	Console.Out.Flush();
+}
+
 Console.CancelKeyPress += (_, args) =>
 {
 	args.Cancel = true;
-
-	Console.Write(ResetBgCommand);
-	Console.ResetColor();
-	Console.WriteLine();
-	AnsiConsole.MarkupLine(ShuttingDown);
-
+	Cleanup();
 	Environment.Exit(0);
 };
 
-while (true)
+try
 {
-	try
+	while (true)
 	{
-		using var scope = DIContainer.Current.BeginLifetimeScope();
+		try
+		{
+			using var scope = DIContainer.Current.BeginLifetimeScope();
 
-		var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
-		var config = await instanceScreen.ShowAsync();
+			var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
+			var config = await instanceScreen.ShowAsync();
 
-		if (config is null)
-			return;
+			if (config is null)
+				return;
 
-		var mainScreen = scope.Resolver.Resolve<MainScreen>();
+			var mainScreen = scope.Resolver.Resolve<MainScreen>();
 
-		await mainScreen.ShowAsync(config);
+			await mainScreen.ShowAsync(config);
+		}
+		catch (Exception ex)
+		{
+			AnsiConsole.WriteException(ex);
+			AnsiConsole.MarkupLine(PressAnyKeyRestart);
+			Console.ReadKey(true);
+		}
 	}
-	catch (Exception ex)
-	{
-		AnsiConsole.WriteException(ex);
-		AnsiConsole.MarkupLine(PressAnyKeyRestart);
-		Console.ReadKey(true);
-	}
+}
+finally
+{
+	Cleanup();
 }

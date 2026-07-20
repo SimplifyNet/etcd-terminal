@@ -28,9 +28,9 @@ public static class StatusBar
 			var connStr = config.ConnectionString.Length > 50
 				? config.ConnectionString[..50] + "..."
 				: config.ConnectionString;
-			var right = $"{greenSeq}\u2022{tealSeq} {config.Name} {dimSeq}\u2502{fgSeq} {connStr}";
+			var right = $"{greenSeq}\u2022{tealSeq} {config.Name} {dimSeq}\u00b7{fgSeq} {connStr}";
 			if (config.IsAuthenticationEnabled)
-				right += $" {dimSeq}\u2502{yellowSeq} {config.Username}";
+				right += $" {dimSeq}\u00b7{yellowSeq} {config.Username}";
 			right += $" {fgSeq}v{whiteSeq}{version}";
 			var visibleWidth = GetVisibleLength(left) + GetVisibleLength(right) + rightPadding.Length;
 			var pad = Console.WindowWidth - visibleWidth;
