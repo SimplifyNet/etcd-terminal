@@ -9,6 +9,7 @@
 		<AssemblyName>etcd-terminal</AssemblyName>
 		<RootNamespace>EtcdTerminal.App</RootNamespace>
 		<OutputType>Exe</OutputType>
+		<DebugType>none</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\EtcdTerminal\EtcdTerminal.csproj" />

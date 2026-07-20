@@ -4,7 +4,7 @@ using EtcdTerminal.App.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
-const string SetBgCommand = "\x1b]11;#252629\x07";
+const string SetBgCommand = "\x1b]11;#0a0a0a\x07";
 const string ResetBgCommand = "\x1b]111\x07";
 const string ShuttingDown = "[yellow]Shutting down...[/]";
 const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";

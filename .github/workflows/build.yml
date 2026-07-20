@@ -19,7 +19,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore solution
-        run: dotnet restore src/etcd-terminal.slnx
+        run: dotnet restore src/EtcdTerminal.slnx
 
       - name: Build solution
-        run: dotnet build src/etcd-terminal.slnx --configuration Release --no-restore
+        run: dotnet build src/EtcdTerminal.slnx --configuration Release --no-restore
