@@ -21,7 +21,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string EnterInstanceName = "Enter instance name:";
 	private const string EnterConnStr = "Enter connection string:";
 	private const string DefaultConnStr = "http://localhost:2379";
-	private const string UseSsl = "Use SSL?";
 	private const string EnterUsername = "Enter username (optional, leave empty for none):";
 	private const string EnterPassword = "Enter password:";
 	private const string Connecting = "Connecting...";
@@ -58,11 +57,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 						.StartAsync(Connecting, async ctx =>
 						{
 							await _etcdClient.ConnectAsync(selected);
-
-							var healthy = await _etcdClient.PingAsync();
-
-							if (!healthy)
-								throw new Exception("Server did not respond.");
+							await _etcdClient.PingAsync();
 						});
 
 					AnsiConsole.MarkupLine(ConnectedSuccess);
@@ -71,9 +66,8 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 				}
 				catch (Exception ex)
 				{
-					AnsiConsole.MarkupLine($"[red]Failed to connect: {ex.Message}[/]");
+					AnsiConsole.MarkupLine($"[red]Failed to connect:[/] {ex.Message}");
 					AnsiConsole.WriteLine();
-
 					AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 					Console.ReadKey(true);
 				}
@@ -154,11 +148,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 		}
 
-		var useSsl = Prompt.Confirm(UseSsl);
-
-		if (useSsl is null)
-			return;
-
 		var username = Prompt.Ask(EnterUsername);
 
 		if (username is null)
@@ -178,7 +167,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		{
 			Name = name,
 			ConnectionString = connectionString,
-			UseSsl = useSsl.Value,
 			Username = string.IsNullOrEmpty(username) ? null : username,
 			Password = string.IsNullOrEmpty(password) ? null : password
 		};

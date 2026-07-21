@@ -5,6 +5,7 @@ using Etcdserverpb;
 using EtcdTerminal.Models;
 using Google.Protobuf;
 using Grpc.Core;
+using Grpc.Net.Client;
 using Mvccpb;
 
 namespace EtcdTerminal.Infrastructure.Etcd;
@@ -20,23 +21,19 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		Disconnect();
 
 		var connectionString = config.ConnectionString;
+		var useSsl = connectionString.StartsWith("https", StringComparison.OrdinalIgnoreCase);
 
-		if (config.IsAuthenticationEnabled)
+		void configureChannel(GrpcChannelOptions options)
 		{
-			_client = new EtcdClient(
-				connectionString,
-				config.Username,
-				config.Password);
+			options.Credentials = useSsl
+				? ChannelCredentials.SecureSsl
+				: ChannelCredentials.Insecure;
 		}
-		else
-		{
-			_client = new EtcdClient(connectionString,
-				configureChannelOptions: options =>
-				{
-					if (!config.UseSsl)
-						options.Credentials = ChannelCredentials.Insecure;
-				});
-		}
+
+		_client = config.IsAuthenticationEnabled
+			? new EtcdClient(connectionString, config.Username!, config.Password!,
+				configureChannelOptions: configureChannel)
+			: new EtcdClient(connectionString, configureChannelOptions: configureChannel);
 
 		return Task.CompletedTask;
 	}
@@ -45,16 +42,9 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		if (_client is null) return false;
 
-		try
-		{
-			await _client!.GetAsync("\0", cancellationToken: ct);
+		await _client!.GetAsync("\0", cancellationToken: ct);
 
-			return true;
-		}
-		catch
-		{
-			return false;
-		}
+		return true;
 	}
 
 	public Task DisconnectAsync()

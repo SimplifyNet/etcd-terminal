@@ -40,7 +40,6 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 						{
 							Name = i.GetProperty("Name").GetString() ?? string.Empty,
 							ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
-							UseSsl = i.GetProperty("UseSsl").GetBoolean(),
 							Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
 							Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
 						};
@@ -102,7 +101,6 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 			{
 				i.Name,
 				i.ConnectionString,
-				i.UseSsl,
 				i.Username,
 				i.Password
 			})
