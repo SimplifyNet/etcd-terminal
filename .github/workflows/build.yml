@@ -33,8 +33,6 @@ jobs:
           dotnet publish src/EtcdTerminal.App/ \
             --configuration Release \
             --runtime linux-x64 \
-            --self-contained \
-            -p:PublishSingleFile=true \
             -o publish/linux-x64
 
       - name: Publish win-x64
@@ -42,15 +40,13 @@ jobs:
           dotnet publish src/EtcdTerminal.App/ \
             --configuration Release \
             --runtime win-x64 \
-            --self-contained \
-            -p:PublishSingleFile=true \
             -o publish/win-x64
 
       - name: Package linux-x64
-        run: tar czf etcd-terminal-linux-x64.tar.gz -C publish/linux-x64 etcd-terminal
+        run: tar czf etcd-terminal-linux-x64.tar.gz -C publish/linux-x64 .
 
       - name: Package win-x64
-        run: zip -j etcd-terminal-win-x64.zip publish/win-x64/etcd-terminal.exe
+        run: cd publish/win-x64 && zip -r ../../etcd-terminal-win-x64.zip .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
