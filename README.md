@@ -66,16 +66,11 @@ dotnet build src/EtcdTerminal.slnx
 dotnet run --project src/EtcdTerminal.App/EtcdTerminal.App.csproj
 ```
 
-### Published binary
+### Release build
 
-Create a self-contained deployment:
-
-```bash
-dotnet publish src/EtcdTerminal.App/EtcdTerminal.App.csproj -c Release --self-contained false -o out
-```
-
-Run the published binary:
+Requires [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
+dotnet publish src/EtcdTerminal.App/EtcdTerminal.App.csproj -c Release -o out
 ./out/etcd-terminal
 ```
