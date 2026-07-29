@@ -5,16 +5,14 @@ namespace EtcdTerminal.Infrastructure.Configuration;
 
 public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 {
-	private const string ConfigDir = ".config/etcd-terminal";
-	private const string ConfigFile = "config.json";
-
 	private readonly string _configPath;
+	private readonly IConfigProtector _protector;
 	private readonly JsonSerializerOptions _jsonOptions;
 
-	public JsonBasedConfigRepository()
+	public JsonBasedConfigRepository(IAppEnvironment environment, IConfigProtector protector)
 	{
-		var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-		_configPath = Path.Combine(home, ConfigDir, ConfigFile);
+		_configPath = environment.ConfigFilePath;
+		_protector = protector;
 		_jsonOptions = new JsonSerializerOptions { WriteIndented = true };
 	}
 
@@ -41,7 +39,7 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 							Name = i.GetProperty("Name").GetString() ?? string.Empty,
 							ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
 							Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
-							Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
+							Password = _protector.Decrypt(i.TryGetProperty("Password", out var p) ? p.GetString() : null),
 						};
 					}
 					catch
@@ -102,7 +100,7 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 				i.Name,
 				i.ConnectionString,
 				i.Username,
-				i.Password
+				Password = i.Password != null ? _protector.Encrypt(i.Password) : null
 			})
 		}, _jsonOptions);
 

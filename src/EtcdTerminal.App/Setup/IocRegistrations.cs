@@ -1,7 +1,9 @@
 using EtcdTerminal;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Infrastructure.Configuration;
+using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Etcd;
+using EtcdTerminal.Infrastructure.Security;
 using Simplify.DI;
 
 namespace EtcdTerminal.App.Setup;
@@ -10,12 +12,17 @@ public static class IocRegistrations
 {
 	public static IDIContainerProvider RegisterAll(this IDIContainerProvider provider)
 	{
-		provider.RegisterConfiguration()
+		provider.RegisterInfrastructure()
+			   .RegisterConfiguration()
 			   .RegisterIEtcdClient()
 			   .RegisterScreens();
 
 		return provider;
 	}
+
+	public static IDIRegistrator RegisterInfrastructure(this IDIRegistrator registrator) => registrator
+		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
+		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
 		.Register<IConnectionConfigRepository, JsonBasedConfigRepository>(LifetimeType.Singleton);
