@@ -189,10 +189,15 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existing = instances.FirstOrDefault(i => i.Name == Menu.Show(SelectInstanceToEdit, instances.Select(i => i.Name)));
+		var existingName = AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
+				.Title(SelectInstanceToEdit)
+				.PageSize(10)
+				.AddChoices(instances.Select(i => i.Name)));
 
-		if (existing is null)
-			return;
+		var existing = instances.First(i => i.Name == existingName);
+
+		AnsiConsole.Clear();
 
 		var name = Prompt.Ask(EnterInstanceName, existing.Name);
 
@@ -275,7 +280,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		var confirm = Prompt.Confirm($"Are you sure you want to remove {nameToRemove}?");
 
-		if (confirm is not true)
+		if (confirm == true)
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 
