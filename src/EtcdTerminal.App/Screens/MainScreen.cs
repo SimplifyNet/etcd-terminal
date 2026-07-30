@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
@@ -23,15 +22,14 @@ public sealed class MainScreen(
 
 			var choice = Menu.Show(
 				"",
-				new[]
-				{
+				[
 					"Browse Keys",
 					"Create Key",
 					"Manage Users",
 					"Manage Roles",
 					"View Permissions",
 					"Disconnect"
-				},
+				],
 				config: config);
 
 			if (choice is null)

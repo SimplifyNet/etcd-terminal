@@ -235,7 +235,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		Console.Write(bgSeq);
 
 		if (_searchQuery.Length == 0)
-			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search keys...[/]");
+			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search...[/]");
 		else
 			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(_searchQuery)}[/]");
 
