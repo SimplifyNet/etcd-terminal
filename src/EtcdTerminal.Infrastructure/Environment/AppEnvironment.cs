@@ -6,10 +6,6 @@ public sealed class AppEnvironment : IAppEnvironment
 	private const string ConfigFile = "config.json";
 	private const string KeyFile = ".key";
 
-	public string ConfigDirectoryPath { get; }
-	public string ConfigFilePath { get; }
-	public string KeyFilePath { get; }
-
 	public AppEnvironment()
 	{
 		var home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
@@ -18,4 +14,8 @@ public sealed class AppEnvironment : IAppEnvironment
 		ConfigFilePath = Path.Combine(ConfigDirectoryPath, ConfigFile);
 		KeyFilePath = Path.Combine(ConfigDirectoryPath, KeyFile);
 	}
+
+	public string ConfigDirectoryPath { get; }
+	public string ConfigFilePath { get; }
+	public string KeyFilePath { get; }
 }

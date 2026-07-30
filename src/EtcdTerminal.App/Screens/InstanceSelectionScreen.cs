@@ -48,13 +48,9 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 				return null;
 
 			if (choice == ManageConnections)
-			{
 				ManageConfigs(instances);
-			}
 			else if (choice == Exit)
-			{
 				return null;
-			}
 			else
 			{
 				var selected = instances.First(i => i.Name == choice);
@@ -86,6 +82,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private string? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
 		var choices = new List<string>();
+
 		choices.AddRange(instances.Select(i => i.Name));
 		choices.Add(ManageConnections);
 		choices.Add(Exit);
@@ -124,25 +121,15 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 
 		if (action == AddInstance)
-		{
 			AddInstanceInteractive();
-		}
 		else if (action == EditInstance)
-		{
 			EditInstanceInteractive(instances);
-		}
 		else if (action == MoveUpInstance)
-		{
 			MoveInstanceInteractive(instances, -1);
-		}
 		else if (action == MoveDownInstance)
-		{
 			MoveInstanceInteractive(instances, 1);
-		}
 		else if (action == RemoveInstance)
-		{
 			RemoveInstanceInteractive(instances);
-		}
 	}
 
 	private void AddInstanceInteractive()
@@ -263,7 +250,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			if (changePw is null)
 				return;
 
-			if (changePw == true)
+			if (changePw is true)
 			{
 				password = Prompt.Secret(EnterPassword);
 
@@ -272,9 +259,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			}
 		}
 		else
-		{
 			password = string.Empty;
-		}
 
 		var config = new EtcdConnectionConfig
 		{
@@ -314,7 +299,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		var confirm = Prompt.Confirm($"Are you sure you want to remove {nameToRemove}?");
 
-		if (confirm == true)
+		if (confirm is true)
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 

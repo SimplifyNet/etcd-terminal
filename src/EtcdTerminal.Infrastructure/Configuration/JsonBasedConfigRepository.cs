@@ -3,18 +3,11 @@ using EtcdTerminal.Models;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
+public sealed class JsonBasedConfigRepository(IAppEnvironment environment, IConfigProtector protector) : IConnectionConfigRepository
 {
-	private readonly string _configPath;
-	private readonly IConfigProtector _protector;
-	private readonly JsonSerializerOptions _jsonOptions;
-
-	public JsonBasedConfigRepository(IAppEnvironment environment, IConfigProtector protector)
-	{
-		_configPath = environment.ConfigFilePath;
-		_protector = protector;
-		_jsonOptions = new JsonSerializerOptions { WriteIndented = true };
-	}
+	private readonly string _configPath = environment.ConfigFilePath;
+	private readonly IConfigProtector _protector = protector;
+	private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
 	public IReadOnlyList<EtcdConnectionConfig> LoadInstances()
 	{
@@ -52,7 +45,7 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 		}
 		catch
 		{
-			return Array.Empty<EtcdConnectionConfig>();
+			return [];
 		}
 	}
 

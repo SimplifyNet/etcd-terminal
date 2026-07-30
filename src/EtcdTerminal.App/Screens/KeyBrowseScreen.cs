@@ -23,9 +23,6 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private const string EnterNewValue = "Enter new value:";
 	private const string AreYouSure = "Are you sure?";
 
-	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
-	private static int ValueColumnWidth => Console.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
-
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
 	private string _searchQuery = "";
@@ -36,6 +33,9 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private EtcdConnectionConfig _config = default!;
 	private int _searchEndCol;
 	private int _searchBarRow;
+
+	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
+	private static int ValueColumnWidth => Console.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -66,9 +66,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		}
 
 		if (!authEnabled)
-		{
 			_allKeys = await LoadAllKeysAsync();
-		}
 		else
 		{
 			var username = _config.Username;
@@ -107,6 +105,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 							prefix = "";
 
 						var prefixKeys = await _etcdClient.GetKeysByPrefixAsync(prefix);
+
 						keys.AddRange(prefixKeys);
 					}
 				}

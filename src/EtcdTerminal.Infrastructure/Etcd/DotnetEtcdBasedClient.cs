@@ -123,7 +123,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	public async Task<IReadOnlyList<EtcdUser>> GetUsersAsync(CancellationToken ct = default)
 	{
 		var response = await _client!.UserListAsync(new AuthUserListRequest(), cancellationToken: ct);
-		var users = new List<EtcdUser>();
+		List<EtcdUser> users = [];
 
 		foreach (var user in response.Users)
 		{
@@ -205,7 +205,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	public async Task<IReadOnlyList<EtcdRole>> GetRolesAsync(CancellationToken ct = default)
 	{
 		var response = await _client!.RoleListAsync(new AuthRoleListRequest(), cancellationToken: ct);
-		var roles = new List<EtcdRole>();
+		List<EtcdRole> roles = [];
 
 		foreach (var role in response.Roles)
 		{
@@ -281,6 +281,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	public async Task GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
 	{
 		var permType = MapPermissionType(permissionType);
+
 		await _client!.RoleGrantPermissionAsync(
 			new AuthRoleGrantPermissionRequest
 			{
