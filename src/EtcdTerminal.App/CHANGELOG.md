@@ -5,10 +5,15 @@
 ### Added
 
 - Password encryption in config file (AES-256-GCM, machine-local key)
-- Real connection health check before entering main screen
-- Background reset on exit (normal exit and Ctrl-C)
+- Connections edit
+- Connections order control
 
 ## [0.2] - 2026-07-24
+
+### Added
+
+- Real connection health check before entering main screen
+- Background reset on exit (normal exit and Ctrl-C)
 
 ### Fixed
 
