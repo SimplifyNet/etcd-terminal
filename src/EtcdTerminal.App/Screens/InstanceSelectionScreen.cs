@@ -14,9 +14,11 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string InvalidConnStr = "[red]Invalid connection string. Must be a valid http or https URL.[/]";
 	private const string ManageConnections = "Manage Connections";
 	private const string AddInstance = "Add Instance";
+	private const string EditInstance = "Edit Instance";
 	private const string RemoveInstance = "Remove Instance";
 	private const string Exit = "Exit";
 	private const string SelectInstance = "Select etcd instance:";
+	private const string SelectInstanceToEdit = "Select instance to edit:";
 	private const string SelectInstanceToRemove = "Select instance to remove:";
 	private const string EnterInstanceName = "Enter instance name:";
 	private const string EnterConnStr = "Enter connection string:";
@@ -99,7 +101,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		var manageChoices = new List<string> { AddInstance };
 
 		if (instances.Count > 0)
+		{
+			manageChoices.Add(EditInstance);
 			manageChoices.Add(RemoveInstance);
+		}
 
 		var action = Menu.Show(ManageConnections, manageChoices);
 
@@ -109,6 +114,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (action == AddInstance)
 		{
 			AddInstanceInteractive();
+		}
+		else if (action == EditInstance)
+		{
+			EditInstanceInteractive(instances);
 		}
 		else if (action == RemoveInstance)
 		{
@@ -174,6 +183,85 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine(InstanceAdded);
+		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
+		Console.ReadKey(true);
+	}
+
+	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
+	{
+		var existing = instances.FirstOrDefault(i => i.Name == Menu.Show(SelectInstanceToEdit, instances.Select(i => i.Name)));
+
+		if (existing is null)
+			return;
+
+		var name = Prompt.Ask(EnterInstanceName, existing.Name);
+
+		if (name is null)
+			return;
+
+		name = name.Trim();
+
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			AnsiConsole.MarkupLine(NameEmpty);
+			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
+			Console.ReadKey(true);
+
+			return;
+		}
+
+		var connectionString = Prompt.Ask(EnterConnStr, existing.ConnectionString);
+
+		if (connectionString is null)
+			return;
+
+		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+		{
+			AnsiConsole.MarkupLine(InvalidConnStr);
+			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
+			Console.ReadKey(true);
+
+			return;
+		}
+
+		var username = Prompt.Ask(EnterUsername, existing.Username ?? string.Empty);
+
+		if (username is null)
+			return;
+
+		var password = existing.Password ?? string.Empty;
+
+		if (!string.IsNullOrEmpty(username))
+		{
+			var changePw = Prompt.Confirm("Change password?");
+
+			if (changePw is null)
+				return;
+
+			if (changePw == true)
+			{
+				password = Prompt.Secret(EnterPassword);
+
+				if (password is null)
+					return;
+			}
+		}
+		else
+		{
+			password = string.Empty;
+		}
+
+		var config = new EtcdConnectionConfig
+		{
+			Name = name,
+			ConnectionString = connectionString,
+			Username = string.IsNullOrEmpty(username) ? null : username,
+			Password = string.IsNullOrEmpty(password) ? null : password
+		};
+
+		_configRepo.AddInstance(config);
+
+		AnsiConsole.MarkupLine("[green]Instance updated successfully![/]");
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
