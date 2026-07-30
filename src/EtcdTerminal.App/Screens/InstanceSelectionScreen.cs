@@ -15,10 +15,14 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string ManageConnections = "Manage Connections";
 	private const string AddInstance = "Add Instance";
 	private const string EditInstance = "Edit Instance";
+	private const string MoveUpInstance = "Move Up";
+	private const string MoveDownInstance = "Move Down";
 	private const string RemoveInstance = "Remove Instance";
 	private const string Exit = "Exit";
 	private const string SelectInstance = "Select etcd instance:";
 	private const string SelectInstanceToEdit = "Select instance to edit:";
+	private const string SelectInstanceToMoveUp = "Select instance to move up:";
+	private const string SelectInstanceToMoveDown = "Select instance to move down:";
 	private const string SelectInstanceToRemove = "Select instance to remove:";
 	private const string EnterInstanceName = "Enter instance name:";
 	private const string EnterConnStr = "Enter connection string:";
@@ -26,6 +30,8 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string EnterUsername = "Enter username (optional, leave empty for none):";
 	private const string EnterPassword = "Enter password:";
 	private const string Connecting = "Connecting...";
+
+	private const int SelectionPageSize = 10;
 
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -106,6 +112,12 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			manageChoices.Add(RemoveInstance);
 		}
 
+		if (instances.Count > 1)
+		{
+			manageChoices.Add(MoveUpInstance);
+			manageChoices.Add(MoveDownInstance);
+		}
+
 		var action = Menu.Show(ManageConnections, manageChoices);
 
 		if (action is null)
@@ -118,6 +130,14 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		else if (action == EditInstance)
 		{
 			EditInstanceInteractive(instances);
+		}
+		else if (action == MoveUpInstance)
+		{
+			MoveInstanceInteractive(instances, -1);
+		}
+		else if (action == MoveDownInstance)
+		{
+			MoveInstanceInteractive(instances, 1);
 		}
 		else if (action == RemoveInstance)
 		{
@@ -192,7 +212,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		var existingName = AnsiConsole.Prompt(
 			new SelectionPrompt<string>()
 				.Title(SelectInstanceToEdit)
-				.PageSize(10)
+				.PageSize(SelectionPageSize)
 				.AddChoices(instances.Select(i => i.Name)));
 
 		var existing = instances.First(i => i.Name == existingName);
@@ -269,6 +289,20 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		AnsiConsole.MarkupLine("[green]Instance updated successfully![/]");
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
+	}
+
+	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
+	{
+		var name = AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
+				.Title(direction < 0 ? SelectInstanceToMoveUp : SelectInstanceToMoveDown)
+				.PageSize(SelectionPageSize)
+				.AddChoices(instances.Select(i => i.Name)));
+
+		if (direction < 0)
+			_configRepo.MoveUp(name);
+		else
+			_configRepo.MoveDown(name);
 	}
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)

@@ -19,7 +19,7 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 	public IReadOnlyList<EtcdConnectionConfig> LoadInstances()
 	{
 		if (!File.Exists(_configPath))
-			return Array.Empty<EtcdConnectionConfig>();
+			return [];
 
 		try
 		{
@@ -85,6 +85,30 @@ public sealed class JsonBasedConfigRepository : IConnectionConfigRepository
 	{
 		var instances = LoadInstances().ToList();
 		instances.RemoveAll(i => i.Name == name);
+		SaveInstances(instances);
+	}
+
+	public void MoveUp(string name)
+	{
+		var instances = LoadInstances().ToList();
+		var index = instances.FindIndex(i => i.Name == name);
+
+		if (index <= 0)
+			return;
+
+		(instances[index], instances[index - 1]) = (instances[index - 1], instances[index]);
+		SaveInstances(instances);
+	}
+
+	public void MoveDown(string name)
+	{
+		var instances = LoadInstances().ToList();
+		var index = instances.FindIndex(i => i.Name == name);
+
+		if (index < 0 || index >= instances.Count - 1)
+			return;
+
+		(instances[index], instances[index + 1]) = (instances[index + 1], instances[index]);
 		SaveInstances(instances);
 	}
 
