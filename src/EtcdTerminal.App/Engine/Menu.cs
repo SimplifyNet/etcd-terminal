@@ -10,6 +10,7 @@ public static class Menu
 	private const string _arrow = "  ❯ ";
 	private const string _emptyIndent = "    ";
 	private const string _clearAnsi = "\x1b[J";
+	private const string _selectionSeq = "\x1b[38;2;220;95;51m";
 
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
@@ -41,7 +42,7 @@ public static class Menu
 			Console.Write(i == 0 ? _arrow : _emptyIndent);
 
 			if (i == 0)
-				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.Write(_selectionSeq);
 
 			WriteTruncated(plain[i]);
 
@@ -91,7 +92,7 @@ public static class Menu
 
 			Console.CursorTop = firstItemTop + index;
 			Console.CursorLeft = 0;
-			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.Write(_selectionSeq);
 			Console.Write(_arrow);
 
 			WriteTruncated(plain[index]);

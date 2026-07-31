@@ -309,5 +309,4 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
 	}
-
 }
