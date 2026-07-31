@@ -13,6 +13,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private const int EditValueMaxLength = 200;
 
 	private const string NoKeysFound = "  [grey]No keys found.[/]";
+	private const string SelectionColor = "[#dc5f33]";
 	private const string EditAction = "[bold yellow][[E]][/] [white]Edit[/]    ";
 	private const string DeleteAction = "[bold yellow][[D]][/] [white]Delete[/]    ";
 	private const string CancelAction = "[bold yellow][[Esc]][/] [white]Cancel[/]";
@@ -277,7 +278,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
 
 			if (isSelected)
-				AnsiConsole.MarkupLine($"  [cyan]{Markup.Escape(line)}[/]");
+				AnsiConsole.MarkupLine($"  {SelectionColor}{Markup.Escape(line)}[/]");
 			else
 				AnsiConsole.MarkupLine($"  [white]{Markup.Escape(line)}[/]");
 		}
@@ -317,7 +318,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			return;
 		}
 
-		AnsiConsole.MarkupLine($"  [grey]Selected:[/] [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
+		AnsiConsole.MarkupLine($"  [grey]Selected:[/] {SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.Markup("  ");
 		AnsiConsole.Markup(EditAction);
 		AnsiConsole.Markup(DeleteAction);
@@ -338,7 +339,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		StatusBar.Render(_config);
 		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
-		AnsiConsole.MarkupLine($"Editing key: [cyan]{Markup.Escape(_selectedKey.Key)}[/]");
+		AnsiConsole.MarkupLine($"Editing key: {SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
 
