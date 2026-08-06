@@ -262,8 +262,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(CouldNotUpdateKey);
 
 		Console.WriteLine();
-		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteKeyAsync()
@@ -308,8 +307,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
 
 		Console.WriteLine();
-		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task ReloadAsync()

@@ -38,7 +38,6 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(KeyCreateFailed);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }

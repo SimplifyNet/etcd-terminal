@@ -72,8 +72,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 				{
 					AnsiConsole.MarkupLine($"[red]Failed to connect:[/] {ex.Message}");
 					AnsiConsole.WriteLine();
-					AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-					Console.ReadKey(true);
+					PressAnyKeyPrompt.Show();
 				}
 			}
 		}
@@ -144,8 +143,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			AnsiConsole.MarkupLine(NameEmpty);
-			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-			Console.ReadKey(true);
+			PressAnyKeyPrompt.Show();
 
 			return;
 		}
@@ -158,8 +156,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
 			AnsiConsole.MarkupLine(InvalidConnStr);
-			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-			Console.ReadKey(true);
+			PressAnyKeyPrompt.Show();
 
 			return;
 		}
@@ -190,8 +187,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine(InstanceAdded);
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -216,8 +212,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			AnsiConsole.MarkupLine(NameEmpty);
-			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-			Console.ReadKey(true);
+			PressAnyKeyPrompt.Show();
 
 			return;
 		}
@@ -230,8 +225,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
 			AnsiConsole.MarkupLine(InvalidConnStr);
-			AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-			Console.ReadKey(true);
+			PressAnyKeyPrompt.Show();
 
 			return;
 		}
@@ -272,8 +266,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine("[green]Instance updated successfully![/]");
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
@@ -306,7 +299,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			AnsiConsole.MarkupLine(InstanceRemoved);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }

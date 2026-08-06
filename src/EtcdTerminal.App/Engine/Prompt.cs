@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using System.Text;
 using Spectre.Console;
 
@@ -8,7 +7,6 @@ public static class Prompt
 {
 	private const string PromptFormat = "[bold]{0}[/] ";
 	private const string ConfirmFormat = "[bold]{0}[/] [grey][[y/N]][/] ";
-	public const string PressAnyKeyMarkup = "[grey]Press any key to continue...[/]";
 
 	public static string? Ask(string prompt)
 	{

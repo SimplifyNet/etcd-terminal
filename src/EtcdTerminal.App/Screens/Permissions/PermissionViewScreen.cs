@@ -27,7 +27,6 @@ public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 				PermissionViewRenderer.Render(users, roles);
 			});
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }

@@ -73,8 +73,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 		RoleListRenderer.Render(roles);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task CreateRoleAsync()
@@ -91,8 +90,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedCreateRole);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteRoleAsync()
@@ -114,8 +112,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedDeleteRole);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task GrantPermissionAsync()
@@ -145,8 +142,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedGrantPermission);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task RevokePermissionAsync()
@@ -176,7 +172,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedRevokePermission);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }

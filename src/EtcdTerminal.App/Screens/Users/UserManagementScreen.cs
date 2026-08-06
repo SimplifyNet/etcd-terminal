@@ -83,8 +83,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 		UserListRenderer.Render(users);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task CreateUserAsync()
@@ -106,8 +105,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedCreateUser);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteUserAsync()
@@ -129,8 +127,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedDeleteUser);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task ChangePasswordAsync()
@@ -152,8 +149,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedChangePassword);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task AssignRoleAsync()
@@ -178,8 +174,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedAssignRole);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task RevokeRoleAsync()
@@ -204,7 +199,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedRemoveRole);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }
