@@ -4,7 +4,7 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Users;
 
 public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {

@@ -4,7 +4,7 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 {
