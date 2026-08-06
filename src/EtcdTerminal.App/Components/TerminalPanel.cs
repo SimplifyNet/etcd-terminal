@@ -20,6 +20,12 @@ public static class TerminalPanel
 	public static void WriteRow(string bg, string content) =>
 		Console.WriteLine(bg + content + new string(' ', Math.Max(0, Console.WindowWidth - GetVisibleLength(content))) + Reset);
 
+	public static void WriteBorderedFillRow(string bg) =>
+		Console.WriteLine(Accent + "│" + Reset + bg + new string(' ', Console.WindowWidth - 1) + Reset);
+
+	public static void WriteBorderedRow(string bg, string content) =>
+		Console.WriteLine(Accent + "│" + Reset + bg + content + new string(' ', Math.Max(0, Console.WindowWidth - 1 - GetVisibleLength(content))) + Reset);
+
 	public static void PadCurrentRow(string bg)
 	{
 		var remaining = Console.WindowWidth - Console.CursorLeft;

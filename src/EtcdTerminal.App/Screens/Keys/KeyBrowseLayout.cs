@@ -82,17 +82,14 @@ public static class KeyBrowseLayout
 	public static void RenderActionBar(string selectedKey)
 	{
 		RenderSelectedPanel(selectedKey);
-
-		Console.WriteLine();
-
 		RenderButtonsPanel();
 	}
 
 	private static void RenderSelectedPanel(string selectedKey)
 	{
-		TerminalPanel.WriteFillRow(TerminalPanel.DarkBg);
-		TerminalPanel.WriteRow(TerminalPanel.DarkBg, $"{TerminalPanel.Grey}  Selected: {TerminalPanel.Accent}{selectedKey}");
-		TerminalPanel.WriteFillRow(TerminalPanel.DarkBg);
+		TerminalPanel.WriteBorderedFillRow(TerminalPanel.DarkBg);
+		TerminalPanel.WriteBorderedRow(TerminalPanel.DarkBg, $"{TerminalPanel.Grey}  Selected: {TerminalPanel.Accent}{selectedKey}");
+		TerminalPanel.WriteBorderedFillRow(TerminalPanel.DarkBg);
 	}
 
 	private static void RenderButtonsPanel()
@@ -100,9 +97,9 @@ public static class KeyBrowseLayout
 		(string Key, string Label)[] buttons = [("E", "Edit"), ("D", "Delete"), ("Esc", "Cancel")];
 		var colored = "  " + string.Join("   ", buttons.Select(b => $"{TerminalPanel.White}{b.Key} {TerminalPanel.Grey}{b.Label}"));
 
-		TerminalPanel.WriteFillRow(TerminalPanel.Bg);
-		TerminalPanel.WriteRow(TerminalPanel.Bg, colored);
-		TerminalPanel.WriteFillRow(TerminalPanel.Bg);
+		TerminalPanel.WriteBorderedFillRow(TerminalPanel.Bg);
+		TerminalPanel.WriteBorderedRow(TerminalPanel.Bg, colored);
+		TerminalPanel.WriteBorderedFillRow(TerminalPanel.Bg);
 	}
 
 	public static string TruncateText(string text, int maxLength) =>
