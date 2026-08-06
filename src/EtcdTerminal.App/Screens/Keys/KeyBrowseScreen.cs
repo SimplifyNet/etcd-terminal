@@ -224,14 +224,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		if (_selectedKey is null)
 			return;
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		var savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 		AnsiConsole.MarkupLine($"Editing key: {KeyBrowseLayout.SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
 		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(KeyBrowseLayout.TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
@@ -243,14 +236,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.UpdateKeyAsync(_selectedKey.Key, newValue);
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 
 		if (result)
 		{
@@ -270,14 +256,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		if (_selectedKey is null)
 			return;
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		var savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
 		Console.WriteLine();
 
@@ -288,14 +267,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.DeleteKeyAsync(_selectedKey.Key);
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 
 		if (result)
 		{

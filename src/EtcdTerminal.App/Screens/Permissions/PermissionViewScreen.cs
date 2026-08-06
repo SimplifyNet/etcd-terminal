@@ -11,12 +11,7 @@ public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		AnsiConsole.Clear();
-		Header.Render();
-		var savedTop = Console.CursorTop;
-		StatusBar.Render(config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(config);
 
 		await AnsiConsole.Status()
 			.StartAsync(LoadingPermissions, async ctx =>

@@ -32,48 +32,31 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	private const string RoleRemoved = "[green]Role removed successfully![/]";
 	private const string FailedRemoveRole = "[red]Failed to remove role.[/]";
 
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync(EtcdConnectionConfig config) =>
+		await MenuScreen.RunAsync(Title, [ListUsers, CreateUser, DeleteUser, ChangePassword, AssignRole, RemoveRole], config, HandleChoiceAsync);
+
+	private async Task HandleChoiceAsync(string choice)
 	{
-		while (true)
+		switch (choice)
 		{
-			AnsiConsole.Clear();
-			Header.Render();
-
-			var choice = Menu.Show(Title, new[]
-			{
-				ListUsers,
-				CreateUser,
-				DeleteUser,
-				ChangePassword,
-				AssignRole,
-				RemoveRole
-			},
-			config: config);
-
-			if (choice is null)
+			case ListUsers:
+				await ListUsersAsync();
 				break;
-
-			switch (choice)
-			{
-				case "List Users":
-					await ListUsersAsync();
-					break;
-				case "Create User":
-					await CreateUserAsync();
-					break;
-				case "Delete User":
-					await DeleteUserAsync();
-					break;
-				case "Change Password":
-					await ChangePasswordAsync();
-					break;
-				case "Assign Role to User":
-					await AssignRoleAsync();
-					break;
-				case "Remove Role from User":
-					await RevokeRoleAsync();
-					break;
-			}
+			case CreateUser:
+				await CreateUserAsync();
+				break;
+			case DeleteUser:
+				await DeleteUserAsync();
+				break;
+			case ChangePassword:
+				await ChangePasswordAsync();
+				break;
+			case AssignRole:
+				await AssignRoleAsync();
+				break;
+			case RemoveRole:
+				await RevokeRoleAsync();
+				break;
 		}
 	}
 

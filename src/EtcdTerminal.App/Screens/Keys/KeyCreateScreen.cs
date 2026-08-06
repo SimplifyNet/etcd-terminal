@@ -14,12 +14,7 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		AnsiConsole.Clear();
-		Header.Render();
-		var savedTop = Console.CursorTop;
-		StatusBar.Render(config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(config);
 
 		var key = Prompt.Ask(EnterKeyPrompt);
 

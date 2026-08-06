@@ -26,44 +26,28 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 	private const string PermissionRevoked = "[green]Permission revoked successfully![/]";
 	private const string FailedRevokePermission = "[red]Failed to revoke permission.[/]";
 
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync(EtcdConnectionConfig config) =>
+		await MenuScreen.RunAsync(Title, [ListRoles, CreateRole, DeleteRole, GrantPermission, RevokePermission], config, HandleChoiceAsync);
+
+	private async Task HandleChoiceAsync(string choice)
 	{
-		while (true)
+		switch (choice)
 		{
-			AnsiConsole.Clear();
-			Header.Render();
-
-			var choice = Menu.Show(Title,
-			[
-				ListRoles,
-				CreateRole,
-				DeleteRole,
-				GrantPermission,
-				RevokePermission
-			],
-			config: config);
-
-			if (choice is null)
+			case ListRoles:
+				await ListRolesAsync();
 				break;
-
-			switch (choice)
-			{
-				case "List Roles":
-					await ListRolesAsync();
-					break;
-				case "Create Role":
-					await CreateRoleAsync();
-					break;
-				case "Delete Role":
-					await DeleteRoleAsync();
-					break;
-				case "Grant Permission":
-					await GrantPermissionAsync();
-					break;
-				case "Revoke Permission":
-					await RevokePermissionAsync();
-					break;
-			}
+			case CreateRole:
+				await CreateRoleAsync();
+				break;
+			case DeleteRole:
+				await DeleteRoleAsync();
+				break;
+			case GrantPermission:
+				await GrantPermissionAsync();
+				break;
+			case RevokePermission:
+				await RevokePermissionAsync();
+				break;
 		}
 	}
 
@@ -115,7 +99,13 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		PressAnyKeyPrompt.Show();
 	}
 
-	private async Task GrantPermissionAsync()
+	private Task GrantPermissionAsync() =>
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), PermissionGranted, FailedGrantPermission);
+
+	private Task RevokePermissionAsync() =>
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), PermissionRevoked, FailedRevokePermission);
+
+	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{
 		var roleName = Prompt.Ask(EnterRoleName);
 
@@ -134,42 +124,12 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 		try
 		{
-			await _etcdClient.GrantPermissionAsync(roleName, permType.Value, keyPrefix);
-			AnsiConsole.MarkupLine(PermissionGranted);
+			await action(roleName, permType.Value, keyPrefix);
+			AnsiConsole.MarkupLine(successMessage);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine(FailedGrantPermission);
-		}
-
-		PressAnyKeyPrompt.Show();
-	}
-
-	private async Task RevokePermissionAsync()
-	{
-		var roleName = Prompt.Ask(EnterRoleName);
-
-		if (roleName is null)
-			return;
-
-		var keyPrefix = Prompt.Ask(EnterKeyPrefix);
-
-		if (keyPrefix is null)
-			return;
-
-		var permType = PermissionTypeSelector.Select();
-
-		if (permType is null)
-			return;
-
-		try
-		{
-			await _etcdClient.RevokePermissionAsync(roleName, permType.Value, keyPrefix);
-			AnsiConsole.MarkupLine(PermissionRevoked);
-		}
-		catch
-		{
-			AnsiConsole.MarkupLine(FailedRevokePermission);
+			AnsiConsole.MarkupLine(failureMessage);
 		}
 
 		PressAnyKeyPrompt.Show();
