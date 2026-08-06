@@ -1,6 +1,14 @@
 # Changelog
 
-## [0.3] - Unreleased
+## [0.4] - Unreleased
+
+### Changed
+
+- Selection colors
+- Placeholder text
+- Key selection dialog design
+
+## [0.3] - 2026-07-30
 
 ### Added
 

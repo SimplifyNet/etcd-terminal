@@ -14,15 +14,18 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private const string NoKeysFound = "  [grey]No keys found.[/]";
 	private const string SelectionColor = "[#dc5f33]";
-	private const string EditAction = "[bold yellow][[E]][/] [white]Edit[/]    ";
-	private const string DeleteAction = "[bold yellow][[D]][/] [white]Delete[/]    ";
-	private const string CancelAction = "[bold yellow][[Esc]][/] [white]Cancel[/]";
 	private const string KeyUpdated = "[green]Key updated successfully![/]";
 	private const string CouldNotUpdateKey = "[red]Could not update key.[/]";
 	private const string KeyDeleted = "[green]Key deleted successfully![/]";
 	private const string KeyCouldNotBeDeleted = "[red]Key could not be deleted.[/]";
 	private const string EnterNewValue = "Enter new value:";
 	private const string AreYouSure = "Are you sure?";
+	private const string PanelBg = "\x1b[48;2;27;28;30m";
+	private const string SelectedPanelBg = "\x1b[48;2;21;22;24m";
+	private const string WhiteFg = "\x1b[38;2;255;255;255m";
+	private const string GreyFg = "\x1b[38;2;128;128;128m";
+	private const string AccentFg = "\x1b[38;2;220;95;51m";
+	private const string Reset = "\x1b[0m";
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
@@ -216,6 +219,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		Console.WriteLine();
 		RenderPagination();
 
+		Console.WriteLine();
 		RenderActionBar();
 
 		StatusBar.Render(_config);
@@ -306,24 +310,38 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
 
 		Console.WriteLine();
-		Console.Write(bgSeq + fill + resetSeq);
+		Console.WriteLine(bgSeq + fill + resetSeq);
 	}
 
 	private void RenderActionBar()
 	{
 		if (!_showActions || _selectedKey is null)
-		{
-			Console.WriteLine();
-
 			return;
-		}
 
-		AnsiConsole.MarkupLine($"  [grey]Selected:[/] {SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
-		AnsiConsole.Markup("  ");
-		AnsiConsole.Markup(EditAction);
-		AnsiConsole.Markup(DeleteAction);
-		AnsiConsole.Markup(CancelAction);
-		Console.WriteLine();
+		RenderSelectedPanel();
+		RenderButtonsPanel();
+	}
+
+	private void RenderSelectedPanel()
+	{
+		var fill = new string(' ', Console.WindowWidth);
+		var visible = $"  Selected: {_selectedKey!.Key}";
+
+		Console.WriteLine($"{SelectedPanelBg}{fill}{Reset}");
+		Console.WriteLine($"{SelectedPanelBg}{GreyFg}  Selected: {AccentFg}{_selectedKey.Key}{new string(' ', Math.Max(0, Console.WindowWidth - visible.Length))}{Reset}");
+		Console.WriteLine($"{SelectedPanelBg}{fill}{Reset}");
+	}
+
+	private void RenderButtonsPanel()
+	{
+		var fill = new string(' ', Console.WindowWidth);
+		var buttons = new (string Key, string Label)[] { ("E", "Edit"), ("D", "Delete"), ("Esc", "Cancel") };
+		var visible = "  " + string.Join("   ", buttons.Select(b => $"{b.Key} {b.Label}"));
+		var colored = "  " + string.Join("   ", buttons.Select(b => $"{WhiteFg}{b.Key} {GreyFg}{b.Label}"));
+
+		Console.WriteLine($"{PanelBg}{fill}{Reset}");
+		Console.WriteLine($"{PanelBg}{colored}{new string(' ', Math.Max(0, Console.WindowWidth - visible.Length))}{Reset}");
+		Console.WriteLine($"{PanelBg}{fill}{Reset}");
 	}
 
 	private async Task EditKeyAsync()
