@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
@@ -14,7 +13,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 	private const string DeleteRole = "Delete Role";
 	private const string GrantPermission = "Grant Permission";
 	private const string RevokePermission = "Revoke Permission";
-	private const string NoRolesFound = "[yellow]No roles found.[/]";
 	private const string EnterRoleName = "Enter role name:";
 	private const string RoleCreated = "[green]Role created successfully![/]";
 	private const string FailedCreateRole = "[red]Failed to create role (may already exist).[/]";
@@ -23,7 +21,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 	private const string RoleDeleted = "[green]Role deleted successfully![/]";
 	private const string FailedDeleteRole = "[red]Failed to delete role.[/]";
 	private const string EnterKeyPrefix = "Enter key prefix:";
-	private const string SelectPermissionType = "Select permission type:";
 	private const string PermissionGranted = "[green]Permission granted successfully![/]";
 	private const string FailedGrantPermission = "[red]Failed to grant permission.[/]";
 	private const string PermissionRevoked = "[green]Permission revoked successfully![/]";
@@ -36,14 +33,14 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.Clear();
 			Header.Render();
 
-			var choice = Menu.Show(Title, new[]
-			{
+			var choice = Menu.Show(Title,
+			[
 				ListRoles,
 				CreateRole,
 				DeleteRole,
 				GrantPermission,
 				RevokePermission
-			},
+			],
 			config: config);
 
 			if (choice is null)
@@ -74,31 +71,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 	{
 		var roles = await _etcdClient.GetRolesAsync();
 
-		if (roles.Count == 0)
-			AnsiConsole.MarkupLine(NoRolesFound);
-		else
-		{
-			foreach (var role in roles)
-			{
-				var table = new Table();
-				table.Title = new TableTitle($"[bold]Role: {role.Name}[/]");
-				table.AddColumn("Permission Type");
-				table.AddColumn("Key Prefix");
-
-				if (role.Permissions.Count == 0)
-					table.AddRow("[grey]none[/]", "[grey]none[/]");
-				else
-				{
-					foreach (var perm in role.Permissions)
-					{
-						table.AddRow(perm.Type.ToString(), Markup.Escape(perm.KeyPrefix));
-					}
-				}
-
-				AnsiConsole.Write(table);
-				AnsiConsole.WriteLine();
-			}
-		}
+		RoleListRenderer.Render(roles);
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
@@ -157,21 +130,14 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		if (keyPrefix is null)
 			return;
 
-		var permStr = Menu.Show(SelectPermissionType, new[] { "Read", "Write", "ReadWrite" });
+		var permType = PermissionTypeSelector.Select();
 
-		if (permStr is null)
+		if (permType is null)
 			return;
-
-		var permType = permStr switch
-		{
-			"Read" => PermissionType.Read,
-			"Write" => PermissionType.Write,
-			_ => PermissionType.ReadWrite
-		};
 
 		try
 		{
-			await _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix);
+			await _etcdClient.GrantPermissionAsync(roleName, permType.Value, keyPrefix);
 			AnsiConsole.MarkupLine(PermissionGranted);
 		}
 		catch
@@ -195,21 +161,14 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		if (keyPrefix is null)
 			return;
 
-		var permStr = Menu.Show(SelectPermissionType, new[] { "Read", "Write", "ReadWrite" });
+		var permType = PermissionTypeSelector.Select();
 
-		if (permStr is null)
+		if (permType is null)
 			return;
-
-		var permType = permStr switch
-		{
-			"Read" => PermissionType.Read,
-			"Write" => PermissionType.Write,
-			_ => PermissionType.ReadWrite
-		};
 
 		try
 		{
-			await _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix);
+			await _etcdClient.RevokePermissionAsync(roleName, permType.Value, keyPrefix);
 			AnsiConsole.MarkupLine(PermissionRevoked);
 		}
 		catch

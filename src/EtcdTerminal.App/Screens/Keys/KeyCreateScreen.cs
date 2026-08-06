@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;

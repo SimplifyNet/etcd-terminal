@@ -1,4 +1,3 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
@@ -15,7 +14,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	private const string ChangePassword = "Change Password";
 	private const string AssignRole = "Assign Role to User";
 	private const string RemoveRole = "Remove Role from User";
-	private const string NoUsersFound = "[yellow]No users found.[/]";
 	private const string EnterUsername = "Enter username:";
 	private const string EnterPassword = "Enter password:";
 	private const string UserCreated = "[green]User created successfully![/]";
@@ -83,24 +81,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	{
 		var users = await _etcdClient.GetUsersAsync();
 
-		if (users.Count == 0)
-			AnsiConsole.MarkupLine(NoUsersFound);
-		else
-		{
-			var table = new Table();
-			table.AddColumn("Username");
-			table.AddColumn("Roles");
-
-			foreach (var user in users)
-			{
-				var roles = user.Roles.Count > 0
-					? string.Join(", ", user.Roles)
-					: "[grey]none[/]";
-				table.AddRow(Markup.Escape(user.Username), roles);
-			}
-
-			AnsiConsole.Write(table);
-		}
+		UserListRenderer.Render(users);
 
 		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
 		Console.ReadKey(true);
