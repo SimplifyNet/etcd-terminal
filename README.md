@@ -36,13 +36,11 @@ Example configuration:
   "Instances": [
     {
       "Name": "Local etcd",
-      "ConnectionString": "http://localhost:2379",
-      "UseSsl": false
+      "ConnectionString": "http://localhost:2379"
     },
     {
       "Name": "Production cluster",
       "ConnectionString": "https://etcd.example.com:2379",
-      "UseSsl": true,
       "Username": "admin",
       "Password": "secret"
     }
