@@ -25,6 +25,24 @@
 - **Access grants** — assign/revoke key permissions for roles
 - **Info** — view the full picture: which users have which roles and their permissions
 
+## Screenshots
+
+### Instance selection
+
+![Instance selection](screenshots/instance-selection.png)
+
+### Key browse
+
+![Key browse](screenshots/key-browse.png)
+
+### Users
+
+![Users](screenshots/users.png)
+
+### Roles
+
+![Roles](screenshots/roles.png)
+
 ## Configuration
 
 Configuration files are stored at `~/.config/etcd-terminal/config.json`.

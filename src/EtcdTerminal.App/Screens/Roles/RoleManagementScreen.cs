@@ -1,0 +1,137 @@
+using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Components;
+using EtcdTerminal.Models;
+using Spectre.Console;
+
+namespace EtcdTerminal.App.Screens.Roles;
+
+public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
+{
+	private const string Title = "Role Management";
+	private const string ListRoles = "List Roles";
+	private const string CreateRole = "Create Role";
+	private const string DeleteRole = "Delete Role";
+	private const string GrantPermission = "Grant Permission";
+	private const string RevokePermission = "Revoke Permission";
+	private const string EnterRoleName = "Enter role name:";
+	private const string RoleCreated = "[green]Role created successfully![/]";
+	private const string FailedCreateRole = "[red]Failed to create role (may already exist).[/]";
+	private const string EnterRoleNameToDelete = "Enter role name to delete:";
+	private const string DeleteRoleConfirm = "Are you sure you want to delete role {0}?";
+	private const string RoleDeleted = "[green]Role deleted successfully![/]";
+	private const string FailedDeleteRole = "[red]Failed to delete role.[/]";
+	private const string EnterKeyPrefix = "Enter key prefix:";
+	private const string PermissionGranted = "[green]Permission granted successfully![/]";
+	private const string FailedGrantPermission = "[red]Failed to grant permission.[/]";
+	private const string PermissionRevoked = "[green]Permission revoked successfully![/]";
+	private const string FailedRevokePermission = "[red]Failed to revoke permission.[/]";
+
+	public async Task ShowAsync(EtcdConnectionConfig config) =>
+		await MenuScreen.RunAsync(Title, [ListRoles, CreateRole, DeleteRole, GrantPermission, RevokePermission], config, HandleChoiceAsync);
+
+	private async Task HandleChoiceAsync(string choice)
+	{
+		switch (choice)
+		{
+			case ListRoles:
+				await ListRolesAsync();
+				break;
+			case CreateRole:
+				await CreateRoleAsync();
+				break;
+			case DeleteRole:
+				await DeleteRoleAsync();
+				break;
+			case GrantPermission:
+				await GrantPermissionAsync();
+				break;
+			case RevokePermission:
+				await RevokePermissionAsync();
+				break;
+		}
+	}
+
+	private async Task ListRolesAsync()
+	{
+		var roles = await _etcdClient.GetRolesAsync();
+
+		RoleListRenderer.Render(roles);
+
+		PressAnyKeyPrompt.Show();
+	}
+
+	private async Task CreateRoleAsync()
+	{
+		var roleName = Prompt.Ask(EnterRoleName);
+
+		if (roleName is null)
+			return;
+
+		var result = await _etcdClient.CreateRoleAsync(roleName);
+
+		if (result)
+			AnsiConsole.MarkupLine(RoleCreated);
+		else
+			AnsiConsole.MarkupLine(FailedCreateRole);
+
+		PressAnyKeyPrompt.Show();
+	}
+
+	private async Task DeleteRoleAsync()
+	{
+		var roleName = Prompt.Ask(EnterRoleNameToDelete);
+
+		if (roleName is null)
+			return;
+
+		var confirm = Prompt.Confirm(string.Format(DeleteRoleConfirm, roleName));
+
+		if (confirm is not true)
+			return;
+
+		var result = await _etcdClient.DeleteRoleAsync(roleName);
+
+		if (result)
+			AnsiConsole.MarkupLine(RoleDeleted);
+		else
+			AnsiConsole.MarkupLine(FailedDeleteRole);
+
+		PressAnyKeyPrompt.Show();
+	}
+
+	private Task GrantPermissionAsync() =>
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), PermissionGranted, FailedGrantPermission);
+
+	private Task RevokePermissionAsync() =>
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), PermissionRevoked, FailedRevokePermission);
+
+	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
+	{
+		var roleName = Prompt.Ask(EnterRoleName);
+
+		if (roleName is null)
+			return;
+
+		var keyPrefix = Prompt.Ask(EnterKeyPrefix);
+
+		if (keyPrefix is null)
+			return;
+
+		var permType = PermissionTypeSelector.Select();
+
+		if (permType is null)
+			return;
+
+		try
+		{
+			await action(roleName, permType.Value, keyPrefix);
+			AnsiConsole.MarkupLine(successMessage);
+		}
+		catch
+		{
+			AnsiConsole.MarkupLine(failureMessage);
+		}
+
+		PressAnyKeyPrompt.Show();
+	}
+}

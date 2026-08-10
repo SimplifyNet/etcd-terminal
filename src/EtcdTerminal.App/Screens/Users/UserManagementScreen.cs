@@ -1,10 +1,9 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Users;
 
 public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {
@@ -15,7 +14,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	private const string ChangePassword = "Change Password";
 	private const string AssignRole = "Assign Role to User";
 	private const string RemoveRole = "Remove Role from User";
-	private const string NoUsersFound = "[yellow]No users found.[/]";
 	private const string EnterUsername = "Enter username:";
 	private const string EnterPassword = "Enter password:";
 	private const string UserCreated = "[green]User created successfully![/]";
@@ -34,48 +32,31 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	private const string RoleRemoved = "[green]Role removed successfully![/]";
 	private const string FailedRemoveRole = "[red]Failed to remove role.[/]";
 
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync(EtcdConnectionConfig config) =>
+		await MenuScreen.RunAsync(Title, [ListUsers, CreateUser, DeleteUser, ChangePassword, AssignRole, RemoveRole], config, HandleChoiceAsync);
+
+	private async Task HandleChoiceAsync(string choice)
 	{
-		while (true)
+		switch (choice)
 		{
-			AnsiConsole.Clear();
-			Header.Render();
-
-			var choice = Menu.Show(Title, new[]
-			{
-				ListUsers,
-				CreateUser,
-				DeleteUser,
-				ChangePassword,
-				AssignRole,
-				RemoveRole
-			},
-			config: config);
-
-			if (choice is null)
+			case ListUsers:
+				await ListUsersAsync();
 				break;
-
-			switch (choice)
-			{
-				case "List Users":
-					await ListUsersAsync();
-					break;
-				case "Create User":
-					await CreateUserAsync();
-					break;
-				case "Delete User":
-					await DeleteUserAsync();
-					break;
-				case "Change Password":
-					await ChangePasswordAsync();
-					break;
-				case "Assign Role to User":
-					await AssignRoleAsync();
-					break;
-				case "Remove Role from User":
-					await RevokeRoleAsync();
-					break;
-			}
+			case CreateUser:
+				await CreateUserAsync();
+				break;
+			case DeleteUser:
+				await DeleteUserAsync();
+				break;
+			case ChangePassword:
+				await ChangePasswordAsync();
+				break;
+			case AssignRole:
+				await AssignRoleAsync();
+				break;
+			case RemoveRole:
+				await RevokeRoleAsync();
+				break;
 		}
 	}
 
@@ -83,27 +64,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 	{
 		var users = await _etcdClient.GetUsersAsync();
 
-		if (users.Count == 0)
-			AnsiConsole.MarkupLine(NoUsersFound);
-		else
-		{
-			var table = new Table();
-			table.AddColumn("Username");
-			table.AddColumn("Roles");
+		UserListRenderer.Render(users);
 
-			foreach (var user in users)
-			{
-				var roles = user.Roles.Count > 0
-					? string.Join(", ", user.Roles)
-					: "[grey]none[/]";
-				table.AddRow(Markup.Escape(user.Username), roles);
-			}
-
-			AnsiConsole.Write(table);
-		}
-
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task CreateUserAsync()
@@ -125,8 +88,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedCreateUser);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteUserAsync()
@@ -148,8 +110,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedDeleteUser);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task ChangePasswordAsync()
@@ -171,8 +132,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(FailedChangePassword);
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task AssignRoleAsync()
@@ -197,8 +157,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedAssignRole);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task RevokeRoleAsync()
@@ -223,7 +182,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(FailedRemoveRole);
 		}
 
-		AnsiConsole.MarkupLine(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 }

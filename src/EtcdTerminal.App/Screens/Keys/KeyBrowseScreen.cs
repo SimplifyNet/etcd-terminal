@@ -3,20 +3,13 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
 	private const int PageSize = 30;
-	private const int LinePadding = 2;
-	private const int PrefixWidth = 4;
 	private const int EditValueMaxLength = 200;
 
-	private const string NoKeysFound = "  [grey]No keys found.[/]";
-	private const string SelectionColor = "[#dc5f33]";
-	private const string EditAction = "[bold yellow][[E]][/] [white]Edit[/]    ";
-	private const string DeleteAction = "[bold yellow][[D]][/] [white]Delete[/]    ";
-	private const string CancelAction = "[bold yellow][[Esc]][/] [white]Cancel[/]";
 	private const string KeyUpdated = "[green]Key updated successfully![/]";
 	private const string CouldNotUpdateKey = "[red]Could not update key.[/]";
 	private const string KeyDeleted = "[green]Key deleted successfully![/]";
@@ -34,9 +27,6 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private EtcdConnectionConfig _config = default!;
 	private int _searchEndCol;
 	private int _searchBarRow;
-
-	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
-	private static int ValueColumnWidth => Console.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -209,14 +199,19 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		AnsiConsole.Clear();
 		Header.Render();
 
-		RenderSearchBar();
+		var (searchEndCol, searchBarRow) = KeyBrowseLayout.RenderSearchBar(_searchQuery);
+		_searchEndCol = searchEndCol;
+		_searchBarRow = searchBarRow;
+
 		Console.SetCursorPosition(0, Console.CursorTop + 2);
-		RenderKeyList();
+		KeyBrowseLayout.RenderKeyList(GetCurrentPageKeys(), _selectedIndex);
 
 		Console.WriteLine();
-		RenderPagination();
+		KeyBrowseLayout.RenderPagination(_currentPage, GetTotalPages(), _filteredKeys.Count);
 
-		RenderActionBar();
+		Console.WriteLine();
+		if (_showActions && _selectedKey is not null)
+			KeyBrowseLayout.RenderActionBar(_selectedKey.Key);
 
 		StatusBar.Render(_config);
 
@@ -224,123 +219,14 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		Console.CursorLeft = _searchEndCol;
 	}
 
-	private void RenderSearchBar()
-	{
-		var bgSeq = "\x1b[48;2;27;28;30m";
-		var resetSeq = "\x1b[0m";
-		var fill = new string(' ', Console.WindowWidth);
-
-		Console.Write(bgSeq + fill + resetSeq);
-		Console.WriteLine();
-
-		Console.Write(bgSeq);
-
-		if (_searchQuery.Length == 0)
-			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search...[/]");
-		else
-			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(_searchQuery)}[/]");
-
-		_searchEndCol = Console.CursorLeft;
-		_searchBarRow = Console.CursorTop;
-
-		var remaining = Console.WindowWidth - _searchEndCol;
-
-		if (remaining > 0)
-			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
-
-		Console.WriteLine();
-
-		Console.Write(bgSeq + fill + resetSeq);
-	}
-
-	private void RenderKeyList()
-	{
-		var pageKeys = GetCurrentPageKeys();
-
-		if (_filteredKeys.Count == 0)
-		{
-			AnsiConsole.MarkupLine(NoKeysFound);
-
-			return;
-		}
-
-		var keyWidth = KeyColumnWidth;
-		var valueWidth = ValueColumnWidth;
-
-		for (var i = 0; i < pageKeys.Count; i++)
-		{
-			var kv = pageKeys[i];
-			var isSelected = i == _selectedIndex;
-
-			var prefix = isSelected ? "  ❯ " : "    ";
-			var key = TruncateText(kv.Key, keyWidth);
-			var value = TruncateText(kv.Value, valueWidth);
-			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
-
-			if (isSelected)
-				AnsiConsole.MarkupLine($"  {SelectionColor}{Markup.Escape(line)}[/]");
-			else
-				AnsiConsole.MarkupLine($"  [white]{Markup.Escape(line)}[/]");
-		}
-	}
-
-	private void RenderPagination()
-	{
-		var bgSeq = "\x1b[48;2;27;28;30m";
-		var greySeq = "\x1b[38;2;128;128;128m";
-		var whiteSeq = "\x1b[38;2;255;255;255m";
-		var resetSeq = "\x1b[0m";
-		var fill = new string(' ', Console.WindowWidth);
-
-		var totalPages = GetTotalPages();
-		var totalKeys = _filteredKeys.Count;
-		var currentPageLabel = _currentPage + 1;
-
-		Console.Write(bgSeq + fill + resetSeq);
-		Console.WriteLine();
-
-		Console.Write(bgSeq + greySeq + "  Page " + whiteSeq + currentPageLabel + "/" + totalPages + greySeq + "  •  " + whiteSeq + totalKeys + greySeq + " total keys" + resetSeq);
-		var remaining = Console.WindowWidth - Console.CursorLeft;
-
-		if (remaining > 0)
-			Console.Write(bgSeq + new string(' ', remaining) + resetSeq);
-
-		Console.WriteLine();
-		Console.Write(bgSeq + fill + resetSeq);
-	}
-
-	private void RenderActionBar()
-	{
-		if (!_showActions || _selectedKey is null)
-		{
-			Console.WriteLine();
-
-			return;
-		}
-
-		AnsiConsole.MarkupLine($"  [grey]Selected:[/] {SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
-		AnsiConsole.Markup("  ");
-		AnsiConsole.Markup(EditAction);
-		AnsiConsole.Markup(DeleteAction);
-		AnsiConsole.Markup(CancelAction);
-		Console.WriteLine();
-	}
-
 	private async Task EditKeyAsync()
 	{
 		if (_selectedKey is null)
 			return;
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		var savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
-		AnsiConsole.MarkupLine($"Editing key: {SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
-		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
+		ScreenLayout.RenderHeader(_config);
+		AnsiConsole.MarkupLine($"Editing key: {KeyBrowseLayout.SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
+		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(KeyBrowseLayout.TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
 		Console.WriteLine();
 
 		var newValue = Prompt.Ask(EnterNewValue, _selectedKey.Value);
@@ -350,14 +236,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.UpdateKeyAsync(_selectedKey.Key, newValue);
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 
 		if (result)
 		{
@@ -369,8 +248,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(CouldNotUpdateKey);
 
 		Console.WriteLine();
-		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteKeyAsync()
@@ -378,14 +256,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		if (_selectedKey is null)
 			return;
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		var savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
 		Console.WriteLine();
 
@@ -396,14 +267,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.DeleteKeyAsync(_selectedKey.Key);
 
-		AnsiConsole.Clear();
-		Header.Render();
-
-		savedTop = Console.CursorTop;
-
-		StatusBar.Render(_config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		ScreenLayout.RenderHeader(_config);
 
 		if (result)
 		{
@@ -415,8 +279,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
 
 		Console.WriteLine();
-		AnsiConsole.Markup(Prompt.PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task ReloadAsync()
@@ -468,7 +331,4 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private int GetTotalPages() =>
 		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / PageSize);
-
-	private static string TruncateText(string text, int maxLength) =>
-		text.Length <= maxLength ? text : text[..maxLength] + "...";
 }
