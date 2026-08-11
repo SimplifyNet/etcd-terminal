@@ -1,5 +1,9 @@
 # C# Coding Rules
 
+## Architecture
+- Screens (pages) act as users of high-level components only. They orchestrate via `Menu`, `Prompt`, `StatusBar`, `Header`, `ScreenLayout` and feature-local controls (e.g. `KeyBrowseControl`) — never perform raw low-level console work directly (no `Console.ReadKey`, cursor positioning, escape sequences, ANSI painting, direct `AnsiConsole.Prompt`, raw styling).
+- All custom/low-level terminal logic is encapsulated in the Components layer (or feature-local controls), so it is reused everywhere, fixed centrally, and styled/colored in one place. Style and colors are managed centrally (e.g. `TerminalPanel`, `StatusBar`).
+
 ## Class member ordering
 Members must appear in this order:
 
