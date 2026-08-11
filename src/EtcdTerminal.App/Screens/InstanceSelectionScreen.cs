@@ -10,7 +10,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string InstanceAdded = "[green]Instance added successfully![/]";
 	private const string InstanceRemoved = "[green]Instance removed successfully![/]";
 	private const string ConnectedSuccess = "[green]Connected successfully![/]";
-	private const string NameEmpty = "[red]Instance name cannot be empty.[/]";
 	private const string InvalidConnStr = "[red]Invalid connection string. Must be a valid http or https URL.[/]";
 	private const string ManageConnections = "Manage Connections";
 	private const string AddInstance = "Add Instance";
@@ -30,8 +29,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string EnterUsername = "Enter username (optional, leave empty for none):";
 	private const string EnterPassword = "Enter password:";
 	private const string Connecting = "Connecting...";
-
-	private const int SelectionPageSize = 10;
 
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -91,7 +88,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			var instance = instances.FirstOrDefault(i => i.Name == c);
 
 			return instance is not null
-				? $"{instance.Name}  [grey]({instance.ConnectionString})[/]"
+				? $"{instance.Name}  ({instance.ConnectionString})"
 				: c;
 		});
 	}
@@ -140,14 +137,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		name = name.Trim();
 
-		if (string.IsNullOrWhiteSpace(name))
-		{
-			AnsiConsole.MarkupLine(NameEmpty);
-			PressAnyKeyPrompt.Show();
-
-			return;
-		}
-
 		var connectionString = Prompt.Ask(EnterConnStr, DefaultConnStr);
 
 		if (connectionString is null)
@@ -170,10 +159,12 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (!string.IsNullOrEmpty(username))
 		{
-			password = Prompt.Secret(EnterPassword);
+			var entered = Prompt.Secret(EnterPassword);
 
-			if (password is null)
+			if (entered is null)
 				return;
+
+			password = entered;
 		}
 
 		var config = new EtcdConnectionConfig
@@ -192,11 +183,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = AnsiConsole.Prompt(
-			new SelectionPrompt<string>()
-				.Title(SelectInstanceToEdit)
-				.PageSize(SelectionPageSize)
-				.AddChoices(instances.Select(i => i.Name)));
+		var existingName = Menu.Show(SelectInstanceToEdit, instances.Select(i => i.Name));
+
+		if (existingName is null)
+			return;
 
 		var existing = instances.First(i => i.Name == existingName);
 
@@ -208,14 +198,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 
 		name = name.Trim();
-
-		if (string.IsNullOrWhiteSpace(name))
-		{
-			AnsiConsole.MarkupLine(NameEmpty);
-			PressAnyKeyPrompt.Show();
-
-			return;
-		}
 
 		var connectionString = Prompt.Ask(EnterConnStr, existing.ConnectionString);
 
@@ -235,25 +217,22 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (username is null)
 			return;
 
-		var password = existing.Password ?? string.Empty;
+		var password = string.Empty;
 
 		if (!string.IsNullOrEmpty(username))
 		{
-			var changePw = Prompt.Confirm("Change password?");
+			password = existing.Password ?? string.Empty;
 
-			if (changePw is null)
-				return;
-
-			if (changePw is true)
+			if (Prompt.Confirm("Change password?"))
 			{
-				password = Prompt.Secret(EnterPassword);
+				var newPassword = Prompt.Secret(EnterPassword);
 
-				if (password is null)
+				if (newPassword is null)
 					return;
+
+				password = newPassword;
 			}
 		}
-		else
-			password = string.Empty;
 
 		var config = new EtcdConnectionConfig
 		{
@@ -271,11 +250,10 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = AnsiConsole.Prompt(
-			new SelectionPrompt<string>()
-				.Title(direction < 0 ? SelectInstanceToMoveUp : SelectInstanceToMoveDown)
-				.PageSize(SelectionPageSize)
-				.AddChoices(instances.Select(i => i.Name)));
+		var name = Menu.Show(direction < 0 ? SelectInstanceToMoveUp : SelectInstanceToMoveDown, instances.Select(i => i.Name));
+
+		if (name is null)
+			return;
 
 		if (direction < 0)
 			_configRepo.MoveUp(name);
@@ -290,9 +268,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (nameToRemove is null)
 			return;
 
-		var confirm = Prompt.Confirm($"Are you sure you want to remove {nameToRemove}?");
-
-		if (confirm is true)
+		if (Prompt.Confirm($"Are you sure you want to remove {nameToRemove}?"))
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 

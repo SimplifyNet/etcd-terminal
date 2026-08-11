@@ -1,18 +1,19 @@
 {
 	"cSpell.words": [
 		"appsettings",
-		"Etcdserverpb",
 		"Authpb",
-		"Mvccpb",
 		"ByteString",
-		"Readwrite",
 		"conn",
-		"protobuf",
-		"grpc",
 		"dotnet",
 		"etcd",
+		"Etcdserverpb",
+		"grpc",
+		"Mvccpb",
+		"protobuf",
+		"Readwrite",
 		"registrator",
-		"Transient",
-		"slnx"
+		"renderable",
+		"slnx",
+		"Transient"
 	]
 }

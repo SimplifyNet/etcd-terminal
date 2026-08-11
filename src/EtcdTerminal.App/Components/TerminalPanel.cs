@@ -13,6 +13,12 @@ public static class TerminalPanel
 	public const string Dim = "\x1b[38;2;80;80;80m";
 	public const string Reset = "\x1b[0m";
 
+	public static void SetDarkBackground() => Console.Write("\x1b]11;#0a0a0a\x07");
+
+	public static void ResetBackground() => Console.Write("\x1b]111\x07");
+
+	public static void ClearScreen() => Console.Write("\x1b[2J\x1b[H");
+
 	public static string FillRow(string bg) => bg + new string(' ', Console.WindowWidth) + Reset;
 
 	public static void WriteFillRow(string bg) => Console.WriteLine(FillRow(bg));

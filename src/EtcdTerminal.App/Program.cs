@@ -1,10 +1,9 @@
+using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
 using Simplify.DI;
 using Spectre.Console;
 
-const string SetBgCommand = "\x1b]11;#0a0a0a\x07";
-const string ResetBgCommand = "\x1b]111\x07";
 const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
 
 DIContainer.Current
@@ -12,12 +11,12 @@ DIContainer.Current
 	.Verify();
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-Console.Write(SetBgCommand);
+TerminalPanel.SetDarkBackground();
 
 static void Cleanup()
 {
-	Console.Write("\x1b[2J\x1b[H");
-	Console.Write(ResetBgCommand);
+	TerminalPanel.ClearScreen();
+	TerminalPanel.ResetBackground();
 	Console.ResetColor();
 	Console.Out.Flush();
 }

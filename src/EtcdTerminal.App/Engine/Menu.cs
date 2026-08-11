@@ -1,120 +1,35 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
-using System.Text.RegularExpressions;
+using Spectre.Console;
 
 namespace EtcdTerminal.App.Engine;
 
 public static class Menu
 {
-	private const string _arrow = "  ❯ ";
-	private const string _emptyIndent = "    ";
-	private const string _clearAnsi = "\x1b[J";
-	private const string _selectionSeq = "\x1b[38;2;220;95;51m";
+	private static readonly Style _highlightStyle = new(foreground: new Color(220, 95, 51));
 
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
-		var items = choices.ToList();
-		var index = 0;
-
-		var plain = items.Select(c =>
-		{
-			var formatted = displayConverter?.Invoke(c) ?? c;
-
-			return StripMarkup(formatted);
-		}).ToList();
-
-		var menuStart = Console.CursorTop;
-
-		Console.ResetColor();
+		var prompt = new SelectionPrompt<string>()
+			.AddCancelResult(() => null!)
+			.HighlightStyle(_highlightStyle)
+			.PageSize(10)
+			.WrapAround();
 
 		if (!string.IsNullOrEmpty(title))
-		{
-			Console.WriteLine();
-			Console.WriteLine(title);
-			Console.WriteLine();
-		}
+			prompt.Title(title);
 
-		var firstItemTop = Console.CursorTop;
+		prompt.AddChoices(choices);
 
-		for (var i = 0; i < items.Count; i++)
-		{
-			Console.Write(i == 0 ? _arrow : _emptyIndent);
+		if (displayConverter is not null)
+			prompt.UseConverter(displayConverter);
 
-			if (i == 0)
-				Console.Write(_selectionSeq);
+		var savedTop = Console.CursorTop;
 
-			WriteTruncated(plain[i]);
-
-			if (i == 0)
-				Console.ResetColor();
-
-			Console.WriteLine();
-		}
-
-		var menuEnd = Console.CursorTop;
 		StatusBar.Render(config);
-		Console.CursorTop = menuEnd;
+		Console.CursorTop = savedTop;
 		Console.CursorLeft = 0;
 
-		while (true)
-		{
-			var key = Console.ReadKey(true);
-			var oldIndex = index;
-
-			switch (key.Key)
-			{
-				case ConsoleKey.Escape:
-					Console.CursorTop = menuStart;
-					Console.CursorLeft = 0;
-					Console.Write(_clearAnsi);
-					return null;
-				case ConsoleKey.Enter:
-					Console.CursorTop = menuStart;
-					Console.CursorLeft = 0;
-					Console.Write(_clearAnsi);
-					return items[index];
-				case ConsoleKey.UpArrow:
-					index = (index - 1 + items.Count) % items.Count;
-					break;
-				case ConsoleKey.DownArrow:
-					index = (index + 1) % items.Count;
-					break;
-				default:
-					continue;
-			}
-
-			Console.CursorTop = firstItemTop + oldIndex;
-			Console.CursorLeft = 0;
-			Console.Write(_emptyIndent);
-
-			WriteTruncated(plain[oldIndex]);
-
-			Console.CursorTop = firstItemTop + index;
-			Console.CursorLeft = 0;
-			Console.Write(_selectionSeq);
-			Console.Write(_arrow);
-
-			WriteTruncated(plain[index]);
-
-			Console.ResetColor();
-		}
+		return AnsiConsole.Prompt(prompt);
 	}
-
-	private static void WriteTruncated(string text)
-	{
-		var maxLen = Console.WindowWidth - 5;
-
-		if (text.Length > maxLen)
-		{
-			Console.Write(text.AsSpan(0, maxLen - 3));
-			Console.Write("...");
-		}
-		else
-		{
-			Console.Write(text);
-		}
-	}
-
-	private static string StripMarkup(string text) => Regex.Replace(text, @"\[/?[^\]]*\]", "");
 }

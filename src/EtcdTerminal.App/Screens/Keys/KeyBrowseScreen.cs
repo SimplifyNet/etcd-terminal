@@ -19,27 +19,37 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
-	private string _searchQuery = "";
-	private int _currentPage;
-	private int _selectedIndex;
-	private bool _showActions;
-	private EtcdKeyValue? _selectedKey;
 	private EtcdConnectionConfig _config = default!;
-	private int _searchEndCol;
-	private int _searchBarRow;
+	private KeyBrowseControl _control = default!;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		_config = config;
-		_searchQuery = "";
-		_currentPage = 0;
-		_selectedIndex = 0;
-		_showActions = false;
-		_selectedKey = null;
+		_control = new KeyBrowseControl(config);
 
 		await LoadKeysAsync();
 
-		await MainLoopAsync();
+		while (true)
+		{
+			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count);
+
+			var command = _control.ReadCommand(GetCurrentPageKeys(), GetTotalPages());
+
+			switch (command.Action)
+			{
+				case KeyBrowseAction.SearchChanged:
+					ApplyFilter();
+					break;
+				case KeyBrowseAction.Edit:
+					await EditKeyAsync(command.SelectedKey!);
+					break;
+				case KeyBrowseAction.Delete:
+					await DeleteKeyAsync(command.SelectedKey!);
+					break;
+				case KeyBrowseAction.Exit:
+					return;
+			}
+		}
 	}
 
 	private async Task LoadKeysAsync()
@@ -108,133 +118,19 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		_filteredKeys = [.. _allKeys];
 	}
 
-	private async Task MainLoopAsync()
+	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
-		while (true)
-		{
-			Render();
-
-			var keyInfo = Console.ReadKey(true);
-
-			if (_showActions)
-			{
-				switch (keyInfo.Key)
-				{
-					case ConsoleKey.Escape:
-						_showActions = false;
-						_selectedKey = null;
-						break;
-					case ConsoleKey.E:
-						await EditKeyAsync();
-						_showActions = false;
-						_selectedKey = null;
-						break;
-					case ConsoleKey.D:
-						await DeleteKeyAsync();
-						_showActions = false;
-						_selectedKey = null;
-						break;
-				}
-
-				continue;
-			}
-
-			switch (keyInfo.Key)
-			{
-				case ConsoleKey.UpArrow:
-					if (_selectedIndex > 0)
-						_selectedIndex--;
-					break;
-				case ConsoleKey.DownArrow:
-					var pageItemCount = GetPageItemCount();
-
-					if (_selectedIndex < pageItemCount - 1)
-						_selectedIndex++;
-					break;
-				case ConsoleKey.LeftArrow:
-					if (_currentPage > 0)
-					{
-						_currentPage--;
-						_selectedIndex = 0;
-					}
-					break;
-				case ConsoleKey.RightArrow:
-					if (_currentPage < GetTotalPages() - 1)
-					{
-						_currentPage++;
-						_selectedIndex = 0;
-					}
-					break;
-				case ConsoleKey.Enter:
-					var selected = GetCurrentPageKey();
-
-					if (selected is not null)
-					{
-						_selectedKey = selected;
-						_showActions = true;
-					}
-					break;
-				case ConsoleKey.Backspace:
-					if (_searchQuery.Length > 0)
-					{
-						_searchQuery = _searchQuery[..^1];
-						ApplyFilter();
-					}
-					break;
-				case ConsoleKey.Escape:
-					return;
-				default:
-					if (!char.IsControl(keyInfo.KeyChar))
-					{
-						_searchQuery += keyInfo.KeyChar;
-						ApplyFilter();
-					}
-					break;
-			}
-		}
-	}
-
-	private void Render()
-	{
-		AnsiConsole.Clear();
-		Header.Render();
-
-		var (searchEndCol, searchBarRow) = KeyBrowseLayout.RenderSearchBar(_searchQuery);
-		_searchEndCol = searchEndCol;
-		_searchBarRow = searchBarRow;
-
-		Console.SetCursorPosition(0, Console.CursorTop + 2);
-		KeyBrowseLayout.RenderKeyList(GetCurrentPageKeys(), _selectedIndex);
-
-		Console.WriteLine();
-		KeyBrowseLayout.RenderPagination(_currentPage, GetTotalPages(), _filteredKeys.Count);
-
-		Console.WriteLine();
-		if (_showActions && _selectedKey is not null)
-			KeyBrowseLayout.RenderActionBar(_selectedKey.Key);
-
-		StatusBar.Render(_config);
-
-		Console.CursorTop = _searchBarRow;
-		Console.CursorLeft = _searchEndCol;
-	}
-
-	private async Task EditKeyAsync()
-	{
-		if (_selectedKey is null)
-			return;
-
 		ScreenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"Editing key: {KeyBrowseLayout.SelectionColor}{Markup.Escape(_selectedKey.Key)}[/]");
-		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(KeyBrowseLayout.TruncateText(_selectedKey.Value, EditValueMaxLength))}[/]");
-		Console.WriteLine();
+		AnsiConsole.MarkupLine($"Editing key: {KeyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
+		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength))}[/]");
+		AnsiConsole.WriteLine();
 
-		var newValue = Prompt.Ask(EnterNewValue, _selectedKey.Value);
+		var newValue = Prompt.Ask(EnterNewValue, key.Value);
 
 		if (newValue is null)
 			return;
 
-		var result = await _etcdClient.UpdateKeyAsync(_selectedKey.Key, newValue);
+		var result = await _etcdClient.UpdateKeyAsync(key.Key, newValue);
 
 		ScreenLayout.RenderHeader(_config);
 
@@ -247,25 +143,20 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(CouldNotUpdateKey);
 
-		Console.WriteLine();
+		AnsiConsole.WriteLine();
 		PressAnyKeyPrompt.Show();
 	}
 
-	private async Task DeleteKeyAsync()
+	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
-		if (_selectedKey is null)
-			return;
-
 		ScreenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(_selectedKey.Key)}[/]");
-		Console.WriteLine();
+		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(key.Key)}[/]");
+		AnsiConsole.WriteLine();
 
-		var confirm = Prompt.Confirm(AreYouSure);
-
-		if (confirm is not true)
+		if (!Prompt.Confirm(AreYouSure))
 			return;
 
-		var result = await _etcdClient.DeleteKeyAsync(_selectedKey.Key);
+		var result = await _etcdClient.DeleteKeyAsync(key.Key);
 
 		ScreenLayout.RenderHeader(_config);
 
@@ -278,7 +169,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 		else
 			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
 
-		Console.WriteLine();
+		AnsiConsole.WriteLine();
 		PressAnyKeyPrompt.Show();
 	}
 
@@ -286,21 +177,16 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	{
 		await LoadKeysAsync();
 
-		_currentPage = Math.Min(_currentPage, GetTotalPages() - 1);
-
-		if (_currentPage < 0)
-			_currentPage = 0;
-
-		_selectedIndex = 0;
+		_control.ClampPage(GetTotalPages());
 	}
 
 	private void ApplyFilter()
 	{
-		if (string.IsNullOrEmpty(_searchQuery))
+		if (string.IsNullOrEmpty(_control.SearchQuery))
 			_filteredKeys = [.. _allKeys];
 		else
 		{
-			var query = _searchQuery;
+			var query = _control.SearchQuery;
 
 			_filteredKeys = [.. _allKeys
 				.Where(kv =>
@@ -308,26 +194,15 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 					kv.Value.Contains(query, StringComparison.OrdinalIgnoreCase))];
 		}
 
-		_currentPage = 0;
-		_selectedIndex = 0;
+		_control.ResetNavigation();
 	}
 
 	private List<EtcdKeyValue> GetCurrentPageKeys()
 	{
-		var start = _currentPage * PageSize;
+		var start = _control.CurrentPage * PageSize;
 
 		return [.. _filteredKeys.Skip(start).Take(PageSize)];
 	}
-
-	private EtcdKeyValue? GetCurrentPageKey()
-	{
-		var pageKeys = GetCurrentPageKeys();
-
-		return _selectedIndex < pageKeys.Count ? pageKeys[_selectedIndex] : null;
-	}
-
-	private int GetPageItemCount() =>
-		Math.Min(PageSize, _filteredKeys.Count - _currentPage * PageSize);
 
 	private int GetTotalPages() =>
 		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / PageSize);
