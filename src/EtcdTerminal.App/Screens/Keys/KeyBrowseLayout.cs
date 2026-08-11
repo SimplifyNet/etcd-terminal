@@ -11,7 +11,7 @@ public static class KeyBrowseLayout
 
 	private const string NoKeysFound = "  [grey]No keys found.[/]";
 
-	public const string SelectionColor = "[#dc5f33]";
+	public static string SelectionColor => $"[#{TerminalPanel.AccentColor.ToHex()}]";
 
 	private static int KeyColumnWidth => (Console.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
 

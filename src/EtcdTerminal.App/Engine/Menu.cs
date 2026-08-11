@@ -6,7 +6,7 @@ namespace EtcdTerminal.App.Engine;
 
 public static class Menu
 {
-	private static readonly Style _highlightStyle = new(foreground: new Color(220, 95, 51));
+	private static readonly Style _highlightStyle = new(foreground: TerminalPanel.AccentColor);
 
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{

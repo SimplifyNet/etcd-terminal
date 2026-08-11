@@ -1,3 +1,5 @@
+using Spectre.Console;
+
 namespace EtcdTerminal.App.Components;
 
 public static class TerminalPanel
@@ -6,12 +8,15 @@ public static class TerminalPanel
 	public const string DarkBg = "\x1b[48;2;21;22;24m";
 	public const string White = "\x1b[38;2;255;255;255m";
 	public const string Grey = "\x1b[38;2;128;128;128m";
-	public const string Accent = "\x1b[38;2;220;95;51m";
 	public const string Green = "\x1b[38;2;0;200;0m";
 	public const string Teal = "\x1b[38;2;0;180;180m";
 	public const string Yellow = "\x1b[38;2;255;200;0m";
 	public const string Dim = "\x1b[38;2;80;80;80m";
 	public const string Reset = "\x1b[0m";
+
+	public static readonly Color AccentColor = new(220, 95, 51);
+
+	public static string Accent => $"\x1b[38;2;{AccentColor.R};{AccentColor.G};{AccentColor.B}m";
 
 	public static void SetDarkBackground() => Console.Write("\x1b]11;#0a0a0a\x07");
 
