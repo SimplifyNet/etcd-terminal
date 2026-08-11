@@ -96,6 +96,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
 		AnsiConsole.Clear();
+		Header.Render();
 
 		var manageChoices = new List<string> { AddInstance };
 
@@ -191,6 +192,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		var existing = instances.First(i => i.Name == existingName);
 
 		AnsiConsole.Clear();
+		Header.Render();
 
 		var name = Prompt.Ask(EnterInstanceName, existing.Name);
 
