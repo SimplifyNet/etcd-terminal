@@ -1,35 +1,108 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Models;
-using Spectre.Console;
+using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
 
 public static class Menu
 {
-	private static readonly Style _highlightStyle = new(foreground: TerminalPanel.AccentColor);
+	private const string ClearToEndOfScreen = "\x1b[J";
 
 	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
-		var prompt = new SelectionPrompt<string>()
-			.AddCancelResult(() => null!)
-			.HighlightStyle(_highlightStyle)
-			.PageSize(10)
-			.WrapAround();
+		var items = choices.ToList();
+		var index = 0;
+
+		var plain = items.Select(c =>
+		{
+			var formatted = displayConverter?.Invoke(c) ?? c;
+
+			return StripMarkup(formatted);
+		}).ToList();
+
+		var menuStart = Console.CursorTop;
+
+		Console.ResetColor();
 
 		if (!string.IsNullOrEmpty(title))
-			prompt.Title(title);
+		{
+			Console.WriteLine();
+			Console.WriteLine(title);
+			Console.WriteLine();
+		}
 
-		prompt.AddChoices(choices);
+		var firstItemTop = Console.CursorTop;
 
-		if (displayConverter is not null)
-			prompt.UseConverter(displayConverter);
+		for (var i = 0; i < items.Count; i++)
+			DrawItem(firstItemTop + i, plain[i], i == index);
 
-		var savedTop = Console.CursorTop;
-
+		var menuEnd = Console.CursorTop;
 		StatusBar.Render(config);
-		Console.CursorTop = savedTop;
+		Console.CursorTop = menuEnd;
 		Console.CursorLeft = 0;
 
-		return AnsiConsole.Prompt(prompt);
+		while (true)
+		{
+			var key = Console.ReadKey(true);
+			var oldIndex = index;
+
+			switch (key.Key)
+			{
+				case ConsoleKey.Escape:
+					ClearMenu(menuStart);
+					return null;
+				case ConsoleKey.Enter:
+					ClearMenu(menuStart);
+					return items[index];
+				case ConsoleKey.UpArrow:
+					index = (index - 1 + items.Count) % items.Count;
+					break;
+				case ConsoleKey.DownArrow:
+					index = (index + 1) % items.Count;
+					break;
+				default:
+					continue;
+			}
+
+			DrawItem(firstItemTop + oldIndex, plain[oldIndex], false);
+			DrawItem(firstItemTop + index, plain[index], true);
+		}
 	}
+
+	private static void ClearMenu(int menuStart)
+	{
+		Console.CursorTop = menuStart;
+		Console.CursorLeft = 0;
+		Console.Write(ClearToEndOfScreen);
+	}
+
+	private static void DrawItem(int top, string text, bool isSelected)
+	{
+		Console.CursorTop = top;
+		Console.CursorLeft = 0;
+		Console.ResetColor();
+
+		Console.Write(isSelected ? TerminalPanel.Accent : string.Empty);
+		Console.Write(isSelected ? TerminalPanel.SelectionPointer : TerminalPanel.SelectionPointerEmpty);
+
+		WriteTruncated(text);
+		Console.ResetColor();
+	}
+
+	private static void WriteTruncated(string text)
+	{
+		var maxLen = Console.WindowWidth - TerminalPanel.SelectionPointer.Length - 1;
+
+		if (text.Length > maxLen)
+		{
+			Console.Write(text.AsSpan(0, Math.Max(0, maxLen - 3)));
+			Console.Write("...");
+		}
+		else
+		{
+			Console.Write(text);
+		}
+	}
+
+	private static string StripMarkup(string text) => Regex.Replace(text, @"\[/?[^\]]*\]", "");
 }

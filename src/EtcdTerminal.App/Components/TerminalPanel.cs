@@ -18,6 +18,10 @@ public static class TerminalPanel
 
 	public static string Accent => $"\x1b[38;2;{AccentColor.R};{AccentColor.G};{AccentColor.B}m";
 
+	public const string SelectionPointer = "  ❯ ";
+
+	public const string SelectionPointerEmpty = "    ";
+
 	public static void SetDarkBackground() => Console.Write("\x1b]11;#0a0a0a\x07");
 
 	public static void ResetBackground() => Console.Write("\x1b]111\x07");

@@ -56,7 +56,7 @@ public static class KeyBrowseLayout
 			var kv = pageKeys[i];
 			var isSelected = i == selectedIndex;
 
-			var prefix = isSelected ? "  ❯ " : "    ";
+			var prefix = isSelected ? TerminalPanel.SelectionPointer : TerminalPanel.SelectionPointerEmpty;
 			var key = TruncateText(kv.Key, keyWidth);
 			var value = TruncateText(kv.Value, valueWidth);
 			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
