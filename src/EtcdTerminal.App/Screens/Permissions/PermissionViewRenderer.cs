@@ -1,5 +1,6 @@
-using EtcdTerminal.Models;
 using Spectre.Console;
+using EtcdTerminal.Roles;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 

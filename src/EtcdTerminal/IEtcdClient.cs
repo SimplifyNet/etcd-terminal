@@ -1,5 +1,8 @@
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Models;
+using EtcdTerminal.Keys;
+using EtcdTerminal.Permissions;
+using EtcdTerminal.Roles;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal;
 

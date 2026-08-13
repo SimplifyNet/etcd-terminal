@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Models;
+namespace EtcdTerminal.Users;
 
 public sealed class EtcdUser
 {

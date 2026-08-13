@@ -1,8 +1,8 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Models;
 using Spectre.Console;
+using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 

@@ -1,5 +1,5 @@
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.Models;
+using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 

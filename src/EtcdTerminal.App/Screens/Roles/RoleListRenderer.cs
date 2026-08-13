@@ -1,5 +1,5 @@
-using EtcdTerminal.Models;
 using Spectre.Console;
+using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 

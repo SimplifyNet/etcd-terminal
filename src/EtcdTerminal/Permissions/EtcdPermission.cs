@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Models;
+namespace EtcdTerminal.Permissions;
 
 public sealed class EtcdPermission
 {

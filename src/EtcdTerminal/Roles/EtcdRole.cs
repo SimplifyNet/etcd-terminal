@@ -1,4 +1,6 @@
-namespace EtcdTerminal.Models;
+using EtcdTerminal.Permissions;
+
+namespace EtcdTerminal.Roles;
 
 public sealed class EtcdRole
 {

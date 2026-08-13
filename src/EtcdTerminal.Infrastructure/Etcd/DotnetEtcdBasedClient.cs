@@ -3,11 +3,14 @@ using dotnet_etcd;
 using dotnet_etcd.interfaces;
 using Etcdserverpb;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Models;
 using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Mvccpb;
+using EtcdTerminal.Keys;
+using EtcdTerminal.Permissions;
+using EtcdTerminal.Roles;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal.Infrastructure.Etcd;
 

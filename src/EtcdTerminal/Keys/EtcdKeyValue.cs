@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Models;
+namespace EtcdTerminal.Keys;
 
 public sealed class EtcdKeyValue
 {
