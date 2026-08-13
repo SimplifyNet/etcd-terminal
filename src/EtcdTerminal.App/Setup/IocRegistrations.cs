@@ -30,7 +30,10 @@ public static class IocRegistrations
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
-		.Register<IConnectionConfigRepository, JsonBasedConfigRepository>(LifetimeType.Singleton)
+		.Register<IConnectionConfigRepository>(c => new ProtectedConfigRepository(
+			new JsonBasedConfigRepository(c.Resolve<IAppEnvironment>()),
+			c.Resolve<IConfigProtector>()),
+			LifetimeType.Singleton)
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator

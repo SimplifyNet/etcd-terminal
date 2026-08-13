@@ -1,13 +1,11 @@
 using System.Text.Json;
-using EtcdTerminal.Security;
 using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class JsonBasedConfigRepository(IAppEnvironment environment, IConfigProtector protector) : IConnectionConfigRepository
+public sealed class JsonBasedConfigRepository(IAppEnvironment environment) : IConnectionConfigRepository
 {
 	private readonly string _configPath = environment.ConfigFilePath;
-	private readonly IConfigProtector _protector = protector;
 	private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
 	public IReadOnlyList<EtcdConnectionConfig> LoadInstances()
@@ -33,7 +31,7 @@ public sealed class JsonBasedConfigRepository(IAppEnvironment environment, IConf
 							Name = i.GetProperty("Name").GetString() ?? string.Empty,
 							ConnectionString = i.GetProperty("ConnectionString").GetString() ?? string.Empty,
 							Username = i.TryGetProperty("Username", out var u) ? u.GetString() : null,
-							Password = _protector.Decrypt(i.TryGetProperty("Password", out var p) ? p.GetString() : null),
+							Password = i.TryGetProperty("Password", out var p) ? p.GetString() : null,
 						};
 					}
 					catch
@@ -118,7 +116,7 @@ public sealed class JsonBasedConfigRepository(IAppEnvironment environment, IConf
 				i.Name,
 				i.ConnectionString,
 				i.Username,
-				Password = i.Password != null ? _protector.Encrypt(i.Password) : null
+				i.Password
 			})
 		}, _jsonOptions);
 
