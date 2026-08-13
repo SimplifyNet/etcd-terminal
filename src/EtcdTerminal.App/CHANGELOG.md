@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5] - Unreleased
+
+### Changed
+
+- Menu selection pointer: custom `❯` marker instead of Spectre's `>`; same style is now used in menus and key browse list (single source in `TerminalPanel`)
+- Menu: all items are always rendered without paging (previously limited to 10 visible items)
+
+### Fixed
+
+- Header was missing in instance windows (Manage Connections, Edit Instance)
+
 ## [0.4] - 2027-08-06
 
 ### Changed
