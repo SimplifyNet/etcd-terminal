@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
+using EtcdTerminal.Configuration;
 using Simplify.DI;
 using Spectre.Console;
 
@@ -35,6 +36,10 @@ try
 		try
 		{
 			using var scope = DIContainer.Current.BeginLifetimeScope();
+
+			var settingsRepository = scope.Resolver.Resolve<IAppSettingsRepository>();
+
+			settingsRepository.Load();
 
 			var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
 			var config = await instanceScreen.ShowAsync();

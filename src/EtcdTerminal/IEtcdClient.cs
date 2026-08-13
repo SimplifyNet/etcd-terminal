@@ -1,3 +1,4 @@
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Models;
 
 namespace EtcdTerminal;

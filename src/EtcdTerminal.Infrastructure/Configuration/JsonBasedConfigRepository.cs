@@ -1,5 +1,6 @@
 using System.Text.Json;
-using EtcdTerminal.Models;
+using EtcdTerminal.Security;
+using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 

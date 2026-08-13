@@ -1,4 +1,4 @@
-using EtcdTerminal.Models;
+using EtcdTerminal.Configuration;
 using Simplify.System;
 
 namespace EtcdTerminal.App.Components;

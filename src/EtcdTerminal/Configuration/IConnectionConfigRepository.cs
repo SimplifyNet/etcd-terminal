@@ -1,6 +1,5 @@
-using EtcdTerminal.Models;
 
-namespace EtcdTerminal;
+namespace EtcdTerminal.Configuration;
 
 public interface IConnectionConfigRepository
 {

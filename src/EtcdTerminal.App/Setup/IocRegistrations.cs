@@ -1,9 +1,10 @@
-using EtcdTerminal;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
+using EtcdTerminal.Security;
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Etcd;
@@ -29,7 +30,8 @@ public static class IocRegistrations
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
-		.Register<IConnectionConfigRepository, JsonBasedConfigRepository>(LifetimeType.Singleton);
+		.Register<IConnectionConfigRepository, JsonBasedConfigRepository>(LifetimeType.Singleton)
+		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
@@ -41,5 +43,6 @@ public static class IocRegistrations
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
 		.Register<UserManagementScreen>(LifetimeType.Transient)
 		.Register<RoleManagementScreen>(LifetimeType.Transient)
-		.Register<PermissionViewScreen>(LifetimeType.Transient);
+		.Register<PermissionViewScreen>(LifetimeType.Transient)
+		.Register<SettingsScreen>(LifetimeType.Transient);
 }

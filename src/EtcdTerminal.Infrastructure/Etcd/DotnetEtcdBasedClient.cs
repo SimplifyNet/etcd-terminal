@@ -2,6 +2,7 @@ using Authpb;
 using dotnet_etcd;
 using dotnet_etcd.interfaces;
 using Etcdserverpb;
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Models;
 using Google.Protobuf;
 using Grpc.Core;

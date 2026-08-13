@@ -1,5 +1,6 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Models;
 using Spectre.Console;
 

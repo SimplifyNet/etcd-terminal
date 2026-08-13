@@ -1,4 +1,4 @@
-namespace EtcdTerminal;
+namespace EtcdTerminal.Security;
 
 public interface IConfigProtector
 {

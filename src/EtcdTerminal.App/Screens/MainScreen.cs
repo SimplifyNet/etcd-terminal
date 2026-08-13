@@ -4,7 +4,7 @@ using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
-using EtcdTerminal.Models;
+using EtcdTerminal.Configuration;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
@@ -27,12 +27,12 @@ public sealed class MainScreen(
 			var choice = Menu.Show(
 				"",
 				[
-					"Browse Keys",
-					"Create Key",
-					"Manage Users",
-					"Manage Roles",
-					"View Permissions",
-					"Disconnect"
+"Browse Keys",
+				"Create Key",
+				"Manage Users",
+				"Manage Roles",
+				"View Permissions",
+				"Disconnect"
 				],
 				config: config);
 

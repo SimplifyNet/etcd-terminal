@@ -1,3 +1,4 @@
+using EtcdTerminal.Configuration;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Engine;
@@ -8,7 +9,7 @@ public static class Prompt
 
 	private static readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
 
-	public static string? Ask(string prompt)
+	public static string? Ask(string prompt, bool allowEmpty = false)
 	{
 		try
 		{
@@ -16,7 +17,13 @@ public static class Prompt
 				.PromptStyle(_promptStyle)
 				.AllowEmpty());
 
-			return string.IsNullOrWhiteSpace(input) ? null : input;
+			if (EtcdTerminalSettings.TrimInputValues)
+				input = input.Trim();
+
+			if (string.IsNullOrWhiteSpace(input))
+				return allowEmpty ? string.Empty : null;
+
+			return input;
 		}
 		catch (OperationCanceledException)
 		{
@@ -28,12 +35,14 @@ public static class Prompt
 	{
 		try
 		{
-			return _console.Prompt(new TextPrompt<string>(prompt)
+			var input = _console.Prompt(new TextPrompt<string>(prompt)
 				.PromptStyle(_promptStyle)
 				.AllowEmpty()
 				.DefaultValue(defaultValue)
 				.EditableDefaultValue(true)
 				.ShowDefaultValue(false));
+
+			return EtcdTerminalSettings.TrimInputValues ? input.Trim() : input;
 		}
 		catch (OperationCanceledException)
 		{

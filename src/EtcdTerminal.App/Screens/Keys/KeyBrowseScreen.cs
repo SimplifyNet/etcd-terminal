@@ -1,5 +1,6 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Models;
 using Spectre.Console;
 
@@ -7,7 +8,6 @@ namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
-	private const int PageSize = 30;
 	private const int EditValueMaxLength = 200;
 
 	private const string KeyUpdated = "[green]Key updated successfully![/]";
@@ -199,11 +199,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private List<EtcdKeyValue> GetCurrentPageKeys()
 	{
-		var start = _control.CurrentPage * PageSize;
+		var pageSize = EtcdTerminalSettings.PageSize;
+		var start = _control.CurrentPage * pageSize;
 
-		return [.. _filteredKeys.Skip(start).Take(PageSize)];
+		return [.. _filteredKeys.Skip(start).Take(pageSize)];
 	}
 
 	private int GetTotalPages() =>
-		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / PageSize);
+		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / EtcdTerminalSettings.PageSize);
 }

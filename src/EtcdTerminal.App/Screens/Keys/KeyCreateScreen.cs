@@ -1,6 +1,6 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Models;
+using EtcdTerminal.Configuration;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Keys;

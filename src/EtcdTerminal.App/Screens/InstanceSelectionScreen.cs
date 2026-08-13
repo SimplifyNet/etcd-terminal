@@ -1,11 +1,11 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.Models;
+using EtcdTerminal.Configuration;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient)
+public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings)
 {
 	private const string InstanceAdded = "[green]Instance added successfully![/]";
 	private const string InstanceRemoved = "[green]Instance removed successfully![/]";
@@ -18,6 +18,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string MoveDownInstance = "Move Down";
 	private const string RemoveInstance = "Remove Instance";
 	private const string Exit = "Exit";
+	private const string Settings = "Settings";
 	private const string SelectInstance = "Select etcd instance:";
 	private const string SelectInstanceToEdit = "Select instance to edit:";
 	private const string SelectInstanceToMoveUp = "Select instance to move up:";
@@ -46,6 +47,8 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 			if (choice == ManageConnections)
 				ManageConfigs(instances);
+			else if (choice == Settings)
+				_settings.Show();
 			else if (choice == Exit)
 				return null;
 			else
@@ -81,6 +84,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		choices.AddRange(instances.Select(i => i.Name));
 		choices.Add(ManageConnections);
+		choices.Add(Settings);
 		choices.Add(Exit);
 
 		return Menu.Show(SelectInstance, choices, c =>
@@ -136,8 +140,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (name is null)
 			return;
 
-		name = name.Trim();
-
 		var connectionString = Prompt.Ask(EnterConnStr, DefaultConnStr);
 
 		if (connectionString is null)
@@ -151,7 +153,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			return;
 		}
 
-		var username = Prompt.Ask(EnterUsername);
+		var username = Prompt.Ask(EnterUsername, allowEmpty: true);
 
 		if (username is null)
 			return;
@@ -198,8 +200,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (name is null)
 			return;
-
-		name = name.Trim();
 
 		var connectionString = Prompt.Ask(EnterConnStr, existing.ConnectionString);
 

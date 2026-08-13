@@ -2,14 +2,26 @@
 
 ## [0.5] - Unreleased
 
+### Added
+
+- Settings menu on the instance selection screen: keys per page setting (browsing pagination)
+- Settings menu on the instance selection screen: trim input values toggle
+- Settings persisted to `settings.json`
+
 ### Changed
 
-- Menu selection pointer: custom `❯` marker instead of Spectre's `>`; same style is now used in menus and key browse list (single source in `TerminalPanel`)
+- Input values are trimmed by default
+- Input trimming can be disabled in Settings
+- Passwords are never trimmed
+- Menu selection pointer: custom `❯` marker instead of Spectre's `>`
+- Selection pointer style unified in menus and key browse list (single source in `TerminalPanel`)
 - Menu: all items are always rendered without paging (previously limited to 10 visible items)
 
 ### Fixed
 
 - Header was missing in instance windows (Manage Connections, Edit Instance)
+- Adding an instance with an empty username no longer cancels the dialog
+- Empty username means no authentication (password is not requested)
 
 ## [0.4] - 2027-08-06
 

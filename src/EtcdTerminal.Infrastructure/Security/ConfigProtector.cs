@@ -1,3 +1,4 @@
+using EtcdTerminal.Security;
 using System.Security.Cryptography;
 using System.Text;
 

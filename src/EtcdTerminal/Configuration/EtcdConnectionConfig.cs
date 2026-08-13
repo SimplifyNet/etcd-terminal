@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Models;
+namespace EtcdTerminal.Configuration;
 
 public sealed class EtcdConnectionConfig
 {

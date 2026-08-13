@@ -1,5 +1,5 @@
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Models;
+using EtcdTerminal.Configuration;
 using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
