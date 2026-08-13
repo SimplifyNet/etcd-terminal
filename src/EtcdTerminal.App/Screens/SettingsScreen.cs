@@ -40,8 +40,8 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private static string FormatItem(string item) => item switch
 	{
-		PageSizeItem => $"{PageSizeLabel} ({EtcdTerminalSettings.PageSize})",
-		_ => $"{TrimInputValuesLabel} ({OnOff(EtcdTerminalSettings.TrimInputValues)})"
+		PageSizeItem => $"{PageSizeLabel} ({AppSettings.PageSize})",
+		_ => $"{TrimInputValuesLabel} ({OnOff(AppSettings.TrimInputValues)})"
 	};
 
 	private static string OnOff(bool value) => value ? "On" : "Off";
@@ -55,7 +55,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
 		{
-			EtcdTerminalSettings.PageSize = pageSize;
+			AppSettings.PageSize = pageSize;
 			_repository.Save();
 			AnsiConsole.MarkupLine(SettingsSaved);
 		}
@@ -70,7 +70,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private void ToggleTrimInputValues()
 	{
-		EtcdTerminalSettings.TrimInputValues = !EtcdTerminalSettings.TrimInputValues;
+		AppSettings.TrimInputValues = !AppSettings.TrimInputValues;
 		_repository.Save();
 	}
 }

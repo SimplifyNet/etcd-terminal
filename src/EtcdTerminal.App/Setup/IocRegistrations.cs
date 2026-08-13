@@ -32,7 +32,7 @@ public static class IocRegistrations
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
 		.Register<IConnectionConfigRepository>(c =>
 			new ProtectedConfigRepository(
-				new JsonBasedConfigRepository(c.Resolve<IAppEnvironment>()),
+				new JsonBasedConnectionConfigRepository(c.Resolve<IAppEnvironment>()),
 				c.Resolve<IConfigProtector>()),
 			LifetimeType.Singleton)
 

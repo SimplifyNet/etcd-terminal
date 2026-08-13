@@ -6,7 +6,7 @@
 
 - Settings menu on the instance selection screen: keys per page setting (browsing pagination)
 - Settings menu on the instance selection screen: trim input values toggle
-- Settings persisted to `settings.json`
+- Settings persisted to `config.json` (own section, same file as connection instances)
 
 ### Changed
 

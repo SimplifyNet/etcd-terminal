@@ -200,12 +200,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private List<EtcdKeyValue> GetCurrentPageKeys()
 	{
-		var pageSize = EtcdTerminalSettings.PageSize;
+		var pageSize = AppSettings.PageSize;
 		var start = _control.CurrentPage * pageSize;
 
 		return [.. _filteredKeys.Skip(start).Take(pageSize)];
 	}
 
 	private int GetTotalPages() =>
-		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / EtcdTerminalSettings.PageSize);
+		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / AppSettings.PageSize);
 }

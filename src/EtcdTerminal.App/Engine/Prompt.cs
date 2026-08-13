@@ -17,7 +17,7 @@ public static class Prompt
 				.PromptStyle(_promptStyle)
 				.AllowEmpty());
 
-			if (EtcdTerminalSettings.TrimInputValues)
+			if (AppSettings.TrimInputValues)
 				input = input.Trim();
 
 			if (string.IsNullOrWhiteSpace(input))
@@ -42,7 +42,7 @@ public static class Prompt
 				.EditableDefaultValue(true)
 				.ShowDefaultValue(false));
 
-			return EtcdTerminalSettings.TrimInputValues ? input.Trim() : input;
+			return AppSettings.TrimInputValues ? input.Trim() : input;
 		}
 		catch (OperationCanceledException)
 		{

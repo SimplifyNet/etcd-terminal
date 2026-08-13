@@ -1,10 +1,13 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class JsonBasedConfigRepository(IAppEnvironment environment) : IConnectionConfigRepository
+public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environment) : IConnectionConfigRepository
 {
+	private const string InstancesSection = "Instances";
+
 	private readonly string _configPath = environment.ConfigFilePath;
 	private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
@@ -18,7 +21,7 @@ public sealed class JsonBasedConfigRepository(IAppEnvironment environment) : ICo
 			var json = File.ReadAllText(_configPath);
 			var doc = JsonDocument.Parse(json);
 			var instances = doc.RootElement
-				.GetProperty("Instances")
+				.GetProperty(InstancesSection)
 				.EnumerateArray();
 
 			return [.. instances
@@ -107,19 +110,34 @@ public sealed class JsonBasedConfigRepository(IAppEnvironment environment) : ICo
 	private void SaveInstances(List<EtcdConnectionConfig> instances)
 	{
 		var dir = Path.GetDirectoryName(_configPath)!;
+
 		Directory.CreateDirectory(dir);
 
-		var json = JsonSerializer.Serialize(new
-		{
-			Instances = instances.Select(i => new
-			{
-				i.Name,
-				i.ConnectionString,
-				i.Username,
-				i.Password
-			})
-		}, _jsonOptions);
+		var root = LoadExistingRoot();
 
-		File.WriteAllText(_configPath, json);
+		root[InstancesSection] = JsonSerializer.SerializeToNode(instances.Select(i => new
+		{
+			i.Name,
+			i.ConnectionString,
+			i.Username,
+			i.Password
+		}));
+
+		File.WriteAllText(_configPath, root.ToJsonString(_jsonOptions));
+	}
+
+	private JsonObject LoadExistingRoot()
+	{
+		if (!File.Exists(_configPath))
+			return [];
+
+		try
+		{
+			return JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject ?? [];
+		}
+		catch
+		{
+			return [];
+		}
 	}
 }
