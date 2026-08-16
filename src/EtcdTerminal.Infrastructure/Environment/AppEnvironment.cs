@@ -1,3 +1,5 @@
+using EtcdTerminal.Environment;
+
 namespace EtcdTerminal.Infrastructure.Environment;
 
 public sealed class AppEnvironment : IAppEnvironment

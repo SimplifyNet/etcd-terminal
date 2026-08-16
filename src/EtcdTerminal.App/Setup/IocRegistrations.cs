@@ -10,6 +10,7 @@ using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Etcd;
 using EtcdTerminal.Infrastructure.Security;
 using Simplify.DI;
+using EtcdTerminal.Environment;
 
 namespace EtcdTerminal.App.Setup;
 

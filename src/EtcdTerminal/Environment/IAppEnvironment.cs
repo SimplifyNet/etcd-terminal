@@ -1,4 +1,4 @@
-namespace EtcdTerminal;
+namespace EtcdTerminal.Environment;
 
 public interface IAppEnvironment
 {

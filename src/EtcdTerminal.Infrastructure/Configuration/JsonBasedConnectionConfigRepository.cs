@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Environment;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
