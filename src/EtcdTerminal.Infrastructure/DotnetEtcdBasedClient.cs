@@ -12,7 +12,7 @@ using EtcdTerminal.Permissions;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
 
-namespace EtcdTerminal.Infrastructure.Etcd;
+namespace EtcdTerminal.Infrastructure;
 
 public sealed class DotnetEtcdBasedClient : IEtcdClient
 {
