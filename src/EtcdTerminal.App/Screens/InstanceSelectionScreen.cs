@@ -19,7 +19,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 	private const string RemoveInstance = "Remove Instance";
 	private const string Exit = "Exit";
 	private const string Settings = "Settings";
-	private const string SelectInstance = "Select etcd instance:";
+	private const string NoConnectionsMessage = "No connections configured. Go to Manage Connections to add one.";
 	private const string SelectInstanceToEdit = "Select instance to edit:";
 	private const string SelectInstanceToMoveUp = "Select instance to move up:";
 	private const string SelectInstanceToMoveDown = "Select instance to move down:";
@@ -87,7 +87,13 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		choices.Add(Settings);
 		choices.Add(Exit);
 
-		return Menu.Show(SelectInstance, choices, c =>
+		if (instances.Count == 0)
+		{
+			AnsiConsole.MarkupLine($"[yellow]{NoConnectionsMessage}[/]");
+			AnsiConsole.WriteLine();
+		}
+
+		return Menu.Show(string.Empty, choices, c =>
 		{
 			var instance = instances.FirstOrDefault(i => i.Name == c);
 
