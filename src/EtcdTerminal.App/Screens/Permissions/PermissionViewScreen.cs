@@ -5,7 +5,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout)
+public sealed class PermissionViewScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -20,6 +20,6 @@ public sealed class PermissionViewScreen(IEtcdClient _etcdClient, ScreenLayout _
 				PermissionViewRenderer.Render(users, roles);
 			});
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 }

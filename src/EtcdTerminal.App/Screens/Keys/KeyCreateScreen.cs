@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout)
+public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -29,6 +29,6 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCreateFailed);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 }

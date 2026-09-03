@@ -43,7 +43,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 		while (true)
 		{
-			var key = Console.ReadKey(true);
+			var key = _terminal.ReadKey();
 			var oldIndex = index;
 
 			switch (key.Key)

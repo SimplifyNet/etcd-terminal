@@ -52,7 +52,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
 	{
-		var key = Console.ReadKey(true);
+		var key = _terminal.ReadKey();
 
 		if (ShowActions)
 		{

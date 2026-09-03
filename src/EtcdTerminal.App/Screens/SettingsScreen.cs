@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu)
+public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -57,7 +57,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 		}
 
 		AnsiConsole.WriteLine();
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private void ToggleTrimInputValues()

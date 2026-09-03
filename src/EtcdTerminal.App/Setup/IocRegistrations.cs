@@ -53,7 +53,8 @@ public static class IocRegistrations
 		.Register<Menu>(LifetimeType.Transient)
 		.Register<MenuScreen>(LifetimeType.Transient)
 		.Register<ScreenLayout>(LifetimeType.Transient)
-		.Register<KeyBrowseLayout>(LifetimeType.Transient);
+		.Register<KeyBrowseLayout>(LifetimeType.Transient)
+		.Register<PressAnyKeyPrompt>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)

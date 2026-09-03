@@ -9,7 +9,7 @@ using EtcdTerminal.App.Screens.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseLayout _keyBrowseLayout, KeyBrowseControl _control)
+public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseLayout _keyBrowseLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -138,7 +138,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 			AnsiConsole.MarkupLine(LocalizationStore.Current.CouldNotUpdateKey);
 
 		AnsiConsole.WriteLine();
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
@@ -164,7 +164,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCouldNotBeDeleted);
 
 		AnsiConsole.WriteLine();
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task ReloadAsync()

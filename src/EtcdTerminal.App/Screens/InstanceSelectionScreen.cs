@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu)
+public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -49,7 +49,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 				{
 					AnsiConsole.MarkupLine($"[red]Failed to connect:[/] {ex.Message}");
 					AnsiConsole.WriteLine();
-					PressAnyKeyPrompt.Show();
+					_pressAnyKey.Show();
 				}
 			}
 		}
@@ -131,7 +131,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
 			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidConnStr);
-			PressAnyKeyPrompt.Show();
+			_pressAnyKey.Show();
 
 			return;
 		}
@@ -164,7 +164,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceAdded);
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -192,7 +192,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
 			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidConnStr);
-			PressAnyKeyPrompt.Show();
+			_pressAnyKey.Show();
 
 			return;
 		}
@@ -230,7 +230,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		_configRepo.AddInstance(config);
 
 		AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceUpdated);
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
@@ -260,6 +260,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceRemoved);
 		}
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 }

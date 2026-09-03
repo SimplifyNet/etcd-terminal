@@ -67,4 +67,10 @@ public interface ITerminal
 	void PadCurrentRow(string bg);
 
 	int GetVisibleLength(string s);
+
+	void Initialize();
+
+	ConsoleKeyInfo ReadKey();
+
+	void Flush();
 }

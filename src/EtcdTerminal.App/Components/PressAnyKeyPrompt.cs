@@ -1,14 +1,15 @@
+using EtcdTerminal.Terminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Components;
 
-public static class PressAnyKeyPrompt
+public sealed class PressAnyKeyPrompt(ITerminal _terminal)
 {
 	private const string PressAnyKeyMarkup = "[grey]Press any key to continue...[/]";
 
-	public static void Show()
+	public void Show()
 	{
 		AnsiConsole.MarkupLine(PressAnyKeyMarkup);
-		Console.ReadKey(true);
+		_terminal.ReadKey();
 	}
 }

@@ -18,22 +18,19 @@ DIContainer.Current
 ThemeStore.Current = new ReddyTheme();
 LocalizationStore.Current = new EnglishLocalization();
 
-Console.OutputEncoding = System.Text.Encoding.UTF8;
-
-using (var scope = DIContainer.Current.BeginLifetimeScope())
-{
-	var terminal = scope.Resolver.Resolve<ITerminal>();
-	terminal.SetDarkBackground();
-}
+DIContainer.Current
+	.Resolve<ITerminal>()
+	.Initialize();
 
 static void Cleanup()
 {
-	using var scope = DIContainer.Current.BeginLifetimeScope();
-	var terminal = scope.Resolver.Resolve<ITerminal>();
+	var terminal = DIContainer.Current.Resolve<ITerminal>();
+
 	terminal.ClearScreen();
 	terminal.ResetBackground();
-	Console.ResetColor();
-	Console.Out.Flush();
+	terminal.Flush();
+
+	DIContainer.Current.Dispose();
 }
 
 Console.CancelKeyPress += (_, args) =>
@@ -69,7 +66,10 @@ try
 		{
 			AnsiConsole.WriteException(ex);
 			AnsiConsole.MarkupLine(PressAnyKeyRestart);
-			Console.ReadKey(true);
+
+			DIContainer.Current
+				.Resolve<ITerminal>()
+				.ReadKey();
 		}
 	}
 }

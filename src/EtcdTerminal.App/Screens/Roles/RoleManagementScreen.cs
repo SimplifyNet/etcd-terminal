@@ -7,7 +7,7 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector)
+public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
@@ -40,7 +40,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 
 		RoleListRenderer.Render(roles);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task CreateRoleAsync()
@@ -57,7 +57,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateRole);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task DeleteRoleAsync()
@@ -79,7 +79,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteRole);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private Task GrantPermissionAsync() =>
@@ -115,6 +115,6 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 			AnsiConsole.MarkupLine(failureMessage);
 		}
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 }

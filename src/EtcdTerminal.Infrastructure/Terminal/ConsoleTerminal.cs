@@ -81,4 +81,18 @@ public sealed class ConsoleTerminal : ITerminal
 
 		return len;
 	}
+
+	public void Initialize()
+	{
+		Console.OutputEncoding = System.Text.Encoding.UTF8;
+		SetDarkBackground();
+	}
+
+	public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
+
+	public void Flush()
+	{
+		ResetColor();
+		Console.Out.Flush();
+	}
 }

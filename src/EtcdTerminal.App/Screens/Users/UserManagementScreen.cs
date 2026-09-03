@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen)
+public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
@@ -42,7 +42,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 
 		UserListRenderer.Render(users);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task CreateUserAsync()
@@ -64,7 +64,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateUser);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task DeleteUserAsync()
@@ -86,7 +86,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteUser);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task ChangePasswordAsync()
@@ -108,7 +108,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		else
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedChangePassword);
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task AssignRoleAsync()
@@ -133,7 +133,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedAssignRole);
 		}
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 
 	private async Task RevokeRoleAsync()
@@ -158,6 +158,6 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedRemoveRole);
 		}
 
-		PressAnyKeyPrompt.Show();
+		_pressAnyKey.Show();
 	}
 }
