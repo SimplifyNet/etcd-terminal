@@ -57,6 +57,16 @@ var b = Bar();
 if (a > b) ...
 ```
 
+## Assignment and method call separation
+
+Assignment lines (`x = ...`, `x.Property = ...`) must be separated from method call lines (`x.Method()`) by one blank line.
+
+```
+var config = LoadConfig();
+
+SaveConfig(config);
+```
+
 ## Modern C# syntax
 
 - **File-scoped namespaces** (`namespace X.Y;` — no braces).
