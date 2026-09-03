@@ -1,7 +1,9 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
+using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Theming;
 using Simplify.DI;
 using Spectre.Console;
 
@@ -10,6 +12,8 @@ const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
 DIContainer.Current
 	.RegisterAll()
 	.Verify();
+
+ThemeStore.Current = new ReddyTheme();
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 TerminalPanel.SetDarkBackground();

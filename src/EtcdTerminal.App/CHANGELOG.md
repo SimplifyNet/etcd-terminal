@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.6] - 2026-08-13
+## [0.6] - Unreleased
+
+### Added
+
+- Theming
 
 ### Changed
 

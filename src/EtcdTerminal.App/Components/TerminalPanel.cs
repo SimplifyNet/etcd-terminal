@@ -1,28 +1,29 @@
+using EtcdTerminal.Theming;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Components;
 
 public static class TerminalPanel
 {
-	public const string Bg = "\x1b[48;2;27;28;30m";
-	public const string DarkBg = "\x1b[48;2;21;22;24m";
-	public const string White = "\x1b[38;2;255;255;255m";
-	public const string Grey = "\x1b[38;2;128;128;128m";
-	public const string Green = "\x1b[38;2;0;200;0m";
-	public const string Teal = "\x1b[38;2;0;180;180m";
-	public const string Yellow = "\x1b[38;2;255;200;0m";
-	public const string Dim = "\x1b[38;2;80;80;80m";
+	public static string Bg => $"\x1b[48;2;{ThemeStore.Current.PanelBackground.R};{ThemeStore.Current.PanelBackground.G};{ThemeStore.Current.PanelBackground.B}m";
+	public static string DarkBg => $"\x1b[48;2;{ThemeStore.Current.PanelDarkerBackground.R};{ThemeStore.Current.PanelDarkerBackground.G};{ThemeStore.Current.PanelDarkerBackground.B}m";
+	public static string White => $"\x1b[38;2;{ThemeStore.Current.White.R};{ThemeStore.Current.White.G};{ThemeStore.Current.White.B}m";
+	public static string Grey => $"\x1b[38;2;{ThemeStore.Current.Grey.R};{ThemeStore.Current.Grey.G};{ThemeStore.Current.Grey.B}m";
+	public static string Green => $"\x1b[38;2;{ThemeStore.Current.Green.R};{ThemeStore.Current.Green.G};{ThemeStore.Current.Green.B}m";
+	public static string Teal => $"\x1b[38;2;{ThemeStore.Current.Teal.R};{ThemeStore.Current.Teal.G};{ThemeStore.Current.Teal.B}m";
+	public static string Yellow => $"\x1b[38;2;{ThemeStore.Current.Yellow.R};{ThemeStore.Current.Yellow.G};{ThemeStore.Current.Yellow.B}m";
+	public static string Dim => $"\x1b[38;2;{ThemeStore.Current.Dim.R};{ThemeStore.Current.Dim.G};{ThemeStore.Current.Dim.B}m";
 	public const string Reset = "\x1b[0m";
 
-	public static readonly Color AccentColor = new(220, 95, 51);
+	public static Color AccentColor => new(ThemeStore.Current.Accent.R, ThemeStore.Current.Accent.G, ThemeStore.Current.Accent.B);
 
-	public static string Accent => $"\x1b[38;2;{AccentColor.R};{AccentColor.G};{AccentColor.B}m";
+	public static string Accent => $"\x1b[38;2;{ThemeStore.Current.Accent.R};{ThemeStore.Current.Accent.G};{ThemeStore.Current.Accent.B}m";
 
 	public const string SelectionPointer = "  ❯ ";
 
 	public const string SelectionPointerEmpty = "    ";
 
-	public static void SetDarkBackground() => Console.Write("\x1b]11;#0a0a0a\x07");
+	public static void SetDarkBackground() => Console.Write($"\x1b]11;#{ThemeStore.Current.WindowBackground.R:X2}{ThemeStore.Current.WindowBackground.G:X2}{ThemeStore.Current.WindowBackground.B:X2}\x07");
 
 	public static void ResetBackground() => Console.Write("\x1b]111\x07");
 
