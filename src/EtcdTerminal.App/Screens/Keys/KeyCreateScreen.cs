@@ -6,11 +6,11 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
+public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		ScreenLayout.RenderHeader(config);
+		_screenLayout.RenderHeader(config);
 
 		var key = Prompt.Ask(LocalizationStore.Current.EnterKey);
 

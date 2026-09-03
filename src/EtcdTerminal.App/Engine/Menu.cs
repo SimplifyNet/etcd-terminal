@@ -1,14 +1,15 @@
+using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
 
-public static class Menu
+public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
 	private const string ClearToEndOfScreen = "\x1b[J";
 
-	public static string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
+	public string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
 		var items = choices.ToList();
 		var index = 0;
@@ -20,26 +21,25 @@ public static class Menu
 			return StripMarkup(formatted);
 		}).ToList();
 
-		var menuStart = Console.CursorTop;
+		var menuStart = _terminal.CursorTop;
 
-		Console.ResetColor();
+		_terminal.ResetColor();
 
 		if (!string.IsNullOrEmpty(title))
 		{
-			Console.WriteLine();
-			Console.WriteLine(title);
-			Console.WriteLine();
+			_terminal.WriteLine();
+			_terminal.WriteLine(title);
+			_terminal.WriteLine();
 		}
 
-		var firstItemTop = Console.CursorTop;
+		var firstItemTop = _terminal.CursorTop;
 
 		for (var i = 0; i < items.Count; i++)
 			DrawItem(firstItemTop + i, plain[i], i == index);
 
-		var menuEnd = Console.CursorTop;
-		StatusBar.Render(config);
-		Console.CursorTop = menuEnd;
-		Console.CursorLeft = 0;
+		var menuEnd = _terminal.CursorTop;
+		_statusBar.Render(config);
+		_terminal.SetCursorPosition(0, menuEnd);
 
 		while (true)
 		{
@@ -69,38 +69,36 @@ public static class Menu
 		}
 	}
 
-	private static void ClearMenu(int menuStart)
+	private void ClearMenu(int menuStart)
 	{
-		Console.CursorTop = menuStart;
-		Console.CursorLeft = 0;
-		Console.Write(ClearToEndOfScreen);
+		_terminal.SetCursorPosition(0, menuStart);
+		_terminal.Write(ClearToEndOfScreen);
 	}
 
-	private static void DrawItem(int top, string text, bool isSelected)
+	private void DrawItem(int top, string text, bool isSelected)
 	{
-		Console.CursorTop = top;
-		Console.CursorLeft = 0;
-		Console.ResetColor();
+		_terminal.SetCursorPosition(0, top);
+		_terminal.ResetColor();
 
-		Console.Write(isSelected ? TerminalPanel.Accent : string.Empty);
-		Console.Write(isSelected ? TerminalPanel.SelectionPointer : TerminalPanel.SelectionPointerEmpty);
+		_terminal.Write(isSelected ? _terminal.Accent : string.Empty);
+		_terminal.Write(isSelected ? _terminal.SelectionPointer : _terminal.SelectionPointerEmpty);
 
 		WriteTruncated(text);
-		Console.ResetColor();
+		_terminal.ResetColor();
 	}
 
-	private static void WriteTruncated(string text)
+	private void WriteTruncated(string text)
 	{
-		var maxLen = Console.WindowWidth - TerminalPanel.SelectionPointer.Length - 1;
+		var maxLen = _terminal.WindowWidth - _terminal.SelectionPointer.Length - 1;
 
 		if (text.Length > maxLen)
 		{
-			Console.Write(text.AsSpan(0, Math.Max(0, maxLen - 3)));
-			Console.Write("...");
+			_terminal.Write(text.AsSpan(0, Math.Max(0, maxLen - 3)).ToString());
+			_terminal.Write("...");
 		}
 		else
 		{
-			Console.Write(text);
+			_terminal.Write(text);
 		}
 	}
 

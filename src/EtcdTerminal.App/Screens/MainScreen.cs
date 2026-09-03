@@ -16,7 +16,8 @@ public sealed class MainScreen(
 	KeyCreateScreen _keyCreate,
 	UserManagementScreen _userManagement,
 	RoleManagementScreen _roleManagement,
-	PermissionViewScreen _permissionView)
+	PermissionViewScreen _permissionView,
+	Menu _menu)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -25,7 +26,7 @@ public sealed class MainScreen(
 			AnsiConsole.Clear();
 			Header.Render();
 
-			var choice = Menu.Show(
+			var choice = _menu.Show(
 				"",
 				[
 					LocalizationStore.Current.BrowseKeys,

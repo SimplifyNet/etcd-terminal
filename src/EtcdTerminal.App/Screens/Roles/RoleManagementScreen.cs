@@ -7,10 +7,10 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
+public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await MenuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
+		await _menuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(string choice)
 	{
@@ -100,7 +100,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		if (keyPrefix is null)
 			return;
 
-		var permType = PermissionTypeSelector.Select();
+		var permType = _permissionTypeSelector.Select();
 
 		if (permType is null)
 			return;

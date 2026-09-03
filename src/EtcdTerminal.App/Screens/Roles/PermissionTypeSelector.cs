@@ -4,15 +4,15 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public static class PermissionTypeSelector
+public sealed class PermissionTypeSelector(Menu _menu)
 {
-	public static PermissionType? Select()
+	public PermissionType? Select()
 	{
 		var read = LocalizationStore.Current.Read;
 		var write = LocalizationStore.Current.Write;
 		var readWrite = LocalizationStore.Current.ReadWrite;
 
-		return Menu.Show(LocalizationStore.Current.SelectPermissionType, [read, write, readWrite]) switch
+		return _menu.Show(LocalizationStore.Current.SelectPermissionType, [read, write, readWrite]) switch
 		{
 			var c when c == read => PermissionType.Read,
 			var c when c == write => PermissionType.Write,

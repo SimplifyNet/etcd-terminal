@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings)
+public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -70,7 +70,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			AnsiConsole.WriteLine();
 		}
 
-		return Menu.Show(string.Empty, choices, c =>
+		return _menu.Show(string.Empty, choices, c =>
 		{
 			var instance = instances.FirstOrDefault(i => i.Name == c);
 
@@ -99,7 +99,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			manageChoices.Add(LocalizationStore.Current.MoveDownInstance);
 		}
 
-		var action = Menu.Show(LocalizationStore.Current.ManageConnections, manageChoices);
+		var action = _menu.Show(LocalizationStore.Current.ManageConnections, manageChoices);
 
 		if (action is null)
 			return;
@@ -169,7 +169,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = Menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => i.Name));
+		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => i.Name));
 
 		if (existingName is null)
 			return;
@@ -235,7 +235,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = Menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => i.Name));
+		var name = _menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => i.Name));
 
 		if (name is null)
 			return;
@@ -248,7 +248,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = Menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => i.Name));
+		var nameToRemove = _menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => i.Name));
 
 		if (nameToRemove is null)
 			return;

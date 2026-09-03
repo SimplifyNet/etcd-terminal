@@ -1,11 +1,11 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Theming;
+using EtcdTerminal.Localization;
 using Simplify.DI;
 using Spectre.Console;
 
@@ -19,12 +19,19 @@ ThemeStore.Current = new ReddyTheme();
 LocalizationStore.Current = new EnglishLocalization();
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
-TerminalPanel.SetDarkBackground();
+
+using (var scope = DIContainer.Current.BeginLifetimeScope())
+{
+	var terminal = scope.Resolver.Resolve<ITerminal>();
+	terminal.SetDarkBackground();
+}
 
 static void Cleanup()
 {
-	TerminalPanel.ClearScreen();
-	TerminalPanel.ResetBackground();
+	using var scope = DIContainer.Current.BeginLifetimeScope();
+	var terminal = scope.Resolver.Resolve<ITerminal>();
+	terminal.ClearScreen();
+	terminal.ResetBackground();
 	Console.ResetColor();
 	Console.Out.Flush();
 }

@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(IAppSettingsRepository _repository)
+public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -18,7 +18,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 			AnsiConsole.Clear();
 			Header.Render();
 
-			var choice = Menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
+			var choice = _menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
 
 			if (choice is null)
 				return;

@@ -5,11 +5,11 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(IEtcdClient _etcdClient)
+public sealed class PermissionViewScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
-		ScreenLayout.RenderHeader(config);
+		_screenLayout.RenderHeader(config);
 
 		await AnsiConsole.Status()
 			.StartAsync(LocalizationStore.Current.LoadingPermissions, async ctx =>

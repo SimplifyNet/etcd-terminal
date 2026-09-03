@@ -1,3 +1,4 @@
+using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using Spectre.Console;
@@ -19,7 +20,7 @@ public readonly record struct KeyBrowseCommand(KeyBrowseAction Action, EtcdKeyVa
 	public static KeyBrowseCommand None => new(KeyBrowseAction.None, null);
 }
 
-public sealed class KeyBrowseControl(EtcdConnectionConfig _config)
+public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
@@ -27,27 +28,26 @@ public sealed class KeyBrowseControl(EtcdConnectionConfig _config)
 	public bool ShowActions { get; private set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
 
-	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
+	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys, EtcdConnectionConfig config)
 	{
 		AnsiConsole.Clear();
 		Header.Render();
 
-		var (searchEndCol, searchBarRow) = KeyBrowseLayout.RenderSearchBar(SearchQuery);
+		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);
 
-		Console.SetCursorPosition(0, Console.CursorTop + 2);
-		KeyBrowseLayout.RenderKeyList(pageKeys, SelectedIndex);
+		_terminal.SetCursorPosition(0, _terminal.CursorTop + 2);
+		_keyBrowseLayout.RenderKeyList(pageKeys, SelectedIndex);
 
-		Console.WriteLine();
-		KeyBrowseLayout.RenderPagination(CurrentPage, totalPages, totalKeys);
+		_terminal.WriteLine();
+		_keyBrowseLayout.RenderPagination(CurrentPage, totalPages, totalKeys);
 
-		Console.WriteLine();
+		_terminal.WriteLine();
 		if (ShowActions && SelectedKey is not null)
-			KeyBrowseLayout.RenderActionBar(SelectedKey.Key);
+			_keyBrowseLayout.RenderActionBar(SelectedKey.Key);
 
-		StatusBar.Render(_config);
+		_statusBar.Render(config);
 
-		Console.CursorTop = searchBarRow;
-		Console.CursorLeft = searchEndCol;
+		_terminal.SetCursorPosition(searchEndCol, searchBarRow);
 	}
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)

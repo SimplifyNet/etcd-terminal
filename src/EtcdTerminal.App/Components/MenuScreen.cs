@@ -4,16 +4,16 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Components;
 
-public static class MenuScreen
+public sealed class MenuScreen(Menu _menu)
 {
-	public static async Task RunAsync(string title, IReadOnlyList<string> choices, EtcdConnectionConfig? config, Func<string, Task> onChoice)
+	public async Task RunAsync(string title, IReadOnlyList<string> choices, EtcdConnectionConfig? config, Func<string, Task> onChoice)
 	{
 		while (true)
 		{
 			AnsiConsole.Clear();
 			Header.Render();
 
-			var choice = Menu.Show(title, choices, config: config);
+			var choice = _menu.Show(title, choices, config: config);
 
 			if (choice is null)
 				return;

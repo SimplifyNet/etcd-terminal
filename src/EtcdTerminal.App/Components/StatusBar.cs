@@ -1,13 +1,14 @@
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Configuration;
 using Simplify.System;
 
 namespace EtcdTerminal.App.Components;
 
-public static class StatusBar
+public sealed class StatusBar(ITerminal _terminal)
 {
-	public static void Render(EtcdConnectionConfig? config = null)
+	public void Render(EtcdConnectionConfig? config = null)
 	{
-		var left = $"{TerminalPanel.Grey}  {TerminalPanel.White}\u2191/\u2193{TerminalPanel.Grey} navigate \u00b7 {TerminalPanel.White}Enter{TerminalPanel.Grey} confirm/select \u00b7 {TerminalPanel.White}Esc{TerminalPanel.Grey} back  ";
+		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} navigate \u00b7 {_terminal.White}Enter{_terminal.Grey} confirm/select \u00b7 {_terminal.White}Esc{_terminal.Grey} back  ";
 		var version = GetVersion();
 
 		var rightPadding = "  ";
@@ -18,30 +19,27 @@ public static class StatusBar
 			var connStr = config.ConnectionString.Length > 50
 				? config.ConnectionString[..50] + "..."
 				: config.ConnectionString;
-			right = $"{TerminalPanel.Green}\u2022{TerminalPanel.Teal} {config.Name} {TerminalPanel.Dim}\u00b7{TerminalPanel.Grey} {connStr}";
+			right = $"{_terminal.Green}\u2022{_terminal.Teal} {config.Name} {_terminal.Dim}\u00b7{_terminal.Grey} {connStr}";
 			if (config.IsAuthenticationEnabled)
-				right += $" {TerminalPanel.Dim}\u00b7{TerminalPanel.Yellow} {config.Username}";
-			right += $" {TerminalPanel.Grey}v{TerminalPanel.White}{version}";
+				right += $" {_terminal.Dim}\u00b7{_terminal.Yellow} {config.Username}";
+			right += $" {_terminal.Grey}v{_terminal.White}{version}";
 		}
 		else
-			right = $"{TerminalPanel.Grey}v{TerminalPanel.White}{version}";
+			right = $"{_terminal.Grey}v{_terminal.White}{version}";
 
-		var visibleWidth = TerminalPanel.GetVisibleLength(left) + TerminalPanel.GetVisibleLength(right) + rightPadding.Length;
-		var pad = Console.WindowWidth - visibleWidth;
+		var visibleWidth = _terminal.GetVisibleLength(left) + _terminal.GetVisibleLength(right) + rightPadding.Length;
+		var pad = _terminal.WindowWidth - visibleWidth;
 		if (pad < 0) pad = 0;
-		var content = TerminalPanel.Bg + TerminalPanel.Grey + left + new string(' ', pad) + right + TerminalPanel.Grey + rightPadding + TerminalPanel.Reset;
+		var content = _terminal.Bg + _terminal.Grey + left + new string(' ', pad) + right + _terminal.Grey + rightPadding + _terminal.Reset;
 
-		Console.CursorTop = Console.WindowHeight - 3;
-		Console.CursorLeft = 0;
-		Console.Write(TerminalPanel.FillRow(TerminalPanel.Bg));
+		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 3);
+		_terminal.Write(_terminal.FillRow(_terminal.Bg));
 
-		Console.CursorTop = Console.WindowHeight - 2;
-		Console.CursorLeft = 0;
-		Console.Write(content);
+		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 2);
+		_terminal.Write(content);
 
-		Console.CursorTop = Console.WindowHeight - 1;
-		Console.CursorLeft = 0;
-		Console.Write(TerminalPanel.FillRow(TerminalPanel.Bg));
+		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 1);
+		_terminal.Write(_terminal.FillRow(_terminal.Bg));
 	}
 
 	private static string GetVersion()

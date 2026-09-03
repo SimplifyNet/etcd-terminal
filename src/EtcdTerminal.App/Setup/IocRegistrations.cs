@@ -8,9 +8,13 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Security;
+using EtcdTerminal.Infrastructure.Terminal;
+using EtcdTerminal.Terminal;
 using Simplify.DI;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Infrastructure;
+using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Engine;
 
 namespace EtcdTerminal.App.Setup;
 
@@ -21,12 +25,14 @@ public static class IocRegistrations
 		provider.RegisterInfrastructure()
 			   .RegisterConfiguration()
 			   .RegisterIEtcdClient()
+			   .RegisterComponents()
 			   .RegisterScreens();
 
 		return provider;
 	}
 
 	public static IDIRegistrator RegisterInfrastructure(this IDIRegistrator registrator) => registrator
+		.Register<ITerminal, ConsoleTerminal>(LifetimeType.Singleton)
 		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
@@ -42,6 +48,13 @@ public static class IocRegistrations
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
 
+	public static IDIRegistrator RegisterComponents(this IDIRegistrator registrator) => registrator
+		.Register<StatusBar>(LifetimeType.Transient)
+		.Register<Menu>(LifetimeType.Transient)
+		.Register<MenuScreen>(LifetimeType.Transient)
+		.Register<ScreenLayout>(LifetimeType.Transient)
+		.Register<KeyBrowseLayout>(LifetimeType.Transient);
+
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
 		.Register<MainScreen>(LifetimeType.Transient)
@@ -50,5 +63,7 @@ public static class IocRegistrations
 		.Register<UserManagementScreen>(LifetimeType.Transient)
 		.Register<RoleManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionViewScreen>(LifetimeType.Transient)
-		.Register<SettingsScreen>(LifetimeType.Transient);
+		.Register<SettingsScreen>(LifetimeType.Transient)
+		.Register<PermissionTypeSelector>(LifetimeType.Transient)
+		.Register<KeyBrowseControl>(LifetimeType.Transient);
 }

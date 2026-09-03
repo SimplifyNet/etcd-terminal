@@ -1,19 +1,18 @@
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Configuration;
-using Spectre.Console;
 
 namespace EtcdTerminal.App.Components;
 
-public static class ScreenLayout
+public sealed class ScreenLayout(ITerminal _terminal, StatusBar _statusBar)
 {
-	public static void RenderHeader(EtcdConnectionConfig? config)
+	public void RenderHeader(EtcdConnectionConfig? config)
 	{
-		AnsiConsole.Clear();
+		_terminal.Clear();
 		Header.Render();
 
-		var savedTop = Console.CursorTop;
+		var savedTop = _terminal.CursorTop;
 
-		StatusBar.Render(config);
-		Console.CursorTop = savedTop;
-		Console.CursorLeft = 0;
+		_statusBar.Render(config);
+		_terminal.SetCursorPosition(0, savedTop);
 	}
 }

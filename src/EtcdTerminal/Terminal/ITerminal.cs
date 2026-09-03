@@ -1,0 +1,70 @@
+namespace EtcdTerminal.Terminal;
+
+public interface ITerminal
+{
+	int WindowWidth { get; }
+
+	int WindowHeight { get; }
+
+	int CursorLeft { get; }
+
+	int CursorTop { get; }
+
+	string Bg { get; }
+
+	string DarkBg { get; }
+
+	string White { get; }
+
+	string Grey { get; }
+
+	string Green { get; }
+
+	string Teal { get; }
+
+	string Yellow { get; }
+
+	string Dim { get; }
+
+	string Accent { get; }
+
+	string Reset { get; }
+
+	string SelectionPointer { get; }
+
+	string SelectionPointerEmpty { get; }
+
+	void Write(string text);
+
+	void WriteLine(string text);
+
+	void WriteLine();
+
+	void Clear();
+
+	void SetCursorPosition(int left, int top);
+
+	void SetBackground(string ansiColor);
+
+	void ResetBackground();
+
+	void ResetColor();
+
+	void SetDarkBackground();
+
+	void ClearScreen();
+
+	string FillRow(string bg);
+
+	void WriteFillRow(string bg);
+
+	void WriteRow(string bg, string content);
+
+	void WriteBorderedFillRow(string bg);
+
+	void WriteBorderedRow(string bg, string content);
+
+	void PadCurrentRow(string bg);
+
+	int GetVisibleLength(string s);
+}

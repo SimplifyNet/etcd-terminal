@@ -5,28 +5,27 @@ using EtcdTerminal.Localization;
 using Spectre.Console;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Permissions;
+using EtcdTerminal.App.Screens.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
+public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseLayout _keyBrowseLayout, KeyBrowseControl _control)
 {
 	private const int EditValueMaxLength = 200;
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
 	private EtcdConnectionConfig _config = default!;
-	private KeyBrowseControl _control = default!;
 
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		_config = config;
-		_control = new KeyBrowseControl(config);
 
 		await LoadKeysAsync();
 
 		while (true)
 		{
-			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count);
+			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count, _config);
 
 			var command = _control.ReadCommand(GetCurrentPageKeys(), GetTotalPages());
 
@@ -115,8 +114,8 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
-		ScreenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"{LocalizationStore.Current.EditingKey} {KeyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
+		_screenLayout.RenderHeader(_config);
+		AnsiConsole.MarkupLine($"{LocalizationStore.Current.EditingKey} {_keyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
 		AnsiConsole.MarkupLine($"{LocalizationStore.Current.CurrentValue} [green]{Markup.Escape(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength))}[/]");
 		AnsiConsole.WriteLine();
 
@@ -127,7 +126,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.UpdateKeyAsync(key.Key, newValue);
 
-		ScreenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader(_config);
 
 		if (result)
 		{
@@ -144,7 +143,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
-		ScreenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader(_config);
 		AnsiConsole.MarkupLine($"{LocalizationStore.Current.DeleteKey} [red]{Markup.Escape(key.Key)}[/]");
 		AnsiConsole.WriteLine();
 
@@ -153,7 +152,7 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		var result = await _etcdClient.DeleteKeyAsync(key.Key);
 
-		ScreenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader(_config);
 
 		if (result)
 		{

@@ -6,10 +6,10 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(IEtcdClient _etcdClient)
+public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await MenuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
+		await _menuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(string choice)
 	{
