@@ -4,18 +4,24 @@
 
 Layers: **Terminal → Components → Screens**.
 
-- `Terminal/` — low-level abstraction (`ITerminal`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences. Types: `TerminalColor`, `TerminalStyle`, `TextRun`, `Palette`.
-- `Components/` — reusable UI components (`Panel`, `Header`, `StatusBar`, `ScreenLayout`, `Menu`, `Prompt`, `PressAnyKey`, `Message`). Depend on `ITerminal` only. Colors come from `Palette`. `Panel` is the core design element.
+- `Terminal/` — low-level abstraction (`ITerminal`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences.
+- `Theming/` — color system (`ITheme`, `ThemeStore`, `RgbColor`). Provides colors to Terminal layer.
+- `Components/` — reusable UI components (`Panel`, `Header`, `StatusBar`, `ScreenLayout`, `Menu`, `Prompt`, `PressAnyKey`, `Message`). Depend on `ITerminal` only. Colors come from `ITheme`. `Panel` is the core design element.
 - `Screens/` — orchestration: only use components + feature-local controls. Never perform raw console work.
+- `Localization/` — text system (`ILocalization`, `LocalizationStore`). Provides UI strings.
 
 **Dependency rules:**
-- `Screens` → `Components` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI, `Palette`.
+- `Screens` → `Components` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI.
 - `Components` → `Terminal`. Colors only from `Palette`.
 - `Terminal` — nothing from App. `ConsoleTerminal` is the sole `System.Console` touchpoint.
+- `Theming` — domain-only, no infrastructure dependencies.
+- `Localization` — domain-only, implementations live in App layer.
 
-**Exceptions (documented):** `Prompt` uses Spectre `TextPrompt`/`Confirm` via `EscapableConsole`; `Header` uses Spectre `FigletText` as a line generator (output via `ITerminal`); `Program.cs` uses `AnsiConsole.WriteException` in the crash handler.
+**Infrastructure layer** (`EtcdTerminal.Infrastructure`): implementations of technical interfaces (`ITerminal`, `IAppSettingsRepository`, `IConnectionConfigRepository`). All Spectre.Console dependencies live here.
 
 **Feature-local controls** (e.g. `KeyBrowseControl`, `UserListRenderer`, `RoleListRenderer`, `PermissionViewRenderer`) live in `Screens/` but may use `ITerminal` and `Palette` directly for rendering — they are part of the Components layer conceptually but scoped to a single feature.
+
+**Ambient contexts:** `ThemeStore.Current`, `LocalizationStore.Current`, `AppSettingsStore.Current` — static access to domain services, initialized in `Program.cs`.
 
 ## File structure
 
