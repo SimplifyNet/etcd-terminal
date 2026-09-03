@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
@@ -10,15 +11,6 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
 
-	private const string SettingsTitle = "Settings";
-	private const string PageSizeItem = "PageSize";
-	private const string TrimInputValuesItem = "TrimInputValues";
-	private const string PageSizeLabel = "Keys per page";
-	private const string TrimInputValuesLabel = "Trim input values";
-	private const string EnterPageSize = "Enter keys per page (1-500):";
-	private const string InvalidPageSize = "[red]Invalid page size. Must be a number from 1 to 500.[/]";
-	private const string SettingsSaved = "[green]Settings saved![/]";
-
 	public void Show()
 	{
 		while (true)
@@ -26,12 +18,12 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 			AnsiConsole.Clear();
 			Header.Render();
 
-			var choice = Menu.Show(SettingsTitle, [PageSizeItem, TrimInputValuesItem], FormatItem);
+			var choice = Menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
 
 			if (choice is null)
 				return;
 
-			if (choice == PageSizeItem)
+			if (choice == LocalizationStore.Current.PageSizeItem)
 				EditPageSize();
 			else
 				ToggleTrimInputValues();
@@ -40,28 +32,28 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private static string FormatItem(string item) => item switch
 	{
-		PageSizeItem => $"{PageSizeLabel} ({AppSettingsStore.Current.PageSize})",
-		_ => $"{TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})"
+		var _ when item == LocalizationStore.Current.PageSizeItem => $"{LocalizationStore.Current.PageSizeLabel} ({AppSettingsStore.Current.PageSize})",
+		_ => $"{LocalizationStore.Current.TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})"
 	};
 
-	private static string OnOff(bool value) => value ? "On" : "Off";
+	private static string OnOff(bool value) => value ? LocalizationStore.Current.On : LocalizationStore.Current.Off;
 
 	private void EditPageSize()
 	{
-		var input = Prompt.Ask(EnterPageSize);
+		var input = Prompt.Ask(LocalizationStore.Current.EnterPageSize);
 
 		if (input is null)
 			return;
 
 		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
 		{
-		AppSettingsStore.Current.PageSize = pageSize;
-		_repository.Save(AppSettingsStore.Current);
-			AnsiConsole.MarkupLine(SettingsSaved);
+			AppSettingsStore.Current.PageSize = pageSize;
+			_repository.Save(AppSettingsStore.Current);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.SettingsSaved);
 		}
 		else
 		{
-			AnsiConsole.MarkupLine(InvalidPageSize);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidPageSize);
 		}
 
 		AnsiConsole.WriteLine();
@@ -70,7 +62,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private void ToggleTrimInputValues()
 	{
-	AppSettingsStore.Current.TrimInputValues = !AppSettingsStore.Current.TrimInputValues;
-	_repository.Save(AppSettingsStore.Current);
+		AppSettingsStore.Current.TrimInputValues = !AppSettingsStore.Current.TrimInputValues;
+		_repository.Save(AppSettingsStore.Current);
 	}
 }

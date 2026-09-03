@@ -1,60 +1,36 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Users;
 
 public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 {
-	private const string Title = "User Management";
-	private const string ListUsers = "List Users";
-	private const string CreateUser = "Create User";
-	private const string DeleteUser = "Delete User";
-	private const string ChangePassword = "Change Password";
-	private const string AssignRole = "Assign Role to User";
-	private const string RemoveRole = "Remove Role from User";
-	private const string EnterUsername = "Enter username:";
-	private const string EnterPassword = "Enter password:";
-	private const string UserCreated = "[green]User created successfully![/]";
-	private const string FailedCreateUser = "[red]Failed to create user.[/]";
-	private const string EnterUsernameToDelete = "Enter username to delete:";
-	private const string DeleteUserConfirm = "Are you sure you want to delete user {0}?";
-	private const string UserDeleted = "[green]User deleted successfully![/]";
-	private const string FailedDeleteUser = "[red]Failed to delete user.[/]";
-	private const string EnterNewPassword = "Enter new password:";
-	private const string PasswordChanged = "[green]Password changed successfully![/]";
-	private const string FailedChangePassword = "[red]Failed to change password.[/]";
-	private const string EnterRoleName = "Enter role name:";
-	private const string RoleAssigned = "[green]Role assigned successfully![/]";
-	private const string FailedAssignRole = "[red]Failed to assign role.[/]";
-	private const string EnterRoleNameToRemove = "Enter role name to remove:";
-	private const string RoleRemoved = "[green]Role removed successfully![/]";
-	private const string FailedRemoveRole = "[red]Failed to remove role.[/]";
-
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await MenuScreen.RunAsync(Title, [ListUsers, CreateUser, DeleteUser, ChangePassword, AssignRole, RemoveRole], config, HandleChoiceAsync);
+		await MenuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(string choice)
 	{
 		switch (choice)
 		{
-			case ListUsers:
+			case var _ when choice == LocalizationStore.Current.ListUsers:
 				await ListUsersAsync();
 				break;
-			case CreateUser:
+			case var _ when choice == LocalizationStore.Current.CreateUser:
 				await CreateUserAsync();
 				break;
-			case DeleteUser:
+			case var _ when choice == LocalizationStore.Current.DeleteUser:
 				await DeleteUserAsync();
 				break;
-			case ChangePassword:
+			case var _ when choice == LocalizationStore.Current.ChangePassword:
 				await ChangePasswordAsync();
 				break;
-			case AssignRole:
+			case var _ when choice == LocalizationStore.Current.AssignRole:
 				await AssignRoleAsync();
 				break;
-			case RemoveRole:
+			case var _ when choice == LocalizationStore.Current.RemoveRole:
 				await RevokeRoleAsync();
 				break;
 		}
@@ -71,12 +47,12 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task CreateUserAsync()
 	{
-		var username = Prompt.Ask(EnterUsername);
+		var username = Prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var password = Prompt.Secret(EnterPassword);
+		var password = Prompt.Secret(LocalizationStore.Current.EnterPasswordPrompt);
 
 		if (password is null)
 			return;
@@ -84,21 +60,21 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.CreateUserAsync(username, password);
 
 		if (result)
-			AnsiConsole.MarkupLine(UserCreated);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.UserCreated);
 		else
-			AnsiConsole.MarkupLine(FailedCreateUser);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateUser);
 
 		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteUserAsync()
 	{
-		var username = Prompt.Ask(EnterUsernameToDelete);
+		var username = Prompt.Ask(LocalizationStore.Current.EnterUsernameToDelete);
 
 		if (username is null)
 			return;
 
-		var confirm = Prompt.Confirm(string.Format(DeleteUserConfirm, username));
+		var confirm = Prompt.Confirm(string.Format(LocalizationStore.Current.DeleteUserConfirm, username));
 
 		if (confirm is not true)
 			return;
@@ -106,21 +82,21 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.DeleteUserAsync(username);
 
 		if (result)
-			AnsiConsole.MarkupLine(UserDeleted);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.UserDeleted);
 		else
-			AnsiConsole.MarkupLine(FailedDeleteUser);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteUser);
 
 		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task ChangePasswordAsync()
 	{
-		var username = Prompt.Ask(EnterUsername);
+		var username = Prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var newPassword = Prompt.Secret(EnterNewPassword);
+		var newPassword = Prompt.Secret(LocalizationStore.Current.EnterNewPassword);
 
 		if (newPassword is null)
 			return;
@@ -128,21 +104,21 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
 
 		if (result)
-			AnsiConsole.MarkupLine(PasswordChanged);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.PasswordChanged);
 		else
-			AnsiConsole.MarkupLine(FailedChangePassword);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedChangePassword);
 
 		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task AssignRoleAsync()
 	{
-		var username = Prompt.Ask(EnterUsername);
+		var username = Prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = Prompt.Ask(EnterRoleName);
+		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleName);
 
 		if (roleName is null)
 			return;
@@ -150,11 +126,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		try
 		{
 			await _etcdClient.GrantRoleToUserAsync(username, roleName);
-			AnsiConsole.MarkupLine(RoleAssigned);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleAssigned);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine(FailedAssignRole);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedAssignRole);
 		}
 
 		PressAnyKeyPrompt.Show();
@@ -162,12 +138,12 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task RevokeRoleAsync()
 	{
-		var username = Prompt.Ask(EnterUsername);
+		var username = Prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = Prompt.Ask(EnterRoleNameToRemove);
+		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNameToRemove);
 
 		if (roleName is null)
 			return;
@@ -175,11 +151,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient)
 		try
 		{
 			await _etcdClient.RevokeRoleFromUserAsync(username, roleName);
-			AnsiConsole.MarkupLine(RoleRemoved);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleRemoved);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine(FailedRemoveRole);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedRemoveRole);
 		}
 
 		PressAnyKeyPrompt.Show();

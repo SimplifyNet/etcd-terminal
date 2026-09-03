@@ -1,27 +1,23 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 {
-	private const string EnterKeyPrompt = "Enter key:";
-	private const string EnterValuePrompt = "Enter value:";
-	private const string KeyCreated = "[green]Key created successfully![/]";
-	private const string KeyCreateFailed = "[red]Key already exists or could not be created.[/]";
-
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		ScreenLayout.RenderHeader(config);
 
-		var key = Prompt.Ask(EnterKeyPrompt);
+		var key = Prompt.Ask(LocalizationStore.Current.EnterKey);
 
 		if (key is null)
 			return;
 
-		var value = Prompt.Ask(EnterValuePrompt);
+		var value = Prompt.Ask(LocalizationStore.Current.EnterValue);
 
 		if (value is null)
 			return;
@@ -29,9 +25,9 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
 		if (result)
-			AnsiConsole.MarkupLine(KeyCreated);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCreated);
 		else
-			AnsiConsole.MarkupLine(KeyCreateFailed);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCreateFailed);
 
 		PressAnyKeyPrompt.Show();
 	}

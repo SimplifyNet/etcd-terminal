@@ -1,17 +1,23 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Permissions;
+using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
 public static class PermissionTypeSelector
 {
-	private const string SelectPermissionType = "Select permission type:";
-
-	public static PermissionType? Select() => Menu.Show(SelectPermissionType, ["Read", "Write", "ReadWrite"]) switch
+	public static PermissionType? Select()
 	{
-		"Read" => PermissionType.Read,
-		"Write" => PermissionType.Write,
-		"ReadWrite" => PermissionType.ReadWrite,
-		_ => null
-	};
+		var read = LocalizationStore.Current.Read;
+		var write = LocalizationStore.Current.Write;
+		var readWrite = LocalizationStore.Current.ReadWrite;
+
+		return Menu.Show(LocalizationStore.Current.SelectPermissionType, [read, write, readWrite]) switch
+		{
+			var c when c == read => PermissionType.Read,
+			var c when c == write => PermissionType.Write,
+			var c when c == readWrite => PermissionType.ReadWrite,
+			_ => null
+		};
+	}
 }

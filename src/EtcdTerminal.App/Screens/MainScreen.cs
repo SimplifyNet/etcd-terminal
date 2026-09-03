@@ -5,6 +5,7 @@ using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens;
@@ -27,12 +28,12 @@ public sealed class MainScreen(
 			var choice = Menu.Show(
 				"",
 				[
-"Browse Keys",
-				"Create Key",
-				"Manage Users",
-				"Manage Roles",
-				"View Permissions",
-				"Disconnect"
+					LocalizationStore.Current.BrowseKeys,
+					LocalizationStore.Current.CreateKey,
+					LocalizationStore.Current.ManageUsers,
+					LocalizationStore.Current.ManageRoles,
+					LocalizationStore.Current.ViewPermissions,
+					LocalizationStore.Current.Disconnect
 				],
 				config: config);
 
@@ -44,22 +45,22 @@ public sealed class MainScreen(
 
 			switch (choice)
 			{
-				case "Browse Keys":
+				case var _ when choice == LocalizationStore.Current.BrowseKeys:
 					await _keyBrowse.ShowAsync(config);
 					break;
-				case "Create Key":
+				case var _ when choice == LocalizationStore.Current.CreateKey:
 					await _keyCreate.ShowAsync(config);
 					break;
-				case "Manage Users":
+				case var _ when choice == LocalizationStore.Current.ManageUsers:
 					await _userManagement.ShowAsync(config);
 					break;
-				case "Manage Roles":
+				case var _ when choice == LocalizationStore.Current.ManageRoles:
 					await _roleManagement.ShowAsync(config);
 					break;
-				case "View Permissions":
+				case var _ when choice == LocalizationStore.Current.ViewPermissions:
 					await _permissionView.ShowAsync(config);
 					break;
-				case "Disconnect":
+				case var _ when choice == LocalizationStore.Current.Disconnect:
 					await _etcdClient.DisconnectAsync();
 					return;
 			}

@@ -5,6 +5,7 @@
 ### Added
 
 - Theming
+- Localization
 
 ### Changed
 

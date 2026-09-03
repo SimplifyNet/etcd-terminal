@@ -1,4 +1,5 @@
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 using EtcdTerminal.Keys;
 
@@ -8,8 +9,6 @@ public static class KeyBrowseLayout
 {
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
-
-	private const string NoKeysFound = "  [grey]No keys found.[/]";
 
 	public static string SelectionColor => $"[#{TerminalPanel.AccentColor.ToHex()}]";
 
@@ -24,7 +23,7 @@ public static class KeyBrowseLayout
 		Console.Write(TerminalPanel.Bg);
 
 		if (searchQuery.Length == 0)
-			AnsiConsole.Markup("[grey]  \U0001f50d  Type to search...[/]");
+			AnsiConsole.Markup($"[grey]{LocalizationStore.Current.TypeToSearch}[/]");
 		else
 			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(searchQuery)}[/]");
 
@@ -43,7 +42,7 @@ public static class KeyBrowseLayout
 	{
 		if (pageKeys.Count == 0)
 		{
-			AnsiConsole.MarkupLine(NoKeysFound);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.NoKeysFound);
 
 			return;
 		}
@@ -73,7 +72,7 @@ public static class KeyBrowseLayout
 		var currentPageLabel = currentPage + 1;
 
 		TerminalPanel.WriteFillRow(TerminalPanel.Bg);
-		Console.Write($"{TerminalPanel.Bg}{TerminalPanel.Grey}  Page {TerminalPanel.White}{currentPageLabel}/{totalPages}{TerminalPanel.Grey}  •  {TerminalPanel.White}{totalKeys}{TerminalPanel.Grey} total keys{TerminalPanel.Reset}");
+		Console.Write($"{TerminalPanel.Bg}{TerminalPanel.Grey}  {LocalizationStore.Current.Page} {TerminalPanel.White}{currentPageLabel}/{totalPages}{TerminalPanel.Grey}  •  {TerminalPanel.White}{totalKeys}{TerminalPanel.Grey} {LocalizationStore.Current.TotalKeys}{TerminalPanel.Reset}");
 		TerminalPanel.PadCurrentRow(TerminalPanel.Bg);
 		Console.WriteLine();
 		TerminalPanel.WriteFillRow(TerminalPanel.Bg);
@@ -88,13 +87,13 @@ public static class KeyBrowseLayout
 	private static void RenderSelectedPanel(string selectedKey)
 	{
 		TerminalPanel.WriteBorderedFillRow(TerminalPanel.DarkBg);
-		TerminalPanel.WriteBorderedRow(TerminalPanel.DarkBg, $"{TerminalPanel.Grey}  Selected: {TerminalPanel.Accent}{selectedKey}");
+		TerminalPanel.WriteBorderedRow(TerminalPanel.DarkBg, $"{TerminalPanel.Grey}  {LocalizationStore.Current.Selected} {TerminalPanel.Accent}{selectedKey}");
 		TerminalPanel.WriteBorderedFillRow(TerminalPanel.DarkBg);
 	}
 
 	private static void RenderButtonsPanel()
 	{
-		(string Key, string Label)[] buttons = [("E", "Edit"), ("D", "Delete"), ("Esc", "Cancel")];
+		(string Key, string Label)[] buttons = [("E", LocalizationStore.Current.Edit), ("D", LocalizationStore.Current.Delete), ("Esc", LocalizationStore.Current.Cancel)];
 		var colored = "  " + string.Join("   ", buttons.Select(b => $"{TerminalPanel.White}{b.Key} {TerminalPanel.Grey}{b.Label}"));
 
 		TerminalPanel.WriteBorderedFillRow(TerminalPanel.Bg);

@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 using EtcdTerminal.Permissions;
 
@@ -8,45 +9,26 @@ namespace EtcdTerminal.App.Screens.Roles;
 
 public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 {
-	private const string Title = "Role Management";
-	private const string ListRoles = "List Roles";
-	private const string CreateRole = "Create Role";
-	private const string DeleteRole = "Delete Role";
-	private const string GrantPermission = "Grant Permission";
-	private const string RevokePermission = "Revoke Permission";
-	private const string EnterRoleName = "Enter role name:";
-	private const string RoleCreated = "[green]Role created successfully![/]";
-	private const string FailedCreateRole = "[red]Failed to create role (may already exist).[/]";
-	private const string EnterRoleNameToDelete = "Enter role name to delete:";
-	private const string DeleteRoleConfirm = "Are you sure you want to delete role {0}?";
-	private const string RoleDeleted = "[green]Role deleted successfully![/]";
-	private const string FailedDeleteRole = "[red]Failed to delete role.[/]";
-	private const string EnterKeyPrefix = "Enter key prefix:";
-	private const string PermissionGranted = "[green]Permission granted successfully![/]";
-	private const string FailedGrantPermission = "[red]Failed to grant permission.[/]";
-	private const string PermissionRevoked = "[green]Permission revoked successfully![/]";
-	private const string FailedRevokePermission = "[red]Failed to revoke permission.[/]";
-
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await MenuScreen.RunAsync(Title, [ListRoles, CreateRole, DeleteRole, GrantPermission, RevokePermission], config, HandleChoiceAsync);
+		await MenuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(string choice)
 	{
 		switch (choice)
 		{
-			case ListRoles:
+			case var _ when choice == LocalizationStore.Current.ListRoles:
 				await ListRolesAsync();
 				break;
-			case CreateRole:
+			case var _ when choice == LocalizationStore.Current.CreateRole:
 				await CreateRoleAsync();
 				break;
-			case DeleteRole:
+			case var _ when choice == LocalizationStore.Current.DeleteRole:
 				await DeleteRoleAsync();
 				break;
-			case GrantPermission:
+			case var _ when choice == LocalizationStore.Current.GrantPermission:
 				await GrantPermissionAsync();
 				break;
-			case RevokePermission:
+			case var _ when choice == LocalizationStore.Current.RevokePermission:
 				await RevokePermissionAsync();
 				break;
 		}
@@ -63,7 +45,7 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = Prompt.Ask(EnterRoleName);
+		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
@@ -71,21 +53,21 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine(RoleCreated);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleCreated);
 		else
-			AnsiConsole.MarkupLine(FailedCreateRole);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateRole);
 
 		PressAnyKeyPrompt.Show();
 	}
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = Prompt.Ask(EnterRoleNameToDelete);
+		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNameToDelete);
 
 		if (roleName is null)
 			return;
 
-		var confirm = Prompt.Confirm(string.Format(DeleteRoleConfirm, roleName));
+		var confirm = Prompt.Confirm(string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
 
 		if (confirm is not true)
 			return;
@@ -93,27 +75,27 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient)
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine(RoleDeleted);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleDeleted);
 		else
-			AnsiConsole.MarkupLine(FailedDeleteRole);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteRole);
 
 		PressAnyKeyPrompt.Show();
 	}
 
 	private Task GrantPermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), PermissionGranted, FailedGrantPermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
 
 	private Task RevokePermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), PermissionRevoked, FailedRevokePermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
 
 	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{
-		var roleName = Prompt.Ask(EnterRoleName);
+		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = Prompt.Ask(EnterKeyPrefix);
+		var keyPrefix = Prompt.Ask(LocalizationStore.Current.EnterKeyPrefix);
 
 		if (keyPrefix is null)
 			return;

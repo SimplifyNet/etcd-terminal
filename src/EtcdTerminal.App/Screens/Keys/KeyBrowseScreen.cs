@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using Spectre.Console;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Permissions;
@@ -10,13 +11,6 @@ namespace EtcdTerminal.App.Screens.Keys;
 public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 {
 	private const int EditValueMaxLength = 200;
-
-	private const string KeyUpdated = "[green]Key updated successfully![/]";
-	private const string CouldNotUpdateKey = "[red]Could not update key.[/]";
-	private const string KeyDeleted = "[green]Key deleted successfully![/]";
-	private const string KeyCouldNotBeDeleted = "[red]Key could not be deleted.[/]";
-	private const string EnterNewValue = "Enter new value:";
-	private const string AreYouSure = "Are you sure?";
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
@@ -122,11 +116,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
 		ScreenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"Editing key: {KeyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
-		AnsiConsole.MarkupLine($"Current value: [green]{Markup.Escape(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength))}[/]");
+		AnsiConsole.MarkupLine($"{LocalizationStore.Current.EditingKey} {KeyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
+		AnsiConsole.MarkupLine($"{LocalizationStore.Current.CurrentValue} [green]{Markup.Escape(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength))}[/]");
 		AnsiConsole.WriteLine();
 
-		var newValue = Prompt.Ask(EnterNewValue, key.Value);
+		var newValue = Prompt.Ask(LocalizationStore.Current.EnterNewValue, key.Value);
 
 		if (newValue is null)
 			return;
@@ -137,12 +131,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine(KeyUpdated);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyUpdated);
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine(CouldNotUpdateKey);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.CouldNotUpdateKey);
 
 		AnsiConsole.WriteLine();
 		PressAnyKeyPrompt.Show();
@@ -151,10 +145,10 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
 		ScreenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"Delete key: [red]{Markup.Escape(key.Key)}[/]");
+		AnsiConsole.MarkupLine($"{LocalizationStore.Current.DeleteKey} [red]{Markup.Escape(key.Key)}[/]");
 		AnsiConsole.WriteLine();
 
-		if (!Prompt.Confirm(AreYouSure))
+		if (!Prompt.Confirm(LocalizationStore.Current.AreYouSure))
 			return;
 
 		var result = await _etcdClient.DeleteKeyAsync(key.Key);
@@ -163,12 +157,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient)
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine(KeyDeleted);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyDeleted);
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine(KeyCouldNotBeDeleted);
+			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCouldNotBeDeleted);
 
 		AnsiConsole.WriteLine();
 		PressAnyKeyPrompt.Show();

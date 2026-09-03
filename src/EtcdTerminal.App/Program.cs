@@ -1,8 +1,10 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
+using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using EtcdTerminal.Theming;
 using Simplify.DI;
 using Spectre.Console;
@@ -14,6 +16,7 @@ DIContainer.Current
 	.Verify();
 
 ThemeStore.Current = new ReddyTheme();
+LocalizationStore.Current = new EnglishLocalization();
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 TerminalPanel.SetDarkBackground();
