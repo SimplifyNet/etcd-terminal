@@ -40,8 +40,8 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private static string FormatItem(string item) => item switch
 	{
-		PageSizeItem => $"{PageSizeLabel} ({AppSettings.PageSize})",
-		_ => $"{TrimInputValuesLabel} ({OnOff(AppSettings.TrimInputValues)})"
+		PageSizeItem => $"{PageSizeLabel} ({AppSettingsStore.Current.PageSize})",
+		_ => $"{TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})"
 	};
 
 	private static string OnOff(bool value) => value ? "On" : "Off";
@@ -55,8 +55,8 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
 		{
-			AppSettings.PageSize = pageSize;
-			_repository.Save();
+		AppSettingsStore.Current.PageSize = pageSize;
+		_repository.Save(AppSettingsStore.Current);
 			AnsiConsole.MarkupLine(SettingsSaved);
 		}
 		else
@@ -70,7 +70,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository)
 
 	private void ToggleTrimInputValues()
 	{
-		AppSettings.TrimInputValues = !AppSettings.TrimInputValues;
-		_repository.Save();
+	AppSettingsStore.Current.TrimInputValues = !AppSettingsStore.Current.TrimInputValues;
+	_repository.Save(AppSettingsStore.Current);
 	}
 }

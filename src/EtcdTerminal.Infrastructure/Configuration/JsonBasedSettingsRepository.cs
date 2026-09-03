@@ -14,28 +14,26 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 	private readonly string _configPath = environment.ConfigFilePath;
 	private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
-	public void Load()
+	public IAppSettings Load()
 	{
 		if (!File.Exists(_configPath))
-			return;
+			return new AppSettings();
 
-		try
-		{
-			if ((JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject)?[SettingsSection] is not JsonObject settings)
-				return;
+		if ((JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject)?[SettingsSection] is not JsonObject settings)
+			return new AppSettings();
 
-			if (settings[PageSizeProperty]?.GetValue<int>() is { } pageSize && pageSize >= 1)
-				AppSettings.PageSize = pageSize;
+		var appSettings = new AppSettings();
 
-			if (settings[TrimInputValuesProperty]?.GetValue<bool>() is { } trim)
-				AppSettings.TrimInputValues = trim;
-		}
-		catch
-		{
-		}
+		if (settings[PageSizeProperty]?.GetValue<int>() is { } pageSize && pageSize >= 1)
+			appSettings.PageSize = pageSize;
+
+		if (settings[TrimInputValuesProperty]?.GetValue<bool>() is { } trim)
+			appSettings.TrimInputValues = trim;
+
+		return appSettings;
 	}
 
-	public void Save()
+	public void Save(IAppSettings appSettings)
 	{
 		var dir = Path.GetDirectoryName(_configPath)!;
 
@@ -61,8 +59,8 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 
 		root[SettingsSection] = new JsonObject
 		{
-			[PageSizeProperty] = AppSettings.PageSize,
-			[TrimInputValuesProperty] = AppSettings.TrimInputValues
+			[PageSizeProperty] = appSettings.PageSize,
+			[TrimInputValuesProperty] = appSettings.TrimInputValues
 		};
 
 		File.WriteAllText(_configPath, root.ToJsonString(_jsonOptions));

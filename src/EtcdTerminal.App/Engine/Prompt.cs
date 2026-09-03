@@ -17,7 +17,7 @@ public static class Prompt
 				.PromptStyle(_promptStyle)
 				.AllowEmpty());
 
-			if (AppSettings.TrimInputValues)
+			if (AppSettingsStore.Current.TrimInputValues)
 				input = input.Trim();
 
 			if (string.IsNullOrWhiteSpace(input))
@@ -42,7 +42,7 @@ public static class Prompt
 				.EditableDefaultValue(true)
 				.ShowDefaultValue(false));
 
-			return AppSettings.TrimInputValues ? input.Trim() : input;
+			return AppSettingsStore.Current.TrimInputValues ? input.Trim() : input;
 		}
 		catch (OperationCanceledException)
 		{

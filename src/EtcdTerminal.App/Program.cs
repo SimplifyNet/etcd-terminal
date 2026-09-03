@@ -39,7 +39,7 @@ try
 
 			var settingsRepository = scope.Resolver.Resolve<IAppSettingsRepository>();
 
-			settingsRepository.Load();
+			AppSettingsStore.Current = settingsRepository.Load();
 
 			var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
 			var config = await instanceScreen.ShowAsync();
