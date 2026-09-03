@@ -61,9 +61,11 @@ public sealed class ConfigProtector(IAppEnvironment environment) : IConfigProtec
 			return File.ReadAllBytes(keyPath);
 
 		var dir = Path.GetDirectoryName(keyPath);
+
 		Directory.CreateDirectory(dir!);
 
 		var key = RandomNumberGenerator.GetBytes(KeyLength);
+
 		File.WriteAllBytes(keyPath, key);
 
 		if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())

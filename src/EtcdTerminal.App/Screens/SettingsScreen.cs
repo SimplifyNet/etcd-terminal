@@ -48,13 +48,12 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
 		{
 			AppSettingsStore.Current.PageSize = pageSize;
+
 			_repository.Save(AppSettingsStore.Current);
 			AnsiConsole.MarkupLine(LocalizationStore.Current.SettingsSaved);
 		}
 		else
-		{
 			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidPageSize);
-		}
 
 		AnsiConsole.WriteLine();
 		_pressAnyKey.Show();
@@ -63,6 +62,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 	private void ToggleTrimInputValues()
 	{
 		AppSettingsStore.Current.TrimInputValues = !AppSettingsStore.Current.TrimInputValues;
+
 		_repository.Save(AppSettingsStore.Current);
 	}
 }

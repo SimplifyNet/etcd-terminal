@@ -61,6 +61,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	public void Disconnect()
 	{
 		_client?.Dispose();
+
 		_client = null;
 	}
 
@@ -132,6 +133,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		foreach (var user in response.Users)
 		{
 			var userInfo = await _client.UserGetAsync(new AuthUserGetRequest { Name = user }, cancellationToken: ct);
+
 			users.Add(new EtcdUser
 			{
 				Username = user,
@@ -215,6 +217,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		{
 			var roleInfo = await _client.RoleGetAsync(
 				new AuthRoleGetRequest { Role = role }, cancellationToken: ct);
+
 			roles.Add(new EtcdRole
 			{
 				Name = role,
@@ -321,7 +324,6 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 				.First(m => m.Name == "AuthStatusAsync" &&
 					   m.GetParameters().Length == 4 &&
 					   m.GetParameters()[0].ParameterType == typeof(AuthStatusRequest));
-
 			var call = authStatusMethod.Invoke(authClient,
 				[new AuthStatusRequest(), null, null, ct]);
 

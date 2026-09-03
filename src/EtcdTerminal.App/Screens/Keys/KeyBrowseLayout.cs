@@ -18,6 +18,9 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 
 	private int ValueColumnWidth => _terminal.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
+	public static string TruncateText(string text, int maxLength) =>
+		text.Length <= maxLength ? text : text[..maxLength] + "...";
+
 	public (int SearchEndCol, int SearchBarRow) RenderSearchBar(string searchQuery)
 	{
 		_terminal.WriteFillRow(_terminal.Bg);
@@ -102,7 +105,4 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 		_terminal.WriteBorderedRow(_terminal.Bg, colored);
 		_terminal.WriteBorderedFillRow(_terminal.Bg);
 	}
-
-	public static string TruncateText(string text, int maxLength) =>
-		text.Length <= maxLength ? text : text[..maxLength] + "...";
 }

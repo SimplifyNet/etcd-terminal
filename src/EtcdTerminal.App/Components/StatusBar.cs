@@ -10,15 +10,16 @@ public sealed class StatusBar(ITerminal _terminal)
 	{
 		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} navigate \u00b7 {_terminal.White}Enter{_terminal.Grey} confirm/select \u00b7 {_terminal.White}Esc{_terminal.Grey} back  ";
 		var version = GetVersion();
-
 		var rightPadding = "  ";
 
 		string right;
+
 		if (config is not null)
 		{
 			var connStr = config.ConnectionString.Length > 50
 				? config.ConnectionString[..50] + "..."
 				: config.ConnectionString;
+
 			right = $"{_terminal.Green}\u2022{_terminal.Teal} {config.Name} {_terminal.Dim}\u00b7{_terminal.Grey} {connStr}";
 			if (config.IsAuthenticationEnabled)
 				right += $" {_terminal.Dim}\u00b7{_terminal.Yellow} {config.Username}";
@@ -29,7 +30,9 @@ public sealed class StatusBar(ITerminal _terminal)
 
 		var visibleWidth = _terminal.GetVisibleLength(left) + _terminal.GetVisibleLength(right) + rightPadding.Length;
 		var pad = _terminal.WindowWidth - visibleWidth;
+
 		if (pad < 0) pad = 0;
+
 		var content = _terminal.Bg + _terminal.Grey + left + new string(' ', pad) + right + _terminal.Grey + rightPadding + _terminal.Reset;
 
 		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 3);

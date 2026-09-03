@@ -26,7 +26,6 @@ public static class PermissionViewRenderer
 			if (user.Roles.Count == 0)
 				table.AddRow($"[grey]{LocalizationStore.Current.NoRoles}[/]", "[grey]-[/]");
 			else
-			{
 				foreach (var roleName in user.Roles)
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
@@ -36,7 +35,6 @@ public static class PermissionViewRenderer
 
 					table.AddRow(Markup.Escape(roleName), permissions);
 				}
-			}
 
 			AnsiConsole.Write(table);
 			AnsiConsole.WriteLine();

@@ -25,10 +25,8 @@ public static class RoleListRenderer
 			if (role.Permissions.Count == 0)
 				table.AddRow($"[grey]{LocalizationStore.Current.None}[/]", $"[grey]{LocalizationStore.Current.None}[/]");
 			else
-			{
 				foreach (var perm in role.Permissions)
 					table.AddRow(perm.Type.ToString(), Markup.Escape(perm.KeyPrefix));
-			}
 
 			AnsiConsole.Write(table);
 			AnsiConsole.WriteLine();

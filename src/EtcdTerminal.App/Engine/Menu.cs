@@ -38,6 +38,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 			DrawItem(firstItemTop + i, plain[i], i == index);
 
 		var menuEnd = _terminal.CursorTop;
+
 		_statusBar.Render(config);
 		_terminal.SetCursorPosition(0, menuEnd);
 
@@ -97,9 +98,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 			_terminal.Write("...");
 		}
 		else
-		{
 			_terminal.Write(text);
-		}
 	}
 
 	private static string StripMarkup(string text) => Regex.Replace(text, @"\[/?[^\]]*\]", "");

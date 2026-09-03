@@ -72,12 +72,10 @@ public sealed class ConsoleTerminal : ITerminal
 		var len = 0;
 
 		for (var i = 0; i < s.Length; i++)
-		{
 			if (s[i] == '\x1b')
 				while (i < s.Length && s[i] != 'm') i++;
 			else
 				len++;
-		}
 
 		return len;
 	}
@@ -85,6 +83,7 @@ public sealed class ConsoleTerminal : ITerminal
 	public void Initialize()
 	{
 		Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 		SetDarkBackground();
 	}
 

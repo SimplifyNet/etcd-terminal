@@ -52,6 +52,49 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 		}
 	}
 
+	public void AddInstance(EtcdConnectionConfig config)
+	{
+		var instances = LoadInstances().ToList();
+
+		instances.RemoveAll(i => i.Name == config.Name);
+		instances.Add(config);
+		SaveInstances(instances);
+	}
+
+	public void RemoveInstance(string name)
+	{
+		var instances = LoadInstances().ToList();
+
+		instances.RemoveAll(i => i.Name == name);
+		SaveInstances(instances);
+	}
+
+	public void MoveUp(string name)
+	{
+		var instances = LoadInstances().ToList();
+		var index = instances.FindIndex(i => i.Name == name);
+
+		if (index <= 0)
+			return;
+
+		(instances[index], instances[index - 1]) = (instances[index - 1], instances[index]);
+
+		SaveInstances(instances);
+	}
+
+	public void MoveDown(string name)
+	{
+		var instances = LoadInstances().ToList();
+		var index = instances.FindIndex(i => i.Name == name);
+
+		if (index < 0 || index >= instances.Count - 1)
+			return;
+
+		(instances[index], instances[index + 1]) = (instances[index + 1], instances[index]);
+
+		SaveInstances(instances);
+	}
+
 	private static bool IsValid(EtcdConnectionConfig config)
 	{
 		if (string.IsNullOrWhiteSpace(config.Name))
@@ -67,45 +110,6 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 			return false;
 
 		return true;
-	}
-
-	public void AddInstance(EtcdConnectionConfig config)
-	{
-		var instances = LoadInstances().ToList();
-		instances.RemoveAll(i => i.Name == config.Name);
-		instances.Add(config);
-		SaveInstances(instances);
-	}
-
-	public void RemoveInstance(string name)
-	{
-		var instances = LoadInstances().ToList();
-		instances.RemoveAll(i => i.Name == name);
-		SaveInstances(instances);
-	}
-
-	public void MoveUp(string name)
-	{
-		var instances = LoadInstances().ToList();
-		var index = instances.FindIndex(i => i.Name == name);
-
-		if (index <= 0)
-			return;
-
-		(instances[index], instances[index - 1]) = (instances[index - 1], instances[index]);
-		SaveInstances(instances);
-	}
-
-	public void MoveDown(string name)
-	{
-		var instances = LoadInstances().ToList();
-		var index = instances.FindIndex(i => i.Name == name);
-
-		if (index < 0 || index >= instances.Count - 1)
-			return;
-
-		(instances[index], instances[index + 1]) = (instances[index + 1], instances[index]);
-		SaveInstances(instances);
 	}
 
 	private void SaveInstances(List<EtcdConnectionConfig> instances)

@@ -6,20 +6,6 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public enum KeyBrowseAction
-{
-	None,
-	SearchChanged,
-	Edit,
-	Delete,
-	Exit,
-}
-
-public readonly record struct KeyBrowseCommand(KeyBrowseAction Action, EtcdKeyValue? SelectedKey)
-{
-	public static KeyBrowseCommand None => new(KeyBrowseAction.None, null);
-}
-
 public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout)
 {
 	public string SearchQuery { get; private set; } = "";
@@ -64,11 +50,13 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 					break;
 				case ConsoleKey.E:
 					var editKey = SelectedKey;
+
 					ShowActions = false;
 					SelectedKey = null;
 					return new KeyBrowseCommand(KeyBrowseAction.Edit, editKey);
 				case ConsoleKey.D:
 					var deleteKey = SelectedKey;
+
 					ShowActions = false;
 					SelectedKey = null;
 					return new KeyBrowseCommand(KeyBrowseAction.Delete, deleteKey);

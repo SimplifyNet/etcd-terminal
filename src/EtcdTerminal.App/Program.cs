@@ -47,7 +47,6 @@ try
 		try
 		{
 			using var scope = DIContainer.Current.BeginLifetimeScope();
-
 			var settingsRepository = scope.Resolver.Resolve<IAppSettingsRepository>();
 
 			AppSettingsStore.Current = settingsRepository.Load();
