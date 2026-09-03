@@ -16,6 +16,10 @@ Members must appear in this order:
 
 Within each group: **public → protected → private** (most open to most closed).
 
+## File structure
+
+- One public type per file (class, struct, interface, enum). File name must match the type name.
+
 ## Control flow
 
 - Single-statement `if`, `else`, `for`, `foreach`, `while` bodies must NOT use braces.
