@@ -2,6 +2,9 @@
 
 **etcd-terminal** — a console client for etcd v3+ with a convenient TUI based on Spectre.Console.
 
+[![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
+[![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
+
 ## Features
 
 ### Connection management
