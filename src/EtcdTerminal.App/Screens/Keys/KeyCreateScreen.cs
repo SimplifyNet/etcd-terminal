@@ -12,12 +12,12 @@ public sealed class KeyCreateScreen(ITerminal _terminal, IEtcdClient _etcdClient
 	{
 		_screenLayout.RenderHeader(config);
 
-		var key = Prompt.Ask(LocalizationStore.Current.EnterKey);
+		var key = Prompt.Ask(_terminal, LocalizationStore.Current.EnterKey);
 
 		if (key is null)
 			return;
 
-		var value = Prompt.Ask(LocalizationStore.Current.EnterValue);
+		var value = Prompt.Ask(_terminal, LocalizationStore.Current.EnterValue);
 
 		if (value is null)
 			return;

@@ -45,7 +45,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
+		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
@@ -62,12 +62,12 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNameToDelete);
+		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNameToDelete);
 
 		if (roleName is null)
 			return;
 
-		var confirm = Prompt.Confirm(string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
+		var confirm = Prompt.Confirm(_terminal, string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
 
 		if (confirm is not true)
 			return;
@@ -90,12 +90,12 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{
-		var roleName = Prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
+		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = Prompt.Ask(LocalizationStore.Current.EnterKeyPrefix);
+		var keyPrefix = Prompt.Ask(_terminal, LocalizationStore.Current.EnterKeyPrefix);
 
 		if (keyPrefix is null)
 			return;

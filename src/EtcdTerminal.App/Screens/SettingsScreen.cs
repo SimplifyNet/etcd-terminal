@@ -40,7 +40,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 	private void EditPageSize()
 	{
-		var input = Prompt.Ask(LocalizationStore.Current.EnterPageSize);
+		var input = Prompt.Ask(_terminal, LocalizationStore.Current.EnterPageSize);
 
 		if (input is null)
 			return;

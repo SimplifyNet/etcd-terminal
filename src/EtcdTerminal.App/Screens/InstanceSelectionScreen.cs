@@ -116,12 +116,12 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void AddInstanceInteractive()
 	{
-		var name = Prompt.Ask(LocalizationStore.Current.EnterInstanceName);
+		var name = Prompt.Ask(_terminal, LocalizationStore.Current.EnterInstanceName);
 
 		if (name is null)
 			return;
 
-		var connectionString = Prompt.Ask(LocalizationStore.Current.EnterConnStr, LocalizationStore.Current.DefaultConnStr);
+		var connectionString = Prompt.Ask(_terminal, LocalizationStore.Current.EnterConnStr, LocalizationStore.Current.DefaultConnStr);
 
 		if (connectionString is null)
 			return;
@@ -134,7 +134,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			return;
 		}
 
-		var username = Prompt.Ask(LocalizationStore.Current.EnterUsername, allowEmpty: true);
+		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsername, allowEmpty: true);
 
 		if (username is null)
 			return;
@@ -143,7 +143,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!string.IsNullOrEmpty(username))
 		{
-			var entered = Prompt.Secret(LocalizationStore.Current.EnterPassword);
+			var entered = Prompt.Secret(_terminal, LocalizationStore.Current.EnterPassword);
 
 			if (entered is null)
 				return;
@@ -177,12 +177,12 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		_terminal.Clear();
 		Header.Render();
 
-		var name = Prompt.Ask(LocalizationStore.Current.EnterInstanceName, existing.Name);
+		var name = Prompt.Ask(_terminal, LocalizationStore.Current.EnterInstanceName, existing.Name);
 
 		if (name is null)
 			return;
 
-		var connectionString = Prompt.Ask(LocalizationStore.Current.EnterConnStr, existing.ConnectionString);
+		var connectionString = Prompt.Ask(_terminal, LocalizationStore.Current.EnterConnStr, existing.ConnectionString);
 
 		if (connectionString is null)
 			return;
@@ -195,7 +195,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			return;
 		}
 
-		var username = Prompt.Ask(LocalizationStore.Current.EnterUsername, existing.Username ?? string.Empty);
+		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsername, existing.Username ?? string.Empty);
 
 		if (username is null)
 			return;
@@ -206,9 +206,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		{
 			password = existing.Password ?? string.Empty;
 
-			if (Prompt.Confirm(LocalizationStore.Current.ChangePassword))
+			if (Prompt.Confirm(_terminal, LocalizationStore.Current.ChangePassword))
 			{
-				var newPassword = Prompt.Secret(LocalizationStore.Current.EnterPassword);
+				var newPassword = Prompt.Secret(_terminal, LocalizationStore.Current.EnterPassword);
 
 				if (newPassword is null)
 					return;
@@ -251,7 +251,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		if (nameToRemove is null)
 			return;
 
-		if (Prompt.Confirm(string.Format(LocalizationStore.Current.AreYouSureRemove, nameToRemove)))
+		if (Prompt.Confirm(_terminal, string.Format(LocalizationStore.Current.AreYouSureRemove, nameToRemove)))
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 

@@ -82,5 +82,7 @@ public interface ITerminal
 
 	void WriteException(Exception ex);
 
+	void SetCursorVisible(bool visible);
+
 	Task ShowStatusAsync(string message, Func<CancellationToken, Task> action);
 }

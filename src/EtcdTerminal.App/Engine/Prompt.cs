@@ -1,4 +1,5 @@
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Terminal;
 using Spectre.Console;
 
 namespace EtcdTerminal.App.Engine;
@@ -9,8 +10,10 @@ public static class Prompt
 
 	private static readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
 
-	public static string? Ask(string prompt, bool allowEmpty = false)
+	public static string? Ask(ITerminal terminal, string prompt, bool allowEmpty = false)
 	{
+		terminal.SetCursorVisible(true);
+
 		try
 		{
 			var input = _console.Prompt(new TextPrompt<string>(prompt)
@@ -29,10 +32,16 @@ public static class Prompt
 		{
 			return null;
 		}
+		finally
+		{
+			terminal.SetCursorVisible(false);
+		}
 	}
 
-	public static string? Ask(string prompt, string defaultValue)
+	public static string? Ask(ITerminal terminal, string prompt, string defaultValue)
 	{
+		terminal.SetCursorVisible(true);
+
 		try
 		{
 			var input = _console.Prompt(new TextPrompt<string>(prompt)
@@ -48,10 +57,16 @@ public static class Prompt
 		{
 			return null;
 		}
+		finally
+		{
+			terminal.SetCursorVisible(false);
+		}
 	}
 
-	public static string? Secret(string prompt)
+	public static string? Secret(ITerminal terminal, string prompt)
 	{
+		terminal.SetCursorVisible(true);
+
 		try
 		{
 			return _console.Prompt(new TextPrompt<string>(prompt)
@@ -63,10 +78,16 @@ public static class Prompt
 		{
 			return null;
 		}
+		finally
+		{
+			terminal.SetCursorVisible(false);
+		}
 	}
 
-	public static bool Confirm(string prompt)
+	public static bool Confirm(ITerminal terminal, string prompt)
 	{
+		terminal.SetCursorVisible(true);
+
 		try
 		{
 			return _console.Confirm(prompt, false);
@@ -74,6 +95,10 @@ public static class Prompt
 		catch (OperationCanceledException)
 		{
 			return false;
+		}
+		finally
+		{
+			terminal.SetCursorVisible(false);
 		}
 	}
 }

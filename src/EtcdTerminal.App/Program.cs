@@ -25,6 +25,7 @@ static void Cleanup()
 
 	terminal.ClearScreen();
 	terminal.ResetBackground();
+	terminal.SetCursorVisible(true);
 	terminal.Flush();
 
 	DIContainer.Current.Dispose();

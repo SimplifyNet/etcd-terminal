@@ -93,6 +93,7 @@ public sealed class ConsoleTerminal : ITerminal
 		Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 		SetDarkBackground();
+		SetCursorVisible(false);
 	}
 
 	public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
@@ -105,9 +106,15 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void WriteException(Exception ex) => AnsiConsole.WriteException(ex);
 
-	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action) =>
+	public void SetCursorVisible(bool visible) => Console.Write(visible ? "\x1b[?25h" : "\x1b[?25l");
+
+	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action)
+	{
 		await AnsiConsole.Status()
 			.StartAsync(message, async _ => await action(CancellationToken.None));
+
+		SetCursorVisible(false);
+	}
 
 	private string GetColorEscape(TerminalColor color) => color switch
 	{
