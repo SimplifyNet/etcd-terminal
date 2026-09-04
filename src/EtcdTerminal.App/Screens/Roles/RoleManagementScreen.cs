@@ -53,9 +53,9 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleCreated);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleCreated}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateRole);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedCreateRole}[/]");
 
 		_pressAnyKey.Show();
 	}
@@ -75,18 +75,18 @@ public sealed class RoleManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleDeleted);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleDeleted}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteRole);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedDeleteRole}[/]");
 
 		_pressAnyKey.Show();
 	}
 
 	private Task GrantPermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), $"[green]{LocalizationStore.Current.PermissionGranted}[/]", $"[red]{LocalizationStore.Current.FailedGrantPermission}[/]");
 
 	private Task RevokePermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), $"[green]{LocalizationStore.Current.PermissionRevoked}[/]", $"[red]{LocalizationStore.Current.FailedRevokePermission}[/]");
 
 	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{

@@ -50,10 +50,10 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 			AppSettingsStore.Current.PageSize = pageSize;
 
 			_repository.Save(AppSettingsStore.Current);
-			AnsiConsole.MarkupLine(LocalizationStore.Current.SettingsSaved);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.SettingsSaved}[/]");
 		}
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidPageSize);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidPageSize}[/]");
 
 		AnsiConsole.WriteLine();
 		_pressAnyKey.Show();

@@ -10,7 +10,7 @@ public static class RoleListRenderer
 	{
 		if (roles.Count == 0)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.NoRolesFound);
+			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoRolesFound}[/]");
 
 			return;
 		}

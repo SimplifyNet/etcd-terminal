@@ -130,12 +130,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyUpdated);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyUpdated}[/]");
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.CouldNotUpdateKey);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.CouldNotUpdateKey}[/]");
 
 		AnsiConsole.WriteLine();
 		_pressAnyKey.Show();
@@ -156,12 +156,12 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyDeleted);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyDeleted}[/]");
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCouldNotBeDeleted);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.KeyCouldNotBeDeleted}[/]");
 
 		AnsiConsole.WriteLine();
 		_pressAnyKey.Show();

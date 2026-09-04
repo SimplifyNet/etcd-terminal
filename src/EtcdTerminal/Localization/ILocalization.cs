@@ -132,5 +132,6 @@ public interface ILocalization
 	string None { get; }
 	string NoRoles { get; }
 	string NoPermissions { get; }
+	string PressAnyKey { get; }
 	string PressAnyKeyRestart { get; }
 }

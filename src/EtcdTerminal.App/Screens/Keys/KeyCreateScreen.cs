@@ -25,9 +25,9 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCreated);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyCreated}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.KeyCreateFailed);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.KeyCreateFailed}[/]");
 
 		_pressAnyKey.Show();
 	}

@@ -47,7 +47,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 	{
 		if (pageKeys.Count == 0)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.NoKeysFound);
+			AnsiConsole.MarkupLine($"[grey]{LocalizationStore.Current.NoKeysFound}[/]");
 
 			return;
 		}

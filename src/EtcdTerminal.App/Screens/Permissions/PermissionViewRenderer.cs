@@ -11,7 +11,7 @@ public static class PermissionViewRenderer
 	{
 		if (users.Count == 0 && roles.Count == 0)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.NoUsersOrRoles);
+			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoUsersOrRoles}[/]");
 
 			return;
 		}

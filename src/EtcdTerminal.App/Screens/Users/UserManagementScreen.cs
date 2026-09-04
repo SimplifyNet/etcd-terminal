@@ -60,9 +60,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.CreateUserAsync(username, password);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.UserCreated);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.UserCreated}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedCreateUser);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedCreateUser}[/]");
 
 		_pressAnyKey.Show();
 	}
@@ -82,9 +82,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.DeleteUserAsync(username);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.UserDeleted);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.UserDeleted}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedDeleteUser);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedDeleteUser}[/]");
 
 		_pressAnyKey.Show();
 	}
@@ -104,9 +104,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
 
 		if (result)
-			AnsiConsole.MarkupLine(LocalizationStore.Current.PasswordChanged);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.PasswordChanged}[/]");
 		else
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedChangePassword);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedChangePassword}[/]");
 
 		_pressAnyKey.Show();
 	}
@@ -126,11 +126,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		try
 		{
 			await _etcdClient.GrantRoleToUserAsync(username, roleName);
-			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleAssigned);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleAssigned}[/]");
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedAssignRole);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedAssignRole}[/]");
 		}
 
 		_pressAnyKey.Show();
@@ -151,11 +151,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		try
 		{
 			await _etcdClient.RevokeRoleFromUserAsync(username, roleName);
-			AnsiConsole.MarkupLine(LocalizationStore.Current.RoleRemoved);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleRemoved}[/]");
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.FailedRemoveRole);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedRemoveRole}[/]");
 		}
 
 		_pressAnyKey.Show();

@@ -40,7 +40,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 							await _etcdClient.PingAsync();
 						});
 
-					AnsiConsole.MarkupLine(LocalizationStore.Current.ConnectedSuccess);
+					AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.ConnectedSuccess}[/]");
 
 					return selected;
 				}
@@ -129,7 +129,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidConnStr);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidConnStr}[/]");
 			_pressAnyKey.Show();
 
 			return;
@@ -162,7 +162,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		_configRepo.AddInstance(config);
 
-		AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceAdded);
+		AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceAdded}[/]");
 		_pressAnyKey.Show();
 	}
 
@@ -190,7 +190,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.InvalidConnStr);
+			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidConnStr}[/]");
 			_pressAnyKey.Show();
 
 			return;
@@ -228,7 +228,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		_configRepo.AddInstance(config);
 
-		AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceUpdated);
+		AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceUpdated}[/]");
 		_pressAnyKey.Show();
 	}
 
@@ -256,7 +256,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 
-			AnsiConsole.MarkupLine(LocalizationStore.Current.InstanceRemoved);
+			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceRemoved}[/]");
 		}
 
 		_pressAnyKey.Show();

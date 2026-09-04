@@ -10,7 +10,7 @@ public static class UserListRenderer
 	{
 		if (users.Count == 0)
 		{
-			AnsiConsole.MarkupLine(LocalizationStore.Current.NoUsersFound);
+			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoUsersFound}[/]");
 
 			return;
 		}
