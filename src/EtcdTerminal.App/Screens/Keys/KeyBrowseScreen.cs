@@ -8,7 +8,7 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -120,7 +120,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 		_terminal.WriteLine(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength), TerminalColor.Success);
 		_terminal.WriteLine();
 
-		var newValue = Prompt.Ask(_terminal, LocalizationStore.Current.EnterNewValue, key.Value);
+		var newValue = _prompt.Ask(LocalizationStore.Current.EnterNewValue, key.Value);
 
 		if (newValue is null)
 			return;
@@ -149,7 +149,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 		_terminal.WriteLine(key.Key, TerminalColor.Error);
 		_terminal.WriteLine();
 
-		if (!Prompt.Confirm(_terminal, LocalizationStore.Current.AreYouSure))
+		if (!_prompt.Confirm(LocalizationStore.Current.AreYouSure))
 			return;
 
 		var result = await _etcdClient.DeleteKeyAsync(key.Key);

@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
+public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -40,7 +40,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 	private void EditPageSize()
 	{
-		var input = Prompt.Ask(_terminal, LocalizationStore.Current.EnterPageSize);
+		var input = _prompt.Ask(LocalizationStore.Current.EnterPageSize);
 
 		if (input is null)
 			return;

@@ -4,15 +4,15 @@ using Spectre.Console;
 
 namespace EtcdTerminal.App.Engine;
 
-public static class Prompt
+public sealed class Prompt(ITerminal _terminal)
 {
 	private static readonly Style _promptStyle = new(decoration: Decoration.Bold);
 
-	private static readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
+	private readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
 
-	public static string? Ask(ITerminal terminal, string prompt, bool allowEmpty = false)
+	public string? Ask(string prompt, bool allowEmpty = false)
 	{
-		terminal.SetCursorVisible(true);
+		_terminal.SetCursorVisible(true);
 
 		try
 		{
@@ -34,13 +34,13 @@ public static class Prompt
 		}
 		finally
 		{
-			terminal.SetCursorVisible(false);
+			_terminal.SetCursorVisible(false);
 		}
 	}
 
-	public static string? Ask(ITerminal terminal, string prompt, string defaultValue)
+	public string? Ask(string prompt, string defaultValue)
 	{
-		terminal.SetCursorVisible(true);
+		_terminal.SetCursorVisible(true);
 
 		try
 		{
@@ -59,13 +59,13 @@ public static class Prompt
 		}
 		finally
 		{
-			terminal.SetCursorVisible(false);
+			_terminal.SetCursorVisible(false);
 		}
 	}
 
-	public static string? Secret(ITerminal terminal, string prompt)
+	public string? Secret(string prompt)
 	{
-		terminal.SetCursorVisible(true);
+		_terminal.SetCursorVisible(true);
 
 		try
 		{
@@ -80,13 +80,13 @@ public static class Prompt
 		}
 		finally
 		{
-			terminal.SetCursorVisible(false);
+			_terminal.SetCursorVisible(false);
 		}
 	}
 
-	public static bool Confirm(ITerminal terminal, string prompt)
+	public bool Confirm(string prompt)
 	{
-		terminal.SetCursorVisible(true);
+		_terminal.SetCursorVisible(true);
 
 		try
 		{
@@ -98,7 +98,7 @@ public static class Prompt
 		}
 		finally
 		{
-			terminal.SetCursorVisible(false);
+			_terminal.SetCursorVisible(false);
 		}
 	}
 }

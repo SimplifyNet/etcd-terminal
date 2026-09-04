@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
@@ -47,12 +47,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task CreateUserAsync()
 	{
-		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var password = Prompt.Secret(_terminal, LocalizationStore.Current.EnterPasswordPrompt);
+		var password = _prompt.Secret(LocalizationStore.Current.EnterPasswordPrompt);
 
 		if (password is null)
 			return;
@@ -69,12 +69,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task DeleteUserAsync()
 	{
-		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsernameToDelete);
+		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernameToDelete);
 
 		if (username is null)
 			return;
 
-		var confirm = Prompt.Confirm(_terminal, string.Format(LocalizationStore.Current.DeleteUserConfirm, username));
+		var confirm = _prompt.Confirm(string.Format(LocalizationStore.Current.DeleteUserConfirm, username));
 
 		if (confirm is not true)
 			return;
@@ -91,12 +91,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task ChangePasswordAsync()
 	{
-		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var newPassword = Prompt.Secret(_terminal, LocalizationStore.Current.EnterNewPassword);
+		var newPassword = _prompt.Secret(LocalizationStore.Current.EnterNewPassword);
 
 		if (newPassword is null)
 			return;
@@ -113,12 +113,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task AssignRoleAsync()
 	{
-		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleName);
+		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleName);
 
 		if (roleName is null)
 			return;
@@ -138,12 +138,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task RevokeRoleAsync()
 	{
-		var username = Prompt.Ask(_terminal, LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNameToRemove);
+		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNameToRemove);
 
 		if (roleName is null)
 			return;

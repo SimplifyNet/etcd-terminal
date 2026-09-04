@@ -7,7 +7,7 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
@@ -45,7 +45,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNamePrompt);
+		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
@@ -62,12 +62,12 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNameToDelete);
+		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNameToDelete);
 
 		if (roleName is null)
 			return;
 
-		var confirm = Prompt.Confirm(_terminal, string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
+		var confirm = _prompt.Confirm(string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
 
 		if (confirm is not true)
 			return;
@@ -90,12 +90,12 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{
-		var roleName = Prompt.Ask(_terminal, LocalizationStore.Current.EnterRoleNamePrompt);
+		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = Prompt.Ask(_terminal, LocalizationStore.Current.EnterKeyPrefix);
+		var keyPrefix = _prompt.Ask(LocalizationStore.Current.EnterKeyPrefix);
 
 		if (keyPrefix is null)
 			return;
