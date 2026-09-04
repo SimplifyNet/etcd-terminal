@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
+public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
 	private const string ClearToEndOfScreen = "\x1b[J";
 
@@ -101,5 +101,8 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 			_terminal.Write(text);
 	}
 
-	private static string StripMarkup(string text) => Regex.Replace(text, @"\[/?[^\]]*\]", "");
+	private static string StripMarkup(string text) => MarkupPattern().Replace(text, string.Empty);
+
+	[GeneratedRegex(@"\[/?[^\]]*\]")]
+	private static partial Regex MarkupPattern();
 }
