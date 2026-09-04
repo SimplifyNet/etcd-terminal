@@ -122,6 +122,13 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 		SelectedIndex = 0;
 	}
 
+	public void ClearSearch()
+	{
+		SearchQuery = "";
+		ShowActions = false;
+		SelectedKey = null;
+	}
+
 	public void ClampPage(int totalPages)
 	{
 		CurrentPage = Math.Clamp(CurrentPage, 0, Math.Max(0, totalPages - 1));

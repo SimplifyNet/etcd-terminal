@@ -20,6 +20,9 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 	{
 		_config = config;
 
+		_control.ResetNavigation();
+		_control.ClearSearch();
+
 		await LoadKeysAsync();
 
 		while (true)
