@@ -2,14 +2,14 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Permissions;
 using EtcdTerminal.App.Screens.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseLayout _keyBrowseLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -115,9 +115,11 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
 		_screenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"{LocalizationStore.Current.EditingKey} {_keyBrowseLayout.SelectionColor}{Markup.Escape(key.Key)}[/]");
-		AnsiConsole.MarkupLine($"{LocalizationStore.Current.CurrentValue} [green]{Markup.Escape(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength))}[/]");
-		AnsiConsole.WriteLine();
+		_terminal.Write($"{LocalizationStore.Current.EditingKey} ");
+		_terminal.WriteLine(key.Key, TerminalColor.Default);
+		_terminal.Write($"{LocalizationStore.Current.CurrentValue} ");
+		_terminal.WriteLine(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength), TerminalColor.Success);
+		_terminal.WriteLine();
 
 		var newValue = Prompt.Ask(LocalizationStore.Current.EnterNewValue, key.Value);
 
@@ -130,22 +132,23 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyUpdated}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.KeyUpdated, TerminalColor.Success);
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.CouldNotUpdateKey}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.CouldNotUpdateKey, TerminalColor.Error);
 
-		AnsiConsole.WriteLine();
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
 		_screenLayout.RenderHeader(_config);
-		AnsiConsole.MarkupLine($"{LocalizationStore.Current.DeleteKey} [red]{Markup.Escape(key.Key)}[/]");
-		AnsiConsole.WriteLine();
+		_terminal.Write($"{LocalizationStore.Current.DeleteKey} ");
+		_terminal.WriteLine(key.Key, TerminalColor.Error);
+		_terminal.WriteLine();
 
 		if (!Prompt.Confirm(LocalizationStore.Current.AreYouSure))
 			return;
@@ -156,14 +159,14 @@ public sealed class KeyBrowseScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 
 		if (result)
 		{
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyDeleted}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.KeyDeleted, TerminalColor.Success);
 
 			await ReloadAsync();
 		}
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.KeyCouldNotBeDeleted}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.KeyCouldNotBeDeleted, TerminalColor.Error);
 
-		AnsiConsole.WriteLine();
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 

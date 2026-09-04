@@ -2,11 +2,11 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
+public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -15,7 +15,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 	{
 		while (true)
 		{
-			AnsiConsole.Clear();
+			_terminal.Clear();
 			Header.Render();
 
 			var choice = _menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
@@ -50,12 +50,12 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 			AppSettingsStore.Current.PageSize = pageSize;
 
 			_repository.Save(AppSettingsStore.Current);
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.SettingsSaved}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.SettingsSaved, TerminalColor.Success);
 		}
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidPageSize}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.InvalidPageSize, TerminalColor.Error);
 
-		AnsiConsole.WriteLine();
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 

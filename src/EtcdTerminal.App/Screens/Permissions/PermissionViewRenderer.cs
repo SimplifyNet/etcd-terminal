@@ -1,3 +1,4 @@
+using EtcdTerminal.Terminal;
 using Spectre.Console;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
@@ -7,11 +8,11 @@ namespace EtcdTerminal.App.Screens.Permissions;
 
 public static class PermissionViewRenderer
 {
-	public static void Render(IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
+	public static void Render(ITerminal terminal, IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
 	{
 		if (users.Count == 0 && roles.Count == 0)
 		{
-			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoUsersOrRoles}[/]");
+			terminal.WriteLine(LocalizationStore.Current.NoUsersOrRoles, TerminalColor.Warning);
 
 			return;
 		}
@@ -27,14 +28,14 @@ public static class PermissionViewRenderer
 			table.AddColumn(LocalizationStore.Current.Permissions);
 
 			if (user.Roles.Count == 0)
-				table.AddRow($"[grey]{LocalizationStore.Current.NoRoles}[/]", "[grey]-[/]");
+				table.AddRow(LocalizationStore.Current.NoRoles, "-");
 			else
 				foreach (var roleName in user.Roles)
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
 					var permissions = role is not null && role.Permissions.Count > 0
 						? string.Join("\n", role.Permissions.Select(p => $"{p.Type}: {p.KeyPrefix}"))
-						: $"[grey]{LocalizationStore.Current.NoPermissions}[/]";
+						: LocalizationStore.Current.NoPermissions;
 
 					table.AddRow(Markup.Escape(roleName), permissions);
 				}

@@ -1,16 +1,17 @@
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 using EtcdTerminal.Localization;
+using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Users;
 
 public static class UserListRenderer
 {
-	public static void Render(IReadOnlyList<EtcdUser> users)
+	public static void Render(ITerminal terminal, IReadOnlyList<EtcdUser> users)
 	{
 		if (users.Count == 0)
 		{
-			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoUsersFound}[/]");
+			terminal.WriteLine(LocalizationStore.Current.NoUsersFound, TerminalColor.Warning);
 
 			return;
 		}
@@ -24,7 +25,7 @@ public static class UserListRenderer
 		{
 			var roles = user.Roles.Count > 0
 				? string.Join(", ", user.Roles)
-				: $"[grey]{LocalizationStore.Current.None}[/]";
+				: LocalizationStore.Current.None;
 
 			table.AddRow(Markup.Escape(user.Username), roles);
 		}

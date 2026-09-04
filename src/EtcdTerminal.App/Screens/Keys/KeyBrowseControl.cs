@@ -1,7 +1,6 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
-using Spectre.Console;
 using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -16,7 +15,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys, EtcdConnectionConfig config)
 	{
-		AnsiConsole.Clear();
+		_terminal.Clear();
 		Header.Render();
 
 		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);

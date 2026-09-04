@@ -10,6 +10,7 @@ public interface ITheme
 	RgbColor White { get; }
 	RgbColor Grey { get; }
 	RgbColor Green { get; }
+	RgbColor Red { get; }
 	RgbColor Teal { get; }
 	RgbColor Yellow { get; }
 	RgbColor Dim { get; }

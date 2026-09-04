@@ -20,6 +20,8 @@ public interface ITerminal
 
 	string Green { get; }
 
+	string Red { get; }
+
 	string Teal { get; }
 
 	string Yellow { get; }
@@ -36,7 +38,11 @@ public interface ITerminal
 
 	void Write(string text);
 
+	void Write(string text, TerminalColor color);
+
 	void WriteLine(string text);
+
+	void WriteLine(string text, TerminalColor color);
 
 	void WriteLine();
 
@@ -76,5 +82,5 @@ public interface ITerminal
 
 	void WriteException(Exception ex);
 
-	void WriteMarkupLine(string markup);
+	Task ShowStatusAsync(string message, Func<CancellationToken, Task> action);
 }

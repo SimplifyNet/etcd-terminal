@@ -2,11 +2,11 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
+public sealed class KeyCreateScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -25,9 +25,9 @@ public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _scree
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
 		if (result)
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.KeyCreated}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.KeyCreated, TerminalColor.Success);
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.KeyCreateFailed}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.KeyCreateFailed, TerminalColor.Error);
 
 		_pressAnyKey.Show();
 	}

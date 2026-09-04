@@ -63,7 +63,7 @@ try
 			var terminal = DIContainer.Current.Resolve<ITerminal>();
 
 			terminal.WriteException(ex);
-			terminal.WriteMarkupLine($"[grey]{LocalizationStore.Current.PressAnyKeyRestart}[/]");
+			terminal.WriteLine(LocalizationStore.Current.PressAnyKeyRestart, TerminalColor.Muted);
 			terminal.ReadKey();
 		}
 	}

@@ -11,6 +11,7 @@ public sealed class ConsoleTerminal : ITerminal
 	public string White => $"\x1b[38;2;{ThemeStore.Current.White.R};{ThemeStore.Current.White.G};{ThemeStore.Current.White.B}m";
 	public string Grey => $"\x1b[38;2;{ThemeStore.Current.Grey.R};{ThemeStore.Current.Grey.G};{ThemeStore.Current.Grey.B}m";
 	public string Green => $"\x1b[38;2;{ThemeStore.Current.Green.R};{ThemeStore.Current.Green.G};{ThemeStore.Current.Green.B}m";
+	public string Red => $"\x1b[38;2;{ThemeStore.Current.Red.R};{ThemeStore.Current.Red.G};{ThemeStore.Current.Red.B}m";
 	public string Teal => $"\x1b[38;2;{ThemeStore.Current.Teal.R};{ThemeStore.Current.Teal.G};{ThemeStore.Current.Teal.B}m";
 	public string Yellow => $"\x1b[38;2;{ThemeStore.Current.Yellow.R};{ThemeStore.Current.Yellow.G};{ThemeStore.Current.Yellow.B}m";
 	public string Dim => $"\x1b[38;2;{ThemeStore.Current.Dim.R};{ThemeStore.Current.Dim.G};{ThemeStore.Current.Dim.B}m";
@@ -29,11 +30,17 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void Write(string text) => Console.Write(text);
 
+	public void Write(string text, TerminalColor color) =>
+		Console.Write(GetColorEscape(color) + text + Reset);
+
 	public void WriteLine(string text) => Console.WriteLine(text);
+
+	public void WriteLine(string text, TerminalColor color) =>
+		Console.WriteLine(GetColorEscape(color) + text + Reset);
 
 	public void WriteLine() => Console.WriteLine();
 
-	public void Clear() => Console.Write("\x1b[2J\x1b[H");
+	public void Clear() => Console.Write("\x1b[2J\x1b[3J\x1b[H");
 
 	public void SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
 
@@ -98,5 +105,16 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void WriteException(Exception ex) => AnsiConsole.WriteException(ex);
 
-	public void WriteMarkupLine(string markup) => AnsiConsole.MarkupLine(markup);
+	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action) =>
+		await AnsiConsole.Status()
+			.StartAsync(message, async _ => await action(CancellationToken.None));
+
+	private string GetColorEscape(TerminalColor color) => color switch
+	{
+		TerminalColor.Success => Green,
+		TerminalColor.Error => Red,
+		TerminalColor.Warning => Yellow,
+		TerminalColor.Muted => Grey,
+		_ => White
+	};
 }

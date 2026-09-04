@@ -2,11 +2,11 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
@@ -40,7 +40,7 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 	{
 		var users = await _etcdClient.GetUsersAsync();
 
-		UserListRenderer.Render(users);
+		UserListRenderer.Render(_terminal, users);
 
 		_pressAnyKey.Show();
 	}
@@ -60,9 +60,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.CreateUserAsync(username, password);
 
 		if (result)
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.UserCreated}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.UserCreated, TerminalColor.Success);
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedCreateUser}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.FailedCreateUser, TerminalColor.Error);
 
 		_pressAnyKey.Show();
 	}
@@ -82,9 +82,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.DeleteUserAsync(username);
 
 		if (result)
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.UserDeleted}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.UserDeleted, TerminalColor.Success);
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedDeleteUser}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.FailedDeleteUser, TerminalColor.Error);
 
 		_pressAnyKey.Show();
 	}
@@ -104,9 +104,9 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
 
 		if (result)
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.PasswordChanged}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.PasswordChanged, TerminalColor.Success);
 		else
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedChangePassword}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.FailedChangePassword, TerminalColor.Error);
 
 		_pressAnyKey.Show();
 	}
@@ -126,11 +126,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		try
 		{
 			await _etcdClient.GrantRoleToUserAsync(username, roleName);
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleAssigned}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.RoleAssigned, TerminalColor.Success);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedAssignRole}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.FailedAssignRole, TerminalColor.Error);
 		}
 
 		_pressAnyKey.Show();
@@ -151,11 +151,11 @@ public sealed class UserManagementScreen(IEtcdClient _etcdClient, MenuScreen _me
 		try
 		{
 			await _etcdClient.RevokeRoleFromUserAsync(username, roleName);
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.RoleRemoved}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.RoleRemoved, TerminalColor.Success);
 		}
 		catch
 		{
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.FailedRemoveRole}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.FailedRemoveRole, TerminalColor.Error);
 		}
 
 		_pressAnyKey.Show();

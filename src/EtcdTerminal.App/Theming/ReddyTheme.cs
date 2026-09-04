@@ -12,6 +12,7 @@ public class ReddyTheme : ITheme
 	public RgbColor White { get; } = new(255, 255, 255);
 	public RgbColor Grey { get; } = new(128, 128, 128);
 	public RgbColor Green { get; } = new(0, 200, 0);
+	public RgbColor Red { get; } = new(220, 50, 50);
 	public RgbColor Teal { get; } = new(0, 180, 180);
 	public RgbColor Yellow { get; } = new(255, 200, 0);
 	public RgbColor Dim { get; } = new(80, 80, 80);

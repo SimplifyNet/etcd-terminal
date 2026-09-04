@@ -2,7 +2,6 @@ using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Theming;
-using Spectre.Console;
 using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -12,7 +11,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
 
-	public string SelectionColor => $"[#{ThemeStore.Current.Accent.R:X2}{ThemeStore.Current.Accent.G:X2}{ThemeStore.Current.Accent.B:X2}]";
+	public string SelectionColor => _terminal.Accent;
 
 	private int KeyColumnWidth => (_terminal.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
 
@@ -28,9 +27,11 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 		_terminal.Write(_terminal.Bg);
 
 		if (searchQuery.Length == 0)
-			AnsiConsole.Markup($"[grey]{LocalizationStore.Current.TypeToSearch}[/]");
+			_terminal.Write(LocalizationStore.Current.TypeToSearch, TerminalColor.Muted);
 		else
-			AnsiConsole.Markup($"  \U0001f50d [white]{Markup.Escape(searchQuery)}[/]");
+		{
+			_terminal.Write($"  \U0001f50d {_terminal.White}{searchQuery}{_terminal.Reset}");
+		}
 
 		var searchEndCol = _terminal.CursorLeft;
 		var searchBarRow = _terminal.CursorTop;
@@ -47,7 +48,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 	{
 		if (pageKeys.Count == 0)
 		{
-			AnsiConsole.MarkupLine($"[grey]{LocalizationStore.Current.NoKeysFound}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.NoKeysFound, TerminalColor.Muted);
 
 			return;
 		}
@@ -66,21 +67,23 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
 
 			if (isSelected)
-				AnsiConsole.MarkupLine($"  {SelectionColor}{Markup.Escape(line)}[/]");
+				_terminal.Write($"  {_terminal.Accent}{line}{_terminal.Reset}\n");
 			else
-				AnsiConsole.MarkupLine($"  [white]{Markup.Escape(line)}[/]");
+				_terminal.Write($"  {_terminal.White}{line}{_terminal.Reset}\n");
 		}
 	}
 
 	public void RenderPagination(int currentPage, int totalPages, int totalKeys)
 	{
 		var currentPageLabel = currentPage + 1;
+		var bg = _terminal.Bg;
+		var content = $"{bg}{_terminal.Grey}  {LocalizationStore.Current.Page} {_terminal.White}{currentPageLabel}/{totalPages}{_terminal.Grey}  \u2022  {_terminal.White}{totalKeys}{_terminal.Grey} {LocalizationStore.Current.TotalKeys}{_terminal.Reset}";
 
-		_terminal.WriteFillRow(_terminal.Bg);
-		_terminal.Write($"{_terminal.Bg}{_terminal.Grey}  {LocalizationStore.Current.Page} {_terminal.White}{currentPageLabel}/{totalPages}{_terminal.Grey}  •  {_terminal.White}{totalKeys}{_terminal.Grey} {LocalizationStore.Current.TotalKeys}{_terminal.Reset}");
-		_terminal.PadCurrentRow(_terminal.Bg);
+		_terminal.WriteFillRow(bg);
+		_terminal.Write(content);
+		_terminal.PadCurrentRow(bg);
 		_terminal.WriteLine();
-		_terminal.WriteFillRow(_terminal.Bg);
+		_terminal.WriteFillRow(bg);
 	}
 
 	public void RenderActionBar(string selectedKey)

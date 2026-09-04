@@ -2,17 +2,17 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
 		while (true)
 		{
-			AnsiConsole.Clear();
+			_terminal.Clear();
 			Header.Render();
 
 			var instances = _configRepo.LoadInstances();
@@ -33,21 +33,20 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 				try
 				{
-					await AnsiConsole.Status()
-						.StartAsync(LocalizationStore.Current.Connecting, async ctx =>
-						{
-							await _etcdClient.ConnectAsync(selected);
-							await _etcdClient.PingAsync();
-						});
+					await _terminal.ShowStatusAsync(LocalizationStore.Current.Connecting, async ct =>
+					{
+						await _etcdClient.ConnectAsync(selected);
+						await _etcdClient.PingAsync();
+					});
 
-					AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.ConnectedSuccess}[/]");
+					_terminal.WriteLine(LocalizationStore.Current.ConnectedSuccess, TerminalColor.Success);
 
 					return selected;
 				}
 				catch (Exception ex)
 				{
-					AnsiConsole.MarkupLine($"[red]Failed to connect:[/] {ex.Message}");
-					AnsiConsole.WriteLine();
+					_terminal.WriteLine($"Failed to connect: {ex.Message}", TerminalColor.Error);
+					_terminal.WriteLine();
 					_pressAnyKey.Show();
 				}
 			}
@@ -65,8 +64,8 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (instances.Count == 0)
 		{
-			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoConnectionsMessage}[/]");
-			AnsiConsole.WriteLine();
+			_terminal.WriteLine(LocalizationStore.Current.NoConnectionsMessage, TerminalColor.Warning);
+			_terminal.WriteLine();
 		}
 
 		return _menu.Show(string.Empty, choices, c =>
@@ -81,7 +80,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		AnsiConsole.Clear();
+		_terminal.Clear();
 		Header.Render();
 
 		var manageChoices = new List<string> { LocalizationStore.Current.AddInstance };
@@ -129,7 +128,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidConnStr}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
 			_pressAnyKey.Show();
 
 			return;
@@ -162,7 +161,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		_configRepo.AddInstance(config);
 
-		AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceAdded}[/]");
+		_terminal.WriteLine(LocalizationStore.Current.InstanceAdded, TerminalColor.Success);
 		_pressAnyKey.Show();
 	}
 
@@ -175,7 +174,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		var existing = instances.First(i => i.Name == existingName);
 
-		AnsiConsole.Clear();
+		_terminal.Clear();
 		Header.Render();
 
 		var name = Prompt.Ask(LocalizationStore.Current.EnterInstanceName, existing.Name);
@@ -190,7 +189,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			AnsiConsole.MarkupLine($"[red]{LocalizationStore.Current.InvalidConnStr}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
 			_pressAnyKey.Show();
 
 			return;
@@ -228,7 +227,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 
 		_configRepo.AddInstance(config);
 
-		AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceUpdated}[/]");
+		_terminal.WriteLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);
 		_pressAnyKey.Show();
 	}
 
@@ -256,7 +255,7 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 
-			AnsiConsole.MarkupLine($"[green]{LocalizationStore.Current.InstanceRemoved}[/]");
+			_terminal.WriteLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
 		}
 
 		_pressAnyKey.Show();

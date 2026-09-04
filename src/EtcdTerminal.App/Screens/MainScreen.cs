@@ -6,11 +6,12 @@ using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
+	ITerminal _terminal,
 	IEtcdClient _etcdClient,
 	KeyBrowseScreen _keyBrowse,
 	KeyCreateScreen _keyCreate,
@@ -23,7 +24,7 @@ public sealed class MainScreen(
 	{
 		while (true)
 		{
-			AnsiConsole.Clear();
+			_terminal.Clear();
 			Header.Render();
 
 			var choice = _menu.Show(

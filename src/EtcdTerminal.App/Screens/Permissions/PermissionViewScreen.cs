@@ -1,24 +1,23 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
+public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		_screenLayout.RenderHeader(config);
 
-		await AnsiConsole.Status()
-			.StartAsync(LocalizationStore.Current.LoadingPermissions, async ctx =>
-			{
-				var users = await _etcdClient.GetUsersAsync();
-				var roles = await _etcdClient.GetRolesAsync();
+		await _terminal.ShowStatusAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
+		{
+			var users = await _etcdClient.GetUsersAsync();
+			var roles = await _etcdClient.GetRolesAsync();
 
-				PermissionViewRenderer.Render(users, roles);
-			});
+			PermissionViewRenderer.Render(_terminal, users, roles);
+		});
 
 		_pressAnyKey.Show();
 	}

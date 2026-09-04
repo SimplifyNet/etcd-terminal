@@ -1,16 +1,17 @@
-using Spectre.Console;
+using EtcdTerminal.Terminal;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Localization;
+using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
 public static class RoleListRenderer
 {
-	public static void Render(IReadOnlyList<EtcdRole> roles)
+	public static void Render(ITerminal terminal, IReadOnlyList<EtcdRole> roles)
 	{
 		if (roles.Count == 0)
 		{
-			AnsiConsole.MarkupLine($"[yellow]{LocalizationStore.Current.NoRolesFound}[/]");
+			terminal.WriteLine(LocalizationStore.Current.NoRolesFound, TerminalColor.Warning);
 
 			return;
 		}
@@ -26,7 +27,7 @@ public static class RoleListRenderer
 			table.AddColumn(LocalizationStore.Current.KeyPrefix);
 
 			if (role.Permissions.Count == 0)
-				table.AddRow($"[grey]{LocalizationStore.Current.None}[/]", $"[grey]{LocalizationStore.Current.None}[/]");
+				table.AddRow(LocalizationStore.Current.None, LocalizationStore.Current.None);
 			else
 				foreach (var perm in role.Permissions)
 					table.AddRow(perm.Type.ToString(), Markup.Escape(perm.KeyPrefix));
