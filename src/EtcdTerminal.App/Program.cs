@@ -8,8 +8,6 @@ using EtcdTerminal.Theming;
 using EtcdTerminal.Localization;
 using Simplify.DI;
 
-const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
-
 DIContainer.Current
 	.RegisterAll()
 	.Verify();
@@ -65,7 +63,7 @@ try
 			var terminal = DIContainer.Current.Resolve<ITerminal>();
 
 			terminal.WriteException(ex);
-			terminal.WriteMarkupLine(PressAnyKeyRestart);
+			terminal.WriteMarkupLine(LocalizationStore.Current.PressAnyKeyRestart);
 			terminal.ReadKey();
 		}
 	}

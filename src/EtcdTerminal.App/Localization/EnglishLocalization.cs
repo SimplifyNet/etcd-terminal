@@ -134,4 +134,5 @@ public class EnglishLocalization : ILocalization
 	public string None => "none";
 	public string NoRoles => "no roles";
 	public string NoPermissions => "no permissions";
+	public string PressAnyKeyRestart => "\n[grey]Press any key to restart...[/]";
 }
