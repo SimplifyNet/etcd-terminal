@@ -1,9 +1,9 @@
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace EtcdTerminal.App.Engine;
+namespace EtcdTerminal.Infrastructure.Terminal;
 
-internal sealed class EscapableConsole(IAnsiConsole inner) : IAnsiConsole
+public sealed class EscapableConsole(IAnsiConsole inner) : IAnsiConsole
 {
 	private readonly IAnsiConsoleInput _input = new EscapableInput(inner.Input);
 

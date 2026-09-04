@@ -1,4 +1,5 @@
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Infrastructure.Terminal;
 using EtcdTerminal.Terminal;
 using Spectre.Console;
 
