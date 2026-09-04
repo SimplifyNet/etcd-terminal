@@ -7,7 +7,6 @@ using EtcdTerminal.Terminal;
 using EtcdTerminal.Theming;
 using EtcdTerminal.Localization;
 using Simplify.DI;
-using Spectre.Console;
 
 const string PressAnyKeyRestart = "\n[grey]Press any key to restart...[/]";
 
@@ -63,12 +62,11 @@ try
 		}
 		catch (Exception ex)
 		{
-			AnsiConsole.WriteException(ex);
-			AnsiConsole.MarkupLine(PressAnyKeyRestart);
+			var terminal = DIContainer.Current.Resolve<ITerminal>();
 
-			DIContainer.Current
-				.Resolve<ITerminal>()
-				.ReadKey();
+			terminal.WriteException(ex);
+			terminal.WriteMarkupLine(PressAnyKeyRestart);
+			terminal.ReadKey();
 		}
 	}
 }

@@ -73,4 +73,8 @@ public interface ITerminal
 	ConsoleKeyInfo ReadKey();
 
 	void Flush();
+
+	void WriteException(Exception ex);
+
+	void WriteMarkupLine(string markup);
 }

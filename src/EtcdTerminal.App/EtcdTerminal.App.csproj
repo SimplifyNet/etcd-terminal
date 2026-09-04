@@ -16,7 +16,6 @@
 		<ProjectReference Include="..\EtcdTerminal.Infrastructure\EtcdTerminal.Infrastructure.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Spectre.Console" Version="0.57.2" />
 		<PackageReference Include="Simplify.DI" Version="4.3.0" />
 		<PackageReference Include="Simplify.System" Version="1.6.3" />
 	</ItemGroup>

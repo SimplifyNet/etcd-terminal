@@ -1,5 +1,6 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Theming;
+using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;
 
@@ -94,4 +95,8 @@ public sealed class ConsoleTerminal : ITerminal
 		ResetColor();
 		Console.Out.Flush();
 	}
+
+	public void WriteException(Exception ex) => AnsiConsole.WriteException(ex);
+
+	public void WriteMarkupLine(string markup) => AnsiConsole.MarkupLine(markup);
 }

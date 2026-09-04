@@ -10,5 +10,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="dotnet-etcd" Version="9.1.0" />
+		<PackageReference Include="Spectre.Console" Version="0.57.2" />
 	</ItemGroup>
 </Project>
