@@ -16,6 +16,7 @@ public static class UserListRenderer
 		}
 
 		var table = new Table();
+
 		table.AddColumn(LocalizationStore.Current.Username);
 		table.AddColumn(LocalizationStore.Current.Roles);
 
@@ -24,6 +25,7 @@ public static class UserListRenderer
 			var roles = user.Roles.Count > 0
 				? string.Join(", ", user.Roles)
 				: $"[grey]{LocalizationStore.Current.None}[/]";
+
 			table.AddRow(Markup.Escape(user.Username), roles);
 		}
 

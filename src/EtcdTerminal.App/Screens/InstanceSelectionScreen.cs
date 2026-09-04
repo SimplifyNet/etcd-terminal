@@ -16,7 +16,6 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			Header.Render();
 
 			var instances = _configRepo.LoadInstances();
-
 			var choice = PromptForChoice(instances);
 
 			if (choice is null)

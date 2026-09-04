@@ -1,4 +1,3 @@
-
 namespace EtcdTerminal.Configuration;
 
 public interface IConnectionConfigRepository

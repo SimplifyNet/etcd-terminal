@@ -17,8 +17,11 @@ public static class RoleListRenderer
 
 		foreach (var role in roles)
 		{
-			var table = new Table();
-			table.Title = new TableTitle($"[bold]Role: {role.Name}[/]");
+			var table = new Table
+			{
+				Title = new TableTitle($"[bold]Role: {role.Name}[/]")
+			};
+
 			table.AddColumn(LocalizationStore.Current.PermissionType);
 			table.AddColumn(LocalizationStore.Current.KeyPrefix);
 

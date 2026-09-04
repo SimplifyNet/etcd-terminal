@@ -18,8 +18,11 @@ public static class PermissionViewRenderer
 
 		foreach (var user in users)
 		{
-			var table = new Table();
-			table.Title = new TableTitle($"[bold]User: {user.Username}[/]");
+			var table = new Table
+			{
+				Title = new TableTitle($"[bold]User: {user.Username}[/]")
+			};
+
 			table.AddColumn(LocalizationStore.Current.Role);
 			table.AddColumn(LocalizationStore.Current.Permissions);
 

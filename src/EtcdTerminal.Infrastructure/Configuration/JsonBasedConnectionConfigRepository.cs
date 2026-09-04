@@ -58,6 +58,7 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 
 		instances.RemoveAll(i => i.Name == config.Name);
 		instances.Add(config);
+
 		SaveInstances(instances);
 	}
 
@@ -66,6 +67,7 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 		var instances = LoadInstances().ToList();
 
 		instances.RemoveAll(i => i.Name == name);
+
 		SaveInstances(instances);
 	}
 
