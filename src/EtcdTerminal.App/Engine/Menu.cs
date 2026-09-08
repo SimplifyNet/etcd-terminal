@@ -28,7 +28,7 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 		if (!string.IsNullOrEmpty(title))
 		{
 			_terminal.WriteLine();
-			_terminal.WriteLine(title);
+			_terminal.WriteLine($"{_terminal.SelectionPointerEmpty}{title}");
 			_terminal.WriteLine();
 		}
 
