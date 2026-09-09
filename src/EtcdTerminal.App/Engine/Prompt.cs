@@ -17,6 +17,8 @@ public sealed class Prompt(ITerminal _terminal)
 
 		try
 		{
+			_terminal.Write(_terminal.SelectionPointerEmpty);
+
 			var input = _console.Prompt(new TextPrompt<string>(prompt)
 				.PromptStyle(_promptStyle)
 				.AllowEmpty());
@@ -45,6 +47,8 @@ public sealed class Prompt(ITerminal _terminal)
 
 		try
 		{
+			_terminal.Write(_terminal.SelectionPointerEmpty);
+
 			var input = _console.Prompt(new TextPrompt<string>(prompt)
 				.PromptStyle(_promptStyle)
 				.AllowEmpty()
@@ -70,6 +74,8 @@ public sealed class Prompt(ITerminal _terminal)
 
 		try
 		{
+			_terminal.Write(_terminal.SelectionPointerEmpty);
+
 			return _console.Prompt(new TextPrompt<string>(prompt)
 				.PromptStyle(_promptStyle)
 				.Secret()
@@ -91,6 +97,8 @@ public sealed class Prompt(ITerminal _terminal)
 
 		try
 		{
+			_terminal.Write(_terminal.SelectionPointerEmpty);
+
 			return _console.Confirm(prompt, false);
 		}
 		catch (OperationCanceledException)
