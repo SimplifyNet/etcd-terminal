@@ -7,7 +7,7 @@ public sealed class PressAnyKeyPrompt(ITerminal _terminal)
 {
 	public void Show()
 	{
-		_terminal.WriteLine(LocalizationStore.Current.PressAnyKey, TerminalColor.Muted);
+		_terminal.WriteIndentedLine(LocalizationStore.Current.PressAnyKey, TerminalColor.Muted);
 		_terminal.ReadKey();
 	}
 }

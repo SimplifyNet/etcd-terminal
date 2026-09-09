@@ -24,11 +24,14 @@ public sealed class KeyCreateScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
-		if (result)
-			_terminal.WriteLine(LocalizationStore.Current.KeyCreated, TerminalColor.Success);
-		else
-			_terminal.WriteLine(LocalizationStore.Current.KeyCreateFailed, TerminalColor.Error);
+		_terminal.WriteLine();
 
+		if (result)
+			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCreated, TerminalColor.Success);
+		else
+			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCreateFailed, TerminalColor.Error);
+
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 }

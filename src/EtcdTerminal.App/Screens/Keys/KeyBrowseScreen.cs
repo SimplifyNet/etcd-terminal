@@ -132,14 +132,16 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		_screenLayout.RenderHeader(_config);
 
+		_terminal.WriteLine();
+
 		if (result)
 		{
-			_terminal.WriteLine(LocalizationStore.Current.KeyUpdated, TerminalColor.Success);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyUpdated, TerminalColor.Success);
 
 			await ReloadAsync();
 		}
 		else
-			_terminal.WriteLine(LocalizationStore.Current.CouldNotUpdateKey, TerminalColor.Error);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.CouldNotUpdateKey, TerminalColor.Error);
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();
@@ -159,14 +161,16 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		_screenLayout.RenderHeader(_config);
 
+		_terminal.WriteLine();
+
 		if (result)
 		{
-			_terminal.WriteLine(LocalizationStore.Current.KeyDeleted, TerminalColor.Success);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyDeleted, TerminalColor.Success);
 
 			await ReloadAsync();
 		}
 		else
-			_terminal.WriteLine(LocalizationStore.Current.KeyCouldNotBeDeleted, TerminalColor.Error);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCouldNotBeDeleted, TerminalColor.Error);
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();

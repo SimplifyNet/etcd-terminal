@@ -19,6 +19,7 @@ public sealed class ConsoleTerminal : ITerminal
 	public string Accent => $"\x1b[38;2;{ThemeStore.Current.Accent.R};{ThemeStore.Current.Accent.G};{ThemeStore.Current.Accent.B}m";
 	public string SelectionPointer => "  ❯ ";
 	public string SelectionPointerEmpty => "    ";
+	public string Indent => SelectionPointerEmpty;
 
 	public int WindowWidth => Console.WindowWidth;
 
@@ -39,6 +40,11 @@ public sealed class ConsoleTerminal : ITerminal
 		Console.WriteLine(GetColorEscape(color) + text + Reset);
 
 	public void WriteLine() => Console.WriteLine();
+
+	public void WriteIndentedLine(string text) => Console.WriteLine(Indent + text);
+
+	public void WriteIndentedLine(string text, TerminalColor color) =>
+		Console.WriteLine(GetColorEscape(color) + Indent + text + Reset);
 
 	public void Clear() => Console.Write("\x1b[2J\x1b[3J\x1b[H");
 

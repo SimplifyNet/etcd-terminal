@@ -36,6 +36,8 @@ public interface ITerminal
 
 	string SelectionPointerEmpty { get; }
 
+	string Indent => SelectionPointerEmpty;
+
 	void Write(string text);
 
 	void Write(string text, TerminalColor color);
@@ -45,6 +47,10 @@ public interface ITerminal
 	void WriteLine(string text, TerminalColor color);
 
 	void WriteLine();
+
+	void WriteIndentedLine(string text);
+
+	void WriteIndentedLine(string text, TerminalColor color);
 
 	void Clear();
 

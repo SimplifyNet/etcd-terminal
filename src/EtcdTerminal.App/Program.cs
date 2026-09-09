@@ -64,7 +64,7 @@ try
 			var terminal = DIContainer.Current.Resolve<ITerminal>();
 
 			terminal.WriteException(ex);
-			terminal.WriteLine(LocalizationStore.Current.PressAnyKeyRestart, TerminalColor.Muted);
+			terminal.WriteIndentedLine(LocalizationStore.Current.PressAnyKeyRestart, TerminalColor.Muted);
 			terminal.ReadKey();
 		}
 	}

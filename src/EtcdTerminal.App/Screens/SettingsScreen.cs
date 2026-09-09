@@ -50,10 +50,15 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 			AppSettingsStore.Current.PageSize = pageSize;
 
 			_repository.Save(AppSettingsStore.Current);
-			_terminal.WriteLine(LocalizationStore.Current.SettingsSaved, TerminalColor.Success);
+
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.SettingsSaved, TerminalColor.Success);
 		}
 		else
-			_terminal.WriteLine(LocalizationStore.Current.InvalidPageSize, TerminalColor.Error);
+		{
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidPageSize, TerminalColor.Error);
+		}
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();

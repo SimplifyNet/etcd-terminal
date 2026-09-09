@@ -12,7 +12,7 @@ public static class PermissionViewRenderer
 	{
 		if (users.Count == 0 && roles.Count == 0)
 		{
-			terminal.WriteLine(LocalizationStore.Current.NoUsersOrRoles, TerminalColor.Warning);
+			terminal.WriteIndentedLine(LocalizationStore.Current.NoUsersOrRoles, TerminalColor.Warning);
 
 			return;
 		}

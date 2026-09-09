@@ -11,7 +11,7 @@ public static class UserListRenderer
 	{
 		if (users.Count == 0)
 		{
-			terminal.WriteLine(LocalizationStore.Current.NoUsersFound, TerminalColor.Warning);
+			terminal.WriteIndentedLine(LocalizationStore.Current.NoUsersFound, TerminalColor.Warning);
 
 			return;
 		}

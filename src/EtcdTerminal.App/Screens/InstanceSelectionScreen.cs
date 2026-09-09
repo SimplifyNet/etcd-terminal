@@ -39,13 +39,15 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 						await _etcdClient.PingAsync();
 					});
 
-					_terminal.WriteLine(LocalizationStore.Current.ConnectedSuccess, TerminalColor.Success);
+					_terminal.WriteLine();
+					_terminal.WriteIndentedLine(LocalizationStore.Current.ConnectedSuccess, TerminalColor.Success);
 
 					return selected;
 				}
 				catch (Exception ex)
 				{
-					_terminal.WriteLine($"Failed to connect: {ex.Message}", TerminalColor.Error);
+					_terminal.WriteLine();
+					_terminal.WriteIndentedLine($"Failed to connect: {ex.Message}", TerminalColor.Error);
 					_terminal.WriteLine();
 					_pressAnyKey.Show();
 				}
@@ -64,7 +66,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (instances.Count == 0)
 		{
-			_terminal.WriteLine(LocalizationStore.Current.NoConnectionsMessage, TerminalColor.Warning);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.NoConnectionsMessage, TerminalColor.Warning);
 			_terminal.WriteLine();
 		}
 
@@ -128,7 +130,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			_terminal.WriteLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+			_terminal.WriteLine();
 			_pressAnyKey.Show();
 
 			return;
@@ -161,7 +165,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.AddInstance(config);
 
-		_terminal.WriteLine(LocalizationStore.Current.InstanceAdded, TerminalColor.Success);
+		_terminal.WriteLine();
+		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceAdded, TerminalColor.Success);
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
@@ -189,7 +195,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			_terminal.WriteLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+			_terminal.WriteLine();
 			_pressAnyKey.Show();
 
 			return;
@@ -227,7 +235,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.AddInstance(config);
 
-		_terminal.WriteLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);
+		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);
 		_pressAnyKey.Show();
 	}
 
@@ -251,13 +259,17 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		if (nameToRemove is null)
 			return;
 
+		_terminal.WriteLine();
+
 		if (_prompt.Confirm(string.Format(LocalizationStore.Current.AreYouSureRemove, nameToRemove)))
 		{
 			_configRepo.RemoveInstance(nameToRemove);
 
-			_terminal.WriteLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
 		}
 
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 }

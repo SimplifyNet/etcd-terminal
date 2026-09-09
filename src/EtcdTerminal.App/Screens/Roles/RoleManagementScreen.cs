@@ -52,11 +52,14 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
-		if (result)
-			_terminal.WriteLine(LocalizationStore.Current.RoleCreated, TerminalColor.Success);
-		else
-			_terminal.WriteLine(LocalizationStore.Current.FailedCreateRole, TerminalColor.Error);
+		_terminal.WriteLine();
 
+		if (result)
+			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleCreated, TerminalColor.Success);
+		else
+			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedCreateRole, TerminalColor.Error);
+
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
@@ -67,6 +70,8 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (roleName is null)
 			return;
 
+		_terminal.WriteLine();
+
 		var confirm = _prompt.Confirm(string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
 
 		if (confirm is not true)
@@ -74,11 +79,14 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
-		if (result)
-			_terminal.WriteLine(LocalizationStore.Current.RoleDeleted, TerminalColor.Success);
-		else
-			_terminal.WriteLine(LocalizationStore.Current.FailedDeleteRole, TerminalColor.Error);
+		_terminal.WriteLine();
 
+		if (result)
+			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleDeleted, TerminalColor.Success);
+		else
+			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedDeleteRole, TerminalColor.Error);
+
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
@@ -108,13 +116,17 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		try
 		{
 			await action(roleName, permType.Value, keyPrefix);
-			_terminal.WriteLine(successMessage, TerminalColor.Success);
+
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(successMessage, TerminalColor.Success);
 		}
 		catch
 		{
-			_terminal.WriteLine(failureMessage, TerminalColor.Error);
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(failureMessage, TerminalColor.Error);
 		}
 
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 }

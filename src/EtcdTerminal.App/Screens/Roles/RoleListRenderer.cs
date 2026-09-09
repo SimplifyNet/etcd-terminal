@@ -11,7 +11,7 @@ public static class RoleListRenderer
 	{
 		if (roles.Count == 0)
 		{
-			terminal.WriteLine(LocalizationStore.Current.NoRolesFound, TerminalColor.Warning);
+			terminal.WriteIndentedLine(LocalizationStore.Current.NoRolesFound, TerminalColor.Warning);
 
 			return;
 		}

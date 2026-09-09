@@ -48,7 +48,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 	{
 		if (pageKeys.Count == 0)
 		{
-			_terminal.WriteLine(LocalizationStore.Current.NoKeysFound, TerminalColor.Muted);
+			_terminal.WriteIndentedLine(LocalizationStore.Current.NoKeysFound, TerminalColor.Muted);
 
 			return;
 		}
