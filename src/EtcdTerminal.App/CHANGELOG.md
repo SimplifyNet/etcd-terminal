@@ -1,16 +1,12 @@
 # Changelog
 
-## [0.6] - Unreleased
-
-### Added
-
-- Theming
-- Localization
+## [0.6] - 2026-09-10
 
 ### Changed
 
 - Removed "Select etcd instance:" header; now shows helpful message to go to Manage Connections when no connections exist
 - Cursor is hidden where not required
+- Messages alignment
 
 ### Fixed
 
