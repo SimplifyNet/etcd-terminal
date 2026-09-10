@@ -70,13 +70,6 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (roleName is null)
 			return;
 
-		_terminal.WriteLine();
-
-		var confirm = _prompt.Confirm(string.Format(LocalizationStore.Current.DeleteRoleConfirm, roleName));
-
-		if (confirm is not true)
-			return;
-
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
 		_terminal.WriteLine();

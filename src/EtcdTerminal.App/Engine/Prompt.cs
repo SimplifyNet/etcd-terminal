@@ -90,24 +90,4 @@ public sealed class Prompt(ITerminal _terminal)
 			_terminal.SetCursorVisible(false);
 		}
 	}
-
-	public bool Confirm(string prompt)
-	{
-		_terminal.SetCursorVisible(true);
-
-		try
-		{
-			_terminal.Write(_terminal.SelectionPointerEmpty);
-
-			return _console.Confirm(prompt, false);
-		}
-		catch (OperationCanceledException)
-		{
-			return false;
-		}
-		finally
-		{
-			_terminal.SetCursorVisible(false);
-		}
-	}
 }

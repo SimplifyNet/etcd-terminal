@@ -77,13 +77,6 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (username is null)
 			return;
 
-		_terminal.WriteLine();
-
-		var confirm = _prompt.Confirm(string.Format(LocalizationStore.Current.DeleteUserConfirm, username));
-
-		if (confirm is not true)
-			return;
-
 		var result = await _etcdClient.DeleteUserAsync(username);
 
 		_terminal.WriteLine();

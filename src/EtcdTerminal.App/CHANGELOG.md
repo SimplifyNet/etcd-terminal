@@ -16,6 +16,10 @@
 
 - Reset keys list after manipulations
 
+### Removed
+
+- Actions confirmations
+
 ## [0.5] - 2026-08-13
 
 ### Added

@@ -214,15 +214,12 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		{
 			password = existing.Password ?? string.Empty;
 
-			if (_prompt.Confirm(LocalizationStore.Current.ChangePassword))
-			{
-				var newPassword = _prompt.Secret(LocalizationStore.Current.EnterPassword);
+			var newPassword = _prompt.Secret(LocalizationStore.Current.EnterPassword);
 
-				if (newPassword is null)
-					return;
+			if (newPassword is null)
+				return;
 
-				password = newPassword;
-			}
+			password = newPassword;
 		}
 
 		var config = new EtcdConnectionConfig
@@ -261,13 +258,10 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_terminal.WriteLine();
 
-		if (_prompt.Confirm(string.Format(LocalizationStore.Current.AreYouSureRemove, nameToRemove)))
-		{
-			_configRepo.RemoveInstance(nameToRemove);
+		_configRepo.RemoveInstance(nameToRemove);
 
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
-		}
+		_terminal.WriteLine();
+		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();

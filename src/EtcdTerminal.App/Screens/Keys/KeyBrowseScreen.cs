@@ -154,9 +154,6 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 		_terminal.WriteLine(key.Key, TerminalColor.Error);
 		_terminal.WriteLine();
 
-		if (!_prompt.Confirm(LocalizationStore.Current.AreYouSure))
-			return;
-
 		var result = await _etcdClient.DeleteKeyAsync(key.Key);
 
 		_screenLayout.RenderHeader(_config);
