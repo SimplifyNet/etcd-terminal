@@ -29,7 +29,6 @@ public interface ILocalization
 	string EnterPassword { get; }
 	string Connecting { get; }
 	string ChangePassword { get; }
-	string AreYouSureRemove { get; }
 
 	string BrowseKeys { get; }
 	string CreateKey { get; }
@@ -50,7 +49,6 @@ public interface ILocalization
 	string Off { get; }
 
 	string EnterNewValue { get; }
-	string AreYouSure { get; }
 	string EditingKey { get; }
 	string CurrentValue { get; }
 	string DeleteKey { get; }
@@ -83,7 +81,6 @@ public interface ILocalization
 	string UserCreated { get; }
 	string FailedCreateUser { get; }
 	string EnterUsernameToDelete { get; }
-	string DeleteUserConfirm { get; }
 	string UserDeleted { get; }
 	string FailedDeleteUser { get; }
 	string EnterNewPassword { get; }
@@ -106,7 +103,6 @@ public interface ILocalization
 	string RoleCreated { get; }
 	string FailedCreateRole { get; }
 	string EnterRoleNameToDelete { get; }
-	string DeleteRoleConfirm { get; }
 	string RoleDeleted { get; }
 	string FailedDeleteRole { get; }
 	string EnterKeyPrefix { get; }

@@ -31,7 +31,6 @@ public class EnglishLocalization : ILocalization
 	public string EnterPassword => "Enter password:";
 	public string Connecting => "Connecting...";
 	public string ChangePassword => "Change password?";
-	public string AreYouSureRemove => "Are you sure you want to remove {0}?";
 
 	public string BrowseKeys => "Browse Keys";
 	public string CreateKey => "Create Key";
@@ -52,7 +51,6 @@ public class EnglishLocalization : ILocalization
 	public string Off => "Off";
 
 	public string EnterNewValue => "Enter new value:";
-	public string AreYouSure => "Are you sure?";
 	public string EditingKey => "Editing key:";
 	public string CurrentValue => "Current value:";
 	public string DeleteKey => "Delete key:";
@@ -85,7 +83,6 @@ public class EnglishLocalization : ILocalization
 	public string UserCreated => "User created successfully!";
 	public string FailedCreateUser => "Failed to create user.";
 	public string EnterUsernameToDelete => "Enter username to delete:";
-	public string DeleteUserConfirm => "Are you sure you want to delete user {0}?";
 	public string UserDeleted => "User deleted successfully!";
 	public string FailedDeleteUser => "Failed to delete user.";
 	public string EnterNewPassword => "Enter new password:";
