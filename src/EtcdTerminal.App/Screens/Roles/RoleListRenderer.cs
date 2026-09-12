@@ -33,7 +33,6 @@ public static class RoleListRenderer
 					table.AddRow(perm.Type.ToString(), Markup.Escape(perm.KeyPrefix));
 
 			AnsiConsole.Write(table);
-			AnsiConsole.WriteLine();
 		}
 	}
 }

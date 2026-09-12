@@ -41,7 +41,6 @@ public static class PermissionViewRenderer
 				}
 
 			AnsiConsole.Write(table);
-			AnsiConsole.WriteLine();
 		}
 	}
 }

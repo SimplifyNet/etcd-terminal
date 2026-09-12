@@ -19,6 +19,7 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdC
 			PermissionViewRenderer.Render(_terminal, users, roles);
 		});
 
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 }

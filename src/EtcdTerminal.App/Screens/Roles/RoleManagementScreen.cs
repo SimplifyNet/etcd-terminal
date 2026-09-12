@@ -40,6 +40,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		RoleListRenderer.Render(_terminal, roles);
 
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 

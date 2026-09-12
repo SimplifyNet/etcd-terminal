@@ -42,6 +42,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		UserListRenderer.Render(_terminal, users);
 
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
