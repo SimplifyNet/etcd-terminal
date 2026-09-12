@@ -48,6 +48,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 				{
 					_terminal.WriteLine();
 					_terminal.WriteIndentedLine($"Failed to connect: {ex.Message}", TerminalColor.Error);
+
 					_terminal.WriteLine();
 					_pressAnyKey.Show();
 				}
@@ -132,6 +133,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		{
 			_terminal.WriteLine();
 			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+
 			_terminal.WriteLine();
 			_pressAnyKey.Show();
 
@@ -167,6 +169,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceAdded, TerminalColor.Success);
+
 		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
@@ -197,6 +200,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		{
 			_terminal.WriteLine();
 			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
+
 			_terminal.WriteLine();
 			_pressAnyKey.Show();
 
@@ -232,7 +236,10 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.AddInstance(config);
 
+		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);
+
+		_terminal.WriteLine();
 		_pressAnyKey.Show();
 	}
 
