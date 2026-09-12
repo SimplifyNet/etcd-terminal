@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7] - Unreleased
+
+### Changed
+
+- Custom spinner
+
 ## [0.6] - 2026-09-10
 
 ### Changed
