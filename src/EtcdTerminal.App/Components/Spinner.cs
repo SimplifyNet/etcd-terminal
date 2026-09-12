@@ -6,7 +6,7 @@ public sealed class Spinner(ITerminal _terminal)
 {
 	public async Task RunAsync(string message, Func<CancellationToken, Task> action)
 	{
-		const string frames = "⣾⣽⣻⢿⡿⣟⣯⣷";
+		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
 		var frameIndex = 0;
 		var done = false;
 
