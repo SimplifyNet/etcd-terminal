@@ -118,15 +118,35 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void SetCursorVisible(bool visible) => Console.Write(visible ? "\x1b[?25h" : "\x1b[?25l");
 
-	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action)
+	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action, TerminalColor color = TerminalColor.Warning)
 	{
+		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
+		var frameIndex = 0;
+		var done = false;
+		var colorEscape = Accent;
+
+		var spinnerTask = Task.Run(async () =>
+		{
+			while (!done)
+			{
+				SetCursorVisible(false);
+				Write("\r" + Indent + colorEscape + frames[frameIndex] + Reset + " " + message);
+				Flush();
+				frameIndex = (frameIndex + 1) % frames.Length;
+				await Task.Delay(100);
+			}
+			Write("\r" + new string(' ', Indent.Length + message.Length + 2) + "\r");
+			Flush();
+		});
+
 		try
 		{
-			await AnsiConsole.Status()
-				.StartAsync(message, async _ => await action(CancellationToken.None));
+			await action(CancellationToken.None);
 		}
 		finally
 		{
+			done = true;
+			await spinnerTask;
 			SetCursorVisible(false);
 		}
 	}

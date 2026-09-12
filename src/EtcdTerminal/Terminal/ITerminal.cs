@@ -90,5 +90,5 @@ public interface ITerminal
 
 	void SetCursorVisible(bool visible);
 
-	Task ShowStatusAsync(string message, Func<CancellationToken, Task> action);
+	Task ShowStatusAsync(string message, Func<CancellationToken, Task> action, TerminalColor color = TerminalColor.Warning);
 }
