@@ -22,7 +22,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	private EtcdClient Client => _client ?? throw new InvalidOperationException("Not connected to etcd.");
 
-	public Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
+	public async Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
 	{
 		Disconnect();
 
@@ -41,7 +41,16 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 				configureChannelOptions: configureChannel)
 			: new EtcdClient(connectionString, configureChannelOptions: configureChannel);
 
-		return Task.CompletedTask;
+		try
+		{
+			await Client.GetAsync("\0", cancellationToken: ct);
+		}
+		catch
+		{
+			Disconnect();
+
+			throw;
+		}
 	}
 
 	public async Task<bool> PingAsync(CancellationToken ct = default)

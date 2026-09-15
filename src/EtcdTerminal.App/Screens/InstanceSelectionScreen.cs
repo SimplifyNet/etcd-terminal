@@ -38,7 +38,6 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 					connected = await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
 					{
 						await _etcdClient.ConnectAsync(selected, ct);
-						await _etcdClient.PingAsync(ct);
 					});
 				}
 				catch (Exception ex)

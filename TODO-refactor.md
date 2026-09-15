@@ -33,7 +33,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T7. Make cancellation real
   - [x] T8. (Depends on T7) Allow Esc to abort a long-running operation
   - [x] T9. Replace `_client!` with an enforced precondition
-  - [ ] T10. Make `ConnectAsync` actually connect
+  - [x] T10. Make `ConnectAsync` actually connect
   - [ ] T11. Replace the reflection-based auth detection
 - [ ] Phase 3 — Layering
   - [ ] T12. Move all Spectre.Console usage out of Components and Screens
@@ -264,7 +264,7 @@ returns nothing.
 
 ---
 
-## [ ] T10. Make `ConnectAsync` actually connect
+## [x] T10. Make `ConnectAsync` actually connect
 
 **Problem.** `ConnectAsync` constructs an `EtcdClient` (lazy channel) and returns
 `Task.CompletedTask`. It cannot fail on a bad endpoint or bad credentials, so every caller
