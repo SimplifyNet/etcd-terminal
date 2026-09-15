@@ -31,15 +31,15 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			{
 				var selected = instances.First(i => i.Name == choice);
 
+				bool connected;
+
 				try
 				{
-					await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
+					connected = await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
 					{
 						await _etcdClient.ConnectAsync(selected, ct);
 						await _etcdClient.PingAsync(ct);
 					});
-
-					return selected;
 				}
 				catch (Exception ex)
 				{
@@ -48,6 +48,21 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 					_terminal.WriteLine();
 					_pressAnyKey.Show();
+
+					continue;
+				}
+
+				if (!connected)
+				{
+					_terminal.WriteLine();
+					_terminal.WriteIndentedLine(LocalizationStore.Current.OperationCancelled, TerminalColor.Warning);
+
+					_terminal.WriteLine();
+					_pressAnyKey.Show();
+				}
+				else
+				{
+					return selected;
 				}
 			}
 		}

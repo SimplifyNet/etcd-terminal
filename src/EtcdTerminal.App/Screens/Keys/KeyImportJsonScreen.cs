@@ -101,7 +101,7 @@ public sealed class KeyImportJsonScreen(
 
 		_terminal.WriteLine();
 
-		await _spinner.RunAsync($"Importing {entries.Count} keys...", async ct =>
+		var imported = await _spinner.RunAsync($"Importing {entries.Count} keys...", async ct =>
 		{
 			foreach (var (Key, Value) in entries)
 			{
@@ -127,6 +127,17 @@ public sealed class KeyImportJsonScreen(
 				}
 			}
 		});
+
+		if (!imported)
+		{
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.ImportCancelled, TerminalColor.Muted);
+
+			_terminal.WriteLine();
+			_pressAnyKey.Show();
+
+			return;
+		}
 
 		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(

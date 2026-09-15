@@ -4,7 +4,7 @@ namespace EtcdTerminal.App.Components;
 
 public sealed class Spinner(ITerminal _terminal)
 {
-	public async Task RunAsync(string message, Func<CancellationToken, Task> action)
+	public async Task<bool> RunAsync(string message, Func<CancellationToken, Task> action)
 	{
 		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
 		var frameIndex = 0;
@@ -15,6 +15,9 @@ public sealed class Spinner(ITerminal _terminal)
 		{
 			while (!cts.Token.IsCancellationRequested)
 			{
+				if (PollEscape())
+					cts.Cancel();
+
 				_terminal.SetCursorVisible(false);
 				_terminal.Write("\r" + _terminal.Indent + _terminal.Accent + frames[frameIndex] + _terminal.Reset + " " + message);
 				_terminal.Flush();
@@ -33,9 +36,16 @@ public sealed class Spinner(ITerminal _terminal)
 			_terminal.Flush();
 		}, cts.Token);
 
+		bool completed;
+
 		try
 		{
 			await action(cts.Token);
+			completed = true;
+		}
+		catch (OperationCanceledException)
+		{
+			completed = false;
 		}
 		finally
 		{
@@ -50,6 +60,20 @@ public sealed class Spinner(ITerminal _terminal)
 			}
 
 			_terminal.SetCursorVisible(false);
+		}
+
+		return completed;
+	}
+
+	private bool PollEscape()
+	{
+		try
+		{
+			return _terminal.KeyAvailable && _terminal.ReadKey().Key == ConsoleKey.Escape;
+		}
+		catch (InvalidOperationException)
+		{
+			return false;
 		}
 	}
 }

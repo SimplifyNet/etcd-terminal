@@ -133,6 +133,7 @@ public class EnglishLocalization : ILocalization
 	public string NoPermissions => "no permissions";
 	public string PressAnyKey => "Press any key to continue...";
 	public string PressAnyKeyRestart => "\nPress any key to restart...";
+	public string OperationCancelled => "Operation cancelled.";
 
 	public string ImportJson => "Import JSON";
 	public string EnterSeparator => "Enter key separator:";

@@ -5,6 +5,7 @@
 ### Added
 
 - Import JSON: flatten nested JSON into etcd keys with configurable separator and prefix
+- Pressing Esc cancels long-running operations (connecting, loading, importing)
 
 ### Changed
 

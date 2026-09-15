@@ -31,7 +31,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T6. Make config writes atomic
 - [ ] Phase 2 — Correctness of the etcd client
   - [x] T7. Make cancellation real
-  - [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
+  - [x] T8. (Depends on T7) Allow Esc to abort a long-running operation
   - [ ] T9. Replace `_client!` with an enforced precondition
   - [ ] T10. Make `ConnectAsync` actually connect
   - [ ] T11. Replace the reflection-based auth detection
@@ -233,7 +233,7 @@ of tests.
 
 ---
 
-## [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
+## [x] T8. (Depends on T7) Allow Esc to abort a long-running operation
 
 **Do.** In the spinner loop, poll `ITerminal.KeyAvailable`; if a key is available and it is
 `ConsoleKey.Escape`, call `Cancel()` on the CTS from T7. Catch `OperationCanceledException`

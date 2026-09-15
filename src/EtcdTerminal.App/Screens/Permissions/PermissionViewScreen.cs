@@ -16,11 +16,22 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdC
 		IReadOnlyList<EtcdUser> users = [];
 		IReadOnlyList<EtcdRole> roles = [];
 
-		await _spinner.RunAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
+		var loaded = await _spinner.RunAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
 		{
 			users = await _etcdClient.GetUsersAsync(ct);
 			roles = await _etcdClient.GetRolesAsync(ct);
 		});
+
+		if (!loaded)
+		{
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.OperationCancelled, TerminalColor.Warning);
+
+			_terminal.WriteLine();
+			_pressAnyKey.Show();
+
+			return;
+		}
 
 		PermissionViewRenderer.Render(_terminal, users, roles);
 
