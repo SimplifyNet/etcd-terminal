@@ -87,6 +87,8 @@ public sealed class KeyImportJsonScreen(
 		var overwritten = 0;
 		var failed = 0;
 
+		_terminal.WriteLine();
+
 		await _spinner.RunAsync($"Importing {entries.Count} keys...", async ct =>
 		{
 			foreach (var (Key, Value) in entries)
