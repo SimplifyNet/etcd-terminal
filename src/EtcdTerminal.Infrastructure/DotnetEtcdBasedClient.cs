@@ -20,6 +20,8 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public bool IsConnected => _client is not null;
 
+	private EtcdClient Client => _client ?? throw new InvalidOperationException("Not connected to etcd.");
+
 	public Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
 	{
 		Disconnect();
@@ -46,7 +48,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		if (_client is null) return false;
 
-		await _client!.GetAsync("\0", cancellationToken: ct);
+		await Client.GetAsync("\0", cancellationToken: ct);
 
 		return true;
 	}
@@ -69,7 +71,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<EtcdKeyValue?> GetKeyAsync(string key, CancellationToken ct = default)
 	{
-		var response = await _client!.GetAsync(key, cancellationToken: ct);
+		var response = await Client.GetAsync(key, cancellationToken: ct);
 
 		if (response.Kvs.Count == 0)
 			return null;
@@ -79,7 +81,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default)
 	{
-		var response = await _client!.GetRangeAsync(prefix, cancellationToken: ct);
+		var response = await Client.GetRangeAsync(prefix, cancellationToken: ct);
 
 		return [.. response.Kvs.Select(MapKeyValue)];
 	}
@@ -101,7 +103,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		if (existing is not null)
 			return false;
 
-		await _client!.PutAsync(key, value, cancellationToken: ct);
+		await Client.PutAsync(key, value, cancellationToken: ct);
 
 		return true;
 	}
@@ -113,26 +115,26 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		if (existing is null)
 			return false;
 
-		await _client!.PutAsync(key, value, cancellationToken: ct);
+		await Client.PutAsync(key, value, cancellationToken: ct);
 
 		return true;
 	}
 
 	public async Task<bool> DeleteKeyAsync(string key, CancellationToken ct = default)
 	{
-		var response = await _client!.DeleteAsync(key, cancellationToken: ct);
+		var response = await Client.DeleteAsync(key, cancellationToken: ct);
 
 		return response.Deleted > 0;
 	}
 
 	public async Task<IReadOnlyList<EtcdUser>> GetUsersAsync(CancellationToken ct = default)
 	{
-		var response = await _client!.UserListAsync(new AuthUserListRequest(), cancellationToken: ct);
+		var response = await Client.UserListAsync(new AuthUserListRequest(), cancellationToken: ct);
 		List<EtcdUser> users = [];
 
 		foreach (var user in response.Users)
 		{
-			var userInfo = await _client.UserGetAsync(new AuthUserGetRequest { Name = user }, cancellationToken: ct);
+			var userInfo = await Client.UserGetAsync(new AuthUserGetRequest { Name = user }, cancellationToken: ct);
 
 			users.Add(new EtcdUser
 			{
@@ -148,7 +150,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			var response = await _client!.UserGetAsync(
+			var response = await Client.UserGetAsync(
 				new AuthUserGetRequest { Name = username }, cancellationToken: ct);
 
 			return new EtcdUser
@@ -167,7 +169,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.UserAddAsync(
+			await Client.UserAddAsync(
 				new AuthUserAddRequest { Name = username, Password = password }, cancellationToken: ct);
 
 			return true;
@@ -182,7 +184,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.UserDeleteAsync(
+			await Client.UserDeleteAsync(
 				new AuthUserDeleteRequest { Name = username }, cancellationToken: ct);
 
 			return true;
@@ -197,7 +199,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.UserChangePasswordAsync(
+			await Client.UserChangePasswordAsync(
 				new AuthUserChangePasswordRequest { Name = username, Password = newPassword }, cancellationToken: ct);
 
 			return true;
@@ -210,12 +212,12 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<IReadOnlyList<EtcdRole>> GetRolesAsync(CancellationToken ct = default)
 	{
-		var response = await _client!.RoleListAsync(new AuthRoleListRequest(), cancellationToken: ct);
+		var response = await Client.RoleListAsync(new AuthRoleListRequest(), cancellationToken: ct);
 		List<EtcdRole> roles = [];
 
 		foreach (var role in response.Roles)
 		{
-			var roleInfo = await _client.RoleGetAsync(
+			var roleInfo = await Client.RoleGetAsync(
 				new AuthRoleGetRequest { Role = role }, cancellationToken: ct);
 
 			roles.Add(new EtcdRole
@@ -232,7 +234,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			var response = await _client!.RoleGetAsync(
+			var response = await Client.RoleGetAsync(
 				new AuthRoleGetRequest { Role = roleName }, cancellationToken: ct);
 
 			return new EtcdRole
@@ -251,7 +253,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.RoleAddAsync(
+			await Client.RoleAddAsync(
 				new AuthRoleAddRequest { Name = roleName }, cancellationToken: ct);
 
 			return true;
@@ -266,7 +268,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.RoleDeleteAsync(
+			await Client.RoleDeleteAsync(
 				new AuthRoleDeleteRequest { Role = roleName }, cancellationToken: ct);
 
 			return true;
@@ -278,18 +280,18 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	}
 
 	public async Task GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default) =>
-		await _client!.UserGrantRoleAsync(
+		await Client.UserGrantRoleAsync(
 			new AuthUserGrantRoleRequest { User = username, Role = roleName }, cancellationToken: ct);
 
 	public async Task RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default) =>
-		await _client!.UserRevokeRoleAsync(
+		await Client.UserRevokeRoleAsync(
 			new AuthUserRevokeRoleRequest { Name = username, Role = roleName }, cancellationToken: ct);
 
 	public async Task GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
 	{
 		var permType = MapPermissionType(permissionType);
 
-		await _client!.RoleGrantPermissionAsync(
+		await Client.RoleGrantPermissionAsync(
 			new AuthRoleGrantPermissionRequest
 			{
 				Name = roleName,
@@ -302,7 +304,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	}
 
 	public async Task RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default) =>
-		await _client!.RoleRevokePermissionAsync(
+		await Client.RoleRevokePermissionAsync(
 			new AuthRoleRevokePermissionRequest
 			{
 				Role = roleName,
@@ -313,7 +315,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			var conn = _client!.GetConnection();
+			var conn = Client.GetConnection();
 			var authClientProp = typeof(IConnection).GetProperty("AuthClient")!;
 			var authClient = authClientProp.GetValue(conn);
 
@@ -347,7 +349,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.AuthEnableAsync(new AuthEnableRequest(), cancellationToken: ct);
+			await Client.AuthEnableAsync(new AuthEnableRequest(), cancellationToken: ct);
 
 			return true;
 		}
@@ -361,7 +363,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			await _client!.AuthDisableAsync(new AuthDisableRequest(), cancellationToken: ct);
+			await Client.AuthDisableAsync(new AuthDisableRequest(), cancellationToken: ct);
 
 			return true;
 		}

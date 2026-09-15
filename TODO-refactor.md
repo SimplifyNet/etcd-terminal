@@ -32,7 +32,7 @@ problem, the exact files involved, what to do, and how to verify.
 - [ ] Phase 2 — Correctness of the etcd client
   - [x] T7. Make cancellation real
   - [x] T8. (Depends on T7) Allow Esc to abort a long-running operation
-  - [ ] T9. Replace `_client!` with an enforced precondition
+  - [x] T9. Replace `_client!` with an enforced precondition
   - [ ] T10. Make `ConnectAsync` actually connect
   - [ ] T11. Replace the reflection-based auth detection
 - [ ] Phase 3 — Layering
@@ -245,7 +245,7 @@ app must return to the instance list instead of hanging.
 
 ---
 
-## [ ] T9. Replace `_client!` with an enforced precondition
+## [x] T9. Replace `_client!` with an enforced precondition
 
 **Problem.** ~22 call sites in `DotnetEtcdBasedClient` dereference `_client!`. Calling any
 method before `ConnectAsync` throws `NullReferenceException`, not a meaningful error.
