@@ -29,12 +29,12 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T4. Fix connection rename orphaning the old entry
   - [x] T5. Fix "keep existing password" being impossible when editing a connection
   - [x] T6. Make config writes atomic
-- [ ] Phase 2 — Correctness of the etcd client
+- [x] Phase 2 — Correctness of the etcd client
   - [x] T7. Make cancellation real
   - [x] T8. (Depends on T7) Allow Esc to abort a long-running operation
   - [x] T9. Replace `_client!` with an enforced precondition
   - [x] T10. Make `ConnectAsync` actually connect
-  - [ ] T11. Replace the reflection-based auth detection
+  - [x] T11. Replace the reflection-based auth detection
 - [ ] Phase 3 — Layering
   - [ ] T12. Move all Spectre.Console usage out of Components and Screens
   - [ ] T13. Correct `AGENTS.md` so it describes the actual code
@@ -286,7 +286,7 @@ error and return to the list.
 
 ---
 
-## [ ] T11. Replace the reflection-based auth detection
+## [x] T11. Replace the reflection-based auth detection
 
 **Problem.** `IsAuthenticationEnabledAsync` locates `AuthClient` and `AuthStatusAsync` by
 reflection and reads `.Result` off the returned task by reflection, wrapped in

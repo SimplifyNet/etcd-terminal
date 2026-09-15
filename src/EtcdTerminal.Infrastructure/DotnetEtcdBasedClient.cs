@@ -322,36 +322,10 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default)
 	{
-		try
-		{
-			var conn = Client.GetConnection();
-			var authClientProp = typeof(IConnection).GetProperty("AuthClient")!;
-			var authClient = authClientProp.GetValue(conn);
+		var call = Client.GetConnection().AuthClient.AuthStatusAsync(new AuthStatusRequest(), null, null, ct);
+		var response = await call.ResponseAsync;
 
-			if (authClient is null)
-				return false;
-
-			var authStatusMethod = authClient.GetType().GetMethods()
-				.First(m => m.Name == "AuthStatusAsync" &&
-					   m.GetParameters().Length == 4 &&
-					   m.GetParameters()[0].ParameterType == typeof(AuthStatusRequest));
-			var call = authStatusMethod.Invoke(authClient,
-				[new AuthStatusRequest(), null, null, ct]);
-
-			var responseAsyncProp = call!.GetType().GetProperty("ResponseAsync")!;
-			var responseTask = (Task)responseAsyncProp.GetValue(call)!;
-
-			await responseTask;
-
-			var resultProp = responseTask.GetType().GetProperty("Result")!;
-			var response = resultProp.GetValue(responseTask);
-
-			return (bool)response!.GetType().GetProperty("Enabled")!.GetValue(response)!;
-		}
-		catch
-		{
-			return false;
-		}
+		return response.Enabled;
 	}
 
 	public async Task<bool> EnableAuthenticationAsync(CancellationToken ct = default)
