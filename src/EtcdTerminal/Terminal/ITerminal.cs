@@ -32,6 +32,8 @@ public interface ITerminal
 
 	string Reset { get; }
 
+	bool KeyAvailable { get; }
+
 	string SelectionPointer { get; }
 
 	string SelectionPointerEmpty { get; }

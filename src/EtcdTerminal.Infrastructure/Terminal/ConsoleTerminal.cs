@@ -23,6 +23,8 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public int WindowWidth => Console.WindowWidth;
 
+	public bool KeyAvailable => Console.KeyAvailable;
+
 	public int WindowHeight => Console.WindowHeight;
 
 	public int CursorLeft => Console.CursorLeft;

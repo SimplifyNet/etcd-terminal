@@ -137,8 +137,15 @@ public class EnglishLocalization : ILocalization
 	public string ImportJson => "Import JSON";
 	public string EnterSeparator => "Enter key separator:";
 	public string EnterPrefix => "Enter key prefix:";
-	public string PasteJson => "Paste JSON (empty line to finish):";
-	public string PastedLines => "[Pasted ~{0} lines]";
+	public string PasteJson => "Paste JSON, then press Enter to import (Esc to cancel):";
+	public string PastedLines => "[pasted {0} lines]";
+	public string WaitingForPaste => "waiting for paste...";
+	public string ImportPreviewTitle => "The following {0} keys will be created or overwritten:";
+	public string ImportPreviewMore => "... and {0} more";
+	public string ConfirmImport => "Import these keys?";
+	public string Yes => "Yes";
+	public string No => "No";
+	public string ImportCancelled => "Import cancelled.";
 	public string ImportResult => "Imported {0} keys ({1} overwritten, {2} failed)";
 	public string InvalidJson => "Invalid JSON: {0}";
 	public string NoKeysInJson => "No keys found in JSON.";

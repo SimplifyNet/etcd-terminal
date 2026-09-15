@@ -1,5 +1,8 @@
+using System.Diagnostics;
+using System.Text;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Infrastructure.Terminal;
+using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using Spectre.Console;
 
@@ -7,6 +10,8 @@ namespace EtcdTerminal.App.Engine;
 
 public sealed class Prompt(ITerminal _terminal)
 {
+	private const int _pasteBurstThresholdMs = 40;
+
 	private static readonly Style _promptStyle = new(decoration: Decoration.Bold);
 
 	private readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
@@ -93,7 +98,7 @@ public sealed class Prompt(ITerminal _terminal)
 
 	public string? ReadMultiLine(string prompt)
 	{
-		_terminal.SetCursorVisible(true);
+		_terminal.SetCursorVisible(false);
 
 		try
 		{
@@ -102,29 +107,102 @@ public sealed class Prompt(ITerminal _terminal)
 			_terminal.WriteLine();
 			_terminal.Flush();
 
-			while (Console.KeyAvailable)
-				Console.ReadKey(true);
+			while (_terminal.KeyAvailable)
+				_terminal.ReadKey();
 
-			var lines = new List<string>();
+			var buffer = new StringBuilder();
+			var lastKeyAt = Stopwatch.StartNew();
+
+			RenderPasteStatus(0);
 
 			while (true)
 			{
-				var line = Console.ReadLine();
+				var key = _terminal.ReadKey();
+				var elapsed = lastKeyAt.ElapsedMilliseconds;
 
-				if (line is null)
-					break;
+				lastKeyAt.Restart();
 
-				if (string.IsNullOrEmpty(line))
-					break;
+				if (key.Key == ConsoleKey.Escape)
+				{
+					_terminal.WriteLine();
 
-				lines.Add(line);
+					return null;
+				}
+
+				if (key.Key == ConsoleKey.Enter)
+				{
+					if (buffer.Length > 0 && !IsPastedNewLine(elapsed))
+						break;
+
+					buffer.Append('\n');
+				}
+				else if (key.Key is ConsoleKey.Backspace or ConsoleKey.Delete)
+					buffer.Clear();
+				else if (key.KeyChar == '\t')
+					buffer.Append('\t');
+				else if (!char.IsControl(key.KeyChar))
+					buffer.Append(key.KeyChar);
+
+				if (!_terminal.KeyAvailable)
+					RenderPasteStatus(CountLines(buffer));
 			}
 
-			return lines.Count > 0 ? string.Join('\n', lines) : null;
+			_terminal.WriteLine();
+
+			var text = buffer.ToString();
+
+			return string.IsNullOrWhiteSpace(text) ? null : text;
 		}
 		finally
 		{
 			_terminal.SetCursorVisible(false);
 		}
+	}
+
+	private static int CountLines(StringBuilder buffer)
+	{
+		var lines = 0;
+		var lineHasContent = false;
+
+		for (var i = 0; i < buffer.Length; i++)
+		{
+			if (buffer[i] == '\n')
+			{
+				if (lineHasContent)
+					lines++;
+
+				lineHasContent = false;
+			}
+			else if (!char.IsWhiteSpace(buffer[i]))
+				lineHasContent = true;
+		}
+
+		return lineHasContent ? lines + 1 : lines;
+	}
+
+	private bool IsPastedNewLine(long elapsedSinceLastKey)
+	{
+		if (elapsedSinceLastKey < _pasteBurstThresholdMs)
+			return true;
+
+		if (_terminal.KeyAvailable)
+			return true;
+
+		Thread.Sleep(_pasteBurstThresholdMs);
+
+		return _terminal.KeyAvailable;
+	}
+
+	private void RenderPasteStatus(int lines)
+	{
+		var text = lines == 0
+			? LocalizationStore.Current.WaitingForPaste
+			: string.Format(LocalizationStore.Current.PastedLines, lines);
+
+		var color = lines == 0 ? _terminal.Dim : _terminal.Accent;
+
+		_terminal.Write("\r" + new string(' ', Math.Max(0, _terminal.WindowWidth - 1)));
+		_terminal.Write("\r" + _terminal.Indent + color + text + _terminal.Reset);
+		_terminal.Flush();
 	}
 }

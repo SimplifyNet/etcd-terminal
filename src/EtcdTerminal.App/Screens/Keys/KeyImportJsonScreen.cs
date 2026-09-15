@@ -14,17 +14,18 @@ public sealed class KeyImportJsonScreen(
 	ScreenLayout _screenLayout,
 	PressAnyKeyPrompt _pressAnyKey,
 	Prompt _prompt,
+	Menu _menu,
 	Spinner _spinner)
 {
+	private const int _previewLimit = 15;
+	private const int _previewValueLength = 60;
+
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
 		_screenLayout.RenderHeader(config);
 
 		var separator = _prompt.Ask(LocalizationStore.Current.EnterSeparator, ":") ?? ":";
-		var prefix = _prompt.Ask(LocalizationStore.Current.EnterPrefix);
-
-		if (prefix is null)
-			return;
+		var prefix = _prompt.Ask(LocalizationStore.Current.EnterPrefix) ?? "";
 
 		_terminal.WriteLine();
 
@@ -72,6 +73,16 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
+		if (!ConfirmImport(entries, config))
+		{
+			_terminal.WriteLine();
+			_terminal.WriteIndentedLine(LocalizationStore.Current.ImportCancelled, TerminalColor.Muted);
+			_terminal.WriteLine();
+			_pressAnyKey.Show();
+
+			return;
+		}
+
 		var created = 0;
 		var overwritten = 0;
 		var failed = 0;
@@ -111,6 +122,37 @@ public sealed class KeyImportJsonScreen(
 		_pressAnyKey.Show();
 	}
 
+	private bool ConfirmImport(List<(string Key, string Value)> entries, EtcdConnectionConfig config)
+	{
+		_terminal.WriteLine();
+		_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewTitle, entries.Count));
+		_terminal.WriteLine();
+
+		foreach (var (Key, Value) in entries.Take(_previewLimit))
+		{
+			_terminal.Write(_terminal.Indent + Key);
+			_terminal.Write(" = ");
+			_terminal.WriteLine(Truncate(Value), TerminalColor.Muted);
+		}
+
+		if (entries.Count > _previewLimit)
+			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewMore, entries.Count - _previewLimit), TerminalColor.Muted);
+
+		var choice = _menu.Show(
+			LocalizationStore.Current.ConfirmImport,
+			[LocalizationStore.Current.Yes, LocalizationStore.Current.No],
+			config: config);
+
+		return choice == LocalizationStore.Current.Yes;
+	}
+
+	private static string Truncate(string value)
+	{
+		var single = value.ReplaceLineEndings(" ");
+
+		return single.Length <= _previewValueLength ? single : single[.._previewValueLength] + "...";
+	}
+
 	private static string SanitizeJson(string input)
 	{
 		var trimmed = input.Trim();
@@ -129,7 +171,9 @@ public sealed class KeyImportJsonScreen(
 	{
 		foreach (var property in node)
 		{
-			var key = prefix + separator + property.Key;
+			var key = string.IsNullOrEmpty(prefix)
+				? property.Key
+				: prefix + separator + property.Key;
 
 			FlattenNode(property.Value, key, separator, results);
 		}

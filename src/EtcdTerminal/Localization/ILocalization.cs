@@ -136,6 +136,13 @@ public interface ILocalization
 	string EnterPrefix { get; }
 	string PasteJson { get; }
 	string PastedLines { get; }
+	string WaitingForPaste { get; }
+	string ImportPreviewTitle { get; }
+	string ImportPreviewMore { get; }
+	string ConfirmImport { get; }
+	string Yes { get; }
+	string No { get; }
+	string ImportCancelled { get; }
 	string ImportResult { get; }
 	string InvalidJson { get; }
 	string NoKeysInJson { get; }
