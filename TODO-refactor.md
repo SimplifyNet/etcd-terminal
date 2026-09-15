@@ -37,8 +37,8 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T11. Replace the reflection-based auth detection
 - [ ] Phase 3 — Layering
   - [x] T12. Move all Spectre.Console usage out of Components and Screens
-  - [ ] T13. Correct `AGENTS.md` so it describes the actual code
-  - [ ] T14. Add an architecture test to prevent layering regressions
+  - [x] T13. Correct `AGENTS.md` so it describes the actual code
+  - [x] T14. Add an architecture test to prevent layering regressions
 - [ ] Phase 4 — Structural design
   - [ ] T15. Stop keying control flow on localized display strings
   - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
@@ -353,7 +353,7 @@ All screens must render identically to before.
 
 ---
 
-## [ ] T13. Correct `AGENTS.md` so it describes the actual code
+## [x] T13. Correct `AGENTS.md` so it describes the actual code
 
 **Problem.** The guide names types that do not exist and are therefore unfollowable:
 `Panel` (described as "the core design element"), `Message`, and `Palette`
@@ -377,7 +377,7 @@ calls `PressAnyKeyPrompt` "PressAnyKey", and omits `Spinner` and `MenuScreen`.
 
 ---
 
-## [ ] T14. Add an architecture test to prevent layering regressions
+## [x] T14. Add an architecture test to prevent layering regressions
 
 **Do.**
 - Create `src/EtcdTerminal.Tests/` (xUnit) if no test project exists.
