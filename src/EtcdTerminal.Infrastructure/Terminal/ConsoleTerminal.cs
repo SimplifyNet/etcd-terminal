@@ -120,39 +120,6 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void SetCursorVisible(bool visible) => Console.Write(visible ? "\x1b[?25h" : "\x1b[?25l");
 
-	public async Task ShowStatusAsync(string message, Func<CancellationToken, Task> action, TerminalColor color = TerminalColor.Warning)
-	{
-		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
-		var frameIndex = 0;
-		var done = false;
-		var colorEscape = Accent;
-
-		var spinnerTask = Task.Run(async () =>
-		{
-			while (!done)
-			{
-				SetCursorVisible(false);
-				Write("\r" + Indent + colorEscape + frames[frameIndex] + Reset + " " + message);
-				Flush();
-				frameIndex = (frameIndex + 1) % frames.Length;
-				await Task.Delay(100);
-			}
-			Write("\r\x1b[2K");
-			Flush();
-		});
-
-		try
-		{
-			await action(CancellationToken.None);
-		}
-		finally
-		{
-			done = true;
-			await spinnerTask;
-			SetCursorVisible(false);
-		}
-	}
-
 	private string GetColorEscape(TerminalColor color) => color switch
 	{
 		TerminalColor.Success => Green,

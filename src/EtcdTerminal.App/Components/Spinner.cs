@@ -8,30 +8,47 @@ public sealed class Spinner(ITerminal _terminal)
 	{
 		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
 		var frameIndex = 0;
-		var done = false;
+
+		using var cts = new CancellationTokenSource();
 
 		var spinnerTask = Task.Run(async () =>
 		{
-			while (!done)
+			while (!cts.Token.IsCancellationRequested)
 			{
 				_terminal.SetCursorVisible(false);
 				_terminal.Write("\r" + _terminal.Indent + _terminal.Accent + frames[frameIndex] + _terminal.Reset + " " + message);
 				_terminal.Flush();
 				frameIndex = (frameIndex + 1) % frames.Length;
-				await Task.Delay(100);
+
+				try
+				{
+					await Task.Delay(100, cts.Token);
+				}
+				catch (OperationCanceledException)
+				{
+					break;
+				}
 			}
 			_terminal.Write("\r\x1b[2K");
 			_terminal.Flush();
-		});
+		}, cts.Token);
 
 		try
 		{
-			await action(CancellationToken.None);
+			await action(cts.Token);
 		}
 		finally
 		{
-			done = true;
-			await spinnerTask;
+			cts.Cancel();
+
+			try
+			{
+				await spinnerTask;
+			}
+			catch
+			{
+			}
+
 			_terminal.SetCursorVisible(false);
 		}
 	}

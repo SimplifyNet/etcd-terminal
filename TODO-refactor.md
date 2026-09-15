@@ -30,7 +30,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T5. Fix "keep existing password" being impossible when editing a connection
   - [x] T6. Make config writes atomic
 - [ ] Phase 2 — Correctness of the etcd client
-  - [ ] T7. Make cancellation real
+  - [x] T7. Make cancellation real
   - [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
   - [ ] T9. Replace `_client!` with an enforced precondition
   - [ ] T10. Make `ConnectAsync` actually connect
@@ -41,7 +41,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [ ] T14. Add an architecture test to prevent layering regressions
 - [ ] Phase 4 — Structural design
   - [ ] T15. Stop keying control flow on localized display strings
-  - [ ] T16. Delete the duplicated spinner and fix its concurrency bugs
+  - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
   - [ ] T17. Add the missing `Message` component and remove ~20 duplications
   - [ ] T18. Make `IAppSettings` immutable
   - [ ] T19. Split `IEtcdClient` by concern
@@ -207,7 +207,7 @@ or `Environment.Exit` (the Ctrl+C handler calls it) mid-write truncates the file
 
 # Phase 2 — Correctness of the etcd client
 
-## [ ] T7. Make cancellation real
+## [x] T7. Make cancellation real
 
 **Problem.** Every `IEtcdClient` method takes `CancellationToken ct = default`, and
 `ITerminal.ShowStatusAsync` / `Spinner.RunAsync` hand out a token — but the token handed
@@ -424,7 +424,7 @@ navigates correctly.
 
 ---
 
-## [ ] T16. Delete the duplicated spinner and fix its concurrency bugs
+## [x] T16. Delete the duplicated spinner and fix its concurrency bugs
 
 **Problem.** `ConsoleTerminal.ShowStatusAsync` (~123-154) and `Spinner.RunAsync` (~7-37) are
 verbatim copies — same frames, same 100 ms delay, same `done` flag, same cleanup. Both are

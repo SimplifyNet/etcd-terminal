@@ -7,7 +7,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey)
+public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -16,10 +16,10 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdC
 		IReadOnlyList<EtcdUser> users = [];
 		IReadOnlyList<EtcdRole> roles = [];
 
-		await _terminal.ShowStatusAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
+		await _spinner.RunAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
 		{
-			users = await _etcdClient.GetUsersAsync();
-			roles = await _etcdClient.GetRolesAsync();
+			users = await _etcdClient.GetUsersAsync(ct);
+			roles = await _etcdClient.GetRolesAsync(ct);
 		});
 
 		PermissionViewRenderer.Render(_terminal, users, roles);
