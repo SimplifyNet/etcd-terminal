@@ -62,6 +62,19 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 		SaveInstances(instances);
 	}
 
+	public void UpdateInstance(string originalName, EtcdConnectionConfig config)
+	{
+		var instances = LoadInstances().ToList();
+		var index = instances.FindIndex(i => i.Name == originalName);
+
+		if (index < 0)
+			instances.Add(config);
+		else
+			instances[index] = config;
+
+		SaveInstances(instances);
+	}
+
 	public void RemoveInstance(string name)
 	{
 		var instances = LoadInstances().ToList();

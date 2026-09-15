@@ -231,7 +231,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			Password = string.IsNullOrEmpty(password) ? null : password
 		};
 
-		_configRepo.AddInstance(config);
+		_configRepo.UpdateInstance(existingName, config);
 
 		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);

@@ -26,7 +26,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T1. Stop destroying `config.json` when it fails to parse
   - [x] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
   - [x] T3. Fix the crash when a JSON **array** is pasted into Import JSON
-  - [ ] T4. Fix connection rename orphaning the old entry
+  - [x] T4. Fix connection rename orphaning the old entry
   - [ ] T5. Fix "keep existing password" being impossible when editing a connection
   - [ ] T6. Make config writes atomic
 - [ ] Phase 2 — Correctness of the etcd client
@@ -135,7 +135,7 @@ is uncaught and tears down the screen.
 
 ---
 
-## [ ] T4. Fix connection rename orphaning the old entry
+## [x] T4. Fix connection rename orphaning the old entry
 
 **Problem.** Editing a connection calls `_configRepo.AddInstance(config)` with the **new**
 name. `AddInstance` does `RemoveAll(i => i.Name == config.Name)` then `Add`. Renaming

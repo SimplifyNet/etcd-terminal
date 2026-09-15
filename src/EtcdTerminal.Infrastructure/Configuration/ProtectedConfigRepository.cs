@@ -14,6 +14,9 @@ public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repos
 	public void AddInstance(EtcdConnectionConfig config) =>
 		_repository.AddInstance(WithPassword(config, Encrypt(config.Password)));
 
+	public void UpdateInstance(string originalName, EtcdConnectionConfig config) =>
+		_repository.UpdateInstance(originalName, WithPassword(config, Encrypt(config.Password)));
+
 	public void RemoveInstance(string name) => _repository.RemoveInstance(name);
 
 	public void MoveUp(string name) => _repository.MoveUp(name);
