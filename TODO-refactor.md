@@ -20,11 +20,48 @@ problem, the exact files involved, what to do, and how to verify.
 6. Line numbers are from the time of review — verify by reading the file, do not
    trust them blindly.
 
+## Progress
+
+- [ ] Phase 1 — Data loss and crashes
+  - [ ] T1. Stop destroying `config.json` when it fails to parse
+  - [ ] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
+  - [ ] T3. Fix the crash when a JSON **array** is pasted into Import JSON
+  - [ ] T4. Fix connection rename orphaning the old entry
+  - [ ] T5. Fix "keep existing password" being impossible when editing a connection
+  - [ ] T6. Make config writes atomic
+- [ ] Phase 2 — Correctness of the etcd client
+  - [ ] T7. Make cancellation real
+  - [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
+  - [ ] T9. Replace `_client!` with an enforced precondition
+  - [ ] T10. Make `ConnectAsync` actually connect
+  - [ ] T11. Replace the reflection-based auth detection
+- [ ] Phase 3 — Layering
+  - [ ] T12. Move all Spectre.Console usage out of Components and Screens
+  - [ ] T13. Correct `AGENTS.md` so it describes the actual code
+  - [ ] T14. Add an architecture test to prevent layering regressions
+- [ ] Phase 4 — Structural design
+  - [ ] T15. Stop keying control flow on localized display strings
+  - [ ] T16. Delete the duplicated spinner and fix its concurrency bugs
+  - [ ] T17. Add the missing `Message` component and remove ~20 duplications
+  - [ ] T18. Make `IAppSettings` immutable
+  - [ ] T19. Split `IEtcdClient` by concern
+  - [ ] T20. Preserve the cause of etcd failures
+- [ ] Phase 5 — Polish
+  - [ ] T21. Deduplicate connection-string validation
+  - [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
+  - [ ] T23. Deduplicate the ANSI colour properties
+  - [ ] T24. Replace `Thread.Sleep` in the paste-detection path
+  - [ ] T25. Localize the remaining hardcoded English strings
+  - [ ] T26. Fix the Ctrl+C double-dispose
+  - [ ] T27. Fix the brace-style violation
+  - [ ] T28. Document the encryption key's threat model (or fix it)
+  - [ ] T29. Note the N+1 and full-scan query patterns
+
 ---
 
 # Phase 1 — Data loss and crashes (do these first)
 
-## T1. Stop destroying `config.json` when it fails to parse
+## [ ] T1. Stop destroying `config.json` when it fails to parse
 
 **Problem.** `JsonBasedConnectionConfigRepository.LoadExistingRoot` catches a parse
 failure and returns an empty `JsonObject`. `SaveInstances` then writes that empty object
@@ -47,7 +84,7 @@ afterwards.
 
 ---
 
-## T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
+## [ ] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
 
 **Problem.** `Load` has no `try`/`catch` (unlike its own `Save` and unlike the sibling
 connection repository). A malformed `config.json` throws out of `Program.cs` line ~50;
@@ -73,7 +110,7 @@ start with default settings and not crash.
 
 ---
 
-## T3. Fix the crash when a JSON **array** is pasted into Import JSON
+## [ ] T3. Fix the crash when a JSON **array** is pasted into Import JSON
 
 **Problem.** `KeyImportJsonScreen.SanitizeJson` deliberately allows input starting with
 `[`, but the caller does `JsonNode.Parse(sanitized)?.AsObject()` and catches only
@@ -98,7 +135,7 @@ is uncaught and tears down the screen.
 
 ---
 
-## T4. Fix connection rename orphaning the old entry
+## [ ] T4. Fix connection rename orphaning the old entry
 
 **Problem.** Editing a connection calls `_configRepo.AddInstance(config)` with the **new**
 name. `AddInstance` does `RemoveAll(i => i.Name == config.Name)` then `Add`. Renaming
@@ -127,7 +164,7 @@ with no duplicate C.
 
 ---
 
-## T5. Fix "keep existing password" being impossible when editing a connection
+## [ ] T5. Fix "keep existing password" being impossible when editing a connection
 
 **Problem.** In `EditInstanceInteractive`, `password = existing.Password ?? string.Empty;`
 is unconditionally overwritten a few lines later by `password = newPassword;`. Pressing
@@ -148,7 +185,7 @@ reopen the edit screen — the password must still be there.
 
 ---
 
-## T6. Make config writes atomic
+## [ ] T6. Make config writes atomic
 
 **Problem.** Both repositories do `File.WriteAllText` directly on `config.json`. A crash
 or `Environment.Exit` (the Ctrl+C handler calls it) mid-write truncates the file.
@@ -170,7 +207,7 @@ or `Environment.Exit` (the Ctrl+C handler calls it) mid-write truncates the file
 
 # Phase 2 — Correctness of the etcd client
 
-## T7. Make cancellation real
+## [ ] T7. Make cancellation real
 
 **Problem.** Every `IEtcdClient` method takes `CancellationToken ct = default`, and
 `ITerminal.ShowStatusAsync` / `Spinner.RunAsync` hand out a token — but the token handed
@@ -196,7 +233,7 @@ of tests.
 
 ---
 
-## T8. (Depends on T7) Allow Esc to abort a long-running operation
+## [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
 
 **Do.** In the spinner loop, poll `ITerminal.KeyAvailable`; if a key is available and it is
 `ConsoleKey.Escape`, call `Cancel()` on the CTS from T7. Catch `OperationCanceledException`
@@ -208,7 +245,7 @@ app must return to the instance list instead of hanging.
 
 ---
 
-## T9. Replace `_client!` with an enforced precondition
+## [ ] T9. Replace `_client!` with an enforced precondition
 
 **Problem.** ~22 call sites in `DotnetEtcdBasedClient` dereference `_client!`. Calling any
 method before `ConnectAsync` throws `NullReferenceException`, not a meaningful error.
@@ -227,7 +264,7 @@ returns nothing.
 
 ---
 
-## T10. Make `ConnectAsync` actually connect
+## [ ] T10. Make `ConnectAsync` actually connect
 
 **Problem.** `ConnectAsync` constructs an `EtcdClient` (lazy channel) and returns
 `Task.CompletedTask`. It cannot fail on a bad endpoint or bad credentials, so every caller
@@ -249,7 +286,7 @@ error and return to the list.
 
 ---
 
-## T11. Replace the reflection-based auth detection
+## [ ] T11. Replace the reflection-based auth detection
 
 **Problem.** `IsAuthenticationEnabledAsync` locates `AuthClient` and `AuthStatusAsync` by
 reflection and reads `.Result` off the returned task by reflection, wrapped in
@@ -274,7 +311,7 @@ reflection and reads `.Result` off the returned task by reflection, wrapped in
 
 # Phase 3 — Layering (cheap, high value)
 
-## T12. Move all Spectre.Console usage out of Components and Screens
+## [ ] T12. Move all Spectre.Console usage out of Components and Screens
 
 **Problem.** `AGENTS.md` states Screens must not touch `Console.*` / `AnsiConsole.*` / ANSI,
 and that all Spectre dependencies live in Infrastructure. Eight violations exist. They
@@ -316,7 +353,7 @@ All screens must render identically to before.
 
 ---
 
-## T13. Correct `AGENTS.md` so it describes the actual code
+## [ ] T13. Correct `AGENTS.md` so it describes the actual code
 
 **Problem.** The guide names types that do not exist and are therefore unfollowable:
 `Panel` (described as "the core design element"), `Message`, and `Palette`
@@ -340,7 +377,7 @@ calls `PressAnyKeyPrompt` "PressAnyKey", and omits `Spinner` and `MenuScreen`.
 
 ---
 
-## T14. Add an architecture test to prevent layering regressions
+## [ ] T14. Add an architecture test to prevent layering regressions
 
 **Do.**
 - Create `src/EtcdTerminal.Tests/` (xUnit) if no test project exists.
@@ -357,7 +394,7 @@ calls `PressAnyKeyPrompt` "PressAnyKey", and omits `Spinner` and `MenuScreen`.
 
 # Phase 4 — Structural design
 
-## T15. Stop keying control flow on localized display strings
+## [ ] T15. Stop keying control flow on localized display strings
 
 **Problem.** `Menu.Show` returns the selected **display string**, and every screen dispatches
 by comparing it back against `LocalizationStore.Current.*`. Two translations that happen to
@@ -387,7 +424,7 @@ navigates correctly.
 
 ---
 
-## T16. Delete the duplicated spinner and fix its concurrency bugs
+## [ ] T16. Delete the duplicated spinner and fix its concurrency bugs
 
 **Problem.** `ConsoleTerminal.ShowStatusAsync` (~123-154) and `Spinner.RunAsync` (~7-37) are
 verbatim copies — same frames, same 100 ms delay, same `done` flag, same cleanup. Both are
@@ -413,7 +450,7 @@ permissions still show a spinner that disappears cleanly.
 
 ---
 
-## T17. Add the missing `Message` component and remove ~20 duplications
+## [ ] T17. Add the missing `Message` component and remove ~20 duplications
 
 **Problem.** This exact block appears 20+ times:
 ```csharp
@@ -441,7 +478,7 @@ Sites include `KeyCreateScreen`, `UserManagementScreen` (×6), `RoleManagementSc
 
 ---
 
-## T18. Make `IAppSettings` immutable
+## [ ] T18. Make `IAppSettings` immutable
 
 **Problem.** `IAppSettings` exposes setters and `SettingsScreen` mutates the process-global
 `AppSettingsStore.Current` directly, then saves. If `Save` throws, memory and disk diverge
@@ -464,7 +501,7 @@ assignment in `SettingsScreen` (and `Program.cs` initialisation).
 
 ---
 
-## T19. Split `IEtcdClient` by concern
+## [ ] T19. Split `IEtcdClient` by concern
 
 **Problem.** 30 members across connection lifecycle, key CRUD, user admin, role admin,
 grants, and auth toggles. `KeyCreateScreen` needs exactly one of them and depends on all 30.
@@ -485,7 +522,7 @@ needs more than one facet.
 
 ---
 
-## T20. Preserve the cause of etcd failures
+## [ ] T20. Preserve the cause of etcd failures
 
 **Problem.** `CreateUserAsync`, `DeleteRoleAsync`, `GrantRoleAsync` etc. all do
 `catch (RpcException) { return false; }`. "Already exists", "permission denied",
@@ -508,47 +545,47 @@ and the user sees only "Failed to create user".
 
 # Phase 5 — Polish
 
-## T21. Deduplicate connection-string validation
+## [ ] T21. Deduplicate connection-string validation
 Three identical copies of the `Uri.TryCreate` + `http/https` scheme check exist in
 `InstanceSelectionScreen` (twice) and `JsonBasedConnectionConfigRepository.IsValid`.
 Move the rule onto `EtcdConnectionConfig` as `bool IsConnectionStringValid` (the type
 already has a derived-property precedent) and call it from all three places.
 
-## T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
+## [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
 They are ~90% identical in `InstanceSelectionScreen` (~117-172 and ~174-241) — same prompt
 sequence, character-for-character identical URI validation, same config construction. Merge
 into one private method parameterised by the existing config (`null` = add) and the success
 message. **Do T4 and T5 first**, then merge, so the fixes are not duplicated.
 
-## T23. Deduplicate the ANSI colour properties
+## [ ] T23. Deduplicate the ANSI colour properties
 `ConsoleTerminal` has ~11 near-identical
 `$"\x1b[38;2;{ThemeStore.Current.X.R};{...G};{...B}m"` bodies, each of which rebuilds the
 string on **every access** (`StatusBar.Render` reads ~15 per frame). Add
 `private static string Fg(RgbColor c)` / `Bg(RgbColor c)` helpers and cache the results per
 theme instance.
 
-## T24. Replace `Thread.Sleep` in the paste-detection path
+## [ ] T24. Replace `Thread.Sleep` in the paste-detection path
 `Prompt.IsPastedNewLine` calls `Thread.Sleep(40)`, blocking a thread inside a call chain
 reached from `async Task ShowAsync`. Make `ReadMultiLine` async (`Task<string?>`) and use
 `await Task.Delay(...)`. Update `KeyImportJsonScreen` to await it.
 
-## T25. Localize the remaining hardcoded English strings
+## [ ] T25. Localize the remaining hardcoded English strings
 `InstanceSelectionScreen` ~line 47: `$"Failed to connect: {ex.Message}"`.
 `KeyImportJsonScreen` ~line 92: `$"Importing {entries.Count} keys..."`.
 Add `ILocalization` properties with `{0}` placeholders and implement them in
 `EnglishLocalization`.
 
-## T26. Fix the Ctrl+C double-dispose
+## [ ] T26. Fix the Ctrl+C double-dispose
 `Program.cs` `Cleanup()` (~22-32) resolves `ITerminal` from the container and then disposes
 the container. It is called from both the `CancelKeyPress` handler (~34-39) and the
 `finally` block (~72-74), so the second call resolves from a **disposed** container. Guard
 with an `Interlocked.Exchange`-based run-once flag.
 
-## T27. Fix the brace-style violation
+## [ ] T27. Fix the brace-style violation
 `Screens/Keys/KeyBrowseLayout.cs` ~31-34 has a single-statement `else` with braces, which
 `AGENTS.md` forbids. Remove the braces.
 
-## T28. Document the encryption key's threat model (or fix it)
+## [ ] T28. Document the encryption key's threat model (or fix it)
 `ConfigProtector.LoadOrCreateKey` writes the AES key in plaintext to
 `~/.config/etcd-terminal/.key`, **next to** the `config.json` it encrypts. The AES-GCM
 implementation itself is correct, but storing the key beside the ciphertext means it
@@ -557,7 +594,7 @@ Either integrate an OS keychain / DPAPI / passphrase-derived key, **or** add an 
 note to the README stating that this is obfuscation, not protection. Do not leave it
 implied that stored passwords are secure.
 
-## T29. Note the N+1 and full-scan query patterns
+## [ ] T29. Note the N+1 and full-scan query patterns
 No code change required unless it is easy. Document in the README or an issue:
 - `GetUsersAsync` / `GetRolesAsync` issue one round-trip per entity.
 - `KeyBrowseScreen.LoadKeysAsync` fetches the **entire keyspace** and filters client-side,
