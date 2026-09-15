@@ -138,13 +138,11 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 		if (!File.Exists(_configPath))
 			return [];
 
-		try
-		{
-			return JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject ?? [];
-		}
-		catch
-		{
-			return [];
-		}
+		var root = JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject;
+
+		if (root is null)
+			throw new JsonException($"Configuration file '{_configPath}' does not contain a JSON object.");
+
+		return root;
 	}
 }

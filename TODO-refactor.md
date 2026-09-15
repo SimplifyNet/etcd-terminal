@@ -23,7 +23,7 @@ problem, the exact files involved, what to do, and how to verify.
 ## Progress
 
 - [ ] Phase 1 — Data loss and crashes
-  - [ ] T1. Stop destroying `config.json` when it fails to parse
+  - [x] T1. Stop destroying `config.json` when it fails to parse
   - [ ] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
   - [ ] T3. Fix the crash when a JSON **array** is pasted into Import JSON
   - [ ] T4. Fix connection rename orphaning the old entry
@@ -61,7 +61,7 @@ problem, the exact files involved, what to do, and how to verify.
 
 # Phase 1 — Data loss and crashes (do these first)
 
-## [ ] T1. Stop destroying `config.json` when it fails to parse
+## [x] T1. Stop destroying `config.json` when it fails to parse
 
 **Problem.** `JsonBasedConnectionConfigRepository.LoadExistingRoot` catches a parse
 failure and returns an empty `JsonObject`. `SaveInstances` then writes that empty object
