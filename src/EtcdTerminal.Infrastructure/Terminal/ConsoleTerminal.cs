@@ -137,7 +137,7 @@ public sealed class ConsoleTerminal : ITerminal
 				frameIndex = (frameIndex + 1) % frames.Length;
 				await Task.Delay(100);
 			}
-			Write("\r" + new string(' ', Indent.Length + message.Length + 2) + "\r");
+			Write("\r\x1b[2K");
 			Flush();
 		});
 

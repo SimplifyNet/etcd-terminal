@@ -20,7 +20,7 @@ public sealed class Spinner(ITerminal _terminal)
 				frameIndex = (frameIndex + 1) % frames.Length;
 				await Task.Delay(100);
 			}
-			_terminal.Write("\r" + new string(' ', _terminal.Indent.Length + message.Length + 2) + "\r");
+			_terminal.Write("\r\x1b[2K");
 			_terminal.Flush();
 		});
 

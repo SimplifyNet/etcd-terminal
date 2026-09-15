@@ -1,7 +1,9 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Roles;
 using EtcdTerminal.Terminal;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
@@ -11,13 +13,16 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdC
 	{
 		_screenLayout.RenderHeader(config);
 
+		IReadOnlyList<EtcdUser> users = [];
+		IReadOnlyList<EtcdRole> roles = [];
+
 		await _terminal.ShowStatusAsync(LocalizationStore.Current.LoadingPermissions, async ct =>
 		{
-			var users = await _etcdClient.GetUsersAsync();
-			var roles = await _etcdClient.GetRolesAsync();
-
-			PermissionViewRenderer.Render(_terminal, users, roles);
+			users = await _etcdClient.GetUsersAsync();
+			roles = await _etcdClient.GetRolesAsync();
 		});
+
+		PermissionViewRenderer.Render(_terminal, users, roles);
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();
