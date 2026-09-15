@@ -7,7 +7,6 @@ public interface ILocalization
 	string InstanceAdded { get; }
 	string InstanceRemoved { get; }
 	string InstanceUpdated { get; }
-	string ConnectedSuccess { get; }
 	string InvalidConnStr { get; }
 	string ManageConnections { get; }
 	string AddInstance { get; }

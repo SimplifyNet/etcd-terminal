@@ -39,9 +39,6 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 						await _etcdClient.PingAsync();
 					});
 
-					_terminal.WriteLine();
-					_terminal.WriteIndentedLine(LocalizationStore.Current.ConnectedSuccess, TerminalColor.Success);
-
 					return selected;
 				}
 				catch (Exception ex)

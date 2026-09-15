@@ -9,7 +9,6 @@ public class EnglishLocalization : ILocalization
 	public string InstanceAdded => "Instance added successfully!";
 	public string InstanceRemoved => "Instance removed successfully!";
 	public string InstanceUpdated => "Instance updated successfully!";
-	public string ConnectedSuccess => "Connected successfully!";
 	public string InvalidConnStr => "Invalid connection string. Must be a valid http or https URL.";
 	public string ManageConnections => "Manage Connections";
 	public string AddInstance => "Add Instance";
