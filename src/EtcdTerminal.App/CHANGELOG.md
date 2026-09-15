@@ -14,6 +14,7 @@
 
 - Corrupted config file no longer wipes saved connections
 - App starts with default settings when saved settings are unreadable instead of crashing
+- Import JSON no longer crashes on JSON arrays; array items are imported with index suffixes
 
 ## [0.6] - 2026-09-10
 

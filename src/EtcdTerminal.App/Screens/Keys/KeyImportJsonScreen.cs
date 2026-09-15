@@ -35,14 +35,13 @@ public sealed class KeyImportJsonScreen(
 			return;
 
 		var sanitized = SanitizeJson(json);
-
-		JsonObject? root;
+		JsonNode? node;
 
 		try
 		{
-			root = JsonNode.Parse(sanitized)?.AsObject();
+			node = JsonNode.Parse(sanitized);
 		}
-		catch (JsonException ex)
+		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
 			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.InvalidJson, ex.Message), TerminalColor.Error);
 			_terminal.WriteLine();
@@ -51,18 +50,31 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		if (root is null || root.Count == 0)
+		var entries = new List<(string Key, string Value)>();
+
+		if (node is JsonObject obj)
+			FlattenJson(obj, prefix, separator, entries);
+		else if (node is JsonArray arr)
 		{
-			_terminal.WriteIndentedLine(LocalizationStore.Current.NoKeysInJson, TerminalColor.Warning);
+			if (string.IsNullOrEmpty(prefix))
+			{
+				_terminal.WriteIndentedLine(LocalizationStore.Current.NoKeysInJson, TerminalColor.Warning);
+				_terminal.WriteLine();
+				_pressAnyKey.Show();
+
+				return;
+			}
+
+			FlattenNode(arr, prefix, separator, entries);
+		}
+		else
+		{
+			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.InvalidJson, node?.ToString() ?? string.Empty), TerminalColor.Error);
 			_terminal.WriteLine();
 			_pressAnyKey.Show();
 
 			return;
 		}
-
-		var entries = new List<(string Key, string Value)>();
-
-		FlattenJson(root, prefix, separator, entries);
 
 		if (entries.Count == 0)
 		{
