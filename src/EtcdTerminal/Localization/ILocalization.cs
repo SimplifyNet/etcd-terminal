@@ -130,4 +130,13 @@ public interface ILocalization
 	string NoPermissions { get; }
 	string PressAnyKey { get; }
 	string PressAnyKeyRestart { get; }
+
+	string ImportJson { get; }
+	string EnterSeparator { get; }
+	string EnterPrefix { get; }
+	string PasteJson { get; }
+	string PastedLines { get; }
+	string ImportResult { get; }
+	string InvalidJson { get; }
+	string NoKeysInJson { get; }
 }

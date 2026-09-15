@@ -133,4 +133,13 @@ public class EnglishLocalization : ILocalization
 	public string NoPermissions => "no permissions";
 	public string PressAnyKey => "Press any key to continue...";
 	public string PressAnyKeyRestart => "\nPress any key to restart...";
+
+	public string ImportJson => "Import JSON";
+	public string EnterSeparator => "Enter key separator:";
+	public string EnterPrefix => "Enter key prefix:";
+	public string PasteJson => "Paste JSON (empty line to finish):";
+	public string PastedLines => "[Pasted ~{0} lines]";
+	public string ImportResult => "Imported {0} keys ({1} overwritten, {2} failed)";
+	public string InvalidJson => "Invalid JSON: {0}";
+	public string NoKeysInJson => "No keys found in JSON.";
 }

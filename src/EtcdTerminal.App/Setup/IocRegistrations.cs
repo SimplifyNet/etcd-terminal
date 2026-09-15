@@ -55,13 +55,15 @@ public static class IocRegistrations
 		.Register<ScreenLayout>(LifetimeType.Transient)
 		.Register<KeyBrowseLayout>(LifetimeType.Transient)
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
-		.Register<Prompt>(LifetimeType.Transient);
+		.Register<Prompt>(LifetimeType.Transient)
+		.Register<Spinner>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
 		.Register<MainScreen>(LifetimeType.Transient)
 		.Register<KeyBrowseScreen>(LifetimeType.Transient)
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
+		.Register<KeyImportJsonScreen>(LifetimeType.Transient)
 		.Register<UserManagementScreen>(LifetimeType.Transient)
 		.Register<RoleManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionViewScreen>(LifetimeType.Transient)

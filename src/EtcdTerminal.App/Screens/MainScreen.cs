@@ -15,6 +15,7 @@ public sealed class MainScreen(
 	IEtcdClient _etcdClient,
 	KeyBrowseScreen _keyBrowse,
 	KeyCreateScreen _keyCreate,
+	KeyImportJsonScreen _keyImportJson,
 	UserManagementScreen _userManagement,
 	RoleManagementScreen _roleManagement,
 	PermissionViewScreen _permissionView,
@@ -32,6 +33,7 @@ public sealed class MainScreen(
 				[
 					LocalizationStore.Current.BrowseKeys,
 					LocalizationStore.Current.CreateKey,
+					LocalizationStore.Current.ImportJson,
 					LocalizationStore.Current.ManageUsers,
 					LocalizationStore.Current.ManageRoles,
 					LocalizationStore.Current.ViewPermissions,
@@ -52,6 +54,9 @@ public sealed class MainScreen(
 					break;
 				case var _ when choice == LocalizationStore.Current.CreateKey:
 					await _keyCreate.ShowAsync(config);
+					break;
+				case var _ when choice == LocalizationStore.Current.ImportJson:
+					await _keyImportJson.ShowAsync(config);
 					break;
 				case var _ when choice == LocalizationStore.Current.ManageUsers:
 					await _userManagement.ShowAsync(config);

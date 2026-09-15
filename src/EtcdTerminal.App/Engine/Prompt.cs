@@ -90,4 +90,41 @@ public sealed class Prompt(ITerminal _terminal)
 			_terminal.SetCursorVisible(false);
 		}
 	}
+
+	public string? ReadMultiLine(string prompt)
+	{
+		_terminal.SetCursorVisible(true);
+
+		try
+		{
+			_terminal.Write(_terminal.SelectionPointerEmpty + prompt + " ");
+			_terminal.WriteLine();
+			_terminal.WriteLine();
+			_terminal.Flush();
+
+			while (Console.KeyAvailable)
+				Console.ReadKey(true);
+
+			var lines = new List<string>();
+
+			while (true)
+			{
+				var line = Console.ReadLine();
+
+				if (line is null)
+					break;
+
+				if (string.IsNullOrEmpty(line))
+					break;
+
+				lines.Add(line);
+			}
+
+			return lines.Count > 0 ? string.Join('\n', lines) : null;
+		}
+		finally
+		{
+			_terminal.SetCursorVisible(false);
+		}
+	}
 }

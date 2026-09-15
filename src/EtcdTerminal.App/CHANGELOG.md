@@ -2,6 +2,10 @@
 
 ## [0.7] - Unreleased
 
+### Added
+
+- Import JSON: flatten nested JSON into etcd keys with configurable separator and prefix
+
 ### Changed
 
 - Custom spinner
