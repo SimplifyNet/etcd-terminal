@@ -143,7 +143,7 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 			i.Password
 		}));
 
-		File.WriteAllText(_configPath, root.ToJsonString(_jsonOptions));
+		JsonConfigFile.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
 	}
 
 	private JsonObject LoadExistingRoot()

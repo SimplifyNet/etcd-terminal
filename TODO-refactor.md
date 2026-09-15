@@ -22,13 +22,13 @@ problem, the exact files involved, what to do, and how to verify.
 
 ## Progress
 
-- [ ] Phase 1 — Data loss and crashes
+- [x] Phase 1 — Data loss and crashes
   - [x] T1. Stop destroying `config.json` when it fails to parse
   - [x] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
   - [x] T3. Fix the crash when a JSON **array** is pasted into Import JSON
   - [x] T4. Fix connection rename orphaning the old entry
   - [x] T5. Fix "keep existing password" being impossible when editing a connection
-  - [ ] T6. Make config writes atomic
+  - [x] T6. Make config writes atomic
 - [ ] Phase 2 — Correctness of the etcd client
   - [ ] T7. Make cancellation real
   - [ ] T8. (Depends on T7) Allow Esc to abort a long-running operation
@@ -185,7 +185,7 @@ reopen the edit screen — the password must still be there.
 
 ---
 
-## [ ] T6. Make config writes atomic
+## [x] T6. Make config writes atomic
 
 **Problem.** Both repositories do `File.WriteAllText` directly on `config.json`. A crash
 or `Environment.Exit` (the Ctrl+C handler calls it) mid-write truncates the file.

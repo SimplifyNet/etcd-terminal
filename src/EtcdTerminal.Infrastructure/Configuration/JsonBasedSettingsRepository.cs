@@ -77,6 +77,6 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 			[TrimInputValuesProperty] = appSettings.TrimInputValues
 		};
 
-		File.WriteAllText(_configPath, root.ToJsonString(_jsonOptions));
+		JsonConfigFile.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
 	}
 }
