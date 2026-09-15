@@ -26,6 +26,7 @@ public interface ILocalization
 	string DefaultConnStr { get; }
 	string EnterUsername { get; }
 	string EnterPassword { get; }
+	string EnterPasswordKeepCurrent { get; }
 	string Connecting { get; }
 	string ChangePassword { get; }
 

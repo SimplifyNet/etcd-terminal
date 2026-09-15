@@ -28,6 +28,7 @@ public class EnglishLocalization : ILocalization
 	public string DefaultConnStr => "http://localhost:2379";
 	public string EnterUsername => "Enter username (optional, leave empty for none):";
 	public string EnterPassword => "Enter password:";
+	public string EnterPasswordKeepCurrent => "Enter password (leave empty to keep current):";
 	public string Connecting => "Connecting...";
 	public string ChangePassword => "Change password?";
 

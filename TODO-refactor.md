@@ -27,7 +27,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
   - [x] T3. Fix the crash when a JSON **array** is pasted into Import JSON
   - [x] T4. Fix connection rename orphaning the old entry
-  - [ ] T5. Fix "keep existing password" being impossible when editing a connection
+  - [x] T5. Fix "keep existing password" being impossible when editing a connection
   - [ ] T6. Make config writes atomic
 - [ ] Phase 2 — Correctness of the etcd client
   - [ ] T7. Make cancellation real
@@ -164,7 +164,7 @@ with no duplicate C.
 
 ---
 
-## [ ] T5. Fix "keep existing password" being impossible when editing a connection
+## [x] T5. Fix "keep existing password" being impossible when editing a connection
 
 **Problem.** In `EditInstanceInteractive`, `password = existing.Password ?? string.Empty;`
 is unconditionally overwritten a few lines later by `password = newPassword;`. Pressing

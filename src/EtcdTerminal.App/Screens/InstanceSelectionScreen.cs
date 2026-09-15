@@ -215,12 +215,13 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		{
 			password = existing.Password ?? string.Empty;
 
-			var newPassword = _prompt.Secret(LocalizationStore.Current.EnterPassword);
+			var newPassword = _prompt.Secret(LocalizationStore.Current.EnterPasswordKeepCurrent);
 
 			if (newPassword is null)
 				return;
 
-			password = newPassword;
+			if (!string.IsNullOrEmpty(newPassword))
+				password = newPassword;
 		}
 
 		var config = new EtcdConnectionConfig

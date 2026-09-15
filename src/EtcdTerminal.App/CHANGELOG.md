@@ -16,6 +16,7 @@
 - App starts with default settings when saved settings are unreadable instead of crashing
 - Import JSON no longer crashes on JSON arrays; array items are imported with index suffixes
 - Renaming a connection no longer leaves a duplicate behind and keeps its position in the list
+- Editing a connection keeps the saved password when the password prompt is left empty
 
 ## [0.6] - 2026-09-10
 
