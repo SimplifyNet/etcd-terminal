@@ -13,7 +13,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		while (true)
 		{
 			_terminal.Clear();
-			Header.Render();
+			Header.Render(_terminal);
 
 			var instances = _configRepo.LoadInstances();
 			var choice = PromptForChoice(instances);
@@ -95,7 +95,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
 		_terminal.Clear();
-		Header.Render();
+		Header.Render(_terminal);
 
 		var manageChoices = new List<string> { LocalizationStore.Current.AddInstance };
 
@@ -195,7 +195,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		var existing = instances.First(i => i.Name == existingName);
 
 		_terminal.Clear();
-		Header.Render();
+		Header.Render(_terminal);
 
 		var name = _prompt.Ask(LocalizationStore.Current.EnterInstanceName, existing.Name);
 

@@ -1,7 +1,6 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Localization;
-using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
@@ -18,21 +17,20 @@ public static class RoleListRenderer
 
 		foreach (var role in roles)
 		{
-			var table = new Table
-			{
-				Title = new TableTitle($"[bold]Role: {role.Name}[/]")
-			};
-
-			table.AddColumn(LocalizationStore.Current.PermissionType);
-			table.AddColumn(LocalizationStore.Current.KeyPrefix);
+			List<IReadOnlyList<string>> rows = [];
 
 			if (role.Permissions.Count == 0)
-				table.AddRow(LocalizationStore.Current.None, LocalizationStore.Current.None);
+				rows.Add([LocalizationStore.Current.None, LocalizationStore.Current.None]);
 			else
 				foreach (var perm in role.Permissions)
-					table.AddRow(perm.Type.ToString(), Markup.Escape(perm.KeyPrefix));
+					rows.Add([perm.Type.ToString(), perm.KeyPrefix]);
 
-			AnsiConsole.Write(table);
+			terminal.WriteTable(new TableData(
+				[LocalizationStore.Current.PermissionType, LocalizationStore.Current.KeyPrefix],
+				rows)
+			{
+				Title = $"Role: {role.Name}"
+			});
 		}
 	}
 }

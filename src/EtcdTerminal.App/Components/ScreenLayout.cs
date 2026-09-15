@@ -8,7 +8,7 @@ public sealed class ScreenLayout(ITerminal _terminal, StatusBar _statusBar)
 	public void RenderHeader(EtcdConnectionConfig? config)
 	{
 		_terminal.Clear();
-		Header.Render();
+		Header.Render(_terminal);
 
 		var savedTop = _terminal.CursorTop;
 

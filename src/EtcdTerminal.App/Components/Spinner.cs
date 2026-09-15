@@ -32,7 +32,7 @@ public sealed class Spinner(ITerminal _terminal)
 					break;
 				}
 			}
-			_terminal.Write("\r\x1b[2K");
+			_terminal.ClearLine();
 			_terminal.Flush();
 		}, cts.Token);
 

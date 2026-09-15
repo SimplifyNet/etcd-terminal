@@ -16,7 +16,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 		while (true)
 		{
 			_terminal.Clear();
-			Header.Render();
+			Header.Render(_terminal);
 
 			var choice = _menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
 

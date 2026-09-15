@@ -120,6 +120,35 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void SetCursorVisible(bool visible) => Console.Write(visible ? "\x1b[?25h" : "\x1b[?25l");
 
+	public void WriteTable(TableData table)
+	{
+		var spectreTable = new Table();
+
+		if (table.Title is not null)
+			spectreTable.Title = new TableTitle($"[bold]{Markup.Escape(table.Title)}[/]");
+
+		foreach (var column in table.Columns)
+			spectreTable.AddColumn(Markup.Escape(column));
+
+		foreach (var row in table.Rows)
+			spectreTable.AddRow([.. row.Select(Markup.Escape)]);
+
+		AnsiConsole.Write(spectreTable);
+	}
+
+	public void WriteBanner(string text) =>
+		AnsiConsole.Write(new FigletText(text).Color(Color.OrangeRed1).Centered());
+
+	public void ClearLine() => Console.Write("\r\x1b[2K");
+
+	public void ClearToEndOfScreen() => Console.Write("\x1b[J");
+
+	public void OnInterrupt(Action handler) => Console.CancelKeyPress += (_, args) =>
+	{
+		args.Cancel = true;
+		handler();
+	};
+
 	private string GetColorEscape(TerminalColor color) => color switch
 	{
 		TerminalColor.Success => Green,

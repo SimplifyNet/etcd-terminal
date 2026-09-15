@@ -1,7 +1,6 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 using EtcdTerminal.Localization;
-using Spectre.Console;
 
 namespace EtcdTerminal.App.Screens.Users;
 
@@ -16,10 +15,7 @@ public static class UserListRenderer
 			return;
 		}
 
-		var table = new Table();
-
-		table.AddColumn(LocalizationStore.Current.Username);
-		table.AddColumn(LocalizationStore.Current.Roles);
+		List<IReadOnlyList<string>> rows = [];
 
 		foreach (var user in users)
 		{
@@ -27,9 +23,11 @@ public static class UserListRenderer
 				? string.Join(", ", user.Roles)
 				: LocalizationStore.Current.None;
 
-			table.AddRow(Markup.Escape(user.Username), roles);
+			rows.Add([user.Username, roles]);
 		}
 
-		AnsiConsole.Write(table);
+		terminal.WriteTable(new TableData(
+			[LocalizationStore.Current.Username, LocalizationStore.Current.Roles],
+			rows));
 	}
 }

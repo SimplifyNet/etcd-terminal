@@ -16,7 +16,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys, EtcdConnectionConfig config)
 	{
 		_terminal.Clear();
-		Header.Render();
+		Header.Render(_terminal);
 
 		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);
 

@@ -7,7 +7,6 @@ namespace EtcdTerminal.App.Engine;
 
 public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
-	private const string ClearToEndOfScreen = "\x1b[J";
 
 	public string? Show(string title, IEnumerable<string> choices, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
@@ -73,7 +72,7 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 	private void ClearMenu(int menuStart)
 	{
 		_terminal.SetCursorPosition(0, menuStart);
-		_terminal.Write(ClearToEndOfScreen);
+		_terminal.ClearToEndOfScreen();
 	}
 
 	private void DrawItem(int top, string text, bool isSelected)

@@ -1,5 +1,4 @@
 using EtcdTerminal.Terminal;
-using Spectre.Console;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
 using EtcdTerminal.Localization;
@@ -19,16 +18,10 @@ public static class PermissionViewRenderer
 
 		foreach (var user in users)
 		{
-			var table = new Table
-			{
-				Title = new TableTitle($"[bold]User: {user.Username}[/]")
-			};
-
-			table.AddColumn(LocalizationStore.Current.Role);
-			table.AddColumn(LocalizationStore.Current.Permissions);
+			List<IReadOnlyList<string>> rows = [];
 
 			if (user.Roles.Count == 0)
-				table.AddRow(LocalizationStore.Current.NoRoles, "-");
+				rows.Add([LocalizationStore.Current.NoRoles, "-"]);
 			else
 				foreach (var roleName in user.Roles)
 				{
@@ -37,10 +30,15 @@ public static class PermissionViewRenderer
 						? string.Join("\n", role.Permissions.Select(p => $"{p.Type}: {p.KeyPrefix}"))
 						: LocalizationStore.Current.NoPermissions;
 
-					table.AddRow(Markup.Escape(roleName), permissions);
+					rows.Add([roleName, permissions]);
 				}
 
-			AnsiConsole.Write(table);
+			terminal.WriteTable(new TableData(
+				[LocalizationStore.Current.Role, LocalizationStore.Current.Permissions],
+				rows)
+			{
+				Title = $"User: {user.Username}"
+			});
 		}
 	}
 }

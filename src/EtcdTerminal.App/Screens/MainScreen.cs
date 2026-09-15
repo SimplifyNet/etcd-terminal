@@ -26,7 +26,7 @@ public sealed class MainScreen(
 		while (true)
 		{
 			_terminal.Clear();
-			Header.Render();
+			Header.Render(_terminal);
 
 			var choice = _menu.Show(
 				"",

@@ -36,7 +36,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T10. Make `ConnectAsync` actually connect
   - [x] T11. Replace the reflection-based auth detection
 - [ ] Phase 3 — Layering
-  - [ ] T12. Move all Spectre.Console usage out of Components and Screens
+  - [x] T12. Move all Spectre.Console usage out of Components and Screens
   - [ ] T13. Correct `AGENTS.md` so it describes the actual code
   - [ ] T14. Add an architecture test to prevent layering regressions
 - [ ] Phase 4 — Structural design
@@ -311,7 +311,7 @@ reflection and reads `.Result` off the returned task by reflection, wrapped in
 
 # Phase 3 — Layering (cheap, high value)
 
-## [ ] T12. Move all Spectre.Console usage out of Components and Screens
+## [x] T12. Move all Spectre.Console usage out of Components and Screens
 
 **Problem.** `AGENTS.md` states Screens must not touch `Console.*` / `AnsiConsole.*` / ANSI,
 and that all Spectre dependencies live in Infrastructure. Eight violations exist. They

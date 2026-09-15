@@ -91,4 +91,14 @@ public interface ITerminal
 	void WriteException(Exception ex);
 
 	void SetCursorVisible(bool visible);
+
+	void WriteTable(TableData table);
+
+	void WriteBanner(string text);
+
+	void ClearLine();
+
+	void ClearToEndOfScreen();
+
+	void OnInterrupt(Action handler);
 }

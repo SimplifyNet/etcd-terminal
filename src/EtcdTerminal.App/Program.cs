@@ -31,12 +31,13 @@ static void Cleanup()
 	DIContainer.Current.Dispose();
 }
 
-Console.CancelKeyPress += (_, args) =>
-{
-	args.Cancel = true;
-	Cleanup();
-	Environment.Exit(0);
-};
+DIContainer.Current
+	.Resolve<ITerminal>()
+	.OnInterrupt(() =>
+	{
+		Cleanup();
+		Environment.Exit(0);
+	});
 
 try
 {

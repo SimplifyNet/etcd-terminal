@@ -11,7 +11,7 @@ public sealed class MenuScreen(ITerminal _terminal, Menu _menu)
 		while (true)
 		{
 			_terminal.Clear();
-			Header.Render();
+			Header.Render(_terminal);
 
 			var choice = _menu.Show(title, choices, config: config);
 
