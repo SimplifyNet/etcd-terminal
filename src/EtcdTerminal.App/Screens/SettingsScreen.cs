@@ -18,23 +18,26 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 			_terminal.Clear();
 			Header.Render(_terminal);
 
-			var choice = _menu.Show(LocalizationStore.Current.SettingsTitle, [LocalizationStore.Current.PageSizeItem, LocalizationStore.Current.TrimInputValuesItem], FormatItem);
+			SettingsAction? action = _menu.Show<SettingsAction>(LocalizationStore.Current.SettingsTitle,
+			[
+				new(SettingsAction.EditPageSize, $"{LocalizationStore.Current.PageSizeLabel} ({AppSettingsStore.Current.PageSize})"),
+				new(SettingsAction.ToggleTrimInputValues, $"{LocalizationStore.Current.TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})")
+			]);
 
-			if (choice is null)
+			if (action is null)
 				return;
 
-			if (choice == LocalizationStore.Current.PageSizeItem)
-				EditPageSize();
-			else
-				ToggleTrimInputValues();
+			switch (action)
+			{
+				case SettingsAction.EditPageSize:
+					EditPageSize();
+					break;
+				case SettingsAction.ToggleTrimInputValues:
+					ToggleTrimInputValues();
+					break;
+			}
 		}
 	}
-
-	private static string FormatItem(string item) => item switch
-	{
-		var _ when item == LocalizationStore.Current.PageSizeItem => $"{LocalizationStore.Current.PageSizeLabel} ({AppSettingsStore.Current.PageSize})",
-		_ => $"{LocalizationStore.Current.TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})"
-	};
 
 	private static string OnOff(bool value) => value ? LocalizationStore.Current.On : LocalizationStore.Current.Off;
 

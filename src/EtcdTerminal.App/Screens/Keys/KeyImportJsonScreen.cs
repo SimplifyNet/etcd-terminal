@@ -163,12 +163,15 @@ public sealed class KeyImportJsonScreen(
 		if (entries.Count > _previewLimit)
 			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewMore, entries.Count - _previewLimit), TerminalColor.Muted);
 
-		var choice = _menu.Show(
+		bool? confirmed = _menu.Show<bool>(
 			LocalizationStore.Current.ConfirmImport,
-			[LocalizationStore.Current.Yes, LocalizationStore.Current.No],
+			[
+				new(true, LocalizationStore.Current.Yes),
+				new(false, LocalizationStore.Current.No)
+			],
 			config: config);
 
-		return choice == LocalizationStore.Current.Yes;
+		return confirmed ?? false;
 	}
 
 	private static string Truncate(string value)

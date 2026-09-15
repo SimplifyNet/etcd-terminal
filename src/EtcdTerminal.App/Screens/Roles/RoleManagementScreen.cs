@@ -10,25 +10,34 @@ namespace EtcdTerminal.App.Screens.Roles;
 public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await _menuScreen.RunAsync(LocalizationStore.Current.RoleManagement, [LocalizationStore.Current.ListRoles, LocalizationStore.Current.CreateRole, LocalizationStore.Current.DeleteRole, LocalizationStore.Current.GrantPermission, LocalizationStore.Current.RevokePermission], config, HandleChoiceAsync);
+		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
+		[
+			new(RoleMenuAction.ListRoles, LocalizationStore.Current.ListRoles),
+			new(RoleMenuAction.CreateRole, LocalizationStore.Current.CreateRole),
+			new(RoleMenuAction.DeleteRole, LocalizationStore.Current.DeleteRole),
+			new(RoleMenuAction.GrantPermission, LocalizationStore.Current.GrantPermission),
+			new(RoleMenuAction.RevokePermission, LocalizationStore.Current.RevokePermission)
+		],
+		config,
+		HandleChoiceAsync);
 
-	private async Task HandleChoiceAsync(string choice)
+	private async Task HandleChoiceAsync(RoleMenuAction action)
 	{
-		switch (choice)
+		switch (action)
 		{
-			case var _ when choice == LocalizationStore.Current.ListRoles:
+			case RoleMenuAction.ListRoles:
 				await ListRolesAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.CreateRole:
+			case RoleMenuAction.CreateRole:
 				await CreateRoleAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.DeleteRole:
+			case RoleMenuAction.DeleteRole:
 				await DeleteRoleAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.GrantPermission:
+			case RoleMenuAction.GrantPermission:
 				await GrantPermissionAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.RevokePermission:
+			case RoleMenuAction.RevokePermission:
 				await RevokePermissionAsync();
 				break;
 		}

@@ -28,46 +28,46 @@ public sealed class MainScreen(
 			_terminal.Clear();
 			Header.Render(_terminal);
 
-			var choice = _menu.Show(
+			MainMenuAction? action = _menu.Show<MainMenuAction>(
 				"",
 				[
-					LocalizationStore.Current.BrowseKeys,
-					LocalizationStore.Current.CreateKey,
-					LocalizationStore.Current.ImportJson,
-					LocalizationStore.Current.ManageUsers,
-					LocalizationStore.Current.ManageRoles,
-					LocalizationStore.Current.ViewPermissions,
-					LocalizationStore.Current.Disconnect
+					new(MainMenuAction.BrowseKeys, LocalizationStore.Current.BrowseKeys),
+					new(MainMenuAction.CreateKey, LocalizationStore.Current.CreateKey),
+					new(MainMenuAction.ImportJson, LocalizationStore.Current.ImportJson),
+					new(MainMenuAction.ManageUsers, LocalizationStore.Current.ManageUsers),
+					new(MainMenuAction.ManageRoles, LocalizationStore.Current.ManageRoles),
+					new(MainMenuAction.ViewPermissions, LocalizationStore.Current.ViewPermissions),
+					new(MainMenuAction.Disconnect, LocalizationStore.Current.Disconnect)
 				],
 				config: config);
 
-			if (choice is null)
+			if (action is null)
 			{
 				await _etcdClient.DisconnectAsync();
 				return;
 			}
 
-			switch (choice)
+			switch (action)
 			{
-				case var _ when choice == LocalizationStore.Current.BrowseKeys:
+				case MainMenuAction.BrowseKeys:
 					await _keyBrowse.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.CreateKey:
+				case MainMenuAction.CreateKey:
 					await _keyCreate.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.ImportJson:
+				case MainMenuAction.ImportJson:
 					await _keyImportJson.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.ManageUsers:
+				case MainMenuAction.ManageUsers:
 					await _userManagement.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.ManageRoles:
+				case MainMenuAction.ManageRoles:
 					await _roleManagement.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.ViewPermissions:
+				case MainMenuAction.ViewPermissions:
 					await _permissionView.ShowAsync(config);
 					break;
-				case var _ when choice == LocalizationStore.Current.Disconnect:
+				case MainMenuAction.Disconnect:
 					await _etcdClient.DisconnectAsync();
 					return;
 			}

@@ -9,28 +9,38 @@ namespace EtcdTerminal.App.Screens.Users;
 public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
-		await _menuScreen.RunAsync(LocalizationStore.Current.UserManagement, [LocalizationStore.Current.ListUsers, LocalizationStore.Current.CreateUser, LocalizationStore.Current.DeleteUser, LocalizationStore.Current.ChangePassword, LocalizationStore.Current.AssignRole, LocalizationStore.Current.RemoveRole], config, HandleChoiceAsync);
+		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
+		[
+			new(UserMenuAction.ListUsers, LocalizationStore.Current.ListUsers),
+			new(UserMenuAction.CreateUser, LocalizationStore.Current.CreateUser),
+			new(UserMenuAction.DeleteUser, LocalizationStore.Current.DeleteUser),
+			new(UserMenuAction.ChangePassword, LocalizationStore.Current.ChangePassword),
+			new(UserMenuAction.AssignRole, LocalizationStore.Current.AssignRole),
+			new(UserMenuAction.RemoveRole, LocalizationStore.Current.RemoveRole)
+		],
+		config,
+		HandleChoiceAsync);
 
-	private async Task HandleChoiceAsync(string choice)
+	private async Task HandleChoiceAsync(UserMenuAction action)
 	{
-		switch (choice)
+		switch (action)
 		{
-			case var _ when choice == LocalizationStore.Current.ListUsers:
+			case UserMenuAction.ListUsers:
 				await ListUsersAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.CreateUser:
+			case UserMenuAction.CreateUser:
 				await CreateUserAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.DeleteUser:
+			case UserMenuAction.DeleteUser:
 				await DeleteUserAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.ChangePassword:
+			case UserMenuAction.ChangePassword:
 				await ChangePasswordAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.AssignRole:
+			case UserMenuAction.AssignRole:
 				await AssignRoleAsync();
 				break;
-			case var _ when choice == LocalizationStore.Current.RemoveRole:
+			case UserMenuAction.RemoveRole:
 				await RevokeRoleAsync();
 				break;
 		}

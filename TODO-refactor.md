@@ -40,7 +40,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T13. Correct `AGENTS.md` so it describes the actual code
   - [x] T14. Add an architecture test to prevent layering regressions
 - [ ] Phase 4 — Structural design
-  - [ ] T15. Stop keying control flow on localized display strings
+  - [x] T15. Stop keying control flow on localized display strings
   - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
   - [ ] T17. Add the missing `Message` component and remove ~20 duplications
   - [ ] T18. Make `IAppSettings` immutable
@@ -394,7 +394,7 @@ calls `PressAnyKeyPrompt` "PressAnyKey", and omits `Spinner` and `MenuScreen`.
 
 # Phase 4 — Structural design
 
-## [ ] T15. Stop keying control flow on localized display strings
+## [x] T15. Stop keying control flow on localized display strings
 
 **Problem.** `Menu.Show` returns the selected **display string**, and every screen dispatches
 by comparing it back against `LocalizationStore.Current.*`. Two translations that happen to

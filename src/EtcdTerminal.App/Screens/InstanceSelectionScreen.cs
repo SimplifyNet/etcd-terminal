@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -21,12 +21,20 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			if (choice is null)
 				return null;
 
-			if (choice == LocalizationStore.Current.ManageConnections)
-				ManageConfigs(instances);
-			else if (choice == LocalizationStore.Current.Settings)
-				_settings.Show();
-			else if (choice == LocalizationStore.Current.Exit)
-				return null;
+			if (Enum.TryParse<InstanceFixedAction>(choice, out var fixedAction))
+			{
+				switch (fixedAction)
+				{
+					case InstanceFixedAction.ManageConnections:
+						ManageConfigs(instances);
+						break;
+					case InstanceFixedAction.Settings:
+						_settings.Show();
+						break;
+					case InstanceFixedAction.Exit:
+						return null;
+				}
+			}
 			else
 			{
 				var selected = instances.First(i => i.Name == choice);
@@ -69,12 +77,12 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private string? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var choices = new List<string>();
+		List<MenuItem<string>> items = [];
 
-		choices.AddRange(instances.Select(i => i.Name));
-		choices.Add(LocalizationStore.Current.ManageConnections);
-		choices.Add(LocalizationStore.Current.Settings);
-		choices.Add(LocalizationStore.Current.Exit);
+		items.AddRange(instances.Select(i => new MenuItem<string>(i.Name, i.Name)));
+		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.ManageConnections), LocalizationStore.Current.ManageConnections));
+		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.Settings), LocalizationStore.Current.Settings));
+		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.Exit), LocalizationStore.Current.Exit));
 
 		if (instances.Count == 0)
 		{
@@ -82,7 +90,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			_terminal.WriteLine();
 		}
 
-		return _menu.Show(string.Empty, choices, c =>
+		return _menu.Show(string.Empty, items, c =>
 		{
 			var instance = instances.FirstOrDefault(i => i.Name == c);
 
@@ -97,35 +105,43 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		_terminal.Clear();
 		Header.Render(_terminal);
 
-		var manageChoices = new List<string> { LocalizationStore.Current.AddInstance };
+		List<MenuItem<ManageConnectionsAction>> actions = [new(ManageConnectionsAction.AddInstance, LocalizationStore.Current.AddInstance)];
 
 		if (instances.Count > 0)
 		{
-			manageChoices.Add(LocalizationStore.Current.EditInstance);
-			manageChoices.Add(LocalizationStore.Current.RemoveInstance);
+			actions.Add(new(ManageConnectionsAction.EditInstance, LocalizationStore.Current.EditInstance));
+			actions.Add(new(ManageConnectionsAction.RemoveInstance, LocalizationStore.Current.RemoveInstance));
 		}
 
 		if (instances.Count > 1)
 		{
-			manageChoices.Add(LocalizationStore.Current.MoveUpInstance);
-			manageChoices.Add(LocalizationStore.Current.MoveDownInstance);
+			actions.Add(new(ManageConnectionsAction.MoveUpInstance, LocalizationStore.Current.MoveUpInstance));
+			actions.Add(new(ManageConnectionsAction.MoveDownInstance, LocalizationStore.Current.MoveDownInstance));
 		}
 
-		var action = _menu.Show(LocalizationStore.Current.ManageConnections, manageChoices);
+		ManageConnectionsAction? action = _menu.Show(LocalizationStore.Current.ManageConnections, actions);
 
 		if (action is null)
 			return;
 
-		if (action == LocalizationStore.Current.AddInstance)
-			AddInstanceInteractive();
-		else if (action == LocalizationStore.Current.EditInstance)
-			EditInstanceInteractive(instances);
-		else if (action == LocalizationStore.Current.MoveUpInstance)
-			MoveInstanceInteractive(instances, -1);
-		else if (action == LocalizationStore.Current.MoveDownInstance)
-			MoveInstanceInteractive(instances, 1);
-		else if (action == LocalizationStore.Current.RemoveInstance)
-			RemoveInstanceInteractive(instances);
+		switch (action)
+		{
+			case ManageConnectionsAction.AddInstance:
+				AddInstanceInteractive();
+				break;
+			case ManageConnectionsAction.EditInstance:
+				EditInstanceInteractive(instances);
+				break;
+			case ManageConnectionsAction.MoveUpInstance:
+				MoveInstanceInteractive(instances, -1);
+				break;
+			case ManageConnectionsAction.MoveDownInstance:
+				MoveInstanceInteractive(instances, 1);
+				break;
+			case ManageConnectionsAction.RemoveInstance:
+				RemoveInstanceInteractive(instances);
+				break;
+		}
 	}
 
 	private void AddInstanceInteractive()
@@ -187,7 +203,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => i.Name));
+		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
 
 		if (existingName is null)
 			return;
@@ -257,7 +273,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = _menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => i.Name));
+		var name = _menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
 
 		if (name is null)
 			return;
@@ -270,7 +286,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = _menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => i.Name));
+		var nameToRemove = _menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
 
 		if (nameToRemove is null)
 			return;
