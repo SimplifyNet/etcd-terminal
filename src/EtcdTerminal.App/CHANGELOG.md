@@ -10,6 +10,11 @@
 
 - Custom spinner
 
+### Fixed
+
+- Corrupted config file no longer wipes saved connections
+- App starts with default settings when saved settings are unreadable instead of crashing
+
 ## [0.6] - 2026-09-10
 
 ### Changed

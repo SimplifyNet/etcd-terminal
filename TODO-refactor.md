@@ -24,7 +24,7 @@ problem, the exact files involved, what to do, and how to verify.
 
 - [ ] Phase 1 — Data loss and crashes
   - [x] T1. Stop destroying `config.json` when it fails to parse
-  - [ ] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
+  - [x] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
   - [ ] T3. Fix the crash when a JSON **array** is pasted into Import JSON
   - [ ] T4. Fix connection rename orphaning the old entry
   - [ ] T5. Fix "keep existing password" being impossible when editing a connection
@@ -84,7 +84,7 @@ afterwards.
 
 ---
 
-## [ ] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
+## [x] T2. Guard `JsonBasedSettingsRepository.Load` against a corrupt file
 
 **Problem.** `Load` has no `try`/`catch` (unlike its own `Save` and unlike the sibling
 connection repository). A malformed `config.json` throws out of `Program.cs` line ~50;

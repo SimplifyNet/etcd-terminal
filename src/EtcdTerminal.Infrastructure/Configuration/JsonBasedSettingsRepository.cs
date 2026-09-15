@@ -19,15 +19,29 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 		if (!File.Exists(_configPath))
 			return new AppSettings();
 
-		if ((JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject)?[SettingsSection] is not JsonObject settings)
+		JsonNode? rootNode;
+
+		try
+		{
+			rootNode = JsonNode.Parse(File.ReadAllText(_configPath));
+		}
+		catch (JsonException)
+		{
+			return new AppSettings();
+		}
+
+		if (rootNode as JsonObject is not JsonObject jsonRoot)
+			return new AppSettings();
+
+		if (jsonRoot[SettingsSection] is not JsonObject settings)
 			return new AppSettings();
 
 		var appSettings = new AppSettings();
 
-		if (settings[PageSizeProperty]?.GetValue<int>() is { } pageSize && pageSize >= 1)
+		if (settings[PageSizeProperty] is JsonValue pageSizeValue && pageSizeValue.TryGetValue<int>(out var pageSize) && pageSize >= 1)
 			appSettings.PageSize = pageSize;
 
-		if (settings[TrimInputValuesProperty]?.GetValue<bool>() is { } trim)
+		if (settings[TrimInputValuesProperty] is JsonValue trimValue && trimValue.TryGetValue<bool>(out var trim))
 			appSettings.TrimInputValues = trim;
 
 		return appSettings;
