@@ -139,8 +139,12 @@ public sealed class ConsoleTerminal : ITerminal
 		AnsiConsole.Write(spectreTable);
 	}
 
-	public void WriteBanner(string text) =>
-		AnsiConsole.Write(new FigletText(text).Color(Color.OrangeRed1).Centered());
+	public void WriteBanner(string text)
+	{
+		var banner = ThemeStore.Current.Banner;
+
+		AnsiConsole.Write(new FigletText(text).Color(new Color(banner.R, banner.G, banner.B)).Centered());
+	}
 
 	public void ClearLine() => Console.Write("\r\x1b[2K");
 

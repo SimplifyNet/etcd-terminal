@@ -15,4 +15,5 @@ public interface ITheme
 	RgbColor Yellow { get; }
 	RgbColor Dim { get; }
 	RgbColor Accent { get; }
+	RgbColor Banner { get; }
 }

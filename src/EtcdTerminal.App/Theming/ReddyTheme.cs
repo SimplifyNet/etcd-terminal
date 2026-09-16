@@ -17,4 +17,5 @@ public class ReddyTheme : ITheme
 	public RgbColor Yellow { get; } = new(255, 200, 0);
 	public RgbColor Dim { get; } = new(80, 80, 80);
 	public RgbColor Accent { get; } = new(220, 95, 51);
+	public RgbColor Banner { get; } = new(255, 95, 0);
 }
