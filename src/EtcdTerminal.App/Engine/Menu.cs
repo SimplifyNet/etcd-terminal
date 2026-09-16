@@ -9,7 +9,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
-		var index = ShowAndGetIndex(title, [.. items.Select(i => i.Label)], displayConverter, config);
+		var index = ShowAndGetIndex(title, items, displayConverter, config);
 
 		if (index is null)
 			return null;
@@ -17,11 +17,15 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 		return items[index.Value];
 	}
 
-	private int? ShowAndGetIndex(string title, IReadOnlyList<string> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)
+	private int? ShowAndGetIndex<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)
 	{
-		var index = 0;
+		var selectable = items.Select(i => i.IsSelectable).ToList();
+		var index = selectable.FindIndex(s => s);
 
-		var plain = items.Select(c => displayConverter?.Invoke(c) ?? c).ToList();
+		if (index < 0)
+			return null;
+
+		var plain = items.Select(i => displayConverter?.Invoke(i.Label) ?? i.Label).ToList();
 
 		var menuStart = _terminal.CursorTop;
 
@@ -55,13 +59,16 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 					ClearMenu(menuStart);
 					return null;
 				case ConsoleKey.Enter:
+					if (!selectable[index])
+						continue;
+
 					ClearMenu(menuStart);
 					return index;
 				case ConsoleKey.UpArrow:
-					index = (index - 1 + items.Count) % items.Count;
+					index = StepSelection(index, -1);
 					break;
 				case ConsoleKey.DownArrow:
-					index = (index + 1) % items.Count;
+					index = StepSelection(index, 1);
 					break;
 				default:
 					continue;
@@ -69,6 +76,21 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 			DrawItem(firstItemTop + oldIndex, plain[oldIndex], false);
 			DrawItem(firstItemTop + index, plain[index], true);
+		}
+
+		int StepSelection(int from, int direction)
+		{
+			var next = from;
+
+			for (var n = 0; n < items.Count; n++)
+			{
+				next = (next + direction + items.Count) % items.Count;
+
+				if (selectable[next])
+					return next;
+			}
+
+			return from;
 		}
 	}
 

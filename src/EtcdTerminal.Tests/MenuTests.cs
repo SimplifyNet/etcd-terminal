@@ -38,4 +38,19 @@ public sealed class MenuTests
 
 		Assert.That(terminal.Output.ToString(), Does.Contain("[::1]"));
 	}
+
+	[Test]
+	public void Show_SkipsNonSelectableItem_WhenNavigating()
+	{
+		var terminal = new FakeTerminal();
+		var menu = new Menu(terminal, new StatusBar(terminal));
+
+		IReadOnlyList<MenuItem<int>> items = [new(1, "a"), new(0, string.Empty, IsSelectable: false), new(2, "b")];
+
+		terminal.Press(ConsoleKey.DownArrow, ConsoleKey.Enter);
+
+		var chosen = menu.Show("title", items);
+
+		Assert.That(chosen?.Id, Is.EqualTo(2));
+	}
 }

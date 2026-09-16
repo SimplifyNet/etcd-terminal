@@ -84,6 +84,10 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		List<MenuItem<InstanceMenuChoice>> items = [];
 
 		items.AddRange(instances.Select(i => new MenuItem<InstanceMenuChoice>(new(null, i), i.Name)));
+
+		if (instances.Count > 0)
+			items.Add(new MenuItem<InstanceMenuChoice>(new(null, null), string.Empty, IsSelectable: false));
+
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.ManageConnections, null), LocalizationStore.Current.ManageConnections));
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), LocalizationStore.Current.Settings));
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), LocalizationStore.Current.Exit));
