@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Keys;
@@ -9,7 +7,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed partial class KeyImportJsonScreen(
+public sealed class KeyImportJsonScreen(
 	ITerminal _terminal,
 	IEtcdKeyStore _keyStore,
 	ScreenLayout _screenLayout,
@@ -37,38 +35,21 @@ public sealed partial class KeyImportJsonScreen(
 		if (json is null)
 			return;
 
-		var sanitized = SanitizeJson(json);
-		JsonNode? node;
+		IReadOnlyList<KeyValuePair<string, string>> entries;
 
 		try
 		{
-			node = JsonNode.Parse(sanitized);
+			entries = JsonKeyFlattener.Flatten(json, prefix, separator);
+		}
+		catch (ArgumentException)
+		{
+			_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
+
+			return;
 		}
 		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
 			_message.ShowError(string.Format(LocalizationStore.Current.InvalidJson, ex.Message));
-
-			return;
-		}
-
-		var entries = new List<(string Key, string Value)>();
-
-		if (node is JsonObject obj)
-			FlattenJson(obj, prefix, separator, entries);
-		else if (node is JsonArray arr)
-		{
-			if (string.IsNullOrEmpty(prefix))
-			{
-				_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
-
-				return;
-			}
-
-			FlattenNode(arr, prefix, separator, entries);
-		}
-		else
-		{
-			_message.ShowError(string.Format(LocalizationStore.Current.InvalidJson, node?.ToString() ?? string.Empty));
 
 			return;
 		}
@@ -142,7 +123,7 @@ public sealed partial class KeyImportJsonScreen(
 			_message.ShowSuccess(summary);
 	}
 
-	private bool ConfirmImport(List<(string Key, string Value)> entries)
+	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
 	{
 		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewTitle, entries.Count));
@@ -173,61 +154,5 @@ public sealed partial class KeyImportJsonScreen(
 		var single = value.ReplaceLineEndings(" ");
 
 		return single.Length <= _previewValueLength ? single : single[.._previewValueLength] + "...";
-	}
-
-	private static string SanitizeJson(string input)
-	{
-		var trimmed = input.Trim();
-
-		// Wrap in { } if not already an object or array
-		if (trimmed.Length > 0 && trimmed[0] != '{' && trimmed[0] != '[')
-			trimmed = "{ " + trimmed + " }";
-
-		// Remove trailing commas before } or ]
-		trimmed = TrailingCommaPattern().Replace(trimmed, "$1");
-
-		return trimmed;
-	}
-
-	[GeneratedRegex(@",\s*([}\]])")]
-	private static partial Regex TrailingCommaPattern();
-
-	private static void FlattenJson(JsonObject node, string prefix, string separator, List<(string Key, string Value)> results)
-	{
-		foreach (var property in node)
-		{
-			var key = string.IsNullOrEmpty(prefix)
-				? property.Key
-				: prefix + separator + property.Key;
-
-			FlattenNode(property.Value, key, separator, results);
-		}
-	}
-
-	private static void FlattenNode(JsonNode? node, string currentPath, string separator, List<(string Key, string Value)> results)
-	{
-		if (node is null)
-			return;
-
-		var valueKind = node.GetValueKind();
-
-		switch (valueKind)
-		{
-			case JsonValueKind.Object:
-				foreach (var property in node.AsObject())
-					FlattenNode(property.Value, currentPath + separator + property.Key, separator, results);
-				break;
-
-			case JsonValueKind.Array:
-				var index = 0;
-
-				foreach (var item in node.AsArray())
-					FlattenNode(item, currentPath + separator + index++, separator, results);
-				break;
-
-			default:
-				results.Add((currentPath, node.ToString()));
-				break;
-		}
 	}
 }
