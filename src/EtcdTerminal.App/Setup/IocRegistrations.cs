@@ -61,7 +61,8 @@ public static class IocRegistrations
 		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
 		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
 		.Register<IEtcdRoleAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
-		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IReadableKeysProvider, ReadableKeysProvider>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterComponents(this IDIRegistrator registrator) => registrator
 		.Register<StatusBar>(LifetimeType.Transient)

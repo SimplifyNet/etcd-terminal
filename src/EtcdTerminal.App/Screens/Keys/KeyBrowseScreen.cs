@@ -5,14 +5,10 @@ using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Permissions;
-using EtcdTerminal.Roles;
-using EtcdTerminal.Security;
-using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, IEtcdAuthAdmin _authAdmin, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -51,67 +47,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 	private async Task LoadKeysAsync()
 	{
-		var authEnabled = await _authAdmin.IsAuthenticationEnabledAsync();
-
-		async Task<List<EtcdKeyValue>> LoadAllKeysAsync()
-		{
-			var keys = await _keyStore.GetKeysByPrefixAsync("");
-
-			if (keys.Count > 0)
-				return [.. keys];
-
-			return [.. await _keyStore.GetKeysByPrefixAsync("/")];
-		}
-
-		if (!authEnabled)
-			_allKeys = await LoadAllKeysAsync();
-		else
-		{
-			var username = _session.Active!.Username;
-
-			if (username is null)
-			{
-				_allKeys = await LoadAllKeysAsync();
-				_filteredKeys = [.. _allKeys];
-
-				return;
-			}
-
-			var user = await _userAdmin.GetUserAsync(username);
-
-			if (user is null || user.Roles.Count == 0 || user.Roles.Contains("root"))
-				_allKeys = await LoadAllKeysAsync();
-			else
-			{
-				var keys = new List<EtcdKeyValue>();
-
-				foreach (var roleName in user.Roles)
-				{
-					var role = await _roleAdmin.GetRoleAsync(roleName);
-
-					if (role is null)
-						continue;
-
-					foreach (var perm in role.Permissions)
-					{
-						if (perm.Type is not (PermissionType.Read or PermissionType.ReadWrite))
-							continue;
-
-						var prefix = perm.KeyPrefix;
-
-						if (prefix == "\0")
-							prefix = "";
-
-						var prefixKeys = await _keyStore.GetKeysByPrefixAsync(prefix);
-
-						keys.AddRange(prefixKeys);
-					}
-				}
-
-				_allKeys = [.. keys.DistinctBy(kv => kv.Key)];
-			}
-		}
-
+		_allKeys = [.. await _readableKeys.GetReadableKeysAsync(_session.Active?.Username)];
 		_filteredKeys = [.. _allKeys];
 	}
 
