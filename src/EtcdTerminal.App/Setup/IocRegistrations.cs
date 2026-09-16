@@ -65,6 +65,7 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterComponents(this IDIRegistrator registrator) => registrator
 		.Register<StatusBar>(LifetimeType.Transient)
+		.Register<Header>(LifetimeType.Transient)
 		.Register<Menu>(LifetimeType.Transient)
 		.Register<MenuScreen>(LifetimeType.Transient)
 		.Register<ScreenLayout>(LifetimeType.Transient)

@@ -2,11 +2,10 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message)
+public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -15,8 +14,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 	{
 		while (true)
 		{
-			_terminal.Clear();
-			Header.Render(_terminal);
+			_screenLayout.RenderHeader();
 
 			SettingsAction? action = _menu.Show<SettingsAction>(LocalizationStore.Current.SettingsTitle,
 			[

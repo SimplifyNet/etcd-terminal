@@ -7,14 +7,13 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, IConnectionSession _session, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, IConnectionSession _session, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, ScreenLayout _screenLayout, Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
 		while (true)
 		{
-			_terminal.Clear();
-			Header.Render(_terminal);
+			_screenLayout.RenderHeader();
 
 			var instances = _configRepo.LoadInstances();
 
@@ -80,8 +79,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_message.ShowWarning(string.Format(LocalizationStore.Current.UndecryptablePasswords, string.Join(", ", decryptFailures)));
 
-		_terminal.Clear();
-		Header.Render(_terminal);
+		_screenLayout.RenderHeader();
 	}
 
 	private InstanceMenuChoice? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -115,8 +113,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		_terminal.Clear();
-		Header.Render(_terminal);
+		_screenLayout.RenderHeader();
 
 		List<MenuItem<ManageConnectionsAction>> actions = [new(ManageConnectionsAction.AddInstance, LocalizationStore.Current.AddInstance)];
 
@@ -166,8 +163,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		var existing = instances.First(i => i.Name == existingName);
 
-		_terminal.Clear();
-		Header.Render(_terminal);
+		_screenLayout.RenderHeader();
 
 		SaveInstanceInteractive(existing, LocalizationStore.Current.InstanceUpdated);
 	}

@@ -2,8 +2,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public static class Header
+public sealed class Header(ITerminal _terminal)
 {
-	public static void Render(ITerminal terminal) =>
-		terminal.WriteBanner("etcd-terminal");
+	public void Render() => _terminal.WriteBanner("etcd-terminal");
 }

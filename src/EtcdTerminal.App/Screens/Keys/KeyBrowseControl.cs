@@ -4,7 +4,7 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout)
+public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
@@ -14,8 +14,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
-		_terminal.Clear();
-		Header.Render(_terminal);
+		_screenLayout.RenderHeader();
 
 		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);
 

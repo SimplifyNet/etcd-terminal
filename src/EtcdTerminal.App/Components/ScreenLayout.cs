@@ -2,12 +2,12 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class ScreenLayout(ITerminal _terminal, StatusBar _statusBar)
+public sealed class ScreenLayout(ITerminal _terminal, StatusBar _statusBar, Header _header)
 {
 	public void RenderHeader()
 	{
 		_terminal.Clear();
-		Header.Render(_terminal);
+		_header.Render();
 
 		var savedTop = _terminal.CursorTop;
 

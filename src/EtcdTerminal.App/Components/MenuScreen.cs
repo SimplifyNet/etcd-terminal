@@ -3,14 +3,13 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MenuScreen(ITerminal _terminal, Menu _menu)
+public sealed class MenuScreen(ScreenLayout _screenLayout, Menu _menu)
 {
 	public async Task RunAsync<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<TId, Task> onChoice)
 	{
 		while (true)
 		{
-			_terminal.Clear();
-			Header.Render(_terminal);
+			_screenLayout.RenderHeader();
 
 			var choice = _menu.Show(title, items);
 

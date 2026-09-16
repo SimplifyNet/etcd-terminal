@@ -35,7 +35,7 @@ s
 - [x] T2.4 `ConsoleTerminal.WriteBanner` must use the theme
 - [x] T2.5 Localize the hard-coded `StatusBar` hint text
 - [x] T3.1 Introduce `IConnectionSession` and stop passing `EtcdConnectionConfig` through the UI
-- [ ] T3.2 Use `ScreenLayout.RenderHeader()` everywhere instead of `Clear(); Header.Render(...)`
+- [x] T3.2 Use `ScreenLayout.RenderHeader()` everywhere instead of `Clear(); Header.Render(...)`
 - [ ] T4.1 Extract key-visibility logic from `KeyBrowseScreen` into a domain service
 - [ ] T4.2 Extract key filtering and pagination from `KeyBrowseScreen`
 - [ ] T4.3 Extract JSON flattening from `KeyImportJsonScreen`

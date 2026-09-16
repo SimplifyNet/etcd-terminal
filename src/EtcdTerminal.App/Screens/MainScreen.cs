@@ -7,12 +7,11 @@ using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
-	ITerminal _terminal,
+	ScreenLayout _screenLayout,
 	IEtcdConnection _connection,
 	IConnectionSession _session,
 	KeyBrowseScreen _keyBrowse,
@@ -27,8 +26,7 @@ public sealed class MainScreen(
 	{
 		while (true)
 		{
-			_terminal.Clear();
-			Header.Render(_terminal);
+			_screenLayout.RenderHeader();
 
 			MainMenuAction? action = _menu.Show<MainMenuAction>(
 				"",
