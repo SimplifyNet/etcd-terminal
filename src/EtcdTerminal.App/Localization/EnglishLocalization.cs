@@ -136,6 +136,7 @@ public class EnglishLocalization : ILocalization
 	public string PressAnyKey => "Press any key to continue...";
 	public string PressAnyKeyRestart => "\nPress any key to restart...";
 	public string OperationCancelled => "Operation cancelled.";
+	public string UndecryptablePasswords => "Saved passwords could not be decrypted for: {0}. Edit these connections to enter the passwords again.";
 
 	public string ImportJson => "Import JSON";
 	public string EnterSeparator => "Enter key separator:";

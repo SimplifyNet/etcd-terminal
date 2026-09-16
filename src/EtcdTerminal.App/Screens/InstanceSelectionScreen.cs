@@ -16,6 +16,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			Header.Render(_terminal);
 
 			var instances = _configRepo.LoadInstances();
+
+			ShowDecryptWarningIfNeeded();
+
 			var choice = PromptForChoice(instances);
 
 			if (choice is null)
@@ -61,6 +64,19 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 					return selected;
 			}
 		}
+	}
+
+	private void ShowDecryptWarningIfNeeded()
+	{
+		var decryptFailures = _configRepo.TakeDecryptFailures();
+
+		if (decryptFailures.Count is 0)
+			return;
+
+		_message.ShowWarning(string.Format(LocalizationStore.Current.UndecryptablePasswords, string.Join(", ", decryptFailures)));
+
+		_terminal.Clear();
+		Header.Render(_terminal);
 	}
 
 	private string? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)

@@ -133,6 +133,7 @@ public interface ILocalization
 	string PressAnyKey { get; }
 	string PressAnyKeyRestart { get; }
 	string OperationCancelled { get; }
+	string UndecryptablePasswords { get; }
 
 	string ImportJson { get; }
 	string EnterSeparator { get; }

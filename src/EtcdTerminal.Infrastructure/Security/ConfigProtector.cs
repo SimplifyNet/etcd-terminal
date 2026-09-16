@@ -59,7 +59,14 @@ public sealed class ConfigProtector(IAppEnvironment environment) : IConfigProtec
 	private static byte[] LoadOrCreateKey(string keyPath)
 	{
 		if (File.Exists(keyPath))
-			return File.ReadAllBytes(keyPath);
+		{
+			var existing = File.ReadAllBytes(keyPath);
+
+			if (existing.Length is not KeyLength)
+				throw new InvalidDataException($"Encryption key file '{keyPath}' is corrupted (expected {KeyLength} bytes, got {existing.Length}). Delete it to generate a new key, then re-enter saved passwords.");
+
+			return existing;
+		}
 
 		var dir = Path.GetDirectoryName(keyPath);
 

@@ -56,7 +56,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T27. Fix the brace-style violation
   - [x] T28. Document the encryption key's threat model and make it hold
   - [x] T29. Note the N+1 and full-scan query patterns
-  - [ ] T30. Degrade gracefully when `.key` is lost
+  - [x] T30. Degrade gracefully when `.key` is lost
 
 ---
 
@@ -616,7 +616,7 @@ No code change required unless it is easy. Document in the README or an issue:
 - `KeyBrowseScreen.LoadKeysAsync` fetches the **entire keyspace** and filters client-side,
   which is a full range scan against a real cluster.
 
-## [ ] T30. Degrade gracefully when `.key` is lost
+## [x] T30. Degrade gracefully when `.key` is lost
 `ProtectedConfigRepository.Decrypt` (~31-38) catches any decryption failure and returns
 `null`, and `LoadInstances` filters those out. Net effect: if `.key` is deleted, replaced,
 or `config.json` is restored from a backup without it, every connection with a saved

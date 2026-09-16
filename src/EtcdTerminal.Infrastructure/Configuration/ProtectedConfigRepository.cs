@@ -5,11 +5,29 @@ namespace EtcdTerminal.Infrastructure.Configuration;
 
 public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repository, IConfigProtector _protector) : IConnectionConfigRepository
 {
-	public IReadOnlyList<EtcdConnectionConfig> LoadInstances() =>
-		[.. _repository.LoadInstances()
-			.Select(Decrypt)
-			.Where(c => c is not null)
-			.Cast<EtcdConnectionConfig>()];
+	private List<string> _decryptFailures = [];
+
+	public IReadOnlyList<EtcdConnectionConfig> LoadInstances()
+	{
+		var failures = new List<string>();
+
+		var instances = _repository.LoadInstances()
+			.Select(c => Decrypt(c, failures))
+			.ToList();
+
+		_decryptFailures = failures;
+
+		return instances;
+	}
+
+	public IReadOnlyList<string> TakeDecryptFailures()
+	{
+		var failures = _decryptFailures;
+
+		_decryptFailures = [];
+
+		return failures;
+	}
 
 	public void AddInstance(EtcdConnectionConfig config) =>
 		_repository.AddInstance(WithPassword(config, Encrypt(config.Password)));
@@ -23,7 +41,7 @@ public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repos
 
 	public void MoveDown(string name) => _repository.MoveDown(name);
 
-	private EtcdConnectionConfig? Decrypt(EtcdConnectionConfig config)
+	private EtcdConnectionConfig Decrypt(EtcdConnectionConfig config, List<string> failures)
 	{
 		if (config.Password is null)
 			return config;
@@ -34,7 +52,9 @@ public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repos
 		}
 		catch
 		{
-			return null;
+			failures.Add(config.Name);
+
+			return WithPassword(config, null);
 		}
 	}
 
