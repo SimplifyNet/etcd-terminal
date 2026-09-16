@@ -7,7 +7,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner)
+public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -24,11 +24,7 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		if (!loaded)
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.OperationCancelled, TerminalColor.Warning);
-
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
 
 			return;
 		}

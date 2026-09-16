@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -50,27 +50,15 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 				}
 				catch (Exception ex)
 				{
-					_terminal.WriteLine();
-					_terminal.WriteIndentedLine($"Failed to connect: {ex.Message}", TerminalColor.Error);
-
-					_terminal.WriteLine();
-					_pressAnyKey.Show();
+					_message.ShowError($"Failed to connect: {ex.Message}");
 
 					continue;
 				}
 
 				if (!connected)
-				{
-					_terminal.WriteLine();
-					_terminal.WriteIndentedLine(LocalizationStore.Current.OperationCancelled, TerminalColor.Warning);
-
-					_terminal.WriteLine();
-					_pressAnyKey.Show();
-				}
+					_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
 				else
-				{
 					return selected;
-				}
 			}
 		}
 	}
@@ -158,11 +146,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
-
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowError(LocalizationStore.Current.InvalidConnStr);
 
 			return;
 		}
@@ -194,11 +178,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.AddInstance(config);
 
-		_terminal.WriteLine();
-		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceAdded, TerminalColor.Success);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowSuccess(LocalizationStore.Current.InstanceAdded);
 	}
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -225,11 +205,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidConnStr, TerminalColor.Error);
-
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowError(LocalizationStore.Current.InvalidConnStr);
 
 			return;
 		}
@@ -264,11 +240,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.UpdateInstance(existingName, config);
 
-		_terminal.WriteLine();
-		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceUpdated, TerminalColor.Success);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowSuccess(LocalizationStore.Current.InstanceUpdated);
 	}
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
@@ -295,10 +267,6 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		_configRepo.RemoveInstance(nameToRemove);
 
-		_terminal.WriteLine();
-		_terminal.WriteIndentedLine(LocalizationStore.Current.InstanceRemoved, TerminalColor.Success);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowSuccess(LocalizationStore.Current.InstanceRemoved);
 	}
 }

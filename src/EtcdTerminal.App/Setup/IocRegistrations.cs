@@ -55,6 +55,7 @@ public static class IocRegistrations
 		.Register<ScreenLayout>(LifetimeType.Transient)
 		.Register<KeyBrowseLayout>(LifetimeType.Transient)
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
+		.Register<Message>(LifetimeType.Transient)
 		.Register<Prompt>(LifetimeType.Transient)
 		.Register<Spinner>(LifetimeType.Transient);
 

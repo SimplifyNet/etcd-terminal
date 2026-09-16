@@ -15,7 +15,8 @@ public sealed class KeyImportJsonScreen(
 	PressAnyKeyPrompt _pressAnyKey,
 	Prompt _prompt,
 	Menu _menu,
-	Spinner _spinner)
+	Spinner _spinner,
+	Message _message)
 {
 	private const int _previewLimit = 15;
 	private const int _previewValueLength = 60;
@@ -43,9 +44,7 @@ public sealed class KeyImportJsonScreen(
 		}
 		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
-			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.InvalidJson, ex.Message), TerminalColor.Error);
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowError(string.Format(LocalizationStore.Current.InvalidJson, ex.Message));
 
 			return;
 		}
@@ -58,9 +57,7 @@ public sealed class KeyImportJsonScreen(
 		{
 			if (string.IsNullOrEmpty(prefix))
 			{
-				_terminal.WriteIndentedLine(LocalizationStore.Current.NoKeysInJson, TerminalColor.Warning);
-				_terminal.WriteLine();
-				_pressAnyKey.Show();
+				_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
 
 				return;
 			}
@@ -69,18 +66,14 @@ public sealed class KeyImportJsonScreen(
 		}
 		else
 		{
-			_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.InvalidJson, node?.ToString() ?? string.Empty), TerminalColor.Error);
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowError(string.Format(LocalizationStore.Current.InvalidJson, node?.ToString() ?? string.Empty));
 
 			return;
 		}
 
 		if (entries.Count == 0)
 		{
-			_terminal.WriteIndentedLine(LocalizationStore.Current.NoKeysInJson, TerminalColor.Warning);
-			_terminal.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
 
 			return;
 		}
@@ -139,12 +132,12 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		_terminal.WriteLine();
-		_terminal.WriteIndentedLine(
-			string.Format(LocalizationStore.Current.ImportResult, created + overwritten, overwritten, failed),
-			failed > 0 ? TerminalColor.Warning : TerminalColor.Success);
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		var summary = string.Format(LocalizationStore.Current.ImportResult, created + overwritten, overwritten, failed);
+
+		if (failed > 0)
+			_message.ShowWarning(summary);
+		else
+			_message.ShowSuccess(summary);
 	}
 
 	private bool ConfirmImport(List<(string Key, string Value)> entries, EtcdConnectionConfig config)

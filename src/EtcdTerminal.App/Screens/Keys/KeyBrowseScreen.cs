@@ -8,7 +8,7 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -132,19 +132,10 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		_screenLayout.RenderHeader(_config);
 
-		_terminal.WriteLine();
-
 		if (result)
-		{
-			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyUpdated, TerminalColor.Success);
-
 			await ReloadAsync();
-		}
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.CouldNotUpdateKey, TerminalColor.Error);
 
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.KeyUpdated, LocalizationStore.Current.CouldNotUpdateKey);
 	}
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
@@ -158,19 +149,10 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		_screenLayout.RenderHeader(_config);
 
-		_terminal.WriteLine();
-
 		if (result)
-		{
-			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyDeleted, TerminalColor.Success);
-
 			await ReloadAsync();
-		}
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCouldNotBeDeleted, TerminalColor.Error);
 
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.KeyDeleted, LocalizationStore.Current.KeyCouldNotBeDeleted);
 	}
 
 	private async Task ReloadAsync()

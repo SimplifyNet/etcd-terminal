@@ -6,7 +6,7 @@ Layers: **Terminal → Components → Screens**.
 
 - `Terminal/` (domain `EtcdTerminal.Terminal`) — low-level abstraction (`ITerminal`, `TerminalColor`, `TableData`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences.
 - `Theming/` — color system (`ITheme`, `ThemeStore`, `RgbColor`). Provides colors to Terminal layer.
-- `Components/` — reusable UI components (`Header`, `MenuScreen`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` via `ThemeStore.Current`.
+- `Components/` — reusable UI components (`Header`, `MenuScreen`, `Message`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` via `ThemeStore.Current`.
 - `Engine/` — interactive input-loop primitives (`Menu`, `Prompt`). Used by screens and components to read key input and render selection lists; like Components, they depend on `ITerminal` only.
 - `Screens/` — orchestration: only use components/engine + feature-local controls. Never perform raw console work.
 - `Localization/` — text system (`ILocalization`, `LocalizationStore`). Provides UI strings.
@@ -24,7 +24,7 @@ Layers: **Terminal → Components → Screens**.
 
 **Ambient contexts:** `ThemeStore.Current`, `LocalizationStore.Current`, `AppSettingsStore.Current` — static access to domain services, initialized in `Program.cs`.
 
-**Planned, not yet implemented** (no such types in `src/` yet — do not treat them as existing): `Panel` (core bordered-panel design element), `Message` (success/error/warning helper with press-any-key).
+**Planned, not yet implemented** (no such types in `src/` yet — do not treat them as existing): `Panel` (core bordered-panel design element).
 
 **Primary-constructor convention:** dependencies are declared as primary-constructor parameters with a leading underscore and used directly, e.g. `Menu(ITerminal _terminal, ...)`, then `_terminal.Write(...)` inside methods. Do not remove the underscore and do not redeclare separate backing fields for them.
 

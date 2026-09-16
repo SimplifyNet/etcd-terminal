@@ -2,11 +2,10 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
+public sealed class KeyCreateScreen(IEtcdClient _etcdClient, ScreenLayout _screenLayout, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config)
 	{
@@ -24,14 +23,6 @@ public sealed class KeyCreateScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 		var result = await _etcdClient.CreateKeyAsync(key, value);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCreated, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.KeyCreateFailed, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.KeyCreated, LocalizationStore.Current.KeyCreateFailed);
 	}
 }

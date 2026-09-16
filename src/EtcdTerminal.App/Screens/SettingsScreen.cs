@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
+public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -54,17 +54,10 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 			_repository.Save(AppSettingsStore.Current);
 
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.SettingsSaved, TerminalColor.Success);
+			_message.ShowSuccess(LocalizationStore.Current.SettingsSaved);
 		}
 		else
-		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.InvalidPageSize, TerminalColor.Error);
-		}
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+			_message.ShowError(LocalizationStore.Current.InvalidPageSize);
 	}
 
 	private void ToggleTrimInputValues()

@@ -7,7 +7,7 @@ using EtcdTerminal.Permissions;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
@@ -62,15 +62,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.CreateRoleAsync(roleName);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleCreated, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedCreateRole, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.RoleCreated, LocalizationStore.Current.FailedCreateRole);
 	}
 
 	private async Task DeleteRoleAsync()
@@ -82,15 +74,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.DeleteRoleAsync(roleName);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleDeleted, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedDeleteRole, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.RoleDeleted, LocalizationStore.Current.FailedDeleteRole);
 	}
 
 	private Task GrantPermissionAsync() =>
@@ -120,16 +104,11 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		{
 			await action(roleName, permType.Value, keyPrefix);
 
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(successMessage, TerminalColor.Success);
+			_message.ShowSuccess(successMessage);
 		}
 		catch
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(failureMessage, TerminalColor.Error);
+			_message.ShowError(failureMessage);
 		}
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
 	}
 }

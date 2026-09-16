@@ -42,7 +42,7 @@ problem, the exact files involved, what to do, and how to verify.
 - [ ] Phase 4 — Structural design
   - [x] T15. Stop keying control flow on localized display strings
   - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
-  - [ ] T17. Add the missing `Message` component and remove ~20 duplications
+  - [x] T17. Add the missing `Message` component and remove ~20 duplications
   - [ ] T18. Make `IAppSettings` immutable
   - [ ] T19. Split `IEtcdClient` by concern
   - [ ] T20. Preserve the cause of etcd failures
@@ -450,7 +450,7 @@ permissions still show a spinner that disappears cleanly.
 
 ---
 
-## [ ] T17. Add the missing `Message` component and remove ~20 duplications
+## [x] T17. Add the missing `Message` component and remove ~20 duplications
 
 **Problem.** This exact block appears 20+ times:
 ```csharp

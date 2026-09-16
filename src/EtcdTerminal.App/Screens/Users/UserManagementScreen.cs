@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
@@ -70,15 +70,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.CreateUserAsync(username, password);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.UserCreated, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedCreateUser, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.UserCreated, LocalizationStore.Current.FailedCreateUser);
 	}
 
 	private async Task DeleteUserAsync()
@@ -90,15 +82,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.DeleteUserAsync(username);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.UserDeleted, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedDeleteUser, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.UserDeleted, LocalizationStore.Current.FailedDeleteUser);
 	}
 
 	private async Task ChangePasswordAsync()
@@ -115,15 +99,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
 
-		_terminal.WriteLine();
-
-		if (result)
-			_terminal.WriteIndentedLine(LocalizationStore.Current.PasswordChanged, TerminalColor.Success);
-		else
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedChangePassword, TerminalColor.Error);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_message.ShowResult(result, LocalizationStore.Current.PasswordChanged, LocalizationStore.Current.FailedChangePassword);
 	}
 
 	private async Task AssignRoleAsync()
@@ -142,17 +118,12 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		{
 			await _etcdClient.GrantRoleToUserAsync(username, roleName);
 
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleAssigned, TerminalColor.Success);
+			_message.ShowSuccess(LocalizationStore.Current.RoleAssigned);
 		}
 		catch
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedAssignRole, TerminalColor.Error);
+			_message.ShowError(LocalizationStore.Current.FailedAssignRole);
 		}
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
 	}
 
 	private async Task RevokeRoleAsync()
@@ -171,16 +142,11 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		{
 			await _etcdClient.RevokeRoleFromUserAsync(username, roleName);
 
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.RoleRemoved, TerminalColor.Success);
+			_message.ShowSuccess(LocalizationStore.Current.RoleRemoved);
 		}
 		catch
 		{
-			_terminal.WriteLine();
-			_terminal.WriteIndentedLine(LocalizationStore.Current.FailedRemoveRole, TerminalColor.Error);
+			_message.ShowError(LocalizationStore.Current.FailedRemoveRole);
 		}
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
 	}
 }
