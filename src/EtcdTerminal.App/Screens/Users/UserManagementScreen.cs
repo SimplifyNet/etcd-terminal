@@ -3,10 +3,11 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
@@ -48,7 +49,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task ListUsersAsync()
 	{
-		var users = await _etcdClient.GetUsersAsync();
+		var users = await _userAdmin.GetUsersAsync();
 
 		UserListRenderer.Render(_terminal, users);
 
@@ -68,7 +69,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (password is null)
 			return;
 
-		var result = await _etcdClient.CreateUserAsync(username, password);
+		var result = await _userAdmin.CreateUserAsync(username, password);
 
 		_message.ShowResult(result, LocalizationStore.Current.UserCreated, LocalizationStore.Current.FailedCreateUser);
 	}
@@ -80,7 +81,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (username is null)
 			return;
 
-		var result = await _etcdClient.DeleteUserAsync(username);
+		var result = await _userAdmin.DeleteUserAsync(username);
 
 		_message.ShowResult(result, LocalizationStore.Current.UserDeleted, LocalizationStore.Current.FailedDeleteUser);
 	}
@@ -97,7 +98,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (newPassword is null)
 			return;
 
-		var result = await _etcdClient.ChangeUserPasswordAsync(username, newPassword);
+		var result = await _userAdmin.ChangeUserPasswordAsync(username, newPassword);
 
 		_message.ShowResult(result, LocalizationStore.Current.PasswordChanged, LocalizationStore.Current.FailedChangePassword);
 	}
@@ -116,7 +117,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		try
 		{
-			await _etcdClient.GrantRoleToUserAsync(username, roleName);
+			await _userAdmin.GrantRoleToUserAsync(username, roleName);
 
 			_message.ShowSuccess(LocalizationStore.Current.RoleAssigned);
 		}
@@ -140,7 +141,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 		try
 		{
-			await _etcdClient.RevokeRoleFromUserAsync(username, roleName);
+			await _userAdmin.RevokeRoleFromUserAsync(username, roleName);
 
 			_message.ShowSuccess(LocalizationStore.Current.RoleRemoved);
 		}

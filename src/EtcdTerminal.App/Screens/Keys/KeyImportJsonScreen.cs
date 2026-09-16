@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Keys;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 
@@ -10,7 +11,7 @@ namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyImportJsonScreen(
 	ITerminal _terminal,
-	IEtcdClient _etcdClient,
+	IEtcdKeyStore _keyStore,
 	ScreenLayout _screenLayout,
 	PressAnyKeyPrompt _pressAnyKey,
 	Prompt _prompt,
@@ -98,11 +99,11 @@ public sealed class KeyImportJsonScreen(
 		{
 			foreach (var (Key, Value) in entries)
 			{
-				var existing = await _etcdClient.GetKeyAsync(Key, ct);
+				var existing = await _keyStore.GetKeyAsync(Key, ct);
 
 				if (existing is not null)
 				{
-					var updated = await _etcdClient.UpdateKeyAsync(Key, Value, ct);
+					var updated = await _keyStore.UpdateKeyAsync(Key, Value, ct);
 
 					if (updated)
 						overwritten++;
@@ -111,7 +112,7 @@ public sealed class KeyImportJsonScreen(
 				}
 				else
 				{
-					var result = await _etcdClient.CreateKeyAsync(Key, Value, ct);
+					var result = await _keyStore.CreateKeyAsync(Key, Value, ct);
 
 					if (result)
 						created++;

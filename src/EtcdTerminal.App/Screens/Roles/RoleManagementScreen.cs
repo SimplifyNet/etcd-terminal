@@ -4,10 +4,11 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Permissions;
+using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdClient, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync(EtcdConnectionConfig config) =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
@@ -45,7 +46,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 
 	private async Task ListRolesAsync()
 	{
-		var roles = await _etcdClient.GetRolesAsync();
+		var roles = await _roleAdmin.GetRolesAsync();
 
 		RoleListRenderer.Render(_terminal, roles);
 
@@ -60,7 +61,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (roleName is null)
 			return;
 
-		var result = await _etcdClient.CreateRoleAsync(roleName);
+		var result = await _roleAdmin.CreateRoleAsync(roleName);
 
 		_message.ShowResult(result, LocalizationStore.Current.RoleCreated, LocalizationStore.Current.FailedCreateRole);
 	}
@@ -72,16 +73,16 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdClient _etcdC
 		if (roleName is null)
 			return;
 
-		var result = await _etcdClient.DeleteRoleAsync(roleName);
+		var result = await _roleAdmin.DeleteRoleAsync(roleName);
 
 		_message.ShowResult(result, LocalizationStore.Current.RoleDeleted, LocalizationStore.Current.FailedDeleteRole);
 	}
 
 	private Task GrantPermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.GrantPermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _roleAdmin.GrantPermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
 
 	private Task RevokePermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _etcdClient.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
+		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _roleAdmin.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
 
 	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
 	{

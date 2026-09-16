@@ -5,6 +5,9 @@ using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Security;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Keys;
+using EtcdTerminal.Roles;
+using EtcdTerminal.Users;
 using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Security;
@@ -46,7 +49,12 @@ public static class IocRegistrations
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
+		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton)
+		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdRoleAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterComponents(this IDIRegistrator registrator) => registrator
 		.Register<StatusBar>(LifetimeType.Transient)

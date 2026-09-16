@@ -95,16 +95,6 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		return [.. response.Kvs.Select(MapKeyValue)];
 	}
 
-	public async Task<IReadOnlyList<EtcdKeyValue>> SearchKeysAsync(string searchTerm, CancellationToken ct = default)
-	{
-		var allKeys = await GetKeysByPrefixAsync("/", ct);
-
-		return [.. allKeys
-			.Where(kv =>
-				kv.Key.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-				kv.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))];
-	}
-
 	public async Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default)
 	{
 		var existing = await GetKeyAsync(key, ct);

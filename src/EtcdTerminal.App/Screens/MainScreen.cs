@@ -12,7 +12,7 @@ namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
 	ITerminal _terminal,
-	IEtcdClient _etcdClient,
+	IEtcdConnection _connection,
 	KeyBrowseScreen _keyBrowse,
 	KeyCreateScreen _keyCreate,
 	KeyImportJsonScreen _keyImportJson,
@@ -43,7 +43,7 @@ public sealed class MainScreen(
 
 			if (action is null)
 			{
-				await _etcdClient.DisconnectAsync();
+				await _connection.DisconnectAsync();
 				return;
 			}
 
@@ -68,7 +68,7 @@ public sealed class MainScreen(
 					await _permissionView.ShowAsync(config);
 					break;
 				case MainMenuAction.Disconnect:
-					await _etcdClient.DisconnectAsync();
+					await _connection.DisconnectAsync();
 					return;
 			}
 		}

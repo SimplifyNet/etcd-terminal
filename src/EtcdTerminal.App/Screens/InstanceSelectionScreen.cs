@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdClient _etcdClient, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -45,7 +45,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 				{
 					connected = await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
 					{
-						await _etcdClient.ConnectAsync(selected, ct);
+						await _connection.ConnectAsync(selected, ct);
 					});
 				}
 				catch (Exception ex)

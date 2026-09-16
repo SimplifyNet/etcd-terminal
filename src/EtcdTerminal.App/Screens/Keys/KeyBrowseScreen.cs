@@ -5,10 +5,13 @@ using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Permissions;
+using EtcdTerminal.Roles;
+using EtcdTerminal.Security;
+using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, IEtcdAuthAdmin _authAdmin, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
 {
 	private const int EditValueMaxLength = 200;
 
@@ -50,16 +53,16 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 	private async Task LoadKeysAsync()
 	{
-		var authEnabled = await _etcdClient.IsAuthenticationEnabledAsync();
+		var authEnabled = await _authAdmin.IsAuthenticationEnabledAsync();
 
 		async Task<List<EtcdKeyValue>> LoadAllKeysAsync()
 		{
-			var keys = await _etcdClient.GetKeysByPrefixAsync("");
+			var keys = await _keyStore.GetKeysByPrefixAsync("");
 
 			if (keys.Count > 0)
 				return [.. keys];
 
-			return [.. await _etcdClient.GetKeysByPrefixAsync("/")];
+			return [.. await _keyStore.GetKeysByPrefixAsync("/")];
 		}
 
 		if (!authEnabled)
@@ -76,7 +79,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 				return;
 			}
 
-			var user = await _etcdClient.GetUserAsync(username);
+			var user = await _userAdmin.GetUserAsync(username);
 
 			if (user is null || user.Roles.Count == 0 || user.Roles.Contains("root"))
 				_allKeys = await LoadAllKeysAsync();
@@ -86,7 +89,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 
 				foreach (var roleName in user.Roles)
 				{
-					var role = await _etcdClient.GetRoleAsync(roleName);
+					var role = await _roleAdmin.GetRoleAsync(roleName);
 
 					if (role is null)
 						continue;
@@ -101,7 +104,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 						if (prefix == "\0")
 							prefix = "";
 
-						var prefixKeys = await _etcdClient.GetKeysByPrefixAsync(prefix);
+						var prefixKeys = await _keyStore.GetKeysByPrefixAsync(prefix);
 
 						keys.AddRange(prefixKeys);
 					}
@@ -128,7 +131,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 		if (newValue is null)
 			return;
 
-		var result = await _etcdClient.UpdateKeyAsync(key.Key, newValue);
+		var result = await _keyStore.UpdateKeyAsync(key.Key, newValue);
 
 		_screenLayout.RenderHeader(_config);
 
@@ -145,7 +148,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdClient _etcdClient
 		_terminal.WriteLine(key.Key, TerminalColor.Error);
 		_terminal.WriteLine();
 
-		var result = await _etcdClient.DeleteKeyAsync(key.Key);
+		var result = await _keyStore.DeleteKeyAsync(key.Key);
 
 		_screenLayout.RenderHeader(_config);
 
