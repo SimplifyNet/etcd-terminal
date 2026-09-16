@@ -50,7 +50,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T21. Deduplicate connection-string validation
   - [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
   - [x] T23. Deduplicate the ANSI colour properties
-  - [ ] T24. Replace `Thread.Sleep` in the paste-detection path
+  - [x] T24. Replace `Thread.Sleep` in the paste-detection path
   - [ ] T25. Localize the remaining hardcoded English strings
   - [ ] T26. Fix the Ctrl+C double-dispose
   - [ ] T27. Fix the brace-style violation
@@ -564,7 +564,7 @@ string on **every access** (`StatusBar.Render` reads ~15 per frame). Add
 `private static string Fg(RgbColor c)` / `Bg(RgbColor c)` helpers and cache the results per
 theme instance.
 
-## [ ] T24. Replace `Thread.Sleep` in the paste-detection path
+## [x] T24. Replace `Thread.Sleep` in the paste-detection path
 `Prompt.IsPastedNewLine` calls `Thread.Sleep(40)`, blocking a thread inside a call chain
 reached from `async Task ShowAsync`. Make `ReadMultiLine` async (`Task<string?>`) and use
 `await Task.Delay(...)`. Update `KeyImportJsonScreen` to await it.

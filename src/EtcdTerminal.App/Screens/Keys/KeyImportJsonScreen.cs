@@ -31,7 +31,7 @@ public sealed class KeyImportJsonScreen(
 
 		_terminal.WriteLine();
 
-		var json = _prompt.ReadMultiLine(LocalizationStore.Current.PasteJson);
+		var json = await _prompt.ReadMultiLineAsync(LocalizationStore.Current.PasteJson);
 
 		if (json is null)
 			return;

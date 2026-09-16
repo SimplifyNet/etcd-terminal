@@ -96,7 +96,7 @@ public sealed class Prompt(ITerminal _terminal)
 		}
 	}
 
-	public string? ReadMultiLine(string prompt)
+	public async Task<string?> ReadMultiLineAsync(string prompt)
 	{
 		_terminal.SetCursorVisible(false);
 
@@ -131,7 +131,7 @@ public sealed class Prompt(ITerminal _terminal)
 
 				if (key.Key == ConsoleKey.Enter)
 				{
-					if (buffer.Length > 0 && !IsPastedNewLine(elapsed))
+					if (buffer.Length > 0 && !await IsPastedNewLineAsync(elapsed))
 						break;
 
 					buffer.Append('\n');
@@ -180,7 +180,7 @@ public sealed class Prompt(ITerminal _terminal)
 		return lineHasContent ? lines + 1 : lines;
 	}
 
-	private bool IsPastedNewLine(long elapsedSinceLastKey)
+	private async Task<bool> IsPastedNewLineAsync(long elapsedSinceLastKey)
 	{
 		if (elapsedSinceLastKey < _pasteBurstThresholdMs)
 			return true;
@@ -188,7 +188,7 @@ public sealed class Prompt(ITerminal _terminal)
 		if (_terminal.KeyAvailable)
 			return true;
 
-		Thread.Sleep(_pasteBurstThresholdMs);
+		await Task.Delay(_pasteBurstThresholdMs);
 
 		return _terminal.KeyAvailable;
 	}
