@@ -29,6 +29,77 @@ public sealed class ArchitectureTests
 	}
 
 	[Test]
+	public void ScreensDoNotReferenceInfrastructure()
+	{
+		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+
+		var violations = new List<string>();
+
+		foreach (var type in SafeGetTypes(appAssembly))
+		{
+			if (type.Namespace?.StartsWith("EtcdTerminal.App.Screens", StringComparison.Ordinal) is not true)
+				continue;
+
+			foreach (var referenced in GetReferencedTypes(type))
+				if (referenced.Namespace?.StartsWith("EtcdTerminal.Infrastructure", StringComparison.Ordinal) is true)
+					violations.Add($"{type.FullName} -> {referenced.FullName}");
+		}
+
+		Assert.That(violations, Is.Empty);
+	}
+
+	[Test]
+	public void ComponentsAndEngineDoNotReferenceScreens()
+	{
+		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+
+		var violations = new List<string>();
+
+		foreach (var type in SafeGetTypes(appAssembly))
+		{
+			var ns = type.Namespace;
+
+			var isComponentOrEngine = ns?.StartsWith("EtcdTerminal.App.Components", StringComparison.Ordinal) is true
+				|| ns?.StartsWith("EtcdTerminal.App.Engine", StringComparison.Ordinal) is true;
+
+			if (!isComponentOrEngine)
+				continue;
+
+			foreach (var referenced in GetReferencedTypes(type))
+				if (referenced.Namespace?.StartsWith("EtcdTerminal.App.Screens", StringComparison.Ordinal) is true)
+					violations.Add($"{type.FullName} -> {referenced.FullName}");
+		}
+
+		Assert.That(violations, Is.Empty);
+	}
+
+	[Test]
+	public void OnlySetupReferencesInfrastructure()
+	{
+		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+
+		var violations = new List<string>();
+
+		foreach (var type in SafeGetTypes(appAssembly))
+		{
+			if (type.Namespace?.StartsWith("EtcdTerminal.App", StringComparison.Ordinal) is not true)
+				continue;
+
+			if (type.Namespace?.StartsWith("EtcdTerminal.App.Setup", StringComparison.Ordinal) is true)
+				continue;
+
+			if (_promptException.Contains(type.FullName))
+				continue;
+
+			foreach (var referenced in GetReferencedTypes(type))
+				if (referenced.Namespace?.StartsWith("EtcdTerminal.Infrastructure", StringComparison.Ordinal) is true)
+					violations.Add($"{type.FullName} -> {referenced.FullName}");
+		}
+
+		Assert.That(violations, Is.Empty);
+	}
+
+	[Test]
 	public void DomainDoesNotReferenceInfrastructure()
 	{
 		var domainAssembly = typeof(Terminal.ITerminal).Assembly;
