@@ -64,7 +64,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 				_message.ShowSuccess(LocalizationStore.Current.SettingsSaved);
 			}
-			catch
+			catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 			{
 				_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
 			}
@@ -87,7 +87,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 			AppSettingsStore.Current = updated;
 		}
-		catch
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{
 			_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
 		}
