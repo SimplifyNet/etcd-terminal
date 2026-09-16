@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
+using EtcdTerminal.Session;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
@@ -60,7 +61,7 @@ public sealed class MenuTests
 		Assert.That(chosen?.Id, Is.EqualTo(2));
 	}
 
-	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, new StubAppInfo()));
+	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, new StubAppInfo(), new ConnectionSession()));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

@@ -5,6 +5,7 @@ using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 
@@ -13,6 +14,7 @@ namespace EtcdTerminal.App.Screens;
 public sealed class MainScreen(
 	ITerminal _terminal,
 	IEtcdConnection _connection,
+	IConnectionSession _session,
 	KeyBrowseScreen _keyBrowse,
 	KeyCreateScreen _keyCreate,
 	KeyImportJsonScreen _keyImportJson,
@@ -21,7 +23,7 @@ public sealed class MainScreen(
 	PermissionViewScreen _permissionView,
 	Menu _menu)
 {
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync()
 	{
 		while (true)
 		{
@@ -38,11 +40,11 @@ public sealed class MainScreen(
 					new(MainMenuAction.ManageRoles, LocalizationStore.Current.ManageRoles),
 					new(MainMenuAction.ViewPermissions, LocalizationStore.Current.ViewPermissions),
 					new(MainMenuAction.Disconnect, LocalizationStore.Current.Disconnect)
-				],
-				config: config)?.Id;
+				])?.Id;
 
 			if (action is null)
 			{
+				_session.End();
 				await _connection.DisconnectAsync();
 				return;
 			}
@@ -50,24 +52,25 @@ public sealed class MainScreen(
 			switch (action)
 			{
 				case MainMenuAction.BrowseKeys:
-					await _keyBrowse.ShowAsync(config);
+					await _keyBrowse.ShowAsync();
 					break;
 				case MainMenuAction.CreateKey:
-					await _keyCreate.ShowAsync(config);
+					await _keyCreate.ShowAsync();
 					break;
 				case MainMenuAction.ImportJson:
-					await _keyImportJson.ShowAsync(config);
+					await _keyImportJson.ShowAsync();
 					break;
 				case MainMenuAction.ManageUsers:
-					await _userManagement.ShowAsync(config);
+					await _userManagement.ShowAsync();
 					break;
 				case MainMenuAction.ManageRoles:
-					await _roleManagement.ShowAsync(config);
+					await _roleManagement.ShowAsync();
 					break;
 				case MainMenuAction.ViewPermissions:
-					await _permissionView.ShowAsync(config);
+					await _permissionView.ShowAsync();
 					break;
 				case MainMenuAction.Disconnect:
+					_session.End();
 					await _connection.DisconnectAsync();
 					return;
 			}

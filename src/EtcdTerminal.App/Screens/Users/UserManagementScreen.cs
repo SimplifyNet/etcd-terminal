@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
@@ -9,7 +8,7 @@ namespace EtcdTerminal.App.Screens.Users;
 
 public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
-	public async Task ShowAsync(EtcdConnectionConfig config) =>
+	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
 		[
 			new(UserMenuAction.ListUsers, LocalizationStore.Current.ListUsers),
@@ -19,7 +18,6 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 			new(UserMenuAction.AssignRole, LocalizationStore.Current.AssignRole),
 			new(UserMenuAction.RemoveRole, LocalizationStore.Current.RemoveRole)
 		],
-		config,
 		HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(UserMenuAction action)

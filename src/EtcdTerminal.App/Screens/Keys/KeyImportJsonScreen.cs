@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyImportJsonScreen(
+public sealed partial class KeyImportJsonScreen(
 	ITerminal _terminal,
 	IEtcdKeyStore _keyStore,
 	ScreenLayout _screenLayout,
@@ -23,9 +23,9 @@ public sealed class KeyImportJsonScreen(
 	private const int _previewLimit = 15;
 	private const int _previewValueLength = 60;
 
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync()
 	{
-		_screenLayout.RenderHeader(config);
+		_screenLayout.RenderHeader();
 
 		var separator = _prompt.Ask(LocalizationStore.Current.EnterSeparator, ":") ?? ":";
 		var prefix = _prompt.Ask(LocalizationStore.Current.EnterPrefix) ?? "";
@@ -80,7 +80,7 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		if (!ConfirmImport(entries, config))
+		if (!ConfirmImport(entries))
 		{
 			_terminal.WriteLine();
 			_terminal.WriteIndentedLine(LocalizationStore.Current.ImportCancelled, TerminalColor.Muted);
@@ -142,7 +142,7 @@ public sealed class KeyImportJsonScreen(
 			_message.ShowSuccess(summary);
 	}
 
-	private bool ConfirmImport(List<(string Key, string Value)> entries, EtcdConnectionConfig config)
+	private bool ConfirmImport(List<(string Key, string Value)> entries)
 	{
 		_terminal.WriteLine();
 		_terminal.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewTitle, entries.Count));
@@ -163,8 +163,7 @@ public sealed class KeyImportJsonScreen(
 			[
 				new(true, LocalizationStore.Current.Yes),
 				new(false, LocalizationStore.Current.No)
-			],
-			config: config)?.Id;
+			])?.Id;
 
 		return confirmed ?? false;
 	}
@@ -185,10 +184,13 @@ public sealed class KeyImportJsonScreen(
 			trimmed = "{ " + trimmed + " }";
 
 		// Remove trailing commas before } or ]
-		trimmed = System.Text.RegularExpressions.Regex.Replace(trimmed, @",\s*([}\]])", "$1");
+		trimmed = TrailingCommaPattern().Replace(trimmed, "$1");
 
 		return trimmed;
 	}
+
+	[GeneratedRegex(@",\s*([}\]])")]
+	private static partial Regex TrailingCommaPattern();
 
 	private static void FlattenJson(JsonObject node, string prefix, string separator, List<(string Key, string Value)> results)
 	{

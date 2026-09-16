@@ -1,30 +1,31 @@
 using EtcdTerminal.Terminal;
-using EtcdTerminal.Configuration;
+using EtcdTerminal.Session;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo)
+public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo, IConnectionSession _session)
 {
-	public void Render(EtcdConnectionConfig? config = null)
+	public void Render()
 	{
 		var localization = LocalizationStore.Current;
+		var active = _session.Active;
 		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} {localization.StatusNavigate} \u00b7 {_terminal.White}Enter{_terminal.Grey} {localization.StatusConfirm} \u00b7 {_terminal.White}Esc{_terminal.Grey} {localization.StatusBack}  ";
 		var version = _appInfo.Version;
 		var rightPadding = "  ";
 
 		string right;
 
-		if (config is not null)
+		if (active is not null)
 		{
-			var connStr = config.ConnectionString.Length > 50
-				? config.ConnectionString[..50] + "..."
-				: config.ConnectionString;
+			var connStr = active.ConnectionString.Length > 50
+				? active.ConnectionString[..50] + "..."
+				: active.ConnectionString;
 
-			right = $"{_terminal.Green}\u2022{_terminal.Teal} {config.Name} {_terminal.Dim}\u00b7{_terminal.Grey} {connStr}";
-			if (config.IsAuthenticationEnabled)
-				right += $" {_terminal.Dim}\u00b7{_terminal.Yellow} {config.Username}";
+			right = $"{_terminal.Green}\u2022{_terminal.Teal} {active.Name} {_terminal.Dim}\u00b7{_terminal.Grey} {connStr}";
+			if (active.IsAuthenticationEnabled)
+				right += $" {_terminal.Dim}\u00b7{_terminal.Yellow} {active.Username}";
 			right += $" {_terminal.Grey}v{_terminal.White}{version}";
 		}
 		else

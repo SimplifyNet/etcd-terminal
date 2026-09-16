@@ -1,5 +1,4 @@
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Terminal;
@@ -9,9 +8,9 @@ namespace EtcdTerminal.App.Screens.Permissions;
 
 public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message)
 {
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync()
 	{
-		_screenLayout.RenderHeader(config);
+		_screenLayout.RenderHeader();
 
 		IReadOnlyList<EtcdUser> users = [];
 		IReadOnlyList<EtcdRole> roles = [];

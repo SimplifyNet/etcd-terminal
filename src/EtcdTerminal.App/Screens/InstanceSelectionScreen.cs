@@ -1,12 +1,13 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, IConnectionSession _session, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, 	Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -61,7 +62,11 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 				if (!connected)
 					_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
 				else
+				{
+					_session.Start(selected);
+
 					return selected;
+				}
 			}
 		}
 	}

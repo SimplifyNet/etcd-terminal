@@ -1,6 +1,5 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -13,7 +12,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 	public bool ShowActions { get; private set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
 
-	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys, EtcdConnectionConfig config)
+	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
 		_terminal.Clear();
 		Header.Render(_terminal);
@@ -30,7 +29,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 		if (ShowActions && SelectedKey is not null)
 			_keyBrowseLayout.RenderActionBar(SelectedKey.Key);
 
-		_statusBar.Render(config);
+		_statusBar.Render();
 
 		_terminal.SetCursorPosition(searchEndCol, searchBarRow);
 	}

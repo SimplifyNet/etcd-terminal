@@ -34,7 +34,7 @@ s
 - [x] T2.3 Replace `Simplify.System.AssemblyInfo` in `StatusBar` with an injected `IAppInfo`
 - [x] T2.4 `ConsoleTerminal.WriteBanner` must use the theme
 - [x] T2.5 Localize the hard-coded `StatusBar` hint text
-- [ ] T3.1 Introduce `IConnectionSession` and stop passing `EtcdConnectionConfig` through the UI
+- [x] T3.1 Introduce `IConnectionSession` and stop passing `EtcdConnectionConfig` through the UI
 - [ ] T3.2 Use `ScreenLayout.RenderHeader()` everywhere instead of `Clear(); Header.Render(...)`
 - [ ] T4.1 Extract key-visibility logic from `KeyBrowseScreen` into a domain service
 - [ ] T4.2 Extract key filtering and pagination from `KeyBrowseScreen`
@@ -238,8 +238,8 @@ s
 **Why:** `Menu.Show(..., EtcdConnectionConfig? config)` and `StatusBar.Render(EtcdConnectionConfig?)` exist only so the status bar can display the active connection. This makes a generic Engine primitive depend on a domain type, and every screen signature is `ShowAsync(EtcdConnectionConfig config)` purely to forward it. `KeyBrowseScreen` even stores it in a mutable field `_config`.
 
 **Files:**
-- create `src/EtcdTerminal/Configuration/IConnectionSession.cs`
-- create `src/EtcdTerminal/Configuration/ConnectionSession.cs`
+- create `src/EtcdTerminal/Session/IConnectionSession.cs`
+- create `src/EtcdTerminal/Session/ConnectionSession.cs`
 - edit: `Menu.cs`, `MenuScreen.cs`, `StatusBar.cs`, `ScreenLayout.cs`, `KeyBrowseControl.cs`, every `*Screen.cs`, `Program.cs`, `IocRegistrations.cs`
 
 **Steps:**

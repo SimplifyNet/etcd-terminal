@@ -7,7 +7,7 @@ Layers: **Terminal → Components → Screens**.
 - `Terminal/` (domain `EtcdTerminal.Terminal`) — low-level abstraction (`ITerminal`, `TerminalColor`, `TableData`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences.
 - `Theming/` — color system (`ITheme`, `ThemeStore`, `RgbColor`). Provides colors to Terminal layer.
 - `Components/` — reusable UI components (`Header`, `MenuScreen`, `Message`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` via `ThemeStore.Current`.
-- `Engine/` — interactive input-loop primitives (`Menu`, `Prompt`). Used by screens and components to read key input and render selection lists; like Components, they depend on `ITerminal` only.
+- `Engine/` — interactive input-loop primitives (`Menu`, `Prompt`). Used by screens and components to read key input and render selection lists; like Components, they depend on `ITerminal` and sibling primitives only — never on domain types like `EtcdConnectionConfig`.
 - `Screens/` — orchestration: only use components/engine + feature-local controls. Never perform raw console work.
 - `Localization/` — text system (`ILocalization`, `LocalizationStore`). Provides UI strings.
 

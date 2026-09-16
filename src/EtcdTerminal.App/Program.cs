@@ -63,7 +63,7 @@ try
 
 			var mainScreen = scope.Resolver.Resolve<MainScreen>();
 
-			await mainScreen.ShowAsync(config);
+			await mainScreen.ShowAsync();
 		}
 		catch (Exception ex)
 		{

@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Keys;
@@ -11,18 +12,15 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, IEtcdAuthAdmin _authAdmin, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
+public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, IEtcdAuthAdmin _authAdmin, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
 {
 	private const int EditValueMaxLength = 200;
 
 	private List<EtcdKeyValue> _allKeys = [];
 	private List<EtcdKeyValue> _filteredKeys = [];
-	private EtcdConnectionConfig _config = default!;
 
-	public async Task ShowAsync(EtcdConnectionConfig config)
+	public async Task ShowAsync()
 	{
-		_config = config;
-
 		_control.ResetNavigation();
 		_control.ClearSearch();
 
@@ -30,7 +28,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 		while (true)
 		{
-			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count, _config);
+			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count);
 
 			var command = _control.ReadCommand(GetCurrentPageKeys(), GetTotalPages());
 
@@ -69,7 +67,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 			_allKeys = await LoadAllKeysAsync();
 		else
 		{
-			var username = _config.Username;
+			var username = _session.Active!.Username;
 
 			if (username is null)
 			{
@@ -119,7 +117,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
-		_screenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader();
 		_terminal.Write($"{LocalizationStore.Current.EditingKey} ");
 		_terminal.WriteLine(key.Key, TerminalColor.Default);
 		_terminal.Write($"{LocalizationStore.Current.CurrentValue} ");
@@ -133,7 +131,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 		var result = await _keyStore.UpdateKeyAsync(key.Key, newValue);
 
-		_screenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader();
 
 		if (result)
 			await ReloadAsync();
@@ -143,14 +141,14 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
-		_screenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader();
 		_terminal.Write($"{LocalizationStore.Current.DeleteKey} ");
 		_terminal.WriteLine(key.Key, TerminalColor.Error);
 		_terminal.WriteLine();
 
 		var result = await _keyStore.DeleteKeyAsync(key.Key);
 
-		_screenLayout.RenderHeader(_config);
+		_screenLayout.RenderHeader();
 
 		if (result)
 			await ReloadAsync();

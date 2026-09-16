@@ -1,15 +1,14 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.App.Engine;
 
 public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
 
-	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
+	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null)
 	{
-		var index = ShowAndGetIndex(title, items, displayConverter, config);
+		var index = ShowAndGetIndex(title, items, displayConverter);
 
 		if (index is null)
 			return null;
@@ -17,7 +16,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 		return items[index.Value];
 	}
 
-	private int? ShowAndGetIndex<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)
+	private int? ShowAndGetIndex<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter)
 	{
 		var selectable = items.Select(i => i.IsSelectable).ToList();
 		var index = selectable.FindIndex(s => s);
@@ -45,7 +44,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 		var menuEnd = _terminal.CursorTop;
 
-		_statusBar.Render(config);
+		_statusBar.Render();
 		_terminal.SetCursorPosition(0, menuEnd);
 
 		while (true)

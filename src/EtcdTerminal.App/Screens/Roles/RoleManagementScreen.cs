@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Permissions;
@@ -10,7 +9,7 @@ namespace EtcdTerminal.App.Screens.Roles;
 
 public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
-	public async Task ShowAsync(EtcdConnectionConfig config) =>
+	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
 		[
 			new(RoleMenuAction.ListRoles, LocalizationStore.Current.ListRoles),
@@ -19,7 +18,6 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 			new(RoleMenuAction.GrantPermission, LocalizationStore.Current.GrantPermission),
 			new(RoleMenuAction.RevokePermission, LocalizationStore.Current.RevokePermission)
 		],
-		config,
 		HandleChoiceAsync);
 
 	private async Task HandleChoiceAsync(RoleMenuAction action)

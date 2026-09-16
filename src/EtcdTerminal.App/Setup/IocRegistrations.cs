@@ -5,6 +5,7 @@ using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Security;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Session;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
@@ -27,6 +28,7 @@ public static class IocRegistrations
 	{
 		provider.RegisterInfrastructure()
 			   .RegisterConfiguration()
+			   .RegisterSession()
 			   .RegisterIEtcdClient()
 			   .RegisterComponents()
 			   .RegisterScreens();
@@ -49,6 +51,9 @@ public static class IocRegistrations
 			LifetimeType.Singleton)
 
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterSession(this IDIRegistrator registrator) => registrator
+		.Register<IConnectionSession, ConnectionSession>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton)
