@@ -45,6 +45,7 @@ public interface ILocalization
 	string EnterPageSize { get; }
 	string InvalidPageSize { get; }
 	string SettingsSaved { get; }
+	string FailedSaveSettings { get; }
 	string On { get; }
 	string Off { get; }
 

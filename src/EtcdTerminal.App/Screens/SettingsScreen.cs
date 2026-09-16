@@ -50,11 +50,24 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
 		{
-			AppSettingsStore.Current.PageSize = pageSize;
+			var updated = new AppSettings
+			{
+				PageSize = pageSize,
+				TrimInputValues = AppSettingsStore.Current.TrimInputValues
+			};
 
-			_repository.Save(AppSettingsStore.Current);
+			try
+			{
+				_repository.Save(updated);
 
-			_message.ShowSuccess(LocalizationStore.Current.SettingsSaved);
+				AppSettingsStore.Current = updated;
+
+				_message.ShowSuccess(LocalizationStore.Current.SettingsSaved);
+			}
+			catch
+			{
+				_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
+			}
 		}
 		else
 			_message.ShowError(LocalizationStore.Current.InvalidPageSize);
@@ -62,8 +75,21 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 
 	private void ToggleTrimInputValues()
 	{
-		AppSettingsStore.Current.TrimInputValues = !AppSettingsStore.Current.TrimInputValues;
+		var updated = new AppSettings
+		{
+			PageSize = AppSettingsStore.Current.PageSize,
+			TrimInputValues = !AppSettingsStore.Current.TrimInputValues
+		};
 
-		_repository.Save(AppSettingsStore.Current);
+		try
+		{
+			_repository.Save(updated);
+
+			AppSettingsStore.Current = updated;
+		}
+		catch
+		{
+			_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
+		}
 	}
 }

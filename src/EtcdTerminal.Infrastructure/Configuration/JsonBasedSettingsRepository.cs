@@ -39,10 +39,10 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 		var appSettings = new AppSettings();
 
 		if (settings[PageSizeProperty] is JsonValue pageSizeValue && pageSizeValue.TryGetValue<int>(out var pageSize) && pageSize >= 1)
-			appSettings.PageSize = pageSize;
+			appSettings = appSettings with { PageSize = pageSize };
 
 		if (settings[TrimInputValuesProperty] is JsonValue trimValue && trimValue.TryGetValue<bool>(out var trim))
-			appSettings.TrimInputValues = trim;
+			appSettings = appSettings with { TrimInputValues = trim };
 
 		return appSettings;
 	}

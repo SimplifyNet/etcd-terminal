@@ -43,7 +43,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T15. Stop keying control flow on localized display strings
   - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
   - [x] T17. Add the missing `Message` component and remove ~20 duplications
-  - [ ] T18. Make `IAppSettings` immutable
+  - [x] T18. Make `IAppSettings` immutable
   - [ ] T19. Split `IEtcdClient` by concern
   - [ ] T20. Preserve the cause of etcd failures
 - [ ] Phase 5 — Polish
@@ -478,7 +478,7 @@ Sites include `KeyCreateScreen`, `UserManagementScreen` (×6), `RoleManagementSc
 
 ---
 
-## [ ] T18. Make `IAppSettings` immutable
+## [x] T18. Make `IAppSettings` immutable
 
 **Problem.** `IAppSettings` exposes setters and `SettingsScreen` mutates the process-global
 `AppSettingsStore.Current` directly, then saves. If `Save` throws, memory and disk diverge

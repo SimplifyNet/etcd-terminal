@@ -47,6 +47,7 @@ public class EnglishLocalization : ILocalization
 	public string EnterPageSize => "Enter keys per page (1-500):";
 	public string InvalidPageSize => "Invalid page size. Must be a number from 1 to 500.";
 	public string SettingsSaved => "Settings saved!";
+	public string FailedSaveSettings => "Failed to save settings.";
 	public string On => "On";
 	public string Off => "Off";
 

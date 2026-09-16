@@ -1,7 +1,7 @@
 namespace EtcdTerminal.Configuration;
 
-public class AppSettings : IAppSettings
+public sealed record AppSettings : IAppSettings
 {
-	public int PageSize { get; set; } = 30;
-	public bool TrimInputValues { get; set; } = true;
+	public int PageSize { get; init; } = 30;
+	public bool TrimInputValues { get; init; } = true;
 }
