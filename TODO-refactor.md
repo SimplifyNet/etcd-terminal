@@ -46,7 +46,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T18. Make `IAppSettings` immutable
   - [x] T19. Split `IEtcdClient` by concern
   - [x] T20. Preserve the cause of etcd failures
-- [ ] Phase 5 — Polish
+- [x] Phase 5 — Polish
   - [x] T21. Deduplicate connection-string validation
   - [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
   - [x] T23. Deduplicate the ANSI colour properties
@@ -55,7 +55,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T26. Fix the Ctrl+C double-dispose
   - [x] T27. Fix the brace-style violation
   - [x] T28. Document the encryption key's threat model and make it hold
-  - [ ] T29. Note the N+1 and full-scan query patterns
+  - [x] T29. Note the N+1 and full-scan query patterns
   - [ ] T30. Degrade gracefully when `.key` is lost
 
 ---
@@ -610,7 +610,7 @@ trade-off as Docker CLI / kubeconfig.
   (Docker CLI, kubeconfig, `.pgpass`) give a one-liner at most; the full model is here.
 - CHANGELOG entry under 0.7.
 
-## [ ] T29. Note the N+1 and full-scan query patterns
+## [x] T29. Note the N+1 and full-scan query patterns
 No code change required unless it is easy. Document in the README or an issue:
 - `GetUsersAsync` / `GetRolesAsync` issue one round-trip per entity.
 - `KeyBrowseScreen.LoadKeysAsync` fetches the **entire keyspace** and filters client-side,

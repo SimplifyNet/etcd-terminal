@@ -74,6 +74,12 @@ Example configuration:
 > (`.key` in the same directory), so this only keeps them from other users on the
 > machine - not from anyone who can read your home directory.
 
+## Performance notes
+
+- Listing users or roles takes one round-trip per entry (list, then one fetch each).
+- Key browsing loads the whole keyspace and searches it locally, so it gets slow
+  on clusters with a very large number of keys.
+
 ## Building
 
 Requires [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
