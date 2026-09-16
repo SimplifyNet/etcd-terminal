@@ -1,5 +1,6 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
+using EtcdTerminal.Environment;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -13,7 +14,7 @@ public sealed class MenuTests
 	public void Show_WithDuplicateLabels_ReturnsChosenItem()
 	{
 		var terminal = new FakeTerminal();
-		var menu = new Menu(terminal, new StatusBar(terminal));
+		var menu = CreateMenu(terminal);
 
 		IReadOnlyList<MenuItem<int>> items = [new(1, "same"), new(2, "same")];
 
@@ -28,7 +29,7 @@ public sealed class MenuTests
 	public void Show_LabelWithBrackets_RendersUnchanged()
 	{
 		var terminal = new FakeTerminal();
-		var menu = new Menu(terminal, new StatusBar(terminal));
+		var menu = CreateMenu(terminal);
 
 		IReadOnlyList<MenuItem<int>> items = [new(1, "http://[::1]:2379")];
 
@@ -43,7 +44,7 @@ public sealed class MenuTests
 	public void Show_SkipsNonSelectableItem_WhenNavigating()
 	{
 		var terminal = new FakeTerminal();
-		var menu = new Menu(terminal, new StatusBar(terminal));
+		var menu = CreateMenu(terminal);
 
 		IReadOnlyList<MenuItem<int>> items = [new(1, "a"), new(0, string.Empty, IsSelectable: false), new(2, "b")];
 
@@ -52,5 +53,12 @@ public sealed class MenuTests
 		var chosen = menu.Show("title", items);
 
 		Assert.That(chosen?.Id, Is.EqualTo(2));
+	}
+
+	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, new StubAppInfo()));
+
+	private sealed class StubAppInfo : IAppInfo
+	{
+		public string Version => "0.0";
 	}
 }

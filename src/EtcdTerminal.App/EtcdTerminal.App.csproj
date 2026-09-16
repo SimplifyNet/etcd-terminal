@@ -17,6 +17,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Simplify.DI" Version="4.3.0" />
-		<PackageReference Include="Simplify.System" Version="1.6.3" />
 	</ItemGroup>
 </Project>

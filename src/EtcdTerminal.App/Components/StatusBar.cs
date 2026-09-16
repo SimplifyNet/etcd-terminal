@@ -1,15 +1,15 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Configuration;
-using Simplify.System;
+using EtcdTerminal.Environment;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminal _terminal)
+public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo)
 {
 	public void Render(EtcdConnectionConfig? config = null)
 	{
 		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} navigate \u00b7 {_terminal.White}Enter{_terminal.Grey} confirm/select \u00b7 {_terminal.White}Esc{_terminal.Grey} back  ";
-		var version = GetVersion();
+		var version = _appInfo.Version;
 		var rightPadding = "  ";
 
 		string right;
@@ -43,12 +43,5 @@ public sealed class StatusBar(ITerminal _terminal)
 
 		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 1);
 		_terminal.Write(_terminal.FillRow(_terminal.Bg));
-	}
-
-	private static string GetVersion()
-	{
-		var version = AssemblyInfo.Entry.Version;
-
-		return $"{version.Major}.{version.Minor}" + (version.Build != 0 ? "." + version.Build : "");
 	}
 }

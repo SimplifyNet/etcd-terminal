@@ -31,7 +31,7 @@ s
 - [x] T1.5 Narrow the bare `catch` blocks in `SettingsScreen`
 - [x] T2.1 Extract Spectre prompting out of `Engine/Prompt.cs`
 - [x] T2.2 Move `ReadMultiLineAsync` out of `Prompt` into a Component
-- [ ] T2.3 Replace `Simplify.System.AssemblyInfo` in `StatusBar` with an injected `IAppInfo`
+- [x] T2.3 Replace `Simplify.System.AssemblyInfo` in `StatusBar` with an injected `IAppInfo`
 - [ ] T2.4 `ConsoleTerminal.WriteBanner` must use the theme
 - [ ] T2.5 Localise the hard-coded `StatusBar` hint text
 - [ ] T3.1 Introduce `IConnectionSession` and stop passing `EtcdConnectionConfig` through the UI

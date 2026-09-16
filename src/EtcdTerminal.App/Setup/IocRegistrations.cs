@@ -37,6 +37,7 @@ public static class IocRegistrations
 	public static IDIRegistrator RegisterInfrastructure(this IDIRegistrator registrator) => registrator
 		.Register<ITerminal, ConsoleTerminal>(LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
+		.Register<IAppInfo, AppInfo>(LifetimeType.Singleton)
 		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
