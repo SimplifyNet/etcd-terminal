@@ -26,22 +26,25 @@ public static class IocRegistrations
 {
 	public static IDIContainerProvider RegisterAll(this IDIContainerProvider provider)
 	{
-		provider.RegisterInfrastructure()
+		provider.RegisterTerminal()
 			   .RegisterConfiguration()
 			   .RegisterSession()
-			   .RegisterIEtcdClient()
+			   .RegisterClient()
+			   .RegisterKeys()
+			   .RegisterUsers()
+			   .RegisterRoles()
+			   .RegisterSecurity()
+			   .RegisterEnvironment()
+			   .RegisterEngine()
 			   .RegisterComponents()
 			   .RegisterScreens();
 
 		return provider;
 	}
 
-	public static IDIRegistrator RegisterInfrastructure(this IDIRegistrator registrator) => registrator
+	public static IDIRegistrator RegisterTerminal(this IDIRegistrator registrator) => registrator
 		.Register<ITerminal, ConsoleTerminal>(LifetimeType.Singleton)
-		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
-		.Register<IAppInfo, AppInfo>(LifetimeType.Singleton)
-		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
-		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
+		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
 		.Register<IConnectionConfigRepository>(c =>
@@ -50,30 +53,44 @@ public static class IocRegistrations
 				c.Resolve<IConfigProtector>()),
 			LifetimeType.Singleton)
 
-		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton);
+		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton)
+		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterSession(this IDIRegistrator registrator) => registrator
 		.Register<IConnectionSession, ConnectionSession>(LifetimeType.Singleton);
 
-	public static IDIRegistrator RegisterIEtcdClient(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton)
-		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+	public static IDIRegistrator RegisterClient(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterKeys(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
-		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
-		.Register<IEtcdRoleAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
-		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
 		.Register<IReadableKeysProvider, ReadableKeysProvider>(LifetimeType.Transient);
+
+	public static IDIRegistrator RegisterUsers(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterRoles(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdRoleAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterSecurity(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterEnvironment(this IDIRegistrator registrator) => registrator
+		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
+		.Register<IAppInfo, AppInfo>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterEngine(this IDIRegistrator registrator) => registrator
+		.Register<Menu>(LifetimeType.Transient)
+		.Register<Prompt>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterComponents(this IDIRegistrator registrator) => registrator
 		.Register<StatusBar>(LifetimeType.Transient)
 		.Register<Header>(LifetimeType.Transient)
-		.Register<Menu>(LifetimeType.Transient)
 		.Register<MenuScreen>(LifetimeType.Transient)
 		.Register<ScreenLayout>(LifetimeType.Transient)
-		.Register<KeyBrowseLayout>(LifetimeType.Transient)
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
 		.Register<Message>(LifetimeType.Transient)
-		.Register<Prompt>(LifetimeType.Transient)
 		.Register<MultiLinePasteReader>(LifetimeType.Transient)
 		.Register<Spinner>(LifetimeType.Transient);
 
@@ -88,5 +105,6 @@ public static class IocRegistrations
 		.Register<PermissionViewScreen>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
-		.Register<KeyBrowseControl>(LifetimeType.Transient);
+		.Register<KeyBrowseControl>(LifetimeType.Transient)
+		.Register<KeyBrowseLayout>(LifetimeType.Transient);
 }
