@@ -12,8 +12,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 {
 	private const int EditValueMaxLength = 200;
 
-	private List<EtcdKeyValue> _allKeys = [];
-	private List<EtcdKeyValue> _filteredKeys = [];
+	private readonly KeyPager _pager = new();
 
 	public async Task ShowAsync()
 	{
@@ -24,9 +23,11 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 
 		while (true)
 		{
-			_control.Render(GetCurrentPageKeys(), GetTotalPages(), _filteredKeys.Count);
+			var pageSize = AppSettingsStore.Current.PageSize;
 
-			var command = _control.ReadCommand(GetCurrentPageKeys(), GetTotalPages());
+			_control.Render(_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize), _pager.FilteredCount);
+
+			var command = _control.ReadCommand(_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize));
 
 			switch (command.Action)
 			{
@@ -45,11 +46,8 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 		}
 	}
 
-	private async Task LoadKeysAsync()
-	{
-		_allKeys = [.. await _readableKeys.GetReadableKeysAsync(_session.Active?.Username)];
-		_filteredKeys = [.. _allKeys];
-	}
+	private async Task LoadKeysAsync() =>
+		_pager.SetSource(await _readableKeys.GetReadableKeysAsync(_session.Active?.Username));
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
@@ -96,34 +94,12 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 	{
 		await LoadKeysAsync();
 
-		_control.ClampPage(GetTotalPages());
+		_control.ClampPage(_pager.GetTotalPages(AppSettingsStore.Current.PageSize));
 	}
 
 	private void ApplyFilter()
 	{
-		if (string.IsNullOrEmpty(_control.SearchQuery))
-			_filteredKeys = [.. _allKeys];
-		else
-		{
-			var query = _control.SearchQuery;
-
-			_filteredKeys = [.. _allKeys
-				.Where(kv =>
-					kv.Key.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-					kv.Value.Contains(query, StringComparison.OrdinalIgnoreCase))];
-		}
-
+		_pager.Filter(_control.SearchQuery);
 		_control.ResetNavigation();
 	}
-
-	private List<EtcdKeyValue> GetCurrentPageKeys()
-	{
-		var pageSize = AppSettingsStore.Current.PageSize;
-		var start = _control.CurrentPage * pageSize;
-
-		return [.. _filteredKeys.Skip(start).Take(pageSize)];
-	}
-
-	private int GetTotalPages() =>
-		_filteredKeys.Count == 0 ? 1 : (int)Math.Ceiling((double)_filteredKeys.Count / AppSettingsStore.Current.PageSize);
 }

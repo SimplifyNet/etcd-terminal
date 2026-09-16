@@ -37,7 +37,7 @@ s
 - [x] T3.1 Introduce `IConnectionSession` and stop passing `EtcdConnectionConfig` through the UI
 - [x] T3.2 Use `ScreenLayout.RenderHeader()` everywhere instead of `Clear(); Header.Render(...)`
 - [x] T4.1 Extract key-visibility logic from `KeyBrowseScreen` into a domain service
-- [ ] T4.2 Extract key filtering and pagination from `KeyBrowseScreen`
+- [x] T4.2 Extract key filtering and pagination from `KeyBrowseScreen`
 - [ ] T4.3 Extract JSON flattening from `KeyImportJsonScreen`
 - [ ] T4.4 Extract the import loop into a domain service
 - [ ] T4.5 Split `InstanceSelectionScreen` into selection and connection management
