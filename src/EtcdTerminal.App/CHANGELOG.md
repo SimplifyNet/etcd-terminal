@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8] - 2026-09-16
+
+### Changed
+
+- Instance selection menu: empty line separates saved connections from management actions
+- Role assign/remove and permission grant/revoke failures now show the etcd error detail instead of a generic message
+
+### Fixed
+
+- Menu with duplicate labels no longer always picks the first item
+- IPv6 connection strings (e.g. `http://[::1]:2379`) are no longer corrupted in menus
+- A connection named `Exit`, `Settings` or `ManageConnections` connects instead of triggering the menu action
+
 ## [0.7] - 2026-09-16
 
 ### Added
