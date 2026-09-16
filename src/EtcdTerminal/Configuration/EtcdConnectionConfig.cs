@@ -7,4 +7,8 @@ public sealed class EtcdConnectionConfig
 	public string? Username { get; init; }
 	public string? Password { get; init; }
 	public bool IsAuthenticationEnabled => !string.IsNullOrEmpty(Username);
+	public bool IsConnectionStringValid =>
+		!string.IsNullOrWhiteSpace(ConnectionString)
+		&& Uri.TryCreate(ConnectionString, UriKind.Absolute, out var uri)
+		&& uri.Scheme is ("http" or "https");
 }

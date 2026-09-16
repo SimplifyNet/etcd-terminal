@@ -110,22 +110,8 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 		SaveInstances(instances);
 	}
 
-	private static bool IsValid(EtcdConnectionConfig config)
-	{
-		if (string.IsNullOrWhiteSpace(config.Name))
-			return false;
-
-		if (string.IsNullOrWhiteSpace(config.ConnectionString))
-			return false;
-
-		if (!Uri.TryCreate(config.ConnectionString, UriKind.Absolute, out var uri))
-			return false;
-
-		if (uri.Scheme is not ("http" or "https"))
-			return false;
-
-		return true;
-	}
+	private static bool IsValid(EtcdConnectionConfig config) =>
+		!string.IsNullOrWhiteSpace(config.Name) && config.IsConnectionStringValid;
 
 	private void SaveInstances(List<EtcdConnectionConfig> instances)
 	{

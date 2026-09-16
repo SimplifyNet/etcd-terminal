@@ -144,7 +144,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		if (connectionString is null)
 			return;
 
-		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+		if (!new EtcdConnectionConfig { ConnectionString = connectionString }.IsConnectionStringValid)
 		{
 			_message.ShowError(LocalizationStore.Current.InvalidConnStr);
 
@@ -203,7 +203,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		if (connectionString is null)
 			return;
 
-		if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+		if (!new EtcdConnectionConfig { ConnectionString = connectionString }.IsConnectionStringValid)
 		{
 			_message.ShowError(LocalizationStore.Current.InvalidConnStr);
 

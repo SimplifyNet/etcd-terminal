@@ -47,7 +47,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T19. Split `IEtcdClient` by concern
   - [x] T20. Preserve the cause of etcd failures
 - [ ] Phase 5 — Polish
-  - [ ] T21. Deduplicate connection-string validation
+  - [x] T21. Deduplicate connection-string validation
   - [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
   - [ ] T23. Deduplicate the ANSI colour properties
   - [ ] T24. Replace `Thread.Sleep` in the paste-detection path
@@ -545,7 +545,7 @@ and the user sees only "Failed to create user".
 
 # Phase 5 — Polish
 
-## [ ] T21. Deduplicate connection-string validation
+## [x] T21. Deduplicate connection-string validation
 Three identical copies of the `Uri.TryCreate` + `http/https` scheme check exist in
 `InstanceSelectionScreen` (twice) and `JsonBasedConnectionConfigRepository.IsValid`.
 Move the rule onto `EtcdConnectionConfig` as `bool IsConnectionStringValid` (the type
