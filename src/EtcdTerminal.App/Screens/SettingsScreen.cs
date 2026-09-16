@@ -22,7 +22,7 @@ public sealed class SettingsScreen(ITerminal _terminal, IAppSettingsRepository _
 			[
 				new(SettingsAction.EditPageSize, $"{LocalizationStore.Current.PageSizeLabel} ({AppSettingsStore.Current.PageSize})"),
 				new(SettingsAction.ToggleTrimInputValues, $"{LocalizationStore.Current.TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})")
-			]);
+			])?.Id;
 
 			if (action is null)
 				return;

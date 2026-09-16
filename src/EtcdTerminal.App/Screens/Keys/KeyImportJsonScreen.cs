@@ -169,7 +169,7 @@ public sealed class KeyImportJsonScreen(
 				new(true, LocalizationStore.Current.Yes),
 				new(false, LocalizationStore.Current.No)
 			],
-			config: config);
+			config: config)?.Id;
 
 		return confirmed ?? false;
 	}

@@ -17,6 +17,6 @@ public sealed class PermissionTypeSelector(Menu _menu)
 			new(PermissionType.Read, read),
 			new(PermissionType.Write, write),
 			new(PermissionType.ReadWrite, readWrite)
-		]);
+		])?.Id;
 	}
 }

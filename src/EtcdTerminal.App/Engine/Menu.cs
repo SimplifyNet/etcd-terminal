@@ -8,14 +8,14 @@ namespace EtcdTerminal.App.Engine;
 public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
 
-	public TId? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
+	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
 		var selected = ShowLabels(title, [.. items.Select(i => i.Label)], displayConverter, config);
 
 		if (selected is null)
-			return default;
+			return null;
 
-		return items.First(i => i.Label == selected).Id;
+		return items.First(i => i.Label == selected);
 	}
 
 	private string? ShowLabels(string title, IReadOnlyList<string> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)

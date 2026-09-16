@@ -97,7 +97,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			return instance is not null
 				? $"{instance.Name}  ({instance.ConnectionString})"
 				: c;
-		});
+		})?.Id;
 	}
 
 	private void ManageConfigs(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -119,7 +119,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			actions.Add(new(ManageConnectionsAction.MoveDownInstance, LocalizationStore.Current.MoveDownInstance));
 		}
 
-		ManageConnectionsAction? action = _menu.Show(LocalizationStore.Current.ManageConnections, actions);
+		ManageConnectionsAction? action = _menu.Show(LocalizationStore.Current.ManageConnections, actions)?.Id;
 
 		if (action is null)
 			return;
@@ -203,7 +203,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
+		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (existingName is null)
 			return;
@@ -273,7 +273,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = _menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
+		var name = _menu.Show(direction < 0 ? LocalizationStore.Current.SelectInstanceToMoveUp : LocalizationStore.Current.SelectInstanceToMoveDown, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (name is null)
 			return;
@@ -286,7 +286,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = _menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList());
+		var nameToRemove = _menu.Show(LocalizationStore.Current.SelectInstanceToRemove, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (nameToRemove is null)
 			return;

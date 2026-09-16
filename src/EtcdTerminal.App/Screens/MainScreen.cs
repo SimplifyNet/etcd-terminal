@@ -39,7 +39,7 @@ public sealed class MainScreen(
 					new(MainMenuAction.ViewPermissions, LocalizationStore.Current.ViewPermissions),
 					new(MainMenuAction.Disconnect, LocalizationStore.Current.Disconnect)
 				],
-				config: config);
+				config: config)?.Id;
 
 			if (action is null)
 			{

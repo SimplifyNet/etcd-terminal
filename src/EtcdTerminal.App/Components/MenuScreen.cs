@@ -18,7 +18,7 @@ public sealed class MenuScreen(ITerminal _terminal, Menu _menu)
 			if (choice is null)
 				return;
 
-			await onChoice(choice);
+			await onChoice(choice.Id);
 		}
 	}
 }
