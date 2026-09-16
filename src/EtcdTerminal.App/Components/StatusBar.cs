@@ -1,6 +1,7 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Components;
 
@@ -8,7 +9,8 @@ public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo)
 {
 	public void Render(EtcdConnectionConfig? config = null)
 	{
-		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} navigate \u00b7 {_terminal.White}Enter{_terminal.Grey} confirm/select \u00b7 {_terminal.White}Esc{_terminal.Grey} back  ";
+		var localization = LocalizationStore.Current;
+		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} {localization.StatusNavigate} \u00b7 {_terminal.White}Enter{_terminal.Grey} {localization.StatusConfirm} \u00b7 {_terminal.White}Esc{_terminal.Grey} {localization.StatusBack}  ";
 		var version = _appInfo.Version;
 		var rightPadding = "  ";
 

@@ -134,6 +134,9 @@ public interface ILocalization
 	string PressAnyKeyRestart { get; }
 	string OperationCancelled { get; }
 	string UndecryptablePasswords { get; }
+	string StatusNavigate { get; }
+	string StatusConfirm { get; }
+	string StatusBack { get; }
 
 	string ImportJson { get; }
 	string EnterSeparator { get; }
