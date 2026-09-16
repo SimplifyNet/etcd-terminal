@@ -6,7 +6,7 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class ArchitectureTests
 {
-	private static readonly string[] _promptException = ["EtcdTerminal.App.Engine.Prompt"];
+	private static readonly string[] _promptException = [];
 
 	[Test]
 	public void AppTypesDoNotReferenceSpectre()

@@ -1,20 +1,14 @@
 using System.Diagnostics;
 using System.Text;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Infrastructure.Terminal;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
-using Spectre.Console;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Prompt(ITerminal _terminal)
+public sealed class Prompt(ITerminal _terminal, ITextInput _textInput)
 {
 	private const int _pasteBurstThresholdMs = 40;
-
-	private static readonly Style _promptStyle = new(decoration: Decoration.Bold);
-
-	private readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
 
 	public string? Ask(string prompt, bool allowEmpty = false)
 	{
@@ -24,9 +18,10 @@ public sealed class Prompt(ITerminal _terminal)
 		{
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			var input = _console.Prompt(new TextPrompt<string>(prompt)
-				.PromptStyle(_promptStyle)
-				.AllowEmpty());
+			var input = _textInput.ReadLine(prompt);
+
+			if (input is null)
+				return null;
 
 			if (AppSettingsStore.Current.TrimInputValues)
 				input = input.Trim();
@@ -35,10 +30,6 @@ public sealed class Prompt(ITerminal _terminal)
 				return allowEmpty ? string.Empty : null;
 
 			return input;
-		}
-		catch (OperationCanceledException)
-		{
-			return null;
 		}
 		finally
 		{
@@ -54,18 +45,12 @@ public sealed class Prompt(ITerminal _terminal)
 		{
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			var input = _console.Prompt(new TextPrompt<string>(prompt)
-				.PromptStyle(_promptStyle)
-				.AllowEmpty()
-				.DefaultValue(defaultValue)
-				.EditableDefaultValue(true)
-				.ShowDefaultValue(false));
+			var input = _textInput.ReadLine(prompt, defaultValue);
+
+			if (input is null)
+				return null;
 
 			return AppSettingsStore.Current.TrimInputValues ? input.Trim() : input;
-		}
-		catch (OperationCanceledException)
-		{
-			return null;
 		}
 		finally
 		{
@@ -81,14 +66,7 @@ public sealed class Prompt(ITerminal _terminal)
 		{
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			return _console.Prompt(new TextPrompt<string>(prompt)
-				.PromptStyle(_promptStyle)
-				.Secret()
-				.AllowEmpty());
-		}
-		catch (OperationCanceledException)
-		{
-			return null;
+			return _textInput.ReadSecret(prompt);
 		}
 		finally
 		{

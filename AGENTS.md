@@ -12,13 +12,13 @@ Layers: **Terminal → Components → Screens**.
 - `Localization/` — text system (`ILocalization`, `LocalizationStore`). Provides UI strings.
 
 **Dependency rules:**
-- `Screens` → `Components`/`Engine` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI (known exception: `Engine/Prompt.cs` still owns the Spectre prompt integration, pending extraction).
+- `Screens` → `Components`/`Engine` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI.
 - `Components`/`Engine` → `Terminal`. Colors only from `ITheme` (`ThemeStore.Current`).
-- `Terminal` — nothing from App. `ConsoleTerminal` is the sole `System.Console`/Spectre touchpoint (same `Prompt` exception as above).
+- `Terminal` — nothing from App. `ConsoleTerminal` and `SpectreTextInput` are the only Spectre touchdown's.
 - `Theming` — domain-only, no infrastructure dependencies.
 - `Localization` — domain-only, implementations live in App layer.
 
-**Infrastructure layer** (`EtcdTerminal.Infrastructure`): implementations of technical interfaces (`ITerminal`, `IAppSettingsRepository`, `IConnectionConfigRepository`). All Spectre.Console dependencies live here (same `Prompt` exception as above).
+**Infrastructure layer** (`EtcdTerminal.Infrastructure`): implementations of technical interfaces (`ITerminal`, `ITextInput`, `IAppSettingsRepository`, `IConnectionConfigRepository`). All Spectre.Console dependencies live here (`ConsoleTerminal`, `SpectreTextInput`).
 
 **Feature-local controls** (e.g. `KeyBrowseControl`, `UserListRenderer`, `RoleListRenderer`, `PermissionViewRenderer`) live in `Screens/` but may use `ITerminal` and `ITheme` directly for rendering — they are part of the Components layer conceptually but scoped to a single feature.
 
