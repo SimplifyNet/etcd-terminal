@@ -7,6 +7,6 @@ public interface IEtcdUserAdmin
 	Task<EtcdOperationResult> CreateUserAsync(string username, string password, CancellationToken ct = default);
 	Task<EtcdOperationResult> DeleteUserAsync(string username, CancellationToken ct = default);
 	Task<EtcdOperationResult> ChangeUserPasswordAsync(string username, string newPassword, CancellationToken ct = default);
-	Task GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default);
-	Task RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default);
+	Task<EtcdOperationResult> GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default);
+	Task<EtcdOperationResult> RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default);
 }

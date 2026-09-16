@@ -115,16 +115,9 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 		if (roleName is null)
 			return;
 
-		try
-		{
-			await _userAdmin.GrantRoleToUserAsync(username, roleName);
+		var grantResult = await _userAdmin.GrantRoleToUserAsync(username, roleName);
 
-			_message.ShowSuccess(LocalizationStore.Current.RoleAssigned);
-		}
-		catch
-		{
-			_message.ShowError(LocalizationStore.Current.FailedAssignRole);
-		}
+		_message.ShowResult(grantResult.Success, LocalizationStore.Current.RoleAssigned, grantResult.ErrorMessage ?? LocalizationStore.Current.FailedAssignRole);
 	}
 
 	private async Task RevokeRoleAsync()
@@ -139,15 +132,8 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 		if (roleName is null)
 			return;
 
-		try
-		{
-			await _userAdmin.RevokeRoleFromUserAsync(username, roleName);
+		var revokeResult = await _userAdmin.RevokeRoleFromUserAsync(username, roleName);
 
-			_message.ShowSuccess(LocalizationStore.Current.RoleRemoved);
-		}
-		catch
-		{
-			_message.ShowError(LocalizationStore.Current.FailedRemoveRole);
-		}
+		_message.ShowResult(revokeResult.Success, LocalizationStore.Current.RoleRemoved, revokeResult.ErrorMessage ?? LocalizationStore.Current.FailedRemoveRole);
 	}
 }

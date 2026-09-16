@@ -8,6 +8,6 @@ public interface IEtcdRoleAdmin
 	Task<EtcdRole?> GetRoleAsync(string roleName, CancellationToken ct = default);
 	Task<EtcdOperationResult> CreateRoleAsync(string roleName, CancellationToken ct = default);
 	Task<EtcdOperationResult> DeleteRoleAsync(string roleName, CancellationToken ct = default);
-	Task GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default);
-	Task RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default);
+	Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default);
+	Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default);
 }

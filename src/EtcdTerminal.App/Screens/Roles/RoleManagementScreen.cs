@@ -84,7 +84,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 	private Task RevokePermissionAsync() =>
 		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _roleAdmin.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
 
-	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task> action, string successMessage, string failureMessage)
+	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task<EtcdOperationResult>> action, string successMessage, string failureMessage)
 	{
 		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
@@ -101,15 +101,8 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 		if (permType is null)
 			return;
 
-		try
-		{
-			await action(roleName, permType.Value, keyPrefix);
+		var result = await action(roleName, permType.Value, keyPrefix);
 
-			_message.ShowSuccess(successMessage);
-		}
-		catch
-		{
-			_message.ShowError(failureMessage);
-		}
+		_message.ShowResult(result.Success, successMessage, result.ErrorMessage ?? failureMessage);
 	}
 }

@@ -27,7 +27,7 @@ s
 - [x] T1.1 `Menu` must select by index, not by label
 - [x] T1.2 Remove `Menu.StripMarkup`
 - [x] T1.3 Stop mixing instance names and fixed actions in one `string` id
-- [ ] T1.4 Unify error contracts on `IEtcdUserAdmin` / `IEtcdRoleAdmin`
+- [x] T1.4 Unify error contracts on `IEtcdUserAdmin` / `IEtcdRoleAdmin`
 - [ ] T1.5 Narrow the bare `catch` blocks in `SettingsScreen`
 - [ ] T2.1 Extract Spectre prompting out of `Engine/Prompt.cs`
 - [ ] T2.2 Move `ReadMultiLineAsync` out of `Prompt` into a Component

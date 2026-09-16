@@ -278,37 +278,79 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 	}
 
-	public async Task GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default) =>
-		await Client.UserGrantRoleAsync(
-			new AuthUserGrantRoleRequest { User = username, Role = roleName }, cancellationToken: ct);
-
-	public async Task RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default) =>
-		await Client.UserRevokeRoleAsync(
-			new AuthUserRevokeRoleRequest { Name = username, Role = roleName }, cancellationToken: ct);
-
-	public async Task GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default)
 	{
-		var permType = MapPermissionType(permissionType);
+		try
+		{
+			await Client.UserGrantRoleAsync(
+				new AuthUserGrantRoleRequest { User = username, Role = roleName }, cancellationToken: ct);
 
-		await Client.RoleGrantPermissionAsync(
-			new AuthRoleGrantPermissionRequest
-			{
-				Name = roleName,
-				Perm = new Permission
-				{
-					PermType = permType,
-					Key = ByteString.CopyFromUtf8(keyPrefix)
-				}
-			}, cancellationToken: ct);
+			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex)
+		{
+			return RpcFail(ex);
+		}
 	}
 
-	public async Task RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default) =>
-		await Client.RoleRevokePermissionAsync(
-			new AuthRoleRevokePermissionRequest
-			{
-				Role = roleName,
-				Key = ByteString.CopyFromUtf8(keyPrefix)
-			}, cancellationToken: ct);
+	public async Task<EtcdOperationResult> RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default)
+	{
+		try
+		{
+			await Client.UserRevokeRoleAsync(
+				new AuthUserRevokeRoleRequest { Name = username, Role = roleName }, cancellationToken: ct);
+
+			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex)
+		{
+			return RpcFail(ex);
+		}
+	}
+
+	public async Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
+	{
+		try
+		{
+			var permType = MapPermissionType(permissionType);
+
+			await Client.RoleGrantPermissionAsync(
+				new AuthRoleGrantPermissionRequest
+				{
+					Name = roleName,
+					Perm = new Permission
+					{
+						PermType = permType,
+						Key = ByteString.CopyFromUtf8(keyPrefix)
+					}
+				}, cancellationToken: ct);
+
+			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex)
+		{
+			return RpcFail(ex);
+		}
+	}
+
+	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
+	{
+		try
+		{
+			await Client.RoleRevokePermissionAsync(
+				new AuthRoleRevokePermissionRequest
+				{
+					Role = roleName,
+					Key = ByteString.CopyFromUtf8(keyPrefix)
+				}, cancellationToken: ct);
+
+			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex)
+		{
+			return RpcFail(ex);
+		}
+	}
 
 	public async Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default)
 	{
