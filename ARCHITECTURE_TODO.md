@@ -26,7 +26,7 @@ s
 - [x] T0.2 Strengthen architecture tests
 - [x] T1.1 `Menu` must select by index, not by label
 - [x] T1.2 Remove `Menu.StripMarkup`
-- [ ] T1.3 Stop mixing instance names and fixed actions in one `string` id
+- [x] T1.3 Stop mixing instance names and fixed actions in one `string` id
 - [ ] T1.4 Unify error contracts on `IEtcdUserAdmin` / `IEtcdRoleAdmin`
 - [ ] T1.5 Narrow the bare `catch` blocks in `SettingsScreen`
 - [ ] T2.1 Extract Spectre prompting out of `Engine/Prompt.cs`

@@ -24,9 +24,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			if (choice is null)
 				return null;
 
-			if (Enum.TryParse<InstanceFixedAction>(choice, out var fixedAction))
-			{
-				switch (fixedAction)
+		if (choice.Action is not null)
+		{
+			switch (choice.Action)
 				{
 					case InstanceFixedAction.ManageConnections:
 						ManageConfigs(instances);
@@ -38,9 +38,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 						return null;
 				}
 			}
-			else
-			{
-				var selected = instances.First(i => i.Name == choice);
+		else
+		{
+			var selected = choice.Instance!;
 
 				bool connected;
 
@@ -79,14 +79,14 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		Header.Render(_terminal);
 	}
 
-	private string? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
+	private InstanceMenuChoice? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		List<MenuItem<string>> items = [];
+		List<MenuItem<InstanceMenuChoice>> items = [];
 
-		items.AddRange(instances.Select(i => new MenuItem<string>(i.Name, i.Name)));
-		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.ManageConnections), LocalizationStore.Current.ManageConnections));
-		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.Settings), LocalizationStore.Current.Settings));
-		items.Add(new MenuItem<string>(nameof(InstanceFixedAction.Exit), LocalizationStore.Current.Exit));
+		items.AddRange(instances.Select(i => new MenuItem<InstanceMenuChoice>(new(null, i), i.Name)));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.ManageConnections, null), LocalizationStore.Current.ManageConnections));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), LocalizationStore.Current.Settings));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), LocalizationStore.Current.Exit));
 
 		if (instances.Count == 0)
 		{
