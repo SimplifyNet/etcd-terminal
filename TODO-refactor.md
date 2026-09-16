@@ -48,7 +48,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T20. Preserve the cause of etcd failures
 - [ ] Phase 5 — Polish
   - [x] T21. Deduplicate connection-string validation
-  - [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
+  - [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
   - [ ] T23. Deduplicate the ANSI colour properties
   - [ ] T24. Replace `Thread.Sleep` in the paste-detection path
   - [ ] T25. Localize the remaining hardcoded English strings
@@ -551,7 +551,7 @@ Three identical copies of the `Uri.TryCreate` + `http/https` scheme check exist 
 Move the rule onto `EtcdConnectionConfig` as `bool IsConnectionStringValid` (the type
 already has a derived-property precedent) and call it from all three places.
 
-## [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
+## [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
 They are ~90% identical in `InstanceSelectionScreen` (~117-172 and ~174-241) — same prompt
 sequence, character-for-character identical URI validation, same config construction. Merge
 into one private method parameterised by the existing config (`null` = add) and the success

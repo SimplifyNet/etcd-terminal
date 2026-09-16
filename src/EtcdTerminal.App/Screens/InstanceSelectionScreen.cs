@@ -115,7 +115,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		switch (action)
 		{
 			case ManageConnectionsAction.AddInstance:
-				AddInstanceInteractive();
+				SaveInstanceInteractive(null, LocalizationStore.Current.InstanceAdded);
 				break;
 			case ManageConnectionsAction.EditInstance:
 				EditInstanceInteractive(instances);
@@ -132,55 +132,6 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		}
 	}
 
-	private void AddInstanceInteractive()
-	{
-		var name = _prompt.Ask(LocalizationStore.Current.EnterInstanceName);
-
-		if (name is null)
-			return;
-
-		var connectionString = _prompt.Ask(LocalizationStore.Current.EnterConnStr, LocalizationStore.Current.DefaultConnStr);
-
-		if (connectionString is null)
-			return;
-
-		if (!new EtcdConnectionConfig { ConnectionString = connectionString }.IsConnectionStringValid)
-		{
-			_message.ShowError(LocalizationStore.Current.InvalidConnStr);
-
-			return;
-		}
-
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsername, allowEmpty: true);
-
-		if (username is null)
-			return;
-
-		var password = string.Empty;
-
-		if (!string.IsNullOrEmpty(username))
-		{
-			var entered = _prompt.Secret(LocalizationStore.Current.EnterPassword);
-
-			if (entered is null)
-				return;
-
-			password = entered;
-		}
-
-		var config = new EtcdConnectionConfig
-		{
-			Name = name,
-			ConnectionString = connectionString,
-			Username = string.IsNullOrEmpty(username) ? null : username,
-			Password = string.IsNullOrEmpty(password) ? null : password
-		};
-
-		_configRepo.AddInstance(config);
-
-		_message.ShowSuccess(LocalizationStore.Current.InstanceAdded);
-	}
-
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
 		var existingName = _menu.Show(LocalizationStore.Current.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
@@ -193,12 +144,19 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 		_terminal.Clear();
 		Header.Render(_terminal);
 
-		var name = _prompt.Ask(LocalizationStore.Current.EnterInstanceName, existing.Name);
+		SaveInstanceInteractive(existing, LocalizationStore.Current.InstanceUpdated);
+	}
+
+	private void SaveInstanceInteractive(EtcdConnectionConfig? existing, string successMessage)
+	{
+		var name = existing is null
+			? _prompt.Ask(LocalizationStore.Current.EnterInstanceName)
+			: _prompt.Ask(LocalizationStore.Current.EnterInstanceName, existing.Name);
 
 		if (name is null)
 			return;
 
-		var connectionString = _prompt.Ask(LocalizationStore.Current.EnterConnStr, existing.ConnectionString);
+		var connectionString = _prompt.Ask(LocalizationStore.Current.EnterConnStr, existing?.ConnectionString ?? LocalizationStore.Current.DefaultConnStr);
 
 		if (connectionString is null)
 			return;
@@ -210,7 +168,9 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			return;
 		}
 
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsername, existing.Username ?? string.Empty);
+		var username = existing is null
+			? _prompt.Ask(LocalizationStore.Current.EnterUsername, allowEmpty: true)
+			: _prompt.Ask(LocalizationStore.Current.EnterUsername, existing.Username ?? string.Empty);
 
 		if (username is null)
 			return;
@@ -219,15 +179,19 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 
 		if (!string.IsNullOrEmpty(username))
 		{
-			password = existing.Password ?? string.Empty;
+			password = existing?.Password ?? string.Empty;
 
-			var newPassword = _prompt.Secret(LocalizationStore.Current.EnterPasswordKeepCurrent);
+			var passwordPrompt = existing is null
+				? LocalizationStore.Current.EnterPassword
+				: LocalizationStore.Current.EnterPasswordKeepCurrent;
 
-			if (newPassword is null)
+			var entered = _prompt.Secret(passwordPrompt);
+
+			if (entered is null)
 				return;
 
-			if (!string.IsNullOrEmpty(newPassword))
-				password = newPassword;
+			if (existing is null || !string.IsNullOrEmpty(entered))
+				password = entered;
 		}
 
 		var config = new EtcdConnectionConfig
@@ -238,9 +202,12 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			Password = string.IsNullOrEmpty(password) ? null : password
 		};
 
-		_configRepo.UpdateInstance(existingName, config);
+		if (existing is null)
+			_configRepo.AddInstance(config);
+		else
+			_configRepo.UpdateInstance(existing.Name, config);
 
-		_message.ShowSuccess(LocalizationStore.Current.InstanceUpdated);
+		_message.ShowSuccess(successMessage);
 	}
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
