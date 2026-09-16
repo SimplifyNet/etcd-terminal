@@ -45,7 +45,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T17. Add the missing `Message` component and remove ~20 duplications
   - [x] T18. Make `IAppSettings` immutable
   - [x] T19. Split `IEtcdClient` by concern
-  - [ ] T20. Preserve the cause of etcd failures
+  - [x] T20. Preserve the cause of etcd failures
 - [ ] Phase 5 — Polish
   - [ ] T21. Deduplicate connection-string validation
   - [ ] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
@@ -522,7 +522,7 @@ needs more than one facet.
 
 ---
 
-## [ ] T20. Preserve the cause of etcd failures
+## [x] T20. Preserve the cause of etcd failures
 
 **Problem.** `CreateUserAsync`, `DeleteRoleAsync`, `GrantRoleAsync` etc. all do
 `catch (RpcException) { return false; }`. "Already exists", "permission denied",

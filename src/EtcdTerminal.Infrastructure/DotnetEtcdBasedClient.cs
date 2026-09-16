@@ -164,48 +164,48 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 	}
 
-	public async Task<bool> CreateUserAsync(string username, string password, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> CreateUserAsync(string username, string password, CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.UserAddAsync(
 				new AuthUserAddRequest { Name = username, Password = password }, cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
-	public async Task<bool> DeleteUserAsync(string username, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> DeleteUserAsync(string username, CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.UserDeleteAsync(
 				new AuthUserDeleteRequest { Name = username }, cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
-	public async Task<bool> ChangeUserPasswordAsync(string username, string newPassword, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> ChangeUserPasswordAsync(string username, string newPassword, CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.UserChangePasswordAsync(
 				new AuthUserChangePasswordRequest { Name = username, Password = newPassword }, cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
@@ -248,33 +248,33 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 	}
 
-	public async Task<bool> CreateRoleAsync(string roleName, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> CreateRoleAsync(string roleName, CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.RoleAddAsync(
 				new AuthRoleAddRequest { Name = roleName }, cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
-	public async Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> DeleteRoleAsync(string roleName, CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.RoleDeleteAsync(
 				new AuthRoleDeleteRequest { Role = roleName }, cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
@@ -318,33 +318,36 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		return response.Enabled;
 	}
 
-	public async Task<bool> EnableAuthenticationAsync(CancellationToken ct = default)
+	public async Task<EtcdOperationResult> EnableAuthenticationAsync(CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.AuthEnableAsync(new AuthEnableRequest(), cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
 
-	public async Task<bool> DisableAuthenticationAsync(CancellationToken ct = default)
+	public async Task<EtcdOperationResult> DisableAuthenticationAsync(CancellationToken ct = default)
 	{
 		try
 		{
 			await Client.AuthDisableAsync(new AuthDisableRequest(), cancellationToken: ct);
 
-			return true;
+			return EtcdOperationResult.Ok();
 		}
-		catch (RpcException)
+		catch (RpcException ex)
 		{
-			return false;
+			return RpcFail(ex);
 		}
 	}
+
+	private static EtcdOperationResult RpcFail(RpcException ex) =>
+		EtcdOperationResult.Fail(string.IsNullOrEmpty(ex.Status.Detail) ? ex.Message : ex.Status.Detail);
 
 	private static EtcdKeyValue MapKeyValue(KeyValue kv) => new()
 	{

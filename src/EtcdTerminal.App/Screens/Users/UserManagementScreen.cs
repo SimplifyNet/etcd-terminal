@@ -71,7 +71,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 
 		var result = await _userAdmin.CreateUserAsync(username, password);
 
-		_message.ShowResult(result, LocalizationStore.Current.UserCreated, LocalizationStore.Current.FailedCreateUser);
+		_message.ShowResult(result.Success, LocalizationStore.Current.UserCreated, result.ErrorMessage ?? LocalizationStore.Current.FailedCreateUser);
 	}
 
 	private async Task DeleteUserAsync()
@@ -83,7 +83,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 
 		var result = await _userAdmin.DeleteUserAsync(username);
 
-		_message.ShowResult(result, LocalizationStore.Current.UserDeleted, LocalizationStore.Current.FailedDeleteUser);
+		_message.ShowResult(result.Success, LocalizationStore.Current.UserDeleted, result.ErrorMessage ?? LocalizationStore.Current.FailedDeleteUser);
 	}
 
 	private async Task ChangePasswordAsync()
@@ -100,7 +100,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 
 		var result = await _userAdmin.ChangeUserPasswordAsync(username, newPassword);
 
-		_message.ShowResult(result, LocalizationStore.Current.PasswordChanged, LocalizationStore.Current.FailedChangePassword);
+		_message.ShowResult(result.Success, LocalizationStore.Current.PasswordChanged, result.ErrorMessage ?? LocalizationStore.Current.FailedChangePassword);
 	}
 
 	private async Task AssignRoleAsync()

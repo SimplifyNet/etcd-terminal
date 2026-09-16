@@ -63,7 +63,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 		var result = await _roleAdmin.CreateRoleAsync(roleName);
 
-		_message.ShowResult(result, LocalizationStore.Current.RoleCreated, LocalizationStore.Current.FailedCreateRole);
+		_message.ShowResult(result.Success, LocalizationStore.Current.RoleCreated, result.ErrorMessage ?? LocalizationStore.Current.FailedCreateRole);
 	}
 
 	private async Task DeleteRoleAsync()
@@ -75,7 +75,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 		var result = await _roleAdmin.DeleteRoleAsync(roleName);
 
-		_message.ShowResult(result, LocalizationStore.Current.RoleDeleted, LocalizationStore.Current.FailedDeleteRole);
+		_message.ShowResult(result.Success, LocalizationStore.Current.RoleDeleted, result.ErrorMessage ?? LocalizationStore.Current.FailedDeleteRole);
 	}
 
 	private Task GrantPermissionAsync() =>
