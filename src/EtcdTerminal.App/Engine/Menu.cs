@@ -10,15 +10,15 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
 	{
-		var selected = ShowLabels(title, [.. items.Select(i => i.Label)], displayConverter, config);
+		var index = ShowAndGetIndex(title, [.. items.Select(i => i.Label)], displayConverter, config);
 
-		if (selected is null)
+		if (index is null)
 			return null;
 
-		return items.First(i => i.Label == selected);
+		return items[index.Value];
 	}
 
-	private string? ShowLabels(string title, IReadOnlyList<string> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)
+	private int? ShowAndGetIndex(string title, IReadOnlyList<string> items, Func<string, string>? displayConverter, EtcdConnectionConfig? config)
 	{
 		var index = 0;
 
@@ -62,7 +62,7 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 					return null;
 				case ConsoleKey.Enter:
 					ClearMenu(menuStart);
-					return items[index];
+					return index;
 				case ConsoleKey.UpArrow:
 					index = (index - 1 + items.Count) % items.Count;
 					break;
