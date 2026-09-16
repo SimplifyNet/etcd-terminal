@@ -15,6 +15,7 @@ public sealed class KeyImportJsonScreen(
 	ScreenLayout _screenLayout,
 	PressAnyKeyPrompt _pressAnyKey,
 	Prompt _prompt,
+	MultiLinePasteReader _pasteReader,
 	Menu _menu,
 	Spinner _spinner,
 	Message _message)
@@ -31,7 +32,7 @@ public sealed class KeyImportJsonScreen(
 
 		_terminal.WriteLine();
 
-		var json = await _prompt.ReadMultiLineAsync(LocalizationStore.Current.PasteJson);
+		var json = await _pasteReader.ReadAsync(LocalizationStore.Current.PasteJson);
 
 		if (json is null)
 			return;

@@ -66,6 +66,7 @@ public static class IocRegistrations
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
 		.Register<Message>(LifetimeType.Transient)
 		.Register<Prompt>(LifetimeType.Transient)
+		.Register<MultiLinePasteReader>(LifetimeType.Transient)
 		.Register<Spinner>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
