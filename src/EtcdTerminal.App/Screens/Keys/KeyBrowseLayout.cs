@@ -29,9 +29,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 		if (searchQuery.Length == 0)
 			_terminal.Write(LocalizationStore.Current.TypeToSearch, TerminalColor.Muted);
 		else
-		{
 			_terminal.Write($"  \U0001f50d {_terminal.White}{searchQuery}{_terminal.Reset}");
-		}
 
 		var searchEndCol = _terminal.CursorLeft;
 		var searchBarRow = _terminal.CursorTop;

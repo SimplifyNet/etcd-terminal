@@ -19,8 +19,13 @@ DIContainer.Current
 	.Resolve<ITerminal>()
 	.Initialize();
 
-static void Cleanup()
+var cleanedUp = 0;
+
+void Cleanup()
 {
+	if (Interlocked.Exchange(ref cleanedUp, 1) is not 0)
+		return;
+
 	var terminal = DIContainer.Current.Resolve<ITerminal>();
 
 	terminal.ClearScreen();

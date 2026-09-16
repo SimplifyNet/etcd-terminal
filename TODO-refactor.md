@@ -35,11 +35,11 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T9. Replace `_client!` with an enforced precondition
   - [x] T10. Make `ConnectAsync` actually connect
   - [x] T11. Replace the reflection-based auth detection
-- [ ] Phase 3 — Layering
+- [x] Phase 3 — Layering
   - [x] T12. Move all Spectre.Console usage out of Components and Screens
   - [x] T13. Correct `AGENTS.md` so it describes the actual code
   - [x] T14. Add an architecture test to prevent layering regressions
-- [ ] Phase 4 — Structural design
+- [x] Phase 4 — Structural design
   - [x] T15. Stop keying control flow on localized display strings
   - [x] T16. Delete the duplicated spinner and fix its concurrency bugs
   - [x] T17. Add the missing `Message` component and remove ~20 duplications
@@ -52,8 +52,8 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T23. Deduplicate the ANSI colour properties
   - [x] T24. Replace `Thread.Sleep` in the paste-detection path
   - [x] T25. Localize the remaining hardcoded English strings
-  - [ ] T26. Fix the Ctrl+C double-dispose
-  - [ ] T27. Fix the brace-style violation
+  - [x] T26. Fix the Ctrl+C double-dispose
+  - [x] T27. Fix the brace-style violation
   - [ ] T28. Document the encryption key's threat model (or fix it)
   - [ ] T29. Note the N+1 and full-scan query patterns
 
@@ -575,13 +575,13 @@ reached from `async Task ShowAsync`. Make `ReadMultiLine` async (`Task<string?>`
 Add `ILocalization` properties with `{0}` placeholders and implement them in
 `EnglishLocalization`.
 
-## [ ] T26. Fix the Ctrl+C double-dispose
+## [x] T26. Fix the Ctrl+C double-dispose
 `Program.cs` `Cleanup()` (~22-32) resolves `ITerminal` from the container and then disposes
 the container. It is called from both the `CancelKeyPress` handler (~34-39) and the
 `finally` block (~72-74), so the second call resolves from a **disposed** container. Guard
 with an `Interlocked.Exchange`-based run-once flag.
 
-## [ ] T27. Fix the brace-style violation
+## [x] T27. Fix the brace-style violation
 `Screens/Keys/KeyBrowseLayout.cs` ~31-34 has a single-statement `else` with braces, which
 `AGENTS.md` forbids. Remove the braces.
 
