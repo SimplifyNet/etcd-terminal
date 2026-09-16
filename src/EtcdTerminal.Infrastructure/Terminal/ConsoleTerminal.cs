@@ -6,17 +6,20 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 
 public sealed class ConsoleTerminal : ITerminal
 {
-	public string Bg => $"\x1b[48;2;{ThemeStore.Current.PanelBackground.R};{ThemeStore.Current.PanelBackground.G};{ThemeStore.Current.PanelBackground.B}m";
-	public string DarkBg => $"\x1b[48;2;{ThemeStore.Current.PanelDarkerBackground.R};{ThemeStore.Current.PanelDarkerBackground.G};{ThemeStore.Current.PanelDarkerBackground.B}m";
-	public string White => $"\x1b[38;2;{ThemeStore.Current.White.R};{ThemeStore.Current.White.G};{ThemeStore.Current.White.B}m";
-	public string Grey => $"\x1b[38;2;{ThemeStore.Current.Grey.R};{ThemeStore.Current.Grey.G};{ThemeStore.Current.Grey.B}m";
-	public string Green => $"\x1b[38;2;{ThemeStore.Current.Green.R};{ThemeStore.Current.Green.G};{ThemeStore.Current.Green.B}m";
-	public string Red => $"\x1b[38;2;{ThemeStore.Current.Red.R};{ThemeStore.Current.Red.G};{ThemeStore.Current.Red.B}m";
-	public string Teal => $"\x1b[38;2;{ThemeStore.Current.Teal.R};{ThemeStore.Current.Teal.G};{ThemeStore.Current.Teal.B}m";
-	public string Yellow => $"\x1b[38;2;{ThemeStore.Current.Yellow.R};{ThemeStore.Current.Yellow.G};{ThemeStore.Current.Yellow.B}m";
-	public string Dim => $"\x1b[38;2;{ThemeStore.Current.Dim.R};{ThemeStore.Current.Dim.G};{ThemeStore.Current.Dim.B}m";
+	private readonly Dictionary<string, string> _escapeCache = new();
+	private ITheme? _cachedTheme;
+
+	public string Bg => CachedEscape(nameof(Bg), ThemeStore.Current.PanelBackground, BgEscape);
+	public string DarkBg => CachedEscape(nameof(DarkBg), ThemeStore.Current.PanelDarkerBackground, BgEscape);
+	public string White => CachedEscape(nameof(White), ThemeStore.Current.White, FgEscape);
+	public string Grey => CachedEscape(nameof(Grey), ThemeStore.Current.Grey, FgEscape);
+	public string Green => CachedEscape(nameof(Green), ThemeStore.Current.Green, FgEscape);
+	public string Red => CachedEscape(nameof(Red), ThemeStore.Current.Red, FgEscape);
+	public string Teal => CachedEscape(nameof(Teal), ThemeStore.Current.Teal, FgEscape);
+	public string Yellow => CachedEscape(nameof(Yellow), ThemeStore.Current.Yellow, FgEscape);
+	public string Dim => CachedEscape(nameof(Dim), ThemeStore.Current.Dim, FgEscape);
 	public string Reset => "\x1b[0m";
-	public string Accent => $"\x1b[38;2;{ThemeStore.Current.Accent.R};{ThemeStore.Current.Accent.G};{ThemeStore.Current.Accent.B}m";
+	public string Accent => CachedEscape(nameof(Accent), ThemeStore.Current.Accent, FgEscape);
 	public string SelectionPointer => "  ❯ ";
 	public string SelectionPointerEmpty => "    ";
 	public string Indent => SelectionPointerEmpty;
@@ -157,4 +160,25 @@ public sealed class ConsoleTerminal : ITerminal
 		TerminalColor.Muted => Grey,
 		_ => White
 	};
+
+	private string CachedEscape(string key, RgbColor color, Func<RgbColor, string> build)
+	{
+		if (!ReferenceEquals(ThemeStore.Current, _cachedTheme))
+		{
+			_cachedTheme = ThemeStore.Current;
+			_escapeCache.Clear();
+		}
+
+		if (!_escapeCache.TryGetValue(key, out var escape))
+		{
+			escape = build(color);
+			_escapeCache[key] = escape;
+		}
+
+		return escape;
+	}
+
+	private static string FgEscape(RgbColor color) => $"\x1b[38;2;{color.R};{color.G};{color.B}m";
+
+	private static string BgEscape(RgbColor color) => $"\x1b[48;2;{color.R};{color.G};{color.B}m";
 }

@@ -3,6 +3,7 @@
 		"appsettings",
 		"Authpb",
 		"ByteString",
+		"colour",
 		"conn",
 		"dotnet",
 		"etcd",

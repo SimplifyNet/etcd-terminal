@@ -49,7 +49,7 @@ problem, the exact files involved, what to do, and how to verify.
 - [ ] Phase 5 — Polish
   - [x] T21. Deduplicate connection-string validation
   - [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
-  - [ ] T23. Deduplicate the ANSI colour properties
+  - [x] T23. Deduplicate the ANSI colour properties
   - [ ] T24. Replace `Thread.Sleep` in the paste-detection path
   - [ ] T25. Localize the remaining hardcoded English strings
   - [ ] T26. Fix the Ctrl+C double-dispose
@@ -557,7 +557,7 @@ sequence, character-for-character identical URI validation, same config construc
 into one private method parameterised by the existing config (`null` = add) and the success
 message. **Do T4 and T5 first**, then merge, so the fixes are not duplicated.
 
-## [ ] T23. Deduplicate the ANSI colour properties
+## [x] T23. Deduplicate the ANSI colour properties
 `ConsoleTerminal` has ~11 near-identical
 `$"\x1b[38;2;{ThemeStore.Current.X.R};{...G};{...B}m"` bodies, each of which rebuilds the
 string on **every access** (`StatusBar.Render` reads ~15 per frame). Add
