@@ -23,4 +23,19 @@ public sealed class MenuTests
 
 		Assert.That(chosen?.Id, Is.EqualTo(2));
 	}
+
+	[Test]
+	public void Show_LabelWithBrackets_RendersUnchanged()
+	{
+		var terminal = new FakeTerminal();
+		var menu = new Menu(terminal, new StatusBar(terminal));
+
+		IReadOnlyList<MenuItem<int>> items = [new(1, "http://[::1]:2379")];
+
+		terminal.Press(ConsoleKey.Enter);
+
+		menu.Show("title", items);
+
+		Assert.That(terminal.Output.ToString(), Does.Contain("[::1]"));
+	}
 }

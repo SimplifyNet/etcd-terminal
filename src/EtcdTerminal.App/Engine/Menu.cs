@@ -1,11 +1,10 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
-using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
+public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 {
 
 	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null, EtcdConnectionConfig? config = null)
@@ -22,12 +21,7 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 	{
 		var index = 0;
 
-		var plain = items.Select(c =>
-		{
-			var formatted = displayConverter?.Invoke(c) ?? c;
-
-			return StripMarkup(formatted);
-		}).ToList();
+		var plain = items.Select(c => displayConverter?.Invoke(c) ?? c).ToList();
 
 		var menuStart = _terminal.CursorTop;
 
@@ -108,9 +102,4 @@ public sealed partial class Menu(ITerminal _terminal, StatusBar _statusBar)
 		else
 			_terminal.Write(text);
 	}
-
-	private static string StripMarkup(string text) => MarkupPattern().Replace(text, string.Empty);
-
-	[GeneratedRegex(@"\[/?[^\]]*\]")]
-	private static partial Regex MarkupPattern();
 }
