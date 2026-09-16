@@ -51,7 +51,7 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T22. Merge `AddInstanceInteractive` and `EditInstanceInteractive`
   - [x] T23. Deduplicate the ANSI colour properties
   - [x] T24. Replace `Thread.Sleep` in the paste-detection path
-  - [ ] T25. Localize the remaining hardcoded English strings
+  - [x] T25. Localize the remaining hardcoded English strings
   - [ ] T26. Fix the Ctrl+C double-dispose
   - [ ] T27. Fix the brace-style violation
   - [ ] T28. Document the encryption key's threat model (or fix it)
@@ -569,7 +569,7 @@ theme instance.
 reached from `async Task ShowAsync`. Make `ReadMultiLine` async (`Task<string?>`) and use
 `await Task.Delay(...)`. Update `KeyImportJsonScreen` to await it.
 
-## [ ] T25. Localize the remaining hardcoded English strings
+## [x] T25. Localize the remaining hardcoded English strings
 `InstanceSelectionScreen` ~line 47: `$"Failed to connect: {ex.Message}"`.
 `KeyImportJsonScreen` ~line 92: `$"Importing {entries.Count} keys..."`.
 Add `ILocalization` properties with `{0}` placeholders and implement them in

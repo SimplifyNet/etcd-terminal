@@ -30,6 +30,7 @@ public class EnglishLocalization : ILocalization
 	public string EnterPassword => "Enter password:";
 	public string EnterPasswordKeepCurrent => "Enter password (leave empty to keep current):";
 	public string Connecting => "Connecting...";
+	public string FailedToConnect => "Failed to connect: {0}";
 	public string ChangePassword => "Change password?";
 
 	public string BrowseKeys => "Browse Keys";
@@ -149,6 +150,7 @@ public class EnglishLocalization : ILocalization
 	public string No => "No";
 	public string ImportCancelled => "Import cancelled.";
 	public string ImportResult => "Imported {0} keys ({1} overwritten, {2} failed)";
+	public string ImportingKeys => "Importing {0} keys...";
 	public string InvalidJson => "Invalid JSON: {0}";
 	public string NoKeysInJson => "No keys found in JSON.";
 }

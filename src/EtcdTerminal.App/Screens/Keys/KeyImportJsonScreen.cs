@@ -95,7 +95,7 @@ public sealed class KeyImportJsonScreen(
 
 		_terminal.WriteLine();
 
-		var imported = await _spinner.RunAsync($"Importing {entries.Count} keys...", async ct =>
+		var imported = await _spinner.RunAsync(string.Format(LocalizationStore.Current.ImportingKeys, entries.Count), async ct =>
 		{
 			foreach (var (Key, Value) in entries)
 			{

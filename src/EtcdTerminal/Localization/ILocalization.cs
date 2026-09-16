@@ -28,6 +28,7 @@ public interface ILocalization
 	string EnterPassword { get; }
 	string EnterPasswordKeepCurrent { get; }
 	string Connecting { get; }
+	string FailedToConnect { get; }
 	string ChangePassword { get; }
 
 	string BrowseKeys { get; }
@@ -146,6 +147,7 @@ public interface ILocalization
 	string No { get; }
 	string ImportCancelled { get; }
 	string ImportResult { get; }
+	string ImportingKeys { get; }
 	string InvalidJson { get; }
 	string NoKeysInJson { get; }
 }

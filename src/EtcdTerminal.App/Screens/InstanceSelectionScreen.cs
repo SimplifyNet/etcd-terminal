@@ -50,7 +50,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 				}
 				catch (Exception ex)
 				{
-					_message.ShowError($"Failed to connect: {ex.Message}");
+					_message.ShowError(string.Format(LocalizationStore.Current.FailedToConnect, ex.Message));
 
 					continue;
 				}
