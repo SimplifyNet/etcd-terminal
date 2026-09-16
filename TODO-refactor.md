@@ -54,8 +54,9 @@ problem, the exact files involved, what to do, and how to verify.
   - [x] T25. Localize the remaining hardcoded English strings
   - [x] T26. Fix the Ctrl+C double-dispose
   - [x] T27. Fix the brace-style violation
-  - [ ] T28. Document the encryption key's threat model (or fix it)
+  - [x] T28. Document the encryption key's threat model and make it hold
   - [ ] T29. Note the N+1 and full-scan query patterns
+  - [ ] T30. Degrade gracefully when `.key` is lost
 
 ---
 
@@ -585,20 +586,45 @@ with an `Interlocked.Exchange`-based run-once flag.
 `Screens/Keys/KeyBrowseLayout.cs` ~31-34 has a single-statement `else` with braces, which
 `AGENTS.md` forbids. Remove the braces.
 
-## [ ] T28. Document the encryption key's threat model (or fix it)
+## [x] T28. Document the encryption key's threat model and make it hold
 `ConfigProtector.LoadOrCreateKey` writes the AES key in plaintext to
 `~/.config/etcd-terminal/.key`, **next to** the `config.json` it encrypts. The AES-GCM
 implementation itself is correct, but storing the key beside the ciphertext means it
 protects against nothing realistic (backups, dotfile repos, exfiltration all capture both).
-Either integrate an OS keychain / DPAPI / passphrase-derived key, **or** add an explicit
-note to the README stating that this is obfuscation, not protection. Do not leave it
-implied that stored passwords are secure.
+
+**Decision:** document, do not replace. OS keychains need a running Secret Service on
+Linux (absent over SSH / headless, the primary use case for this tool), DPAPI is
+Windows-only, and a passphrase prompt on every launch is unacceptable for a TUI. Same
+trade-off as Docker CLI / kubeconfig.
+
+**Done:**
+- The implementation was inconsistent with any honest statement: `.key` was `0600` but
+  `config.json` and the directory were created with default umask (typically `0644`/`0755`),
+  and the key was written *then* chmod'd (world-readable window). Replaced `JsonConfigFile`
+  with `Infrastructure/IO/PrivateFileSystem`, which creates the directory `0700` and every file
+  (`config.json`, its `.tmp`, `.key`) `0600` at creation time via `UnixCreateMode`. Windows
+  takes the plain `CreateDirectory` / `FileStream` branch and relies on the inherited user
+  profile ACL — no Unix API is touched there.
+- README: short note under Configuration stating the key sits next to the config, so it
+  only protects against other local users. Kept deliberately brief — comparable tools
+  (Docker CLI, kubeconfig, `.pgpass`) give a one-liner at most; the full model is here.
+- CHANGELOG entry under 0.7.
 
 ## [ ] T29. Note the N+1 and full-scan query patterns
 No code change required unless it is easy. Document in the README or an issue:
 - `GetUsersAsync` / `GetRolesAsync` issue one round-trip per entity.
 - `KeyBrowseScreen.LoadKeysAsync` fetches the **entire keyspace** and filters client-side,
   which is a full range scan against a real cluster.
+
+## [ ] T30. Degrade gracefully when `.key` is lost
+`ProtectedConfigRepository.Decrypt` (~31-38) catches any decryption failure and returns
+`null`, and `LoadInstances` filters those out. Net effect: if `.key` is deleted, replaced,
+or `config.json` is restored from a backup without it, every connection with a saved
+password **silently vanishes** from the list. The user has no way to know why.
+Instead, keep the instance and clear `Password` (so it shows up and can be edited), and
+surface a one-time warning on the instance selection screen naming the affected
+connections. Optionally validate `.key` length (must be 32 bytes) at load with a clear
+message, since a truncated key currently fails with a bare `CryptographicException`.
 
 ---
 

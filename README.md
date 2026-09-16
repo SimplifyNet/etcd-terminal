@@ -48,7 +48,8 @@
 
 ## Configuration
 
-Configuration files are stored at `~/.config/etcd-terminal/config.json`.
+Configuration is stored in `~/.config/etcd-terminal/config.json`
+(`%USERPROFILE%\.config\etcd-terminal\config.json` on Windows).
 
 Example configuration:
 
@@ -68,6 +69,10 @@ Example configuration:
   ]
 }
 ```
+
+> **Note:** saved passwords are encrypted, but the key is stored next to them
+> (`.key` in the same directory), so this only keeps them from other users on the
+> machine - not from anyone who can read your home directory.
 
 ## Building
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Infrastructure.IO;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
@@ -117,7 +118,7 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 	{
 		var dir = Path.GetDirectoryName(_configPath)!;
 
-		Directory.CreateDirectory(dir);
+		PrivateFileSystem.CreateDirectory(dir);
 
 		var root = LoadExistingRoot();
 
@@ -129,7 +130,7 @@ public sealed class JsonBasedConnectionConfigRepository(IAppEnvironment environm
 			i.Password
 		}));
 
-		JsonConfigFile.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
+		PrivateFileSystem.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
 	}
 
 	private JsonObject LoadExistingRoot()

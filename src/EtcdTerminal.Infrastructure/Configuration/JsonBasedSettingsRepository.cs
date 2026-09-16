@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Infrastructure.IO;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
@@ -51,7 +52,7 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 	{
 		var dir = Path.GetDirectoryName(_configPath)!;
 
-		Directory.CreateDirectory(dir);
+		PrivateFileSystem.CreateDirectory(dir);
 
 		JsonObject root;
 
@@ -77,6 +78,6 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 			[TrimInputValuesProperty] = appSettings.TrimInputValues
 		};
 
-		JsonConfigFile.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
+		PrivateFileSystem.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
 	}
 }

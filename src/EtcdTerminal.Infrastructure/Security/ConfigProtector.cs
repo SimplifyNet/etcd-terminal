@@ -1,4 +1,5 @@
 using EtcdTerminal.Environment;
+using EtcdTerminal.Infrastructure.IO;
 using EtcdTerminal.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -62,15 +63,11 @@ public sealed class ConfigProtector(IAppEnvironment environment) : IConfigProtec
 
 		var dir = Path.GetDirectoryName(keyPath);
 
-		Directory.CreateDirectory(dir!);
+		PrivateFileSystem.CreateDirectory(dir!);
 
 		var key = RandomNumberGenerator.GetBytes(KeyLength);
 
-		File.WriteAllBytes(keyPath, key);
-
-		if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-			File.SetUnixFileMode(keyPath,
-				UnixFileMode.UserRead | UnixFileMode.UserWrite);
+		PrivateFileSystem.WriteAllBytes(keyPath, key);
 
 		return key;
 	}

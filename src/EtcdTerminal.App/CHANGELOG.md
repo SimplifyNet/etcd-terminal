@@ -10,6 +10,8 @@
 ### Changed
 
 - Custom spinner
+- Config directory, `config.json` and `.key` are created owner-only (`0700`/`0600`) on Linux/macOS
+- README documents that stored passwords are obfuscated, not securely protected
 
 ### Fixed
 
