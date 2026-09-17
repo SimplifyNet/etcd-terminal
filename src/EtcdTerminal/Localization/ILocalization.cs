@@ -108,6 +108,11 @@ public interface ILocalization
 	string RoleDeleted { get; }
 	string FailedDeleteRole { get; }
 	string EnterKeyPrefix { get; }
+	string EnterExactKey { get; }
+	string SelectPermissionScope { get; }
+	string ScopeKey { get; }
+	string ScopePrefix { get; }
+	string ScopeRange { get; }
 	string PermissionGranted { get; }
 	string FailedGrantPermission { get; }
 	string PermissionRevoked { get; }
@@ -127,6 +132,7 @@ public interface ILocalization
 	string Permissions { get; }
 	string PermissionType { get; }
 	string KeyPrefix { get; }
+	string PermissionScope { get; }
 	string None { get; }
 	string NoRoles { get; }
 	string NoPermissions { get; }

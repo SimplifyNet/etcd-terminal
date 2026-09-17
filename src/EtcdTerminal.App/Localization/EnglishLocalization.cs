@@ -111,6 +111,11 @@ public class EnglishLocalization : ILocalization
 	public string RoleDeleted => "Role deleted successfully!";
 	public string FailedDeleteRole => "Failed to delete role.";
 	public string EnterKeyPrefix => "Enter key prefix:";
+	public string EnterExactKey => "Enter exact key:";
+	public string SelectPermissionScope => "Grant access to a single key or to a prefix?";
+	public string ScopeKey => "Exact key";
+	public string ScopePrefix => "Prefix";
+	public string ScopeRange => "Range";
 	public string PermissionGranted => "Permission granted successfully!";
 	public string FailedGrantPermission => "Failed to grant permission.";
 	public string PermissionRevoked => "Permission revoked successfully!";
@@ -129,7 +134,8 @@ public class EnglishLocalization : ILocalization
 	public string Role => "Role";
 	public string Permissions => "Permissions";
 	public string PermissionType => "Permission Type";
-	public string KeyPrefix => "Key Prefix";
+	public string KeyPrefix => "Key / Prefix";
+	public string PermissionScope => "Scope";
 	public string None => "none";
 	public string NoRoles => "no roles";
 	public string NoPermissions => "no permissions";

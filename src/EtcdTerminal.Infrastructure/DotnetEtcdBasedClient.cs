@@ -322,21 +322,27 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 	}
 
-	public async Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default)
 	{
 		try
 		{
 			var permType = MapPermissionType(permissionType);
+			var rangeEnd = PermissionRange.RangeEndFor(key, scope);
+
+			var permission = new Permission
+			{
+				PermType = permType,
+				Key = ByteString.CopyFromUtf8(key)
+			};
+
+			if (rangeEnd.Length > 0)
+				permission.RangeEnd = ByteString.CopyFromUtf8(rangeEnd);
 
 			await Client.RoleGrantPermissionAsync(
 				new AuthRoleGrantPermissionRequest
 				{
 					Name = roleName,
-					Perm = new Permission
-					{
-						PermType = permType,
-						Key = ByteString.CopyFromUtf8(keyPrefix)
-					}
+					Perm = permission
 				}, cancellationToken: ct);
 
 			return EtcdOperationResult.Ok();
@@ -347,16 +353,22 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 	}
 
-	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default)
 	{
 		try
 		{
-			await Client.RoleRevokePermissionAsync(
-				new AuthRoleRevokePermissionRequest
-				{
-					Role = roleName,
-					Key = ByteString.CopyFromUtf8(keyPrefix)
-				}, cancellationToken: ct);
+			var rangeEnd = PermissionRange.RangeEndFor(key, scope);
+
+			var request = new AuthRoleRevokePermissionRequest
+			{
+				Role = roleName,
+				Key = ByteString.CopyFromUtf8(key)
+			};
+
+			if (rangeEnd.Length > 0)
+				request.RangeEnd = ByteString.CopyFromUtf8(rangeEnd);
+
+			await Client.RoleRevokePermissionAsync(request, cancellationToken: ct);
 
 			return EtcdOperationResult.Ok();
 		}
@@ -439,7 +451,8 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 			Permission.Types.Type.Readwrite => PermissionType.ReadWrite,
 			_ => PermissionType.Read
 		},
-		KeyPrefix = perm.Key.ToStringUtf8()
+		KeyPrefix = perm.Key.ToStringUtf8(),
+		RangeEnd = perm.RangeEnd.ToStringUtf8()
 	};
 
 	private static Permission.Types.Type MapPermissionType(PermissionType type) => type switch

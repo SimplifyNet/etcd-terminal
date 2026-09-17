@@ -30,7 +30,7 @@ public sealed class ReadableKeysProviderTests
 			["/a"] = [new EtcdKeyValue { Key = "/a/1", Value = "x" }]
 		});
 
-		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "/a" }] };
+		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "/a", RangeEnd = PermissionRange.PrefixRangeEnd("/a") }] };
 
 		var keys = await provider.GetReadableKeysAsync(capabilities);
 
@@ -42,7 +42,7 @@ public sealed class ReadableKeysProviderTests
 	{
 		var provider = CreateProvider(new() { [""] = [new EtcdKeyValue { Key = "/a/1", Value = "x" }] });
 
-		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.Write, KeyPrefix = "/a" }] };
+		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.Write, KeyPrefix = "/a", RangeEnd = PermissionRange.PrefixRangeEnd("/a") }] };
 
 		var keys = await provider.GetReadableKeysAsync(capabilities);
 
@@ -57,7 +57,7 @@ public sealed class ReadableKeysProviderTests
 			[""] = [new EtcdKeyValue { Key = "/a/1", Value = "x" }, new EtcdKeyValue { Key = "/b/1", Value = "y" }]
 		});
 
-		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.ReadWrite, KeyPrefix = "\0" }] };
+		var capabilities = new UserCapabilities { Permissions = [new EtcdPermission { Type = PermissionType.ReadWrite, KeyPrefix = "\0", RangeEnd = "\0" }] };
 
 		var keys = await provider.GetReadableKeysAsync(capabilities);
 

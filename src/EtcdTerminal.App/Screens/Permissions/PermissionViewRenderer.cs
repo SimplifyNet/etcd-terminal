@@ -1,5 +1,6 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Roles;
+using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.Users;
 using EtcdTerminal.Localization;
 
@@ -27,7 +28,7 @@ public static class PermissionViewRenderer
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
 					var permissions = role is not null && role.Permissions.Count > 0
-						? string.Join("\n", role.Permissions.Select(p => $"{p.Type}: {p.KeyPrefix}"))
+						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope)}]: {p.KeyPrefix}"))
 						: LocalizationStore.Current.NoPermissions;
 
 					rows.Add([roleName, permissions]);

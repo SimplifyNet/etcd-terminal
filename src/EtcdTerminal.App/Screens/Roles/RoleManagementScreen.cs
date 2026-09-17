@@ -7,7 +7,7 @@ using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
 {
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
@@ -77,21 +77,30 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 	}
 
 	private Task GrantPermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _roleAdmin.GrantPermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
+		GrantOrRevokeAsync((roleName, permType, key, scope) => _roleAdmin.GrantPermissionAsync(roleName, permType, key, scope), LocalizationStore.Current.PermissionGranted, LocalizationStore.Current.FailedGrantPermission);
 
 	private Task RevokePermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, keyPrefix) => _roleAdmin.RevokePermissionAsync(roleName, permType, keyPrefix), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
+		GrantOrRevokeAsync((roleName, permType, key, scope) => _roleAdmin.RevokePermissionAsync(roleName, permType, key, scope), LocalizationStore.Current.PermissionRevoked, LocalizationStore.Current.FailedRevokePermission);
 
-	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, Task<EtcdOperationResult>> action, string successMessage, string failureMessage)
+	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, PermissionScope, Task<EtcdOperationResult>> action, string successMessage, string failureMessage)
 	{
 		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return;
 
-		var keyPrefix = _prompt.Ask(LocalizationStore.Current.EnterKeyPrefix);
+		var scope = _permissionScopeSelector.Select();
 
-		if (keyPrefix is null)
+		if (scope is null)
+			return;
+
+		var keyPromptText = scope is PermissionScope.Prefix
+			? LocalizationStore.Current.EnterKeyPrefix
+			: LocalizationStore.Current.EnterExactKey;
+
+		var key = _prompt.Ask(keyPromptText);
+
+		if (key is null)
 			return;
 
 		var permType = _permissionTypeSelector.Select();
@@ -99,7 +108,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 		if (permType is null)
 			return;
 
-		var result = await action(roleName, permType.Value, keyPrefix);
+		var result = await action(roleName, permType.Value, key, scope.Value);
 
 		_message.ShowResult(result.Success, successMessage, result.ErrorMessage ?? failureMessage);
 	}

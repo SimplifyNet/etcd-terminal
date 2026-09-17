@@ -8,6 +8,8 @@
 
 - Menu items are hidden when the connected account lacks the required permissions: key browsing needs read access, key creation and JSON import need write access, user/role/permission management is root-only
 - Edit and delete actions in the key browser are only offered for keys the account may write
+- Grant/Revoke Permission asks whether access applies to an exact key or to a prefix
+- List Roles and the permission view show the scope (exact key / prefix) of every permission
 
 ### Changed
 
@@ -17,6 +19,9 @@
 ### Fixed
 
 - Non-root users can now connect: the connection check no longer reads a key that requires permissions and failed with `PermissionDenied`
+- Granting a permission now really covers a prefix: the etcd range end was never sent, so every grant silently became a single-key permission
+- Revoking a permission matches the granted range instead of only the exact key
+- Key visibility respects exact-key permissions instead of treating every permission as a prefix
 - Keys and auth status the account may not read no longer abort the operation with an error
 - Menu with duplicate labels no longer always picks the first item
 - IPv6 connection strings (e.g. `http://[::1]:2379`) are no longer corrupted in menus

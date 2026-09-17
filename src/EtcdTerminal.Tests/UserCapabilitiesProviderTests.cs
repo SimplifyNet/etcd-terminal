@@ -45,7 +45,7 @@ public sealed class UserCapabilitiesProviderTests
 				["dev-role"] = new EtcdRole
 				{
 					Name = "dev-role",
-					Permissions = [new EtcdPermission { Type = PermissionType.ReadWrite, KeyPrefix = "/a" }]
+					Permissions = [new EtcdPermission { Type = PermissionType.ReadWrite, KeyPrefix = "/a", RangeEnd = PermissionRange.PrefixRangeEnd("/a") }]
 				}
 			});
 
@@ -72,7 +72,7 @@ public sealed class UserCapabilitiesProviderTests
 				["viewer-role"] = new EtcdRole
 				{
 					Name = "viewer-role",
-					Permissions = [new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "/a" }]
+					Permissions = [new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "/a", RangeEnd = PermissionRange.PrefixRangeEnd("/a") }]
 				}
 			});
 
@@ -135,9 +135,9 @@ public sealed class UserCapabilitiesProviderTests
 
 		public Task<EtcdOperationResult> DeleteRoleAsync(string roleName, CancellationToken ct = default) => throw new NotSupportedException();
 
-		public Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default) => throw new NotSupportedException();
+		public Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default) => throw new NotSupportedException();
 
-		public Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string keyPrefix, CancellationToken ct = default) => throw new NotSupportedException();
+		public Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default) => throw new NotSupportedException();
 	}
 
 	private sealed class StubAuthAdmin(bool enabled) : IEtcdAuthAdmin

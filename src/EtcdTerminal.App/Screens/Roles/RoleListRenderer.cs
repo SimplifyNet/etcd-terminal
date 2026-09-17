@@ -20,13 +20,13 @@ public static class RoleListRenderer
 			List<IReadOnlyList<string>> rows = [];
 
 			if (role.Permissions.Count == 0)
-				rows.Add([LocalizationStore.Current.None, LocalizationStore.Current.None]);
+				rows.Add([LocalizationStore.Current.None, LocalizationStore.Current.None, LocalizationStore.Current.None]);
 			else
 				foreach (var perm in role.Permissions)
-					rows.Add([perm.Type.ToString(), perm.KeyPrefix]);
+					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope), perm.KeyPrefix]);
 
 			terminal.WriteTable(new TableData(
-				[LocalizationStore.Current.PermissionType, LocalizationStore.Current.KeyPrefix],
+				[LocalizationStore.Current.PermissionType, LocalizationStore.Current.PermissionScope, LocalizationStore.Current.KeyPrefix],
 				rows)
 			{
 				Title = $"Role: {role.Name}"

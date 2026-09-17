@@ -17,9 +17,9 @@ public sealed class ReadableKeysProvider(IEtcdKeyStore _keyStore) : IReadableKey
 			if (permission.Type is not (PermissionType.Read or PermissionType.ReadWrite))
 				continue;
 
-			var prefixKeys = await _keyStore.GetKeysByPrefixAsync(UserCapabilities.NormalizePrefix(permission.KeyPrefix), ct);
+			var prefixKeys = await _keyStore.GetKeysByPrefixAsync(EtcdPermission.NormalizeKey(permission.KeyPrefix), ct);
 
-			keys.AddRange(prefixKeys);
+			keys.AddRange(prefixKeys.Where(kv => permission.Covers(kv.Key)));
 		}
 
 		return [.. keys.DistinctBy(kv => kv.Key)];
