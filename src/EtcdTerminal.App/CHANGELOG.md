@@ -22,6 +22,8 @@
 - Granting a permission now really covers a prefix: the etcd range end was never sent, so every grant silently became a single-key permission
 - Revoking a permission matches the granted range instead of only the exact key
 - Key visibility respects exact-key permissions instead of treating every permission as a prefix
+- Status bar stays visible during prompts and "press any key" pauses while connected
+- Long lists (users, roles, permissions) no longer push the "press any key" hint and prompts underneath the status bar
 - Keys and auth status the account may not read no longer abort the operation with an error
 - Menu with duplicate labels no longer always picks the first item
 - IPv6 connection strings (e.g. `http://[::1]:2379`) are no longer corrupted in menus

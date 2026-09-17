@@ -7,6 +7,33 @@ namespace EtcdTerminal.App.Components;
 
 public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo, IConnectionSession _session)
 {
+	public const int ReservedRows = 3;
+
+	public void EnsureCursorAboveBar(int rowsNeeded = 1)
+	{
+		var lastContentRow = _terminal.WindowHeight - ReservedRows - rowsNeeded;
+		var overflow = _terminal.CursorTop - lastContentRow;
+
+		if (overflow <= 0)
+			return;
+
+		var newLines = _terminal.WindowHeight - 1 - _terminal.CursorTop + overflow;
+
+		for (var i = 0; i < newLines; i++)
+			_terminal.WriteLine();
+
+		_terminal.SetCursorPosition(0, lastContentRow);
+	}
+
+	public void RenderPreservingCursor()
+	{
+		var left = _terminal.CursorLeft;
+		var top = _terminal.CursorTop;
+
+		Render();
+		_terminal.SetCursorPosition(left, top);
+	}
+
 	public void Render()
 	{
 		var localization = LocalizationStore.Current;

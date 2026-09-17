@@ -1,9 +1,10 @@
+using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Prompt(ITerminal _terminal, ITextInput _textInput)
+public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar _statusBar)
 {
 	public string? Ask(string prompt, bool allowEmpty = false)
 	{
@@ -11,9 +12,10 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput)
 
 		try
 		{
+			_statusBar.EnsureCursorAboveBar();
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			var input = _textInput.ReadLine(prompt);
+			var input = Read(() => _textInput.ReadLine(prompt));
 
 			if (input is null)
 				return null;
@@ -38,9 +40,10 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput)
 
 		try
 		{
+			_statusBar.EnsureCursorAboveBar();
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			var input = _textInput.ReadLine(prompt, defaultValue);
+			var input = Read(() => _textInput.ReadLine(prompt, defaultValue));
 
 			if (input is null)
 				return null;
@@ -59,13 +62,25 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput)
 
 		try
 		{
+			_statusBar.EnsureCursorAboveBar();
 			_terminal.Write(_terminal.SelectionPointerEmpty);
 
-			return _textInput.ReadSecret(prompt);
+			return Read(() => _textInput.ReadSecret(prompt));
 		}
 		finally
 		{
 			_terminal.SetCursorVisible(false);
 		}
+	}
+
+	private string? Read(Func<string?> read)
+	{
+		_statusBar.RenderPreservingCursor();
+
+		var input = read();
+
+		_statusBar.RenderPreservingCursor();
+
+		return input;
 	}
 }

@@ -5,7 +5,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MultiLinePasteReader(ITerminal _terminal)
+public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusBar)
 {
 	private const int _pasteBurstThresholdMs = 40;
 
@@ -15,10 +15,13 @@ public sealed class MultiLinePasteReader(ITerminal _terminal)
 
 		try
 		{
+			_statusBar.EnsureCursorAboveBar();
 			_terminal.Write(_terminal.SelectionPointerEmpty + prompt + " ");
 			_terminal.WriteLine();
 			_terminal.WriteLine();
 			_terminal.Flush();
+
+			_statusBar.RenderPreservingCursor();
 
 			while (_terminal.KeyAvailable)
 				_terminal.ReadKey();
@@ -68,6 +71,7 @@ public sealed class MultiLinePasteReader(ITerminal _terminal)
 		}
 		finally
 		{
+			_statusBar.RenderPreservingCursor();
 			_terminal.SetCursorVisible(false);
 		}
 	}
