@@ -74,6 +74,7 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterSecurity(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IUserCapabilitiesProvider, UserCapabilitiesProvider>(LifetimeType.Transient)
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterEnvironment(this IDIRegistrator registrator) => registrator

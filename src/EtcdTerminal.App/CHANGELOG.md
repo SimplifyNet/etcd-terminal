@@ -1,6 +1,13 @@
 # Changelog
 
-## [0.8] - 2026-09-16
+### Fixed
+
+## [0.8] - Unreleased
+
+### Added
+
+- Menu items are hidden when the connected account lacks the required permissions: key browsing needs read access, key creation and JSON import need write access, user/role/permission management is root-only
+- Edit and delete actions in the key browser are only offered for keys the account may write
 
 ### Changed
 
@@ -9,6 +16,8 @@
 
 ### Fixed
 
+- Non-root users can now connect: the connection check no longer reads a key that requires permissions and failed with `PermissionDenied`
+- Keys and auth status the account may not read no longer abort the operation with an error
 - Menu with duplicate labels no longer always picks the first item
 - IPv6 connection strings (e.g. `http://[::1]:2379`) are no longer corrupted in menus
 - A connection named `Exit`, `Settings` or `ManageConnections` connects instead of triggering the menu action

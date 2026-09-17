@@ -1,50 +1,25 @@
 using EtcdTerminal.Permissions;
-using EtcdTerminal.Roles;
 using EtcdTerminal.Security;
-using EtcdTerminal.Users;
 
 namespace EtcdTerminal.Keys;
 
-public sealed class ReadableKeysProvider(IEtcdKeyStore _keyStore, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, IEtcdAuthAdmin _authAdmin) : IReadableKeysProvider
+public sealed class ReadableKeysProvider(IEtcdKeyStore _keyStore) : IReadableKeysProvider
 {
-	public async Task<IReadOnlyList<EtcdKeyValue>> GetReadableKeysAsync(string? username, CancellationToken ct = default)
+	public async Task<IReadOnlyList<EtcdKeyValue>> GetReadableKeysAsync(UserCapabilities capabilities, CancellationToken ct = default)
 	{
-		var authEnabled = await _authAdmin.IsAuthenticationEnabledAsync(ct);
-
-		if (!authEnabled)
-			return await LoadAllKeysAsync(ct);
-
-		if (username is null)
-			return await LoadAllKeysAsync(ct);
-
-		var user = await _userAdmin.GetUserAsync(username, ct);
-
-		if (user is null || user.Roles.Count == 0 || user.Roles.Contains("root"))
+		if (capabilities.IsRoot)
 			return await LoadAllKeysAsync(ct);
 
 		var keys = new List<EtcdKeyValue>();
 
-		foreach (var roleName in user.Roles)
+		foreach (var permission in capabilities.Permissions)
 		{
-			var role = await _roleAdmin.GetRoleAsync(roleName, ct);
-
-			if (role is null)
+			if (permission.Type is not (PermissionType.Read or PermissionType.ReadWrite))
 				continue;
 
-			foreach (var perm in role.Permissions)
-			{
-				if (perm.Type is not (PermissionType.Read or PermissionType.ReadWrite))
-					continue;
+			var prefixKeys = await _keyStore.GetKeysByPrefixAsync(UserCapabilities.NormalizePrefix(permission.KeyPrefix), ct);
 
-				var prefix = perm.KeyPrefix;
-
-				if (prefix == "\0")
-					prefix = "";
-
-				var prefixKeys = await _keyStore.GetKeysByPrefixAsync(prefix, ct);
-
-				keys.AddRange(prefixKeys);
-			}
+			keys.AddRange(prefixKeys);
 		}
 
 		return [.. keys.DistinctBy(kv => kv.Key)];

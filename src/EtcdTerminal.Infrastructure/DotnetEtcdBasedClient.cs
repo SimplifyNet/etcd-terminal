@@ -43,7 +43,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 		try
 		{
-			await Client.GetAsync("\0", cancellationToken: ct);
+			await ProbeAsync(ct);
 		}
 		catch
 		{
@@ -57,7 +57,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		if (_client is null) return false;
 
-		await Client.GetAsync("\0", cancellationToken: ct);
+		await ProbeAsync(ct);
 
 		return true;
 	}
@@ -80,19 +80,33 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<EtcdKeyValue?> GetKeyAsync(string key, CancellationToken ct = default)
 	{
-		var response = await Client.GetAsync(key, cancellationToken: ct);
+		try
+		{
+			var response = await Client.GetAsync(key, cancellationToken: ct);
 
-		if (response.Kvs.Count == 0)
+			if (response.Kvs.Count == 0)
+				return null;
+
+			return MapKeyValue(response.Kvs[0]);
+		}
+		catch (RpcException ex) when (ex.StatusCode == StatusCode.PermissionDenied)
+		{
 			return null;
-
-		return MapKeyValue(response.Kvs[0]);
+		}
 	}
 
 	public async Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default)
 	{
-		var response = await Client.GetRangeAsync(prefix, cancellationToken: ct);
+		try
+		{
+			var response = await Client.GetRangeAsync(prefix, cancellationToken: ct);
 
-		return [.. response.Kvs.Select(MapKeyValue)];
+			return [.. response.Kvs.Select(MapKeyValue)];
+		}
+		catch (RpcException ex) when (ex.StatusCode == StatusCode.PermissionDenied)
+		{
+			return [];
+		}
 	}
 
 	public async Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default)
@@ -354,10 +368,18 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default)
 	{
-		var call = Client.GetConnection().AuthClient.AuthStatusAsync(new AuthStatusRequest(), null, null, ct);
-		var response = await call.ResponseAsync;
+		try
+		{
+			var call = Client.GetConnection().AuthClient.AuthStatusAsync(new AuthStatusRequest(), null, null, ct);
+			var response = await call.ResponseAsync;
 
-		return response.Enabled;
+			return response.Enabled;
+		}
+		catch (RpcException ex) when (ex.StatusCode == StatusCode.PermissionDenied)
+		{
+			// Only an authenticated session can be denied here, so auth is definitely on.
+			return true;
+		}
 	}
 
 	public async Task<EtcdOperationResult> EnableAuthenticationAsync(CancellationToken ct = default)
@@ -387,6 +409,13 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 			return RpcFail(ex);
 		}
 	}
+
+	/// <summary>
+	/// Verifies connectivity and credentials. MemberList is used instead of a key read because it
+	/// requires no key permissions, so non-root accounts can connect too.
+	/// </summary>
+	private Task ProbeAsync(CancellationToken ct) =>
+		Client.MemberListAsync(new MemberListRequest(), cancellationToken: ct);
 
 	private static EtcdOperationResult RpcFail(RpcException ex) =>
 		EtcdOperationResult.Fail(string.IsNullOrEmpty(ex.Status.Detail) ? ex.Message : ex.Status.Detail);

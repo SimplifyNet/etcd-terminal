@@ -47,7 +47,7 @@ public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore
 	}
 
 	private async Task LoadKeysAsync() =>
-		_pager.SetSource(await _readableKeys.GetReadableKeysAsync(_session.Active?.Username));
+		_pager.SetSource(await _readableKeys.GetReadableKeysAsync(_session.Capabilities));
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{

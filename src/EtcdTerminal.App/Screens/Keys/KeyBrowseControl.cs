@@ -1,16 +1,22 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
+using EtcdTerminal.Session;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout)
+public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout, IConnectionSession _session)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
 	public int SelectedIndex { get; private set; }
 	public bool ShowActions { get; private set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
+
+	/// <summary>
+	/// Edit and delete are offered only when the account may write the selected key.
+	/// </summary>
+	public bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
 
 	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
@@ -26,7 +32,7 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 		_terminal.WriteLine();
 		if (ShowActions && SelectedKey is not null)
-			_keyBrowseLayout.RenderActionBar(SelectedKey.Key);
+			_keyBrowseLayout.RenderActionBar(SelectedKey.Key, CanModifySelectedKey);
 
 		_statusBar.Render();
 
@@ -39,19 +45,21 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 		if (ShowActions)
 		{
+			var canModify = CanModifySelectedKey;
+
 			switch (key.Key)
 			{
 				case ConsoleKey.Escape:
 					ShowActions = false;
 					SelectedKey = null;
 					break;
-				case ConsoleKey.E:
+				case ConsoleKey.E when canModify:
 					var editKey = SelectedKey;
 
 					ShowActions = false;
 					SelectedKey = null;
 					return new KeyBrowseCommand(KeyBrowseAction.Edit, editKey);
-				case ConsoleKey.D:
+				case ConsoleKey.D when canModify:
 					var deleteKey = SelectedKey;
 
 					ShowActions = false;

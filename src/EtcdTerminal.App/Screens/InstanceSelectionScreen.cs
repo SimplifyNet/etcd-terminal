@@ -1,13 +1,14 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, IConnectionSession _session, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, ScreenLayout _screenLayout, Spinner _spinner)
+public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, Prompt _prompt, ScreenLayout _screenLayout, Spinner _spinner)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -43,12 +44,15 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 			var selected = choice.Instance!;
 
 				bool connected;
+				UserCapabilities capabilities = new();
 
 				try
 				{
 					connected = await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
 					{
 						await _connection.ConnectAsync(selected, ct);
+
+						capabilities = await _capabilities.GetCapabilitiesAsync(selected.Username, ct);
 					});
 				}
 				catch (Exception ex)
@@ -62,7 +66,7 @@ public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConf
 					_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
 				else
 				{
-					_session.Start(selected);
+					_session.Start(selected, capabilities);
 
 					return selected;
 				}

@@ -84,10 +84,10 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 		_terminal.WriteFillRow(bg);
 	}
 
-	public void RenderActionBar(string selectedKey)
+	public void RenderActionBar(string selectedKey, bool canModify)
 	{
 		RenderSelectedPanel(selectedKey);
-		RenderButtonsPanel();
+		RenderButtonsPanel(canModify);
 	}
 
 	private void RenderSelectedPanel(string selectedKey)
@@ -97,9 +97,18 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 		_terminal.WriteBorderedFillRow(_terminal.DarkBg);
 	}
 
-	private void RenderButtonsPanel()
+	private void RenderButtonsPanel(bool canModify)
 	{
-		(string Key, string Label)[] buttons = [("E", LocalizationStore.Current.Edit), ("D", LocalizationStore.Current.Delete), ("Esc", LocalizationStore.Current.Cancel)];
+		List<(string Key, string Label)> buttons = [];
+
+		if (canModify)
+		{
+			buttons.Add(("E", LocalizationStore.Current.Edit));
+			buttons.Add(("D", LocalizationStore.Current.Delete));
+		}
+
+		buttons.Add(("Esc", LocalizationStore.Current.Cancel));
+
 		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_terminal.White}{b.Key} {_terminal.Grey}{b.Label}"));
 
 		_terminal.WriteBorderedFillRow(_terminal.Bg);
