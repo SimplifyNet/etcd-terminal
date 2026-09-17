@@ -7,7 +7,7 @@ using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message)
 {
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
@@ -44,7 +44,19 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 	private async Task ListRolesAsync()
 	{
-		var roles = await _roleAdmin.GetRolesAsync();
+		IReadOnlyList<EtcdRole> roles = [];
+
+		var loaded = await _spinner.RunAsync(LocalizationStore.Current.LoadingRoles, async ct =>
+		{
+			roles = await _roleAdmin.GetRolesAsync(ct);
+		});
+
+		if (!loaded)
+		{
+			_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
+
+			return;
+		}
 
 		RoleListRenderer.Render(_terminal, roles);
 

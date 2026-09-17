@@ -123,6 +123,8 @@ public interface ILocalization
 	string ReadWrite { get; }
 
 	string LoadingPermissions { get; }
+	string LoadingUsers { get; }
+	string LoadingRoles { get; }
 	string NoUsersOrRoles { get; }
 	string NoRolesFound { get; }
 	string NoUsersFound { get; }

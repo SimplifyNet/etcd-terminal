@@ -10,6 +10,7 @@
 - Edit and delete actions in the key browser are only offered for keys the account may write
 - Grant/Revoke Permission asks whether access applies to an exact key or to a prefix
 - List Roles and the permission view show the scope (exact key / prefix) of every permission
+- List Users and List Roles show a cancellable loading indicator, like the permission view
 
 ### Changed
 

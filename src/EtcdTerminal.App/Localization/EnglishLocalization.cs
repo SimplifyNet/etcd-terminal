@@ -126,6 +126,8 @@ public class EnglishLocalization : ILocalization
 	public string ReadWrite => "ReadWrite";
 
 	public string LoadingPermissions => "Loading permissions...";
+	public string LoadingUsers => "Loading users...";
+	public string LoadingRoles => "Loading roles...";
 	public string NoUsersOrRoles => "No users or roles found.";
 	public string NoRolesFound => "No roles found.";
 	public string NoUsersFound => "No users found.";

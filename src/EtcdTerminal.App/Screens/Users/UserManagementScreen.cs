@@ -6,7 +6,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Message _message)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message)
 {
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
@@ -47,7 +47,19 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 
 	private async Task ListUsersAsync()
 	{
-		var users = await _userAdmin.GetUsersAsync();
+		IReadOnlyList<EtcdUser> users = [];
+
+		var loaded = await _spinner.RunAsync(LocalizationStore.Current.LoadingUsers, async ct =>
+		{
+			users = await _userAdmin.GetUsersAsync(ct);
+		});
+
+		if (!loaded)
+		{
+			_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
+
+			return;
+		}
 
 		UserListRenderer.Render(_terminal, users);
 
