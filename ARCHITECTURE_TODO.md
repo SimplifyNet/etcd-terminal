@@ -39,7 +39,7 @@ s
 - [x] T4.1 Extract key-visibility logic from `KeyBrowseScreen` into a domain service
 - [x] T4.2 Extract key filtering and pagination from `KeyBrowseScreen`
 - [x] T4.3 Extract JSON flattening from `KeyImportJsonScreen`
-- [ ] T4.4 Extract the import loop into a domain service
+- [x] T4.4 Extract the import loop into a domain service
 - [ ] T4.5 Split `InstanceSelectionScreen` into selection and connection management
 - [ ] T4.6 Share config-file JSON access between the two repositories
 - [ ] T5.1 Remove `TakeDecryptFailures` from `IConnectionConfigRepository`

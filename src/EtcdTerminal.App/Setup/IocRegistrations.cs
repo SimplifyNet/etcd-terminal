@@ -64,7 +64,8 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterKeys(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
-		.Register<IReadableKeysProvider, ReadableKeysProvider>(LifetimeType.Transient);
+		.Register<IReadableKeysProvider, ReadableKeysProvider>(LifetimeType.Transient)
+		.Register<IKeyImporter, KeyImporter>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterUsers(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);

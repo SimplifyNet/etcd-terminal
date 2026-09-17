@@ -9,7 +9,7 @@ namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyImportJsonScreen(
 	ITerminal _terminal,
-	IEtcdKeyStore _keyStore,
+	IKeyImporter _importer,
 	ScreenLayout _screenLayout,
 	PressAnyKeyPrompt _pressAnyKey,
 	Prompt _prompt,
@@ -71,37 +71,13 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		var created = 0;
-		var overwritten = 0;
-		var failed = 0;
+		KeyImportResult result = default;
 
 		_terminal.WriteLine();
 
 		var imported = await _spinner.RunAsync(string.Format(LocalizationStore.Current.ImportingKeys, entries.Count), async ct =>
 		{
-			foreach (var (Key, Value) in entries)
-			{
-				var existing = await _keyStore.GetKeyAsync(Key, ct);
-
-				if (existing is not null)
-				{
-					var updated = await _keyStore.UpdateKeyAsync(Key, Value, ct);
-
-					if (updated)
-						overwritten++;
-					else
-						failed++;
-				}
-				else
-				{
-					var result = await _keyStore.CreateKeyAsync(Key, Value, ct);
-
-					if (result)
-						created++;
-					else
-						failed++;
-				}
-			}
+			result = await _importer.ImportAsync(entries, ct);
 		});
 
 		if (!imported)
@@ -115,9 +91,9 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		var summary = string.Format(LocalizationStore.Current.ImportResult, created + overwritten, overwritten, failed);
+		var summary = string.Format(LocalizationStore.Current.ImportResult, result.Created + result.Overwritten, result.Overwritten, result.Failed);
 
-		if (failed > 0)
+		if (result.Failed > 0)
 			_message.ShowWarning(summary);
 		else
 			_message.ShowSuccess(summary);
