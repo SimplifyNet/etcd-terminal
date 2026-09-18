@@ -98,6 +98,7 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
+		.Register<ManageConnectionsScreen>(LifetimeType.Transient)
 		.Register<MainScreen>(LifetimeType.Transient)
 		.Register<KeyBrowseScreen>(LifetimeType.Transient)
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
