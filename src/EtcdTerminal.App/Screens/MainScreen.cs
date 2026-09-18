@@ -1,9 +1,5 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.App.Screens.Keys;
-using EtcdTerminal.App.Screens.Permissions;
-using EtcdTerminal.App.Screens.Roles;
-using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
@@ -15,12 +11,7 @@ public sealed class MainScreen(
 	ScreenLayout _screenLayout,
 	IEtcdConnection _connection,
 	IConnectionSession _session,
-	KeyBrowseScreen _keyBrowse,
-	KeyCreateScreen _keyCreate,
-	KeyImportJsonScreen _keyImportJson,
-	UserManagementScreen _userManagement,
-	RoleManagementScreen _roleManagement,
-	PermissionViewScreen _permissionView,
+	IEnumerable<IMainMenuEntry> _entries,
 	Menu _menu)
 {
 	public async Task ShowAsync()
@@ -33,36 +24,19 @@ public sealed class MainScreen(
 
 			if (action is null)
 			{
-				_session.End();
-				await _connection.DisconnectAsync();
+				await DisconnectAsync();
 				return;
 			}
 
-			switch (action)
+			var entry = _entries.FirstOrDefault(e => e.Action == action);
+
+			if (entry is null)
 			{
-				case MainMenuAction.BrowseKeys:
-					await _keyBrowse.ShowAsync();
-					break;
-				case MainMenuAction.CreateKey:
-					await _keyCreate.ShowAsync();
-					break;
-				case MainMenuAction.ImportJson:
-					await _keyImportJson.ShowAsync();
-					break;
-				case MainMenuAction.ManageUsers:
-					await _userManagement.ShowAsync();
-					break;
-				case MainMenuAction.ManageRoles:
-					await _roleManagement.ShowAsync();
-					break;
-				case MainMenuAction.ViewPermissions:
-					await _permissionView.ShowAsync();
-					break;
-				case MainMenuAction.Disconnect:
-					_session.End();
-					await _connection.DisconnectAsync();
-					return;
+				await DisconnectAsync();
+				return;
 			}
+
+			await entry.ShowAsync();
 		}
 	}
 
@@ -71,28 +45,18 @@ public sealed class MainScreen(
 	/// </summary>
 	private List<MenuItem<MainMenuAction>> BuildMenuItems()
 	{
-		var capabilities = _session.Capabilities;
-
-		List<MenuItem<MainMenuAction>> items = [];
-
-		if (capabilities.CanReadKeys)
-			items.Add(new(MainMenuAction.BrowseKeys, LocalizationStore.Current.BrowseKeys));
-
-		if (capabilities.CanWriteKeys)
-		{
-			items.Add(new(MainMenuAction.CreateKey, LocalizationStore.Current.CreateKey));
-			items.Add(new(MainMenuAction.ImportJson, LocalizationStore.Current.ImportJson));
-		}
-
-		if (capabilities.CanManageAuth)
-		{
-			items.Add(new(MainMenuAction.ManageUsers, LocalizationStore.Current.ManageUsers));
-			items.Add(new(MainMenuAction.ManageRoles, LocalizationStore.Current.ManageRoles));
-			items.Add(new(MainMenuAction.ViewPermissions, LocalizationStore.Current.ViewPermissions));
-		}
+		List<MenuItem<MainMenuAction>> items = [.. _entries
+			.Where(e => e.IsAvailable(_session.Capabilities))
+			.Select(e => new MenuItem<MainMenuAction>(e.Action, e.Label))];
 
 		items.Add(new(MainMenuAction.Disconnect, LocalizationStore.Current.Disconnect));
 
 		return items;
+	}
+
+	private async Task DisconnectAsync()
+	{
+		_session.End();
+		await _connection.DisconnectAsync();
 	}
 }

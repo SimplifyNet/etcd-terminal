@@ -1,14 +1,21 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Security;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Permissions;
 using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message)
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message) : IMainMenuEntry
 {
+	public MainMenuAction Action => MainMenuAction.ManageRoles;
+
+	public string Label => LocalizationStore.Current.ManageRoles;
+
+	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<RoleMenuAction>(LocalizationStore.Current.RoleManagement,
 		[

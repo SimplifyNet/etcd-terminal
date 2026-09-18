@@ -50,7 +50,7 @@ s
 - [ ] T6.1 DECISION — Replace ambient static stores with injected services
 - [x] T6.2 DECISION — Theme colours by role instead of hue
 - [ ] T6.3 DECISION — Group `ILocalization`
-- [ ] T6.4 DECISION — `MainScreen` navigation table
+- [x] T6.4 DECISION — `MainScreen` navigation table
 
 ---
 

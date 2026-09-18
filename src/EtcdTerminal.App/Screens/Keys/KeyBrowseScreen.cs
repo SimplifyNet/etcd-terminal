@@ -1,6 +1,8 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
@@ -8,8 +10,13 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
+public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message) : IMainMenuEntry
 {
+	public MainMenuAction Action => MainMenuAction.BrowseKeys;
+
+	public string Label => LocalizationStore.Current.BrowseKeys;
+
+	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanReadKeys;
 	private const int EditValueMaxLength = 200;
 
 	private readonly KeyPager _pager = new();

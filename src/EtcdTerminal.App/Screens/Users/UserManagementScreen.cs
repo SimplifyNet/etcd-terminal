@@ -1,13 +1,20 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Security;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message)
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message) : IMainMenuEntry
 {
+	public MainMenuAction Action => MainMenuAction.ManageUsers;
+
+	public string Label => LocalizationStore.Current.ManageUsers;
+
+	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
 		[

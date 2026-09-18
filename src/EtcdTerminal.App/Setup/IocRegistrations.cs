@@ -119,5 +119,14 @@ public static class IocRegistrations
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
 		.Register<KeyBrowseControl>(LifetimeType.Transient)
-		.Register<KeyBrowseLayout>(LifetimeType.Transient);
+		.Register<KeyBrowseLayout>(LifetimeType.Transient)
+		.Register<IEnumerable<IMainMenuEntry>>(c =>
+		[
+			c.Resolve<KeyBrowseScreen>(),
+			c.Resolve<KeyCreateScreen>(),
+			c.Resolve<KeyImportJsonScreen>(),
+			c.Resolve<UserManagementScreen>(),
+			c.Resolve<RoleManagementScreen>(),
+			c.Resolve<PermissionViewScreen>()
+		], LifetimeType.Transient);
 }

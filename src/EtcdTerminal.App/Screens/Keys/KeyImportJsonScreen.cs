@@ -1,8 +1,10 @@
 using System.Text.Json;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Security;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -17,10 +19,16 @@ public sealed class KeyImportJsonScreen(
 	MultiLinePasteReader _pasteReader,
 	Menu _menu,
 	Spinner _spinner,
-	Message _message)
+	Message _message) : IMainMenuEntry
 {
 	private const int _previewLimit = 15;
 	private const int _previewValueLength = 60;
+
+	public MainMenuAction Action => MainMenuAction.ImportJson;
+
+	public string Label => LocalizationStore.Current.ImportJson;
+
+	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanWriteKeys;
 
 	public async Task ShowAsync()
 	{

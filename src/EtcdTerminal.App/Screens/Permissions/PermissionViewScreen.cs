@@ -1,13 +1,20 @@
 using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Roles;
+using EtcdTerminal.Security;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message)
+public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenLayout _screenLayout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message) : IMainMenuEntry
 {
+	public MainMenuAction Action => MainMenuAction.ViewPermissions;
+
+	public string Label => LocalizationStore.Current.ViewPermissions;
+
+	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync()
 	{
 		_screenLayout.RenderHeader();
