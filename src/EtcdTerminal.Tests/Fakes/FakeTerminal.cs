@@ -17,23 +17,23 @@ public sealed class FakeTerminal : ITerminal
 
 	public int CursorTop { get; set; }
 
-	public string Bg => "<bg>";
+	public string PanelBackground => "<panel>";
 
-	public string DarkBg => "<darkbg>";
+	public string PanelDarkerBackground => "<darkpanel>";
 
-	public string White => "<white>";
+	public string Primary => "<primary>";
 
-	public string Grey => "<grey>";
+	public string Secondary => "<secondary>";
 
-	public string Green => "<green>";
+	public string Success => "<success>";
 
-	public string Red => "<red>";
+	public string Danger => "<danger>";
 
-	public string Teal => "<teal>";
+	public string Warning => "<warning>";
 
-	public string Yellow => "<yellow>";
+	public string Muted => "<muted>";
 
-	public string Dim => "<dim>";
+	public string Subtle => "<subtle>";
 
 	public string Accent => "<accent>";
 

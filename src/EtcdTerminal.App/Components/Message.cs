@@ -6,7 +6,7 @@ public sealed class Message(ITerminalOutput _terminal, PressAnyKeyPrompt _pressA
 {
 	public void ShowSuccess(string text) => Show(text, TerminalColor.Success);
 
-	public void ShowError(string text) => Show(text, TerminalColor.Error);
+	public void ShowError(string text) => Show(text, TerminalColor.Danger);
 
 	public void ShowWarning(string text) => Show(text, TerminalColor.Warning);
 

@@ -2,23 +2,23 @@ namespace EtcdTerminal.Terminal;
 
 public interface ITerminalStyle
 {
-	string Bg { get; }
+	string PanelBackground { get; }
 
-	string DarkBg { get; }
+	string PanelDarkerBackground { get; }
 
-	string White { get; }
+	string Primary { get; }
 
-	string Grey { get; }
+	string Secondary { get; }
 
-	string Green { get; }
+	string Success { get; }
 
-	string Red { get; }
+	string Danger { get; }
 
-	string Teal { get; }
+	string Warning { get; }
 
-	string Yellow { get; }
+	string Muted { get; }
 
-	string Dim { get; }
+	string Subtle { get; }
 
 	string Accent { get; }
 

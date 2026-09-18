@@ -116,7 +116,7 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 			? LocalizationStore.Current.WaitingForPaste
 			: string.Format(LocalizationStore.Current.PastedLines, lines);
 
-		var color = lines == 0 ? _terminal.Dim : _terminal.Accent;
+		var color = lines == 0 ? _terminal.Subtle : _terminal.Accent;
 
 		_terminal.Write("\r" + new string(' ', Math.Max(0, _terminal.WindowWidth - 1)));
 		_terminal.Write("\r" + _terminal.Indent + color + text + _terminal.Reset);

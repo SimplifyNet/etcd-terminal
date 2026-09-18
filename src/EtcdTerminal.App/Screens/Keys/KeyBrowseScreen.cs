@@ -53,7 +53,7 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 	{
 		_screenLayout.RenderHeader();
 		_terminal.Write($"{LocalizationStore.Current.EditingKey} ");
-		_terminal.WriteLine(key.Key, TerminalColor.Default);
+		_terminal.WriteLine(key.Key, TerminalColor.Primary);
 		_terminal.Write($"{LocalizationStore.Current.CurrentValue} ");
 		_terminal.WriteLine(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength), TerminalColor.Success);
 		_terminal.WriteLine();
@@ -77,7 +77,7 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 	{
 		_screenLayout.RenderHeader();
 		_terminal.Write($"{LocalizationStore.Current.DeleteKey} ");
-		_terminal.WriteLine(key.Key, TerminalColor.Error);
+		_terminal.WriteLine(key.Key, TerminalColor.Danger);
 		_terminal.WriteLine();
 
 		var result = await _keyStore.DeleteKeyAsync(key.Key);

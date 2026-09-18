@@ -5,6 +5,7 @@
 		"behaviour",
 		"ByteString",
 		"colour",
+		"colours",
 		"conn",
 		"dotnet",
 		"etcd",

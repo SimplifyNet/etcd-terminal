@@ -2,9 +2,16 @@ namespace EtcdTerminal.Terminal;
 
 public enum TerminalColor
 {
-	Default,
+	Primary,
+	Secondary,
 	Success,
-	Error,
+	Danger,
 	Warning,
-	Muted
+	Muted,
+	Subtle,
+	Accent,
+	PanelBackground,
+	PanelDarkerBackground,
+	WindowBackground,
+	Banner
 }

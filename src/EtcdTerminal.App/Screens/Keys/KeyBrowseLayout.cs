@@ -22,22 +22,22 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 	public (int SearchEndCol, int SearchBarRow) RenderSearchBar(string searchQuery)
 	{
-		_output.WriteFillRow(_style.Bg);
+		_output.WriteFillRow(_style.PanelBackground);
 
-		_output.Write(_style.Bg);
+		_output.Write(_style.PanelBackground);
 
 		if (searchQuery.Length == 0)
 			_output.Write(LocalizationStore.Current.TypeToSearch, TerminalColor.Muted);
 		else
-			_output.Write($"  \U0001f50d {_style.White}{searchQuery}{_style.Reset}");
+			_output.Write($"  \U0001f50d {_style.Primary}{searchQuery}{_style.Reset}");
 
 		var searchEndCol = _cursor.CursorLeft;
 		var searchBarRow = _cursor.CursorTop;
 
-		_output.PadCurrentRow(_style.Bg);
+		_output.PadCurrentRow(_style.PanelBackground);
 		_output.WriteLine();
 
-		_output.Write(_output.FillRow(_style.Bg));
+		_output.Write(_output.FillRow(_style.PanelBackground));
 
 		return (searchEndCol, searchBarRow);
 	}
@@ -67,15 +67,15 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 			if (isSelected)
 				_output.Write($"  {_style.Accent}{line}{_style.Reset}\n");
 			else
-				_output.Write($"  {_style.White}{line}{_style.Reset}\n");
+				_output.Write($"  {_style.Primary}{line}{_style.Reset}\n");
 		}
 	}
 
 	public void RenderPagination(int currentPage, int totalPages, int totalKeys)
 	{
 		var currentPageLabel = currentPage + 1;
-		var bg = _style.Bg;
-		var content = $"{bg}{_style.Grey}  {LocalizationStore.Current.Page} {_style.White}{currentPageLabel}/{totalPages}{_style.Grey}  \u2022  {_style.White}{totalKeys}{_style.Grey} {LocalizationStore.Current.TotalKeys}{_style.Reset}";
+		var bg = _style.PanelBackground;
+		var content = $"{bg}{_style.Muted}  {LocalizationStore.Current.Page} {_style.Primary}{currentPageLabel}/{totalPages}{_style.Muted}  \u2022  {_style.Primary}{totalKeys}{_style.Muted} {LocalizationStore.Current.TotalKeys}{_style.Reset}";
 
 		_output.WriteFillRow(bg);
 		_output.Write(content);
@@ -92,9 +92,9 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 	private void RenderSelectedPanel(string selectedKey)
 	{
-		_output.WriteBorderedFillRow(_style.DarkBg);
-		_output.WriteBorderedRow(_style.DarkBg, $"{_style.Grey}  {LocalizationStore.Current.Selected} {_style.Accent}{selectedKey}");
-		_output.WriteBorderedFillRow(_style.DarkBg);
+		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
+		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {LocalizationStore.Current.Selected} {_style.Accent}{selectedKey}");
+		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
 	}
 
 	private void RenderButtonsPanel(bool canModify)
@@ -109,10 +109,10 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 		buttons.Add(("Esc", LocalizationStore.Current.Cancel));
 
-		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_style.White}{b.Key} {_style.Grey}{b.Label}"));
+		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_style.Primary}{b.Key} {_style.Muted}{b.Label}"));
 
-		_output.WriteBorderedFillRow(_style.Bg);
-		_output.WriteBorderedRow(_style.Bg, colored);
-		_output.WriteBorderedFillRow(_style.Bg);
+		_output.WriteBorderedFillRow(_style.PanelBackground);
+		_output.WriteBorderedRow(_style.PanelBackground, colored);
+		_output.WriteBorderedFillRow(_style.PanelBackground);
 	}
 }

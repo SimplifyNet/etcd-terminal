@@ -7,13 +7,13 @@ public interface ITheme
 	RgbColor WindowBackground { get; }
 	RgbColor PanelBackground { get; }
 	RgbColor PanelDarkerBackground { get; }
-	RgbColor White { get; }
-	RgbColor Grey { get; }
-	RgbColor Green { get; }
-	RgbColor Red { get; }
-	RgbColor Teal { get; }
-	RgbColor Yellow { get; }
-	RgbColor Dim { get; }
+	RgbColor Primary { get; }
+	RgbColor Secondary { get; }
+	RgbColor Success { get; }
+	RgbColor Danger { get; }
+	RgbColor Warning { get; }
+	RgbColor Muted { get; }
+	RgbColor Subtle { get; }
 	RgbColor Accent { get; }
 	RgbColor Banner { get; }
 }

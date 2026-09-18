@@ -38,7 +38,7 @@ public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, 
 	{
 		var localization = LocalizationStore.Current;
 		var active = _session.Active;
-		var left = $"{_style.Grey}  {_style.White}\u2191/\u2193{_style.Grey} {localization.StatusNavigate} \u00b7 {_style.White}Enter{_style.Grey} {localization.StatusConfirm} \u00b7 {_style.White}Esc{_style.Grey} {localization.StatusBack}  ";
+		var left = $"{_style.Muted}  {_style.Primary}\u2191/\u2193{_style.Muted} {localization.StatusNavigate} \u00b7 {_style.Primary}Enter{_style.Muted} {localization.StatusConfirm} \u00b7 {_style.Primary}Esc{_style.Muted} {localization.StatusBack}  ";
 		var version = _appInfo.Version;
 		var rightPadding = "  ";
 
@@ -50,28 +50,28 @@ public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, 
 				? active.ConnectionString[..50] + "..."
 				: active.ConnectionString;
 
-			right = $"{_style.Green}\u2022{_style.Teal} {active.Name} {_style.Dim}\u00b7{_style.Grey} {connStr}";
+			right = $"{_style.Success}\u2022{_style.Secondary} {active.Name} {_style.Subtle}\u00b7{_style.Muted} {connStr}";
 			if (active.IsAuthenticationEnabled)
-				right += $" {_style.Dim}\u00b7{_style.Yellow} {active.Username}";
-			right += $" {_style.Grey}v{_style.White}{version}";
+				right += $" {_style.Subtle}\u00b7{_style.Warning} {active.Username}";
+			right += $" {_style.Muted}v{_style.Primary}{version}";
 		}
 		else
-			right = $"{_style.Grey}v{_style.White}{version}";
+			right = $"{_style.Muted}v{_style.Primary}{version}";
 
 		var visibleWidth = _output.GetVisibleLength(left) + _output.GetVisibleLength(right) + rightPadding.Length;
 		var pad = _output.WindowWidth - visibleWidth;
 
 		if (pad < 0) pad = 0;
 
-		var content = _style.Bg + _style.Grey + left + new string(' ', pad) + right + _style.Grey + rightPadding + _style.Reset;
+		var content = _style.PanelBackground + _style.Muted + left + new string(' ', pad) + right + _style.Muted + rightPadding + _style.Reset;
 
 		_cursor.SetCursorPosition(0, _output.WindowHeight - 3);
-		_output.Write(_output.FillRow(_style.Bg));
+		_output.Write(_output.FillRow(_style.PanelBackground));
 
 		_cursor.SetCursorPosition(0, _output.WindowHeight - 2);
 		_output.Write(content);
 
 		_cursor.SetCursorPosition(0, _output.WindowHeight - 1);
-		_output.Write(_output.FillRow(_style.Bg));
+		_output.Write(_output.FillRow(_style.PanelBackground));
 	}
 }

@@ -1,3 +1,4 @@
+using System.Reflection;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Theming;
 using Spectre.Console;
@@ -9,15 +10,15 @@ public sealed class ConsoleTerminal : ITerminal
 	private readonly Dictionary<string, string> _escapeCache = new();
 	private ITheme? _cachedTheme;
 
-	public string Bg => CachedEscape(nameof(Bg), ThemeStore.Current.PanelBackground, BgEscape);
-	public string DarkBg => CachedEscape(nameof(DarkBg), ThemeStore.Current.PanelDarkerBackground, BgEscape);
-	public string White => CachedEscape(nameof(White), ThemeStore.Current.White, FgEscape);
-	public string Grey => CachedEscape(nameof(Grey), ThemeStore.Current.Grey, FgEscape);
-	public string Green => CachedEscape(nameof(Green), ThemeStore.Current.Green, FgEscape);
-	public string Red => CachedEscape(nameof(Red), ThemeStore.Current.Red, FgEscape);
-	public string Teal => CachedEscape(nameof(Teal), ThemeStore.Current.Teal, FgEscape);
-	public string Yellow => CachedEscape(nameof(Yellow), ThemeStore.Current.Yellow, FgEscape);
-	public string Dim => CachedEscape(nameof(Dim), ThemeStore.Current.Dim, FgEscape);
+	public string PanelBackground => CachedEscape(nameof(PanelBackground), ThemeStore.Current.PanelBackground, BgEscape);
+	public string PanelDarkerBackground => CachedEscape(nameof(PanelDarkerBackground), ThemeStore.Current.PanelDarkerBackground, BgEscape);
+	public string Primary => CachedEscape(nameof(Primary), ThemeStore.Current.Primary, FgEscape);
+	public string Secondary => CachedEscape(nameof(Secondary), ThemeStore.Current.Secondary, FgEscape);
+	public string Success => CachedEscape(nameof(Success), ThemeStore.Current.Success, FgEscape);
+	public string Danger => CachedEscape(nameof(Danger), ThemeStore.Current.Danger, FgEscape);
+	public string Warning => CachedEscape(nameof(Warning), ThemeStore.Current.Warning, FgEscape);
+	public string Muted => CachedEscape(nameof(Muted), ThemeStore.Current.Muted, FgEscape);
+	public string Subtle => CachedEscape(nameof(Subtle), ThemeStore.Current.Subtle, FgEscape);
 	public string Reset => "\x1b[0m";
 	public string Accent => CachedEscape(nameof(Accent), ThemeStore.Current.Accent, FgEscape);
 	public string SelectionPointer => "  ❯ ";
@@ -153,14 +154,16 @@ public sealed class ConsoleTerminal : ITerminal
 		handler();
 	};
 
-	private string GetColorEscape(TerminalColor color) => color switch
+	private string GetColorEscape(TerminalColor color) =>
+		CachedEscape("role:" + color, ResolveRoleColor(color), FgEscape);
+
+	private static RgbColor ResolveRoleColor(TerminalColor color)
 	{
-		TerminalColor.Success => Green,
-		TerminalColor.Error => Red,
-		TerminalColor.Warning => Yellow,
-		TerminalColor.Muted => Grey,
-		_ => White
-	};
+		if (typeof(ITheme).GetProperty(color.ToString())?.GetValue(ThemeStore.Current) is RgbColor resolved)
+			return resolved;
+
+		return ThemeStore.Current.Primary;
+	}
 
 	private string CachedEscape(string key, RgbColor color, Func<RgbColor, string> build)
 	{
