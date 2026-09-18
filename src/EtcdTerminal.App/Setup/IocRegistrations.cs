@@ -47,9 +47,10 @@ public static class IocRegistrations
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
+		.Register<JsonConfigFile>(c => new JsonConfigFile(c.Resolve<IAppEnvironment>()), LifetimeType.Singleton)
 		.Register<IConnectionConfigRepository>(c =>
 			new ProtectedConfigRepository(
-				new JsonBasedConnectionConfigRepository(c.Resolve<IAppEnvironment>()),
+				new JsonBasedConnectionConfigRepository(c.Resolve<JsonConfigFile>()),
 				c.Resolve<IConfigProtector>()),
 			LifetimeType.Singleton)
 

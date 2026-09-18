@@ -1,37 +1,17 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Environment;
-using EtcdTerminal.Infrastructure.IO;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : IAppSettingsRepository
+public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IAppSettingsRepository
 {
 	private const string SettingsSection = "Settings";
 	private const string PageSizeProperty = "PageSize";
 	private const string TrimInputValuesProperty = "TrimInputValues";
 
-	private readonly string _configPath = environment.ConfigFilePath;
-	private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
-
 	public IAppSettings Load()
 	{
-		if (!File.Exists(_configPath))
-			return new AppSettings();
-
-		JsonNode? rootNode;
-
-		try
-		{
-			rootNode = JsonNode.Parse(File.ReadAllText(_configPath));
-		}
-		catch (JsonException)
-		{
-			return new AppSettings();
-		}
-
-		if (rootNode as JsonObject is not JsonObject jsonRoot)
+		if (_configFile.TryReadRoot() is not JsonObject jsonRoot)
 			return new AppSettings();
 
 		if (jsonRoot[SettingsSection] is not JsonObject settings)
@@ -50,27 +30,7 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 
 	public void Save(IAppSettings appSettings)
 	{
-		var dir = Path.GetDirectoryName(_configPath)!;
-
-		PrivateFileSystem.CreateDirectory(dir);
-
-		JsonObject root;
-
-		if (File.Exists(_configPath))
-		{
-			try
-			{
-				root = JsonNode.Parse(File.ReadAllText(_configPath)) as JsonObject ?? [];
-			}
-			catch
-			{
-				root = [];
-			}
-		}
-		else
-		{
-			root = [];
-		}
+		var root = _configFile.TryReadRoot() ?? [];
 
 		root[SettingsSection] = new JsonObject
 		{
@@ -78,6 +38,6 @@ public sealed class JsonBasedSettingsRepository(IAppEnvironment environment) : I
 			[TrimInputValuesProperty] = appSettings.TrimInputValues
 		};
 
-		PrivateFileSystem.WriteAllTextAtomic(_configPath, root.ToJsonString(_jsonOptions));
+		_configFile.WriteRoot(root);
 	}
 }
