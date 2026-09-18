@@ -1,19 +1,13 @@
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
-using EtcdTerminal.App.Localization;
-using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Terminal;
-using EtcdTerminal.Theming;
 using EtcdTerminal.Localization;
 using Simplify.DI;
 
 DIContainer.Current
 	.RegisterAll()
 	.Verify();
-
-ThemeStore.Current = new ReddyTheme();
-LocalizationStore.Current = new EnglishLocalization();
 
 DIContainer.Current
 	.Resolve<ITerminal>()
@@ -52,8 +46,9 @@ try
 		{
 			using var scope = DIContainer.Current.BeginLifetimeScope();
 			var settingsRepository = scope.Resolver.Resolve<IAppSettingsRepository>();
+			var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
 
-			AppSettingsStore.Current = settingsRepository.Load();
+			settingsStore.Update(settingsRepository.Load());
 
 			var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
 			var config = await instanceScreen.ShowAsync();
@@ -68,9 +63,10 @@ try
 		catch (Exception ex)
 		{
 			var terminal = DIContainer.Current.Resolve<ITerminal>();
+			var localization = DIContainer.Current.Resolve<ILocalization>();
 
 			terminal.WriteException(ex);
-			terminal.WriteIndentedLine(LocalizationStore.Current.PressAnyKeyRestart, TerminalColor.Muted);
+			terminal.WriteIndentedLine(localization.PressAnyKeyRestart, TerminalColor.Muted);
 			terminal.ReadKey();
 		}
 	}

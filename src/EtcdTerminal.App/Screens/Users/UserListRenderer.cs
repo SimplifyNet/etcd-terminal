@@ -6,11 +6,11 @@ namespace EtcdTerminal.App.Screens.Users;
 
 public static class UserListRenderer
 {
-	public static void Render(ITerminal terminal, IReadOnlyList<EtcdUser> users)
+	public static void Render(ITerminal terminal, ILocalization localization, IReadOnlyList<EtcdUser> users)
 	{
 		if (users.Count == 0)
 		{
-			terminal.WriteIndentedLine(LocalizationStore.Current.NoUsersFound, TerminalColor.Warning);
+			terminal.WriteIndentedLine(localization.NoUsersFound, TerminalColor.Warning);
 
 			return;
 		}
@@ -21,13 +21,13 @@ public static class UserListRenderer
 		{
 			var roles = user.Roles.Count > 0
 				? string.Join(", ", user.Roles)
-				: LocalizationStore.Current.None;
+				: localization.None;
 
 			rows.Add([user.Username, roles]);
 		}
 
 		terminal.WriteTable(new TableData(
-			[LocalizationStore.Current.Username, LocalizationStore.Current.Roles],
+			[localization.Username, localization.Roles],
 			rows));
 	}
 }

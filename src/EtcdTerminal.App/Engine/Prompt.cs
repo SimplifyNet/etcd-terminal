@@ -4,7 +4,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ITextInput _textInput, StatusBar _statusBar)
+public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ITextInput _textInput, StatusBar _statusBar, IAppSettingsStore _settings)
 {
 	public string? Ask(string prompt, bool allowEmpty = false)
 	{
@@ -20,7 +20,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			if (input is null)
 				return null;
 
-			if (AppSettingsStore.Current.TrimInputValues)
+			if (_settings.Current.TrimInputValues)
 				input = input.Trim();
 
 			if (string.IsNullOrWhiteSpace(input))
@@ -48,7 +48,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			if (input is null)
 				return null;
 
-			return AppSettingsStore.Current.TrimInputValues ? input.Trim() : input;
+			return _settings.Current.TrimInputValues ? input.Trim() : input;
 		}
 		finally
 		{

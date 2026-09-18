@@ -6,7 +6,7 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style)
+public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ILocalization _localization)
 {
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
@@ -27,7 +27,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		_output.Write(_style.PanelBackground);
 
 		if (searchQuery.Length == 0)
-			_output.Write(LocalizationStore.Current.TypeToSearch, TerminalColor.Muted);
+			_output.Write(_localization.TypeToSearch, TerminalColor.Muted);
 		else
 			_output.Write($"  \U0001f50d {_style.Primary}{searchQuery}{_style.Reset}");
 
@@ -46,7 +46,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 	{
 		if (pageKeys.Count == 0)
 		{
-			_output.WriteIndentedLine(LocalizationStore.Current.NoKeysFound, TerminalColor.Muted);
+			_output.WriteIndentedLine(_localization.NoKeysFound, TerminalColor.Muted);
 
 			return;
 		}
@@ -75,7 +75,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 	{
 		var currentPageLabel = currentPage + 1;
 		var bg = _style.PanelBackground;
-		var content = $"{bg}{_style.Muted}  {LocalizationStore.Current.Page} {_style.Primary}{currentPageLabel}/{totalPages}{_style.Muted}  \u2022  {_style.Primary}{totalKeys}{_style.Muted} {LocalizationStore.Current.TotalKeys}{_style.Reset}";
+		var content = $"{bg}{_style.Muted}  {_localization.Page} {_style.Primary}{currentPageLabel}/{totalPages}{_style.Muted}  \u2022  {_style.Primary}{totalKeys}{_style.Muted} {_localization.TotalKeys}{_style.Reset}";
 
 		_output.WriteFillRow(bg);
 		_output.Write(content);
@@ -93,7 +93,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 	private void RenderSelectedPanel(string selectedKey)
 	{
 		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
-		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {LocalizationStore.Current.Selected} {_style.Accent}{selectedKey}");
+		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {_localization.Selected} {_style.Accent}{selectedKey}");
 		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
 	}
 
@@ -103,11 +103,11 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 		if (canModify)
 		{
-			buttons.Add(("E", LocalizationStore.Current.Edit));
-			buttons.Add(("D", LocalizationStore.Current.Delete));
+			buttons.Add(("E", _localization.Edit));
+			buttons.Add(("D", _localization.Delete));
 		}
 
-		buttons.Add(("Esc", LocalizationStore.Current.Cancel));
+		buttons.Add(("Esc", _localization.Cancel));
 
 		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_style.Primary}{b.Key} {_style.Muted}{b.Label}"));
 

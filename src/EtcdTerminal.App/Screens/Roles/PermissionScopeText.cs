@@ -5,10 +5,10 @@ namespace EtcdTerminal.App.Screens.Roles;
 
 public static class PermissionScopeText
 {
-	public static string For(PermissionScope scope) => scope switch
+	public static string For(PermissionScope scope, ILocalization localization) => scope switch
 	{
-		PermissionScope.Key => LocalizationStore.Current.ScopeKey,
-		PermissionScope.Prefix => LocalizationStore.Current.ScopePrefix,
-		_ => LocalizationStore.Current.ScopeRange
+		PermissionScope.Key => localization.ScopeKey,
+		PermissionScope.Prefix => localization.ScopePrefix,
+		_ => localization.ScopeRange
 	};
 }

@@ -5,7 +5,7 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, IAppInfo _appInfo, IConnectionSession _session)
+public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization)
 {
 	public const int ReservedRows = 3;
 
@@ -36,9 +36,8 @@ public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, 
 
 	public void Render()
 	{
-		var localization = LocalizationStore.Current;
 		var active = _session.Active;
-		var left = $"{_style.Muted}  {_style.Primary}\u2191/\u2193{_style.Muted} {localization.StatusNavigate} \u00b7 {_style.Primary}Enter{_style.Muted} {localization.StatusConfirm} \u00b7 {_style.Primary}Esc{_style.Muted} {localization.StatusBack}  ";
+		var left = $"{_style.Muted}  {_style.Primary}\u2191/\u2193{_style.Muted} {_localization.StatusNavigate} \u00b7 {_style.Primary}Enter{_style.Muted} {_localization.StatusConfirm} \u00b7 {_style.Primary}Esc{_style.Muted} {_localization.StatusBack}  ";
 		var version = _appInfo.Version;
 		var rightPadding = "  ";
 

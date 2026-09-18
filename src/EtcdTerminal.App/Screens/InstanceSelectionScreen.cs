@@ -8,7 +8,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, ScreenLayout _screenLayout, Spinner _spinner, ManageConnectionsScreen _manageConnections)
+public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, ScreenLayout _screenLayout, 	Spinner _spinner, ManageConnectionsScreen _manageConnections, ILocalization _localization)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -48,7 +48,7 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 
 				try
 				{
-					connected = await _spinner.RunAsync(LocalizationStore.Current.Connecting, async ct =>
+					connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
 					{
 						await _connection.ConnectAsync(selected, ct);
 
@@ -57,13 +57,13 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 				}
 				catch (Exception ex)
 				{
-					_message.ShowError(string.Format(LocalizationStore.Current.FailedToConnect, ex.Message));
+					_message.ShowError(string.Format(_localization.FailedToConnect, ex.Message));
 
 					continue;
 				}
 
 				if (!connected)
-					_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
+					_message.ShowWarning(_localization.OperationCancelled);
 				else
 				{
 					_session.Start(selected, capabilities);
@@ -81,7 +81,7 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 		if (decryptFailures.Count is 0)
 			return;
 
-		_message.ShowWarning(string.Format(LocalizationStore.Current.UndecryptablePasswords, string.Join(", ", decryptFailures)));
+		_message.ShowWarning(string.Format(_localization.UndecryptablePasswords, string.Join(", ", decryptFailures)));
 
 		_screenLayout.RenderHeader();
 	}
@@ -95,13 +95,13 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 		if (instances.Count > 0)
 			items.Add(new MenuItem<InstanceMenuChoice>(new(null, null), string.Empty, IsSelectable: false));
 
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.ManageConnections, null), LocalizationStore.Current.ManageConnections));
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), LocalizationStore.Current.Settings));
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), LocalizationStore.Current.Exit));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.ManageConnections, null), _localization.ManageConnections));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), _localization.Settings));
+		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), _localization.Exit));
 
 		if (instances.Count == 0)
 		{
-			_terminal.WriteIndentedLine(LocalizationStore.Current.NoConnectionsMessage, TerminalColor.Warning);
+			_terminal.WriteIndentedLine(_localization.NoConnectionsMessage, TerminalColor.Warning);
 			_terminal.WriteLine();
 		}
 

@@ -6,11 +6,11 @@ namespace EtcdTerminal.App.Screens.Roles;
 
 public static class RoleListRenderer
 {
-	public static void Render(ITerminal terminal, IReadOnlyList<EtcdRole> roles)
+	public static void Render(ITerminal terminal, ILocalization localization, IReadOnlyList<EtcdRole> roles)
 	{
 		if (roles.Count == 0)
 		{
-			terminal.WriteIndentedLine(LocalizationStore.Current.NoRolesFound, TerminalColor.Warning);
+			terminal.WriteIndentedLine(localization.NoRolesFound, TerminalColor.Warning);
 
 			return;
 		}
@@ -20,13 +20,13 @@ public static class RoleListRenderer
 			List<IReadOnlyList<string>> rows = [];
 
 			if (role.Permissions.Count == 0)
-				rows.Add([LocalizationStore.Current.None, LocalizationStore.Current.None, LocalizationStore.Current.None]);
+				rows.Add([localization.None, localization.None, localization.None]);
 			else
 				foreach (var perm in role.Permissions)
-					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope), perm.KeyPrefix]);
+					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope, localization), perm.KeyPrefix]);
 
 			terminal.WriteTable(new TableData(
-				[LocalizationStore.Current.PermissionType, LocalizationStore.Current.PermissionScope, LocalizationStore.Current.KeyPrefix],
+				[localization.PermissionType, localization.PermissionScope, localization.KeyPrefix],
 				rows)
 			{
 				Title = $"Role: {role.Name}"

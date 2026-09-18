@@ -47,7 +47,7 @@ s
 - [x] T5.3 Remove duplicate members from `ITerminal`
 - [x] T5.4 Split `ITerminal` by client role
 - [x] T5.5 Fix `Spinner` cross-thread key reading
-- [ ] T6.1 DECISION — Replace ambient static stores with injected services
+- [x] T6.1 DECISION — Replace ambient static stores with injected services
 - [x] T6.2 DECISION — Theme colours by role instead of hue
 - [ ] T6.3 DECISION — Group `ILocalization`
 - [x] T6.4 DECISION — `MainScreen` navigation table

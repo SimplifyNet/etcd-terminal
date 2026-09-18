@@ -3,7 +3,6 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Session;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Localization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -13,9 +12,6 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class MenuTests
 {
-	[SetUp]
-	public void SetUp() => LocalizationStore.Current = new EnglishLocalization();
-
 	[Test]
 	public void Show_WithDuplicateLabels_ReturnsChosenItem()
 	{
@@ -61,7 +57,7 @@ public sealed class MenuTests
 		Assert.That(chosen?.Id, Is.EqualTo(2));
 	}
 
-	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), new ConnectionSession()));
+	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization()));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

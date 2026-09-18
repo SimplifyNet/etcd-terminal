@@ -5,22 +5,21 @@ using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;
 
-public sealed class ConsoleTerminal : ITerminal
+public sealed class ConsoleTerminal(ITheme _theme) : ITerminal
 {
 	private readonly Dictionary<string, string> _escapeCache = new();
-	private ITheme? _cachedTheme;
 
-	public string PanelBackground => CachedEscape(nameof(PanelBackground), ThemeStore.Current.PanelBackground, BgEscape);
-	public string PanelDarkerBackground => CachedEscape(nameof(PanelDarkerBackground), ThemeStore.Current.PanelDarkerBackground, BgEscape);
-	public string Primary => CachedEscape(nameof(Primary), ThemeStore.Current.Primary, FgEscape);
-	public string Secondary => CachedEscape(nameof(Secondary), ThemeStore.Current.Secondary, FgEscape);
-	public string Success => CachedEscape(nameof(Success), ThemeStore.Current.Success, FgEscape);
-	public string Danger => CachedEscape(nameof(Danger), ThemeStore.Current.Danger, FgEscape);
-	public string Warning => CachedEscape(nameof(Warning), ThemeStore.Current.Warning, FgEscape);
-	public string Muted => CachedEscape(nameof(Muted), ThemeStore.Current.Muted, FgEscape);
-	public string Subtle => CachedEscape(nameof(Subtle), ThemeStore.Current.Subtle, FgEscape);
+	public string PanelBackground => CachedEscape(nameof(PanelBackground), _theme.PanelBackground, BgEscape);
+	public string PanelDarkerBackground => CachedEscape(nameof(PanelDarkerBackground), _theme.PanelDarkerBackground, BgEscape);
+	public string Primary => CachedEscape(nameof(Primary), _theme.Primary, FgEscape);
+	public string Secondary => CachedEscape(nameof(Secondary), _theme.Secondary, FgEscape);
+	public string Success => CachedEscape(nameof(Success), _theme.Success, FgEscape);
+	public string Danger => CachedEscape(nameof(Danger), _theme.Danger, FgEscape);
+	public string Warning => CachedEscape(nameof(Warning), _theme.Warning, FgEscape);
+	public string Muted => CachedEscape(nameof(Muted), _theme.Muted, FgEscape);
+	public string Subtle => CachedEscape(nameof(Subtle), _theme.Subtle, FgEscape);
 	public string Reset => "\x1b[0m";
-	public string Accent => CachedEscape(nameof(Accent), ThemeStore.Current.Accent, FgEscape);
+	public string Accent => CachedEscape(nameof(Accent), _theme.Accent, FgEscape);
 	public string SelectionPointer => "  ❯ ";
 	public string Indent => "    ";
 
@@ -61,7 +60,7 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void ResetColor() => Console.ResetColor();
 
-	public void SetDarkBackground() => Write($"\x1b]11;#{ThemeStore.Current.WindowBackground.R:X2}{ThemeStore.Current.WindowBackground.G:X2}{ThemeStore.Current.WindowBackground.B:X2}\x07");
+	public void SetDarkBackground() => Write($"\x1b]11;#{_theme.WindowBackground.R:X2}{_theme.WindowBackground.G:X2}{_theme.WindowBackground.B:X2}\x07");
 
 	public string FillRow(string bg) => bg + new string(' ', WindowWidth) + Reset;
 
@@ -139,7 +138,7 @@ public sealed class ConsoleTerminal : ITerminal
 
 	public void WriteBanner(string text)
 	{
-		var banner = ThemeStore.Current.Banner;
+		var banner = _theme.Banner;
 
 		AnsiConsole.Write(new FigletText(text).Color(new Color(banner.R, banner.G, banner.B)).Centered());
 	}
@@ -157,22 +156,16 @@ public sealed class ConsoleTerminal : ITerminal
 	private string GetColorEscape(TerminalColor color) =>
 		CachedEscape("role:" + color, ResolveRoleColor(color), FgEscape);
 
-	private static RgbColor ResolveRoleColor(TerminalColor color)
+	private RgbColor ResolveRoleColor(TerminalColor color)
 	{
-		if (typeof(ITheme).GetProperty(color.ToString())?.GetValue(ThemeStore.Current) is RgbColor resolved)
+		if (typeof(ITheme).GetProperty(color.ToString())?.GetValue(_theme) is RgbColor resolved)
 			return resolved;
 
-		return ThemeStore.Current.Primary;
+		return _theme.Primary;
 	}
 
 	private string CachedEscape(string key, RgbColor color, Func<RgbColor, string> build)
 	{
-		if (!ReferenceEquals(ThemeStore.Current, _cachedTheme))
-		{
-			_cachedTheme = ThemeStore.Current;
-			_escapeCache.Clear();
-		}
-
 		if (!_escapeCache.TryGetValue(key, out var escape))
 		{
 			escape = build(color);

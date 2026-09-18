@@ -5,7 +5,7 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message)
+public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -16,10 +16,10 @@ public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepos
 		{
 			_screenLayout.RenderHeader();
 
-			SettingsAction? action = _menu.Show<SettingsAction>(LocalizationStore.Current.SettingsTitle,
+			SettingsAction? action = _menu.Show<SettingsAction>(_localization.SettingsTitle,
 			[
-				new(SettingsAction.EditPageSize, $"{LocalizationStore.Current.PageSizeLabel} ({AppSettingsStore.Current.PageSize})"),
-				new(SettingsAction.ToggleTrimInputValues, $"{LocalizationStore.Current.TrimInputValuesLabel} ({OnOff(AppSettingsStore.Current.TrimInputValues)})")
+				new(SettingsAction.EditPageSize, $"{_localization.PageSizeLabel} ({_settings.Current.PageSize})"),
+				new(SettingsAction.ToggleTrimInputValues, $"{_localization.TrimInputValuesLabel} ({OnOff(_settings.Current.TrimInputValues)})")
 			])?.Id;
 
 			if (action is null)
@@ -37,11 +37,11 @@ public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepos
 		}
 	}
 
-	private static string OnOff(bool value) => value ? LocalizationStore.Current.On : LocalizationStore.Current.Off;
+	private string OnOff(bool value) => value ? _localization.On : _localization.Off;
 
 	private void EditPageSize()
 	{
-		var input = _prompt.Ask(LocalizationStore.Current.EnterPageSize);
+		var input = _prompt.Ask(_localization.EnterPageSize);
 
 		if (input is null)
 			return;
@@ -51,43 +51,43 @@ public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepos
 			var updated = new AppSettings
 			{
 				PageSize = pageSize,
-				TrimInputValues = AppSettingsStore.Current.TrimInputValues
+				TrimInputValues = _settings.Current.TrimInputValues
 			};
 
 			try
 			{
 				_repository.Save(updated);
 
-				AppSettingsStore.Current = updated;
+				_settings.Update(updated);
 
-				_message.ShowSuccess(LocalizationStore.Current.SettingsSaved);
+				_message.ShowSuccess(_localization.SettingsSaved);
 			}
 			catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 			{
-				_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
+				_message.ShowError(_localization.FailedSaveSettings);
 			}
 		}
 		else
-			_message.ShowError(LocalizationStore.Current.InvalidPageSize);
+			_message.ShowError(_localization.InvalidPageSize);
 	}
 
 	private void ToggleTrimInputValues()
 	{
 		var updated = new AppSettings
 		{
-			PageSize = AppSettingsStore.Current.PageSize,
-			TrimInputValues = !AppSettingsStore.Current.TrimInputValues
+			PageSize = _settings.Current.PageSize,
+			TrimInputValues = !_settings.Current.TrimInputValues
 		};
 
 		try
 		{
 			_repository.Save(updated);
 
-			AppSettingsStore.Current = updated;
+			_settings.Update(updated);
 		}
 		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{
-			_message.ShowError(LocalizationStore.Current.FailedSaveSettings);
+			_message.ShowError(_localization.FailedSaveSettings);
 		}
 	}
 }

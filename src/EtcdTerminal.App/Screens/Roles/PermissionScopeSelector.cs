@@ -4,14 +4,14 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class PermissionScopeSelector(Menu _menu)
+public sealed class PermissionScopeSelector(Menu _menu, ILocalization _localization)
 {
 	public PermissionScope? Select()
 	{
-		var key = LocalizationStore.Current.ScopeKey;
-		var prefix = LocalizationStore.Current.ScopePrefix;
+		var key = _localization.ScopeKey;
+		var prefix = _localization.ScopePrefix;
 
-		return _menu.Show<PermissionScope>(LocalizationStore.Current.SelectPermissionScope,
+		return _menu.Show<PermissionScope>(_localization.SelectPermissionScope,
 		[
 			new(PermissionScope.Prefix, prefix),
 			new(PermissionScope.Key, key)

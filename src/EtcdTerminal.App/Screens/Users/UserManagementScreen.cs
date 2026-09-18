@@ -8,22 +8,22 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, Spinner _spinner, Message _message) : IMainMenuEntry
+public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
-	public string Label => LocalizationStore.Current.ManageUsers;
+	public string Label => _localization.ManageUsers;
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
-		await _menuScreen.RunAsync<UserMenuAction>(LocalizationStore.Current.UserManagement,
+		await _menuScreen.RunAsync<UserMenuAction>(_localization.UserManagement,
 		[
-			new(UserMenuAction.ListUsers, LocalizationStore.Current.ListUsers),
-			new(UserMenuAction.CreateUser, LocalizationStore.Current.CreateUser),
-			new(UserMenuAction.DeleteUser, LocalizationStore.Current.DeleteUser),
-			new(UserMenuAction.ChangePassword, LocalizationStore.Current.ChangePassword),
-			new(UserMenuAction.AssignRole, LocalizationStore.Current.AssignRole),
-			new(UserMenuAction.RemoveRole, LocalizationStore.Current.RemoveRole)
+			new(UserMenuAction.ListUsers, _localization.ListUsers),
+			new(UserMenuAction.CreateUser, _localization.CreateUser),
+			new(UserMenuAction.DeleteUser, _localization.DeleteUser),
+			new(UserMenuAction.ChangePassword, _localization.ChangePassword),
+			new(UserMenuAction.AssignRole, _localization.AssignRole),
+			new(UserMenuAction.RemoveRole, _localization.RemoveRole)
 		],
 		HandleChoiceAsync);
 
@@ -56,19 +56,19 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 	{
 		IReadOnlyList<EtcdUser> users = [];
 
-		var loaded = await _spinner.RunAsync(LocalizationStore.Current.LoadingUsers, async ct =>
+		var loaded = await _spinner.RunAsync(_localization.LoadingUsers, async ct =>
 		{
 			users = await _userAdmin.GetUsersAsync(ct);
 		});
 
 		if (!loaded)
 		{
-			_message.ShowWarning(LocalizationStore.Current.OperationCancelled);
+			_message.ShowWarning(_localization.OperationCancelled);
 
 			return;
 		}
 
-		UserListRenderer.Render(_terminal, users);
+		UserListRenderer.Render(_terminal, _localization, users);
 
 		_terminal.WriteLine();
 		_pressAnyKey.Show();
@@ -76,81 +76,81 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 
 	private async Task CreateUserAsync()
 	{
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var password = _prompt.Secret(LocalizationStore.Current.EnterPasswordPrompt);
+		var password = _prompt.Secret(_localization.EnterPasswordPrompt);
 
 		if (password is null)
 			return;
 
 		var result = await _userAdmin.CreateUserAsync(username, password);
 
-		_message.ShowResult(result.Success, LocalizationStore.Current.UserCreated, result.ErrorMessage ?? LocalizationStore.Current.FailedCreateUser);
+		_message.ShowResult(result.Success, _localization.UserCreated, result.ErrorMessage ?? _localization.FailedCreateUser);
 	}
 
 	private async Task DeleteUserAsync()
 	{
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernameToDelete);
+		var username = _prompt.Ask(_localization.EnterUsernameToDelete);
 
 		if (username is null)
 			return;
 
 		var result = await _userAdmin.DeleteUserAsync(username);
 
-		_message.ShowResult(result.Success, LocalizationStore.Current.UserDeleted, result.ErrorMessage ?? LocalizationStore.Current.FailedDeleteUser);
+		_message.ShowResult(result.Success, _localization.UserDeleted, result.ErrorMessage ?? _localization.FailedDeleteUser);
 	}
 
 	private async Task ChangePasswordAsync()
 	{
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var newPassword = _prompt.Secret(LocalizationStore.Current.EnterNewPassword);
+		var newPassword = _prompt.Secret(_localization.EnterNewPassword);
 
 		if (newPassword is null)
 			return;
 
 		var result = await _userAdmin.ChangeUserPasswordAsync(username, newPassword);
 
-		_message.ShowResult(result.Success, LocalizationStore.Current.PasswordChanged, result.ErrorMessage ?? LocalizationStore.Current.FailedChangePassword);
+		_message.ShowResult(result.Success, _localization.PasswordChanged, result.ErrorMessage ?? _localization.FailedChangePassword);
 	}
 
 	private async Task AssignRoleAsync()
 	{
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleName);
+		var roleName = _prompt.Ask(_localization.EnterRoleName);
 
 		if (roleName is null)
 			return;
 
 		var grantResult = await _userAdmin.GrantRoleToUserAsync(username, roleName);
 
-		_message.ShowResult(grantResult.Success, LocalizationStore.Current.RoleAssigned, grantResult.ErrorMessage ?? LocalizationStore.Current.FailedAssignRole);
+		_message.ShowResult(grantResult.Success, _localization.RoleAssigned, grantResult.ErrorMessage ?? _localization.FailedAssignRole);
 	}
 
 	private async Task RevokeRoleAsync()
 	{
-		var username = _prompt.Ask(LocalizationStore.Current.EnterUsernamePrompt);
+		var username = _prompt.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = _prompt.Ask(LocalizationStore.Current.EnterRoleNameToRemove);
+		var roleName = _prompt.Ask(_localization.EnterRoleNameToRemove);
 
 		if (roleName is null)
 			return;
 
 		var revokeResult = await _userAdmin.RevokeRoleFromUserAsync(username, roleName);
 
-		_message.ShowResult(revokeResult.Success, LocalizationStore.Current.RoleRemoved, revokeResult.ErrorMessage ?? LocalizationStore.Current.FailedRemoveRole);
+		_message.ShowResult(revokeResult.Success, _localization.RoleRemoved, revokeResult.ErrorMessage ?? _localization.FailedRemoveRole);
 	}
 }

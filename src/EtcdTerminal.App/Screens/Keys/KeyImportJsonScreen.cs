@@ -19,14 +19,15 @@ public sealed class KeyImportJsonScreen(
 	MultiLinePasteReader _pasteReader,
 	Menu _menu,
 	Spinner _spinner,
-	Message _message) : IMainMenuEntry
+	Message _message,
+	ILocalization _localization) : IMainMenuEntry
 {
 	private const int _previewLimit = 15;
 	private const int _previewValueLength = 60;
 
 	public MainMenuAction Action => MainMenuAction.ImportJson;
 
-	public string Label => LocalizationStore.Current.ImportJson;
+	public string Label => _localization.ImportJson;
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanWriteKeys;
 
@@ -34,12 +35,12 @@ public sealed class KeyImportJsonScreen(
 	{
 		_screenLayout.RenderHeader();
 
-		var separator = _prompt.Ask(LocalizationStore.Current.EnterSeparator, ":") ?? ":";
-		var prefix = _prompt.Ask(LocalizationStore.Current.EnterPrefix) ?? "";
+		var separator = _prompt.Ask(_localization.EnterSeparator, ":") ?? ":";
+		var prefix = _prompt.Ask(_localization.EnterPrefix) ?? "";
 
 		_output.WriteLine();
 
-		var json = await _pasteReader.ReadAsync(LocalizationStore.Current.PasteJson);
+		var json = await _pasteReader.ReadAsync(_localization.PasteJson);
 
 		if (json is null)
 			return;
@@ -52,20 +53,20 @@ public sealed class KeyImportJsonScreen(
 		}
 		catch (ArgumentException)
 		{
-			_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
+			_message.ShowWarning(_localization.NoKeysInJson);
 
 			return;
 		}
 		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
-			_message.ShowError(string.Format(LocalizationStore.Current.InvalidJson, ex.Message));
+			_message.ShowError(string.Format(_localization.InvalidJson, ex.Message));
 
 			return;
 		}
 
 		if (entries.Count == 0)
 		{
-			_message.ShowWarning(LocalizationStore.Current.NoKeysInJson);
+			_message.ShowWarning(_localization.NoKeysInJson);
 
 			return;
 		}
@@ -73,7 +74,7 @@ public sealed class KeyImportJsonScreen(
 		if (!ConfirmImport(entries))
 		{
 			_output.WriteLine();
-			_output.WriteIndentedLine(LocalizationStore.Current.ImportCancelled, TerminalColor.Muted);
+			_output.WriteIndentedLine(_localization.ImportCancelled, TerminalColor.Muted);
 			_output.WriteLine();
 			_pressAnyKey.Show();
 
@@ -84,7 +85,7 @@ public sealed class KeyImportJsonScreen(
 
 		_output.WriteLine();
 
-		var imported = await _spinner.RunAsync(string.Format(LocalizationStore.Current.ImportingKeys, entries.Count), async ct =>
+		var imported = await _spinner.RunAsync(string.Format(_localization.ImportingKeys, entries.Count), async ct =>
 		{
 			result = await _importer.ImportAsync(entries, ct);
 		});
@@ -92,7 +93,7 @@ public sealed class KeyImportJsonScreen(
 		if (!imported)
 		{
 			_output.WriteLine();
-			_output.WriteIndentedLine(LocalizationStore.Current.ImportCancelled, TerminalColor.Muted);
+			_output.WriteIndentedLine(_localization.ImportCancelled, TerminalColor.Muted);
 
 			_output.WriteLine();
 			_pressAnyKey.Show();
@@ -100,7 +101,7 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		var summary = string.Format(LocalizationStore.Current.ImportResult, result.Created + result.Overwritten, result.Overwritten, result.Failed);
+		var summary = string.Format(_localization.ImportResult, result.Created + result.Overwritten, result.Overwritten, result.Failed);
 
 		if (result.Failed > 0)
 			_message.ShowWarning(summary);
@@ -111,7 +112,7 @@ public sealed class KeyImportJsonScreen(
 	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
 	{
 		_output.WriteLine();
-		_output.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewTitle, entries.Count));
+		_output.WriteIndentedLine(string.Format(_localization.ImportPreviewTitle, entries.Count));
 		_output.WriteLine();
 
 		foreach (var (Key, Value) in entries.Take(_previewLimit))
@@ -122,13 +123,13 @@ public sealed class KeyImportJsonScreen(
 		}
 
 		if (entries.Count > _previewLimit)
-			_output.WriteIndentedLine(string.Format(LocalizationStore.Current.ImportPreviewMore, entries.Count - _previewLimit), TerminalColor.Muted);
+			_output.WriteIndentedLine(string.Format(_localization.ImportPreviewMore, entries.Count - _previewLimit), TerminalColor.Muted);
 
 		bool? confirmed = _menu.Show<bool>(
-			LocalizationStore.Current.ConfirmImport,
+			_localization.ConfirmImport,
 			[
-				new(true, LocalizationStore.Current.Yes),
-				new(false, LocalizationStore.Current.No)
+				new(true, _localization.Yes),
+				new(false, _localization.No)
 			])?.Id;
 
 		return confirmed ?? false;

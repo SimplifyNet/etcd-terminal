@@ -8,11 +8,11 @@ namespace EtcdTerminal.App.Screens.Permissions;
 
 public static class PermissionViewRenderer
 {
-	public static void Render(ITerminal terminal, IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
+	public static void Render(ITerminal terminal, ILocalization localization, IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
 	{
 		if (users.Count == 0 && roles.Count == 0)
 		{
-			terminal.WriteIndentedLine(LocalizationStore.Current.NoUsersOrRoles, TerminalColor.Warning);
+			terminal.WriteIndentedLine(localization.NoUsersOrRoles, TerminalColor.Warning);
 
 			return;
 		}
@@ -22,20 +22,20 @@ public static class PermissionViewRenderer
 			List<IReadOnlyList<string>> rows = [];
 
 			if (user.Roles.Count == 0)
-				rows.Add([LocalizationStore.Current.NoRoles, "-"]);
+				rows.Add([localization.NoRoles, "-"]);
 			else
 				foreach (var roleName in user.Roles)
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
 					var permissions = role is not null && role.Permissions.Count > 0
-						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope)}]: {p.KeyPrefix}"))
-						: LocalizationStore.Current.NoPermissions;
+						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope, localization)}]: {p.KeyPrefix}"))
+						: localization.NoPermissions;
 
 					rows.Add([roleName, permissions]);
 				}
 
 			terminal.WriteTable(new TableData(
-				[LocalizationStore.Current.Role, LocalizationStore.Current.Permissions],
+				[localization.Role, localization.Permissions],
 				rows)
 			{
 				Title = $"User: {user.Username}"

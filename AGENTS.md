@@ -5,15 +5,15 @@
 Layers: **Terminal → Components → Screens**.
 
 - `Terminal/` (domain `EtcdTerminal.Terminal`) — low-level abstraction (`ITerminal`, `TerminalColor`, `TableData`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences.
-- `Theming/` — color system (`ITheme`, `ThemeStore`, `RgbColor`). Provides colors to Terminal layer.
-- `Components/` — reusable UI components (`Header`, `MenuScreen`, `Message`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` via `ThemeStore.Current`.
+- `Theming/` — color system (`ITheme`, `RgbColor`). Provides colors to Terminal layer.
+- `Components/` — reusable UI components (`Header`, `MenuScreen`, `Message`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` through `ITerminal` (`ConsoleTerminal` takes `ITheme` via constructor).
 - `Engine/` — interactive input-loop primitives (`Menu`, `Prompt`). Used by screens and components to read key input and render selection lists; like Components, they depend on `ITerminal` and sibling primitives only — never on domain types like `EtcdConnectionConfig`.
 - `Screens/` — orchestration: only use components/engine + feature-local controls. Never perform raw console work.
-- `Localization/` — text system (`ILocalization`, `LocalizationStore`). Provides UI strings.
+- `Localization/` — text system (`ILocalization`). Provides UI strings.
 
 **Dependency rules:**
 - `Screens` → `Components`/`Engine` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI.
-- `Components`/`Engine` → `Terminal`. Colors only from `ITheme` (`ThemeStore.Current`).
+- `Components`/`Engine` → `Terminal`. Colors only from `ITheme` (through `ITerminal`).
 - `Terminal` — nothing from App. `ConsoleTerminal` and `SpectreTextInput` are the only Spectre touchdown's.
 - `Theming` — domain-only, no infrastructure dependencies.
 - `Localization` — domain-only, implementations live in App layer.
@@ -22,7 +22,7 @@ Layers: **Terminal → Components → Screens**.
 
 **Feature-local controls** (e.g. `KeyBrowseControl`, `UserListRenderer`, `RoleListRenderer`, `PermissionViewRenderer`) live in `Screens/` but may use `ITerminal` and `ITheme` directly for rendering — they are part of the Components layer conceptually but scoped to a single feature.
 
-**Ambient contexts:** `ThemeStore.Current`, `LocalizationStore.Current`, `AppSettingsStore.Current` — static access to domain services, initialized in `Program.cs`.
+**Shared services (all Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` → `ReddyTheme`, `ILocalization` → `EnglishLocalization`, `IAppSettingsStore` → `AppSettingsStore`, `IConnectionSession` → `ConnectionSession`. Inject them via primary-constructor parameters; no static service-locator access.
 
 **Planned, not yet implemented** (no such types in `src/` yet — do not treat them as existing): `Panel` (core bordered-panel design element).
 

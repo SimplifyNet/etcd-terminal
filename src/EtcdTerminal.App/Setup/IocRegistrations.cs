@@ -4,8 +4,12 @@ using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Security;
+using EtcdTerminal.App.Localization;
+using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
+using EtcdTerminal.Localization;
 using EtcdTerminal.Session;
+using EtcdTerminal.Theming;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
@@ -27,6 +31,8 @@ public static class IocRegistrations
 	public static IDIContainerProvider RegisterAll(this IDIContainerProvider provider)
 	{
 		provider.RegisterTerminal()
+			   .RegisterTheming()
+			   .RegisterLocalization()
 			   .RegisterConfiguration()
 			   .RegisterSession()
 			   .RegisterClient()
@@ -52,6 +58,12 @@ public static class IocRegistrations
 		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton);
 
+	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
+		.Register<ITheme, ReddyTheme>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterLocalization(this IDIRegistrator registrator) => registrator
+		.Register<ILocalization, EnglishLocalization>(LifetimeType.Singleton);
+
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
 		.Register<JsonConfigFile>(c => new JsonConfigFile(c.Resolve<IAppEnvironment>()), LifetimeType.Singleton)
 		.Register<ProtectedConfigRepository>(c =>
@@ -63,6 +75,7 @@ public static class IocRegistrations
 		.Register<IDecryptFailureSource>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
 
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton)
+		.Register<IAppSettingsStore, AppSettingsStore>(LifetimeType.Singleton)
 		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterSession(this IDIRegistrator registrator) => registrator

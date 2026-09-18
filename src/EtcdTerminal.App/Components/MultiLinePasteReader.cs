@@ -5,7 +5,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusBar)
+public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusBar, ILocalization _localization)
 {
 	private const int _pasteBurstThresholdMs = 40;
 
@@ -113,8 +113,8 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 	private void RenderPasteStatus(int lines)
 	{
 		var text = lines == 0
-			? LocalizationStore.Current.WaitingForPaste
-			: string.Format(LocalizationStore.Current.PastedLines, lines);
+			? _localization.WaitingForPaste
+			: string.Format(_localization.PastedLines, lines);
 
 		var color = lines == 0 ? _terminal.Subtle : _terminal.Accent;
 

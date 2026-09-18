@@ -12,7 +12,8 @@ public sealed class MainScreen(
 	IEtcdConnection _connection,
 	IConnectionSession _session,
 	IEnumerable<IMainMenuEntry> _entries,
-	Menu _menu)
+	Menu _menu,
+	ILocalization _localization)
 {
 	public async Task ShowAsync()
 	{
@@ -49,7 +50,7 @@ public sealed class MainScreen(
 			.Where(e => e.IsAvailable(_session.Capabilities))
 			.Select(e => new MenuItem<MainMenuAction>(e.Action, e.Label))];
 
-		items.Add(new(MainMenuAction.Disconnect, LocalizationStore.Current.Disconnect));
+		items.Add(new(MainMenuAction.Disconnect, _localization.Disconnect));
 
 		return items;
 	}

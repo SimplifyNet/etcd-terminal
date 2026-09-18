@@ -3,7 +3,6 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Localization;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Terminal;
@@ -15,13 +14,6 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class StatusBarPersistenceTests
 {
-	[SetUp]
-	public void SetUp()
-	{
-		LocalizationStore.Current = new EnglishLocalization();
-		AppSettingsStore.Current = new AppSettings { PageSize = 30, TrimInputValues = true };
-	}
-
 	[Test]
 	public void PromptAsk_RendersStatusBarWithActiveConnection()
 	{
@@ -30,7 +22,7 @@ public sealed class StatusBarPersistenceTests
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 
-		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session));
+		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), TestSettings());
 
 		var result = prompt.Ask("Enter:");
 
@@ -47,7 +39,7 @@ public sealed class StatusBarPersistenceTests
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session)).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), new EnglishLocalization()).Show();
 
 		Assert.That(terminal.Output.ToString(), Does.Contain("prod"));
 	}
@@ -61,9 +53,18 @@ public sealed class StatusBarPersistenceTests
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session)).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), new EnglishLocalization()).Show();
 
 		Assert.That(terminal.CursorTop, Is.EqualTo(terminal.WindowHeight - StatusBar.ReservedRows - 2));
+	}
+
+	private static AppSettingsStore TestSettings()
+	{
+		var settings = new AppSettingsStore();
+
+		settings.Update(new AppSettings { PageSize = 30, TrimInputValues = true });
+
+		return settings;
 	}
 
 	private sealed class StubTextInput(string answer) : ITextInput

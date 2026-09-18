@@ -1,18 +1,10 @@
 namespace EtcdTerminal.Configuration;
 
-public class AppSettingsStore
+public sealed class AppSettingsStore : IAppSettingsStore
 {
-	private static IAppSettings? _current;
+	private IAppSettings _current = new AppSettings();
 
-	public static IAppSettings Current
-	{
-		get
-		{
-			return _current ?? throw new InvalidOperationException("AppSettingsStore.Current has not been initialized.");
-		}
-		set
-		{
-			_current = value ?? throw new ArgumentNullException(nameof(value), "AppSettingsStore.Current cannot be set to null.");
-		}
-	}
+	public IAppSettings Current => _current;
+
+	public void Update(IAppSettings settings) => _current = settings;
 }

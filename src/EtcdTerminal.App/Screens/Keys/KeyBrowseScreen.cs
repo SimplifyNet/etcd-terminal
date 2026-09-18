@@ -10,11 +10,11 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message) : IMainMenuEntry
+public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.BrowseKeys;
 
-	public string Label => LocalizationStore.Current.BrowseKeys;
+	public string Label => _localization.BrowseKeys;
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanReadKeys;
 	private const int EditValueMaxLength = 200;
@@ -30,7 +30,7 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 
 		while (true)
 		{
-			var pageSize = AppSettingsStore.Current.PageSize;
+			var pageSize = _settings.Current.PageSize;
 
 			_control.Render(_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize), _pager.FilteredCount);
 
@@ -59,13 +59,13 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
 		_screenLayout.RenderHeader();
-		_terminal.Write($"{LocalizationStore.Current.EditingKey} ");
+		_terminal.Write($"{_localization.EditingKey} ");
 		_terminal.WriteLine(key.Key, TerminalColor.Primary);
-		_terminal.Write($"{LocalizationStore.Current.CurrentValue} ");
+		_terminal.Write($"{_localization.CurrentValue} ");
 		_terminal.WriteLine(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength), TerminalColor.Success);
 		_terminal.WriteLine();
 
-		var newValue = _prompt.Ask(LocalizationStore.Current.EnterNewValue, key.Value);
+		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value);
 
 		if (newValue is null)
 			return;
@@ -77,13 +77,13 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 		if (result)
 			await ReloadAsync();
 
-		_message.ShowResult(result, LocalizationStore.Current.KeyUpdated, LocalizationStore.Current.CouldNotUpdateKey);
+		_message.ShowResult(result, _localization.KeyUpdated, _localization.CouldNotUpdateKey);
 	}
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
 		_screenLayout.RenderHeader();
-		_terminal.Write($"{LocalizationStore.Current.DeleteKey} ");
+		_terminal.Write($"{_localization.DeleteKey} ");
 		_terminal.WriteLine(key.Key, TerminalColor.Danger);
 		_terminal.WriteLine();
 
@@ -94,14 +94,14 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 		if (result)
 			await ReloadAsync();
 
-		_message.ShowResult(result, LocalizationStore.Current.KeyDeleted, LocalizationStore.Current.KeyCouldNotBeDeleted);
+		_message.ShowResult(result, _localization.KeyDeleted, _localization.KeyCouldNotBeDeleted);
 	}
 
 	private async Task ReloadAsync()
 	{
 		await LoadKeysAsync();
 
-		_control.ClampPage(_pager.GetTotalPages(AppSettingsStore.Current.PageSize));
+		_control.ClampPage(_pager.GetTotalPages(_settings.Current.PageSize));
 	}
 
 	private void ApplyFilter()
