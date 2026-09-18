@@ -11,13 +11,12 @@ public sealed class Spinner(ITerminal _terminal)
 
 		using var cts = new CancellationTokenSource();
 
+		var actionTask = action(cts.Token);
+
 		var spinnerTask = Task.Run(async () =>
 		{
-			while (!cts.Token.IsCancellationRequested)
+			while (!actionTask.IsCompleted)
 			{
-				if (PollEscape())
-					cts.Cancel();
-
 				_terminal.SetCursorVisible(false);
 				_terminal.Write("\r" + _terminal.Indent + _terminal.Accent + frames[frameIndex] + _terminal.Reset + " " + message);
 				_terminal.Flush();
@@ -40,7 +39,15 @@ public sealed class Spinner(ITerminal _terminal)
 
 		try
 		{
-			await action(cts.Token);
+			while (!actionTask.IsCompleted)
+			{
+				if (PollEscape())
+					cts.Cancel();
+
+				await Task.WhenAny(actionTask, Task.Delay(50));
+			}
+
+			await actionTask;
 			completed = true;
 		}
 		catch (OperationCanceledException)
