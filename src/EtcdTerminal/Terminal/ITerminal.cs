@@ -36,9 +36,7 @@ public interface ITerminal
 
 	string SelectionPointer { get; }
 
-	string SelectionPointerEmpty { get; }
-
-	string Indent => SelectionPointerEmpty;
+	string Indent { get; }
 
 	void Write(string text);
 
@@ -65,8 +63,6 @@ public interface ITerminal
 	void ResetColor();
 
 	void SetDarkBackground();
-
-	void ClearScreen();
 
 	string FillRow(string bg);
 

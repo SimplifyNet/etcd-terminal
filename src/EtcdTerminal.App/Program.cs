@@ -28,7 +28,7 @@ void Cleanup()
 
 	var terminal = DIContainer.Current.Resolve<ITerminal>();
 
-	terminal.ClearScreen();
+	terminal.Clear();
 	terminal.ResetBackground();
 	terminal.SetCursorVisible(true);
 	terminal.Flush();

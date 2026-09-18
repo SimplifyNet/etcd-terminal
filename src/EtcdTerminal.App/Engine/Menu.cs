@@ -33,7 +33,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 		if (!string.IsNullOrEmpty(title))
 		{
 			_terminal.WriteLine();
-			_terminal.WriteLine($"{_terminal.SelectionPointerEmpty}{title}");
+			_terminal.WriteLine($"{_terminal.Indent}{title}");
 			_terminal.WriteLine();
 		}
 
@@ -105,7 +105,7 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 		_terminal.ResetColor();
 
 		_terminal.Write(isSelected ? _terminal.Accent : string.Empty);
-		_terminal.Write(isSelected ? _terminal.SelectionPointer : _terminal.SelectionPointerEmpty);
+		_terminal.Write(isSelected ? _terminal.SelectionPointer : _terminal.Indent);
 
 		WriteTruncated(text);
 		_terminal.ResetColor();

@@ -13,7 +13,7 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.SelectionPointerEmpty);
+			_terminal.Write(_terminal.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt));
 
@@ -41,7 +41,7 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.SelectionPointerEmpty);
+			_terminal.Write(_terminal.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt, defaultValue));
 
@@ -63,7 +63,7 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.SelectionPointerEmpty);
+			_terminal.Write(_terminal.Indent);
 
 			return Read(() => _textInput.ReadSecret(prompt));
 		}

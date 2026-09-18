@@ -21,8 +21,7 @@ public sealed class ConsoleTerminal : ITerminal
 	public string Reset => "\x1b[0m";
 	public string Accent => CachedEscape(nameof(Accent), ThemeStore.Current.Accent, FgEscape);
 	public string SelectionPointer => "  ❯ ";
-	public string SelectionPointerEmpty => "    ";
-	public string Indent => SelectionPointerEmpty;
+	public string Indent => "    ";
 
 	public int WindowWidth => Console.WindowWidth;
 
@@ -62,8 +61,6 @@ public sealed class ConsoleTerminal : ITerminal
 	public void ResetColor() => Console.ResetColor();
 
 	public void SetDarkBackground() => Write($"\x1b]11;#{ThemeStore.Current.WindowBackground.R:X2}{ThemeStore.Current.WindowBackground.G:X2}{ThemeStore.Current.WindowBackground.B:X2}\x07");
-
-	public void ClearScreen() => Clear();
 
 	public string FillRow(string bg) => bg + new string(' ', WindowWidth) + Reset;
 

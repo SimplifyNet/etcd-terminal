@@ -59,7 +59,7 @@ public sealed class KeyBrowseLayout(ITerminal _terminal)
 			var kv = pageKeys[i];
 			var isSelected = i == selectedIndex;
 
-			var prefix = isSelected ? _terminal.SelectionPointer : _terminal.SelectionPointerEmpty;
+			var prefix = isSelected ? _terminal.SelectionPointer : _terminal.Indent;
 			var key = TruncateText(kv.Key, keyWidth);
 			var value = TruncateText(kv.Value, valueWidth);
 			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";

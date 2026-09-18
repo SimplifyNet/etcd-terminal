@@ -43,9 +43,7 @@ public sealed class FakeTerminal : ITerminal
 
 	public string SelectionPointer => "  ❯ ";
 
-	public string SelectionPointerEmpty => "    ";
-
-	public string Indent => SelectionPointerEmpty;
+	public string Indent => "    ";
 
 	public void Write(string text) => Output.Append(text);
 
@@ -85,8 +83,6 @@ public sealed class FakeTerminal : ITerminal
 	public void SetDarkBackground()
 	{
 	}
-
-	public void ClearScreen() => Output.Append("[clear]");
 
 	public string FillRow(string bg) => bg + new string(' ', WindowWidth) + Reset;
 
