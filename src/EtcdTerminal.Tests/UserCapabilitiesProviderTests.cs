@@ -143,9 +143,5 @@ public sealed class UserCapabilitiesProviderTests
 	private sealed class StubAuthAdmin(bool enabled) : IEtcdAuthAdmin
 	{
 		public Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default) => Task.FromResult(enabled);
-
-		public Task<EtcdOperationResult> EnableAuthenticationAsync(CancellationToken ct = default) => throw new NotSupportedException();
-
-		public Task<EtcdOperationResult> DisableAuthenticationAsync(CancellationToken ct = default) => throw new NotSupportedException();
 	}
 }

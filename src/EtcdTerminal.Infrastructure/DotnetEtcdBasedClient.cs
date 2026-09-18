@@ -18,8 +18,6 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 {
 	private EtcdClient? _client;
 
-	public bool IsConnected => _client is not null;
-
 	private EtcdClient Client => _client ?? throw new InvalidOperationException("Not connected to etcd.");
 
 	public async Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
@@ -51,15 +49,6 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 			throw;
 		}
-	}
-
-	public async Task<bool> PingAsync(CancellationToken ct = default)
-	{
-		if (_client is null) return false;
-
-		await ProbeAsync(ct);
-
-		return true;
 	}
 
 	public Task DisconnectAsync()
@@ -391,34 +380,6 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		{
 			// Only an authenticated session can be denied here, so auth is definitely on.
 			return true;
-		}
-	}
-
-	public async Task<EtcdOperationResult> EnableAuthenticationAsync(CancellationToken ct = default)
-	{
-		try
-		{
-			await Client.AuthEnableAsync(new AuthEnableRequest(), cancellationToken: ct);
-
-			return EtcdOperationResult.Ok();
-		}
-		catch (RpcException ex)
-		{
-			return RpcFail(ex);
-		}
-	}
-
-	public async Task<EtcdOperationResult> DisableAuthenticationAsync(CancellationToken ct = default)
-	{
-		try
-		{
-			await Client.AuthDisableAsync(new AuthDisableRequest(), cancellationToken: ct);
-
-			return EtcdOperationResult.Ok();
-		}
-		catch (RpcException ex)
-		{
-			return RpcFail(ex);
 		}
 	}
 

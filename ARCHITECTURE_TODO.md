@@ -43,7 +43,7 @@ s
 - [x] T4.5 Split `InstanceSelectionScreen` into selection and connection management
 - [x] T4.6 Share config-file JSON access between the two repositories
 - [x] T5.1 Remove `TakeDecryptFailures` from `IConnectionConfigRepository`
-- [ ] T5.2 Delete unused interface members
+- [x] T5.2 Delete unused interface members
 - [ ] T5.3 Remove duplicate members from `ITerminal`
 - [ ] T5.4 Split `ITerminal` by client role
 - [ ] T5.5 Fix `Spinner` cross-thread key reading
