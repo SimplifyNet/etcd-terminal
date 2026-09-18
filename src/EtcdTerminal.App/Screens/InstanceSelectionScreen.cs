@@ -8,7 +8,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminal _terminal, IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, ScreenLayout _screenLayout, Spinner _spinner, ManageConnectionsScreen _manageConnections)
+public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, ScreenLayout _screenLayout, Spinner _spinner, ManageConnectionsScreen _manageConnections)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{

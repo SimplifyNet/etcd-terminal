@@ -4,16 +4,16 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar _statusBar)
+public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ITextInput _textInput, StatusBar _statusBar)
 {
 	public string? Ask(string prompt, bool allowEmpty = false)
 	{
-		_terminal.SetCursorVisible(true);
+		_cursor.SetCursorVisible(true);
 
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.Indent);
+			_output.Write(_style.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt));
 
@@ -30,18 +30,18 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar
 		}
 		finally
 		{
-			_terminal.SetCursorVisible(false);
+			_cursor.SetCursorVisible(false);
 		}
 	}
 
 	public string? Ask(string prompt, string defaultValue)
 	{
-		_terminal.SetCursorVisible(true);
+		_cursor.SetCursorVisible(true);
 
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.Indent);
+			_output.Write(_style.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt, defaultValue));
 
@@ -52,24 +52,24 @@ public sealed class Prompt(ITerminal _terminal, ITextInput _textInput, StatusBar
 		}
 		finally
 		{
-			_terminal.SetCursorVisible(false);
+			_cursor.SetCursorVisible(false);
 		}
 	}
 
 	public string? Secret(string prompt)
 	{
-		_terminal.SetCursorVisible(true);
+		_cursor.SetCursorVisible(true);
 
 		try
 		{
 			_statusBar.EnsureCursorAboveBar();
-			_terminal.Write(_terminal.Indent);
+			_output.Write(_style.Indent);
 
 			return Read(() => _textInput.ReadSecret(prompt));
 		}
 		finally
 		{
-			_terminal.SetCursorVisible(false);
+			_cursor.SetCursorVisible(false);
 		}
 	}
 

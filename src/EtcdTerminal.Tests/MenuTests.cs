@@ -61,7 +61,7 @@ public sealed class MenuTests
 		Assert.That(chosen?.Id, Is.EqualTo(2));
 	}
 
-	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, new StubAppInfo(), new ConnectionSession()));
+	private static Menu CreateMenu(FakeTerminal terminal) => new(terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), new ConnectionSession()));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

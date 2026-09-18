@@ -2,7 +2,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class Message(ITerminal _terminal, PressAnyKeyPrompt _pressAnyKey)
+public sealed class Message(ITerminalOutput _terminal, PressAnyKeyPrompt _pressAnyKey)
 {
 	public void ShowSuccess(string text) => Show(text, TerminalColor.Success);
 

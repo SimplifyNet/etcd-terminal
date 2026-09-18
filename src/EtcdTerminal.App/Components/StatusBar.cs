@@ -5,40 +5,40 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo, IConnectionSession _session)
+public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, IAppInfo _appInfo, IConnectionSession _session)
 {
 	public const int ReservedRows = 3;
 
 	public void EnsureCursorAboveBar(int rowsNeeded = 1)
 	{
-		var lastContentRow = _terminal.WindowHeight - ReservedRows - rowsNeeded;
-		var overflow = _terminal.CursorTop - lastContentRow;
+		var lastContentRow = _output.WindowHeight - ReservedRows - rowsNeeded;
+		var overflow = _cursor.CursorTop - lastContentRow;
 
 		if (overflow <= 0)
 			return;
 
-		var newLines = _terminal.WindowHeight - 1 - _terminal.CursorTop + overflow;
+		var newLines = _output.WindowHeight - 1 - _cursor.CursorTop + overflow;
 
 		for (var i = 0; i < newLines; i++)
-			_terminal.WriteLine();
+			_output.WriteLine();
 
-		_terminal.SetCursorPosition(0, lastContentRow);
+		_cursor.SetCursorPosition(0, lastContentRow);
 	}
 
 	public void RenderPreservingCursor()
 	{
-		var left = _terminal.CursorLeft;
-		var top = _terminal.CursorTop;
+		var left = _cursor.CursorLeft;
+		var top = _cursor.CursorTop;
 
 		Render();
-		_terminal.SetCursorPosition(left, top);
+		_cursor.SetCursorPosition(left, top);
 	}
 
 	public void Render()
 	{
 		var localization = LocalizationStore.Current;
 		var active = _session.Active;
-		var left = $"{_terminal.Grey}  {_terminal.White}\u2191/\u2193{_terminal.Grey} {localization.StatusNavigate} \u00b7 {_terminal.White}Enter{_terminal.Grey} {localization.StatusConfirm} \u00b7 {_terminal.White}Esc{_terminal.Grey} {localization.StatusBack}  ";
+		var left = $"{_style.Grey}  {_style.White}\u2191/\u2193{_style.Grey} {localization.StatusNavigate} \u00b7 {_style.White}Enter{_style.Grey} {localization.StatusConfirm} \u00b7 {_style.White}Esc{_style.Grey} {localization.StatusBack}  ";
 		var version = _appInfo.Version;
 		var rightPadding = "  ";
 
@@ -50,28 +50,28 @@ public sealed class StatusBar(ITerminal _terminal, IAppInfo _appInfo, IConnectio
 				? active.ConnectionString[..50] + "..."
 				: active.ConnectionString;
 
-			right = $"{_terminal.Green}\u2022{_terminal.Teal} {active.Name} {_terminal.Dim}\u00b7{_terminal.Grey} {connStr}";
+			right = $"{_style.Green}\u2022{_style.Teal} {active.Name} {_style.Dim}\u00b7{_style.Grey} {connStr}";
 			if (active.IsAuthenticationEnabled)
-				right += $" {_terminal.Dim}\u00b7{_terminal.Yellow} {active.Username}";
-			right += $" {_terminal.Grey}v{_terminal.White}{version}";
+				right += $" {_style.Dim}\u00b7{_style.Yellow} {active.Username}";
+			right += $" {_style.Grey}v{_style.White}{version}";
 		}
 		else
-			right = $"{_terminal.Grey}v{_terminal.White}{version}";
+			right = $"{_style.Grey}v{_style.White}{version}";
 
-		var visibleWidth = _terminal.GetVisibleLength(left) + _terminal.GetVisibleLength(right) + rightPadding.Length;
-		var pad = _terminal.WindowWidth - visibleWidth;
+		var visibleWidth = _output.GetVisibleLength(left) + _output.GetVisibleLength(right) + rightPadding.Length;
+		var pad = _output.WindowWidth - visibleWidth;
 
 		if (pad < 0) pad = 0;
 
-		var content = _terminal.Bg + _terminal.Grey + left + new string(' ', pad) + right + _terminal.Grey + rightPadding + _terminal.Reset;
+		var content = _style.Bg + _style.Grey + left + new string(' ', pad) + right + _style.Grey + rightPadding + _style.Reset;
 
-		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 3);
-		_terminal.Write(_terminal.FillRow(_terminal.Bg));
+		_cursor.SetCursorPosition(0, _output.WindowHeight - 3);
+		_output.Write(_output.FillRow(_style.Bg));
 
-		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 2);
-		_terminal.Write(content);
+		_cursor.SetCursorPosition(0, _output.WindowHeight - 2);
+		_output.Write(content);
 
-		_terminal.SetCursorPosition(0, _terminal.WindowHeight - 1);
-		_terminal.Write(_terminal.FillRow(_terminal.Bg));
+		_cursor.SetCursorPosition(0, _output.WindowHeight - 1);
+		_output.Write(_output.FillRow(_style.Bg));
 	}
 }

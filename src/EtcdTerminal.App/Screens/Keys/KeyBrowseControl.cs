@@ -5,7 +5,7 @@ using EtcdTerminal.Session;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout, IConnectionSession _session)
+public sealed class KeyBrowseControl(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalInput _input, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout, IConnectionSession _session)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
@@ -24,24 +24,24 @@ public sealed class KeyBrowseControl(ITerminal _terminal, StatusBar _statusBar, 
 
 		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);
 
-		_terminal.SetCursorPosition(0, _terminal.CursorTop + 2);
+		_cursor.SetCursorPosition(0, _cursor.CursorTop + 2);
 		_keyBrowseLayout.RenderKeyList(pageKeys, SelectedIndex);
 
-		_terminal.WriteLine();
+		_output.WriteLine();
 		_keyBrowseLayout.RenderPagination(CurrentPage, totalPages, totalKeys);
 
-		_terminal.WriteLine();
+		_output.WriteLine();
 		if (ShowActions && SelectedKey is not null)
 			_keyBrowseLayout.RenderActionBar(SelectedKey.Key, CanModifySelectedKey);
 
 		_statusBar.Render();
 
-		_terminal.SetCursorPosition(searchEndCol, searchBarRow);
+		_cursor.SetCursorPosition(searchEndCol, searchBarRow);
 	}
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
 	{
-		var key = _terminal.ReadKey();
+		var key = _input.ReadKey();
 
 		if (ShowActions)
 		{

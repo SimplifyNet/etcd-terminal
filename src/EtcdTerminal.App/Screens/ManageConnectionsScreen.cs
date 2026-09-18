@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class ManageConnectionsScreen(ITerminal _terminal, ScreenLayout _screenLayout, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message)
+public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLayout _screenLayout, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{

@@ -30,7 +30,7 @@ public sealed class StatusBarPersistenceTests
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 
-		var prompt = new Prompt(terminal, new StubTextInput("value"), new StatusBar(terminal, new StubAppInfo(), session));
+		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session));
 
 		var result = prompt.Ask("Enter:");
 
@@ -47,7 +47,7 @@ public sealed class StatusBarPersistenceTests
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, new StatusBar(terminal, new StubAppInfo(), session)).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session)).Show();
 
 		Assert.That(terminal.Output.ToString(), Does.Contain("prod"));
 	}
@@ -61,7 +61,7 @@ public sealed class StatusBarPersistenceTests
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, new StatusBar(terminal, new StubAppInfo(), session)).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session)).Show();
 
 		Assert.That(terminal.CursorTop, Is.EqualTo(terminal.WindowHeight - StatusBar.ReservedRows - 2));
 	}

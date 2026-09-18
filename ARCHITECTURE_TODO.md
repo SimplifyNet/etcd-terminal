@@ -45,7 +45,7 @@ s
 - [x] T5.1 Remove `TakeDecryptFailures` from `IConnectionConfigRepository`
 - [x] T5.2 Delete unused interface members
 - [x] T5.3 Remove duplicate members from `ITerminal`
-- [ ] T5.4 Split `ITerminal` by client role
+- [x] T5.4 Split `ITerminal` by client role
 - [ ] T5.5 Fix `Spinner` cross-thread key reading
 - [ ] T6.1 DECISION — Replace ambient static stores with injected services
 - [ ] T6.2 DECISION — Theme colours by role instead of hue

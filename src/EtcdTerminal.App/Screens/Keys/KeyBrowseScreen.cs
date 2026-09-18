@@ -8,7 +8,7 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminal _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
+public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message)
 {
 	private const int EditValueMaxLength = 200;
 

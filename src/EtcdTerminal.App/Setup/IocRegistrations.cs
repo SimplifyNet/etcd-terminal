@@ -44,6 +44,12 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterTerminal(this IDIRegistrator registrator) => registrator
 		.Register<ITerminal, ConsoleTerminal>(LifetimeType.Singleton)
+		.Register<ITerminalOutput>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
+		.Register<ITerminalCursor>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
+		.Register<ITerminalInput>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
+		.Register<ITerminalStyle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
+		.Register<ITerminalWidgets>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
+		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
