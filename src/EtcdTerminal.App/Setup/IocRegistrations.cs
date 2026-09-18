@@ -48,11 +48,13 @@ public static class IocRegistrations
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
 		.Register<JsonConfigFile>(c => new JsonConfigFile(c.Resolve<IAppEnvironment>()), LifetimeType.Singleton)
-		.Register<IConnectionConfigRepository>(c =>
+		.Register<ProtectedConfigRepository>(c =>
 			new ProtectedConfigRepository(
 				new JsonBasedConnectionConfigRepository(c.Resolve<JsonConfigFile>()),
 				c.Resolve<IConfigProtector>()),
 			LifetimeType.Singleton)
+		.Register<IConnectionConfigRepository>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
+		.Register<IDecryptFailureSource>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
 
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton)
 		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);

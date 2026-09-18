@@ -3,7 +3,7 @@ using EtcdTerminal.Security;
 
 namespace EtcdTerminal.Infrastructure.Configuration;
 
-public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repository, IConfigProtector _protector) : IConnectionConfigRepository
+public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repository, IConfigProtector _protector) : IConnectionConfigRepository, IDecryptFailureSource
 {
 	private List<string> _decryptFailures = [];
 

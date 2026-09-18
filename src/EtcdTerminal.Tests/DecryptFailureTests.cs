@@ -69,8 +69,6 @@ public sealed class DecryptFailureTests
 	{
 		public IReadOnlyList<EtcdConnectionConfig> LoadInstances() => instances;
 
-		public IReadOnlyList<string> TakeDecryptFailures() => [];
-
 		public void AddInstance(EtcdConnectionConfig config) => throw new NotSupportedException();
 
 		public void UpdateInstance(string originalName, EtcdConnectionConfig config) => throw new NotSupportedException();

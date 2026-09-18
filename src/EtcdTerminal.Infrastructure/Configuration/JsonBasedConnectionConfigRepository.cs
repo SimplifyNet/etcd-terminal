@@ -43,8 +43,6 @@ public sealed class JsonBasedConnectionConfigRepository(JsonConfigFile _configFi
 		}
 	}
 
-	public IReadOnlyList<string> TakeDecryptFailures() => [];
-
 	public void AddInstance(EtcdConnectionConfig config)
 	{
 		var instances = LoadInstances().ToList();
