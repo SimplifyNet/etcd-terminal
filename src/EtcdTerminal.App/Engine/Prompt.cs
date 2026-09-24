@@ -65,7 +65,12 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			_statusBar.EnsureCursorAboveBar();
 			_output.Write(_style.Indent);
 
-			return Read(() => _textInput.ReadSecret(prompt));
+			var input = Read(() => _textInput.ReadSecret(prompt));
+
+			if (input is null)
+				return null;
+
+			return _settings.Current.TrimInputValues ? input.Trim() : input;
 		}
 		finally
 		{

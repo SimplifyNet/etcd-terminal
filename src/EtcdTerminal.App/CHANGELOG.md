@@ -1,6 +1,10 @@
 # Changelog
 
-### Fixed
+## [0.9] - Unreleased
+
+### Changed
+
+- Trim input values setting now applies to all entered data, including passwords
 
 ## [0.8] - 2026-09-18
 
