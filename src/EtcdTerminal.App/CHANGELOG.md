@@ -6,6 +6,15 @@
 
 - Trim input values setting now applies to all entered data, including passwords
 
+### Fixed
+
+- Import JSON no longer strips commas inside string values or property names (e.g. `"keep,]"` was imported as `"keep]"`); files with trailing commas are still accepted
+- Saving settings no longer replaces a malformed config file and wipes saved connections; the error is reported instead
+- Adding, editing, removing or reordering connections no longer silently deletes saved entries the app cannot parse; the operation is rejected with an explanation and the file is left untouched
+- Renaming a connection to an already used name is rejected instead of creating duplicates that were then deleted together
+- Creating a key that already exists (including concurrent creates) no longer overwrites it; only the first creator succeeds
+- Editing a key value preserves the key's lease (TTL) instead of silently detaching it
+
 ## [0.8] - 2026-09-18
 
 ### Added
