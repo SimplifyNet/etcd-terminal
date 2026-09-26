@@ -82,7 +82,7 @@ public static class IocRegistrations
 		.Register<IConnectionSession, ConnectionSession>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterClient(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdClient, DotnetEtcdBasedClient>(LifetimeType.Singleton);
+		.Register<IEtcdClient>(c => new DotnetEtcdBasedClient(DotnetEtcdTransportFactory.Create), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterKeys(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)

@@ -4,5 +4,6 @@
     <Project Path="EtcdTerminal.Infrastructure/EtcdTerminal.Infrastructure.csproj" />
     <Project Path="EtcdTerminal/EtcdTerminal.csproj" />
     <Project Path="EtcdTerminal.Tests/EtcdTerminal.Tests.csproj" />
+    <Project Path="EtcdTerminal.IntegrationTests/EtcdTerminal.IntegrationTests.csproj" />
   </Folder>
 </Solution>

@@ -14,11 +14,13 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.Infrastructure;
 
-public sealed class DotnetEtcdBasedClient : IEtcdClient
+public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<GrpcChannelOptions>, dotnet_etcd.interfaces.IEtcdClient> _createTransport) : IEtcdClient
 {
-	private EtcdClient? _client;
+	private dotnet_etcd.interfaces.IEtcdClient? _client;
 
-	private EtcdClient Client => _client ?? throw new InvalidOperationException("Not connected to etcd.");
+	private dotnet_etcd.interfaces.IEtcdClient Client => _client ?? throw new InvalidOperationException("Not connected to etcd.");
+
+	private EtcdClient ConcreteClient => Client as EtcdClient ?? throw new InvalidOperationException("Connected transport does not expose connection access.");
 
 	public async Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
 	{
@@ -35,9 +37,8 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 		}
 
 		_client = config.IsAuthenticationEnabled
-			? new EtcdClient(connectionString, config.Username!, config.Password!,
-				configureChannelOptions: configureChannel)
-			: new EtcdClient(connectionString, configureChannelOptions: configureChannel);
+			? _createTransport(connectionString, config.Username, config.Password, configureChannel)
+			: _createTransport(connectionString, null, null, configureChannel);
 
 		try
 		{
@@ -100,26 +101,24 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	public async Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default)
 	{
-		var existing = await GetKeyAsync(key, ct);
+		var response = await Client.TransactionAsync(new TxnRequest
+		{
+			Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Equal) },
+			Success = { PutValue(key, value, ignoreLease: false) }
+		}, cancellationToken: ct);
 
-		if (existing is not null)
-			return false;
-
-		await Client.PutAsync(key, value, cancellationToken: ct);
-
-		return true;
+		return response.Succeeded;
 	}
 
 	public async Task<bool> UpdateKeyAsync(string key, string value, CancellationToken ct = default)
 	{
-		var existing = await GetKeyAsync(key, ct);
+		var response = await Client.TransactionAsync(new TxnRequest
+		{
+			Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Greater) },
+			Success = { PutValue(key, value, ignoreLease: true) }
+		}, cancellationToken: ct);
 
-		if (existing is null)
-			return false;
-
-		await Client.PutAsync(key, value, cancellationToken: ct);
-
-		return true;
+		return response.Succeeded;
 	}
 
 	public async Task<bool> DeleteKeyAsync(string key, CancellationToken ct = default)
@@ -371,7 +370,7 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 	{
 		try
 		{
-			var call = Client.GetConnection().AuthClient.AuthStatusAsync(new AuthStatusRequest(), null, null, ct);
+			var call = ConcreteClient.GetConnection().AuthClient.AuthStatusAsync(new AuthStatusRequest(), null, null, ct);
 			var response = await call.ResponseAsync;
 
 			return response.Enabled;
@@ -392,6 +391,24 @@ public sealed class DotnetEtcdBasedClient : IEtcdClient
 
 	private static EtcdOperationResult RpcFail(RpcException ex) =>
 		EtcdOperationResult.Fail(string.IsNullOrEmpty(ex.Status.Detail) ? ex.Message : ex.Status.Detail);
+
+	private static Compare VersionIs(string key, long version, Compare.Types.CompareResult result) => new()
+	{
+		Result = result,
+		Target = Compare.Types.CompareTarget.Version,
+		Key = ByteString.CopyFromUtf8(key),
+		Version = version
+	};
+
+	private static RequestOp PutValue(string key, string value, bool ignoreLease) => new()
+	{
+		RequestPut = new PutRequest
+		{
+			Key = ByteString.CopyFromUtf8(key),
+			Value = ByteString.CopyFromUtf8(value),
+			IgnoreLease = ignoreLease
+		}
+	};
 
 	private static EtcdKeyValue MapKeyValue(KeyValue kv) => new()
 	{
