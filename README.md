@@ -34,6 +34,10 @@
 
 ![Instance selection](screenshots/instance-selection.png)
 
+### Main menu
+
+![Main menu](screenshots/main-menu.png)
+
 ### Key browse
 
 ![Key browse](screenshots/key-browse.png)
