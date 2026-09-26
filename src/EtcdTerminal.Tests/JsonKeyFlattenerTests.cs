@@ -32,6 +32,46 @@ public sealed class JsonKeyFlattenerTests
 	}
 
 	[Test]
+	public void Flatten_StringValueContainingBracketComma_Preserved()
+	{
+		var entries = JsonKeyFlattener.Flatten("{\"value\":\"keep,]\"}", "", ":");
+
+		Assert.That(entries.Select(kv => kv.Key + "=" + kv.Value), Is.EquivalentTo(["value=keep,]"]));
+	}
+
+	[Test]
+	public void Flatten_StringValueContainingBraceComma_Preserved()
+	{
+		var entries = JsonKeyFlattener.Flatten("{\"value\":\"keep,}\"}", "", ":");
+
+		Assert.That(entries.Select(kv => kv.Key + "=" + kv.Value), Is.EquivalentTo(["value=keep,}"]));
+	}
+
+	[Test]
+	public void Flatten_PropertyNameContainingBracketComma_Preserved()
+	{
+		var entries = JsonKeyFlattener.Flatten("{\"a,]\":1}", "", ":");
+
+		Assert.That(entries.Select(kv => kv.Key + "=" + kv.Value), Is.EquivalentTo(["a,]=1"]));
+	}
+
+	[Test]
+	public void Flatten_StringValueWithEscapedQuoteAndComma_Preserved()
+	{
+		var entries = JsonKeyFlattener.Flatten("{\"value\":\"a\\\" ,] b\"}", "", ":");
+
+		Assert.That(entries.Select(kv => kv.Key + "=" + kv.Value), Is.EquivalentTo(["value=a\" ,] b"]));
+	}
+
+	[Test]
+	public void Flatten_TrailingCommaWithWhitespace_Tolerated()
+	{
+		var entries = JsonKeyFlattener.Flatten("{\n  \"a\": 1 ,\n  \"b\": [1, 2 , ] ,\n}", "", ":");
+
+		Assert.That(entries.Select(kv => kv.Key + "=" + kv.Value), Is.EquivalentTo(["a=1", "b:0=1", "b:1=2"]));
+	}
+
+	[Test]
 	public void Flatten_BarePair_WrappedInBraces()
 	{
 		var entries = JsonKeyFlattener.Flatten("\"a\": 1", "", ":");

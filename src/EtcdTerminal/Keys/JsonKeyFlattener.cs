@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
 namespace EtcdTerminal.Keys;
 
-public static partial class JsonKeyFlattener
+public static class JsonKeyFlattener
 {
 	public static IReadOnlyList<KeyValuePair<string, string>> Flatten(string json, string prefix, string separator)
 	{
 		var sanitized = SanitizeJson(json);
-		var node = JsonNode.Parse(sanitized);
+		var options = new JsonDocumentOptions { AllowTrailingCommas = true };
+		var node = JsonNode.Parse(sanitized, null, options);
 
 		if (node is JsonObject obj)
 		{
@@ -42,9 +42,6 @@ public static partial class JsonKeyFlattener
 		// Wrap in { } if not already an object or array
 		if (trimmed.Length > 0 && trimmed[0] != '{' && trimmed[0] != '[')
 			trimmed = "{ " + trimmed + " }";
-
-		// Remove trailing commas before } or ]
-		trimmed = TrailingCommaPattern().Replace(trimmed, "$1");
 
 		return trimmed;
 	}
@@ -87,7 +84,4 @@ public static partial class JsonKeyFlattener
 				break;
 		}
 	}
-
-	[GeneratedRegex(@",\s*([}\]])")]
-	private static partial Regex TrailingCommaPattern();
 }
