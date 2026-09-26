@@ -44,6 +44,18 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 		{
 			await ProbeAsync(ct);
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			Disconnect();
+
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			Disconnect();
+
+			throw Translate(ex);
+		}
 		catch
 		{
 			Disconnect();
@@ -79,9 +91,13 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return MapKeyValue(response.Kvs[0]);
 		}
-		catch (RpcException ex) when (ex.StatusCode == StatusCode.PermissionDenied)
+		catch (RpcException ex) when (IsCancellation(ex))
 		{
-			return null;
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
 		}
 	}
 
@@ -93,58 +109,106 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return [.. response.Kvs.Select(MapKeyValue)];
 		}
-		catch (RpcException ex) when (ex.StatusCode == StatusCode.PermissionDenied)
+		catch (RpcException ex) when (IsCancellation(ex))
 		{
-			return [];
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
 		}
 	}
 
 	public async Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default)
 	{
-		var response = await Client.TransactionAsync(new TxnRequest
+		try
 		{
-			Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Equal) },
-			Success = { PutValue(key, value, ignoreLease: false) }
-		}, cancellationToken: ct);
+			var response = await Client.TransactionAsync(new TxnRequest
+			{
+				Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Equal) },
+				Success = { PutValue(key, value, ignoreLease: false) }
+			}, cancellationToken: ct);
 
-		return response.Succeeded;
+			return response.Succeeded;
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	public async Task<bool> UpdateKeyAsync(string key, string value, CancellationToken ct = default)
 	{
-		var response = await Client.TransactionAsync(new TxnRequest
+		try
 		{
-			Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Greater) },
-			Success = { PutValue(key, value, ignoreLease: true) }
-		}, cancellationToken: ct);
+			var response = await Client.TransactionAsync(new TxnRequest
+			{
+				Compare = { VersionIs(key, 0, Compare.Types.CompareResult.Greater) },
+				Success = { PutValue(key, value, ignoreLease: true) }
+			}, cancellationToken: ct);
 
-		return response.Succeeded;
+			return response.Succeeded;
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	public async Task<bool> DeleteKeyAsync(string key, CancellationToken ct = default)
 	{
-		var response = await Client.DeleteAsync(key, cancellationToken: ct);
+		try
+		{
+			var response = await Client.DeleteAsync(key, cancellationToken: ct);
 
-		return response.Deleted > 0;
+			return response.Deleted > 0;
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	public async Task<IReadOnlyList<EtcdUser>> GetUsersAsync(CancellationToken ct = default)
 	{
-		var response = await Client.UserListAsync(new AuthUserListRequest(), cancellationToken: ct);
-		List<EtcdUser> users = [];
-
-		foreach (var user in response.Users)
+		try
 		{
-			var userInfo = await Client.UserGetAsync(new AuthUserGetRequest { Name = user }, cancellationToken: ct);
+			var response = await Client.UserListAsync(new AuthUserListRequest(), cancellationToken: ct);
+			List<EtcdUser> users = [];
 
-			users.Add(new EtcdUser
+			foreach (var user in response.Users)
 			{
-				Username = user,
-				Roles = [.. userInfo.Roles]
-			});
-		}
+				var userInfo = await Client.UserGetAsync(new AuthUserGetRequest { Name = user }, cancellationToken: ct);
 
-		return users;
+				users.Add(new EtcdUser
+				{
+					Username = user,
+					Roles = [.. userInfo.Roles]
+				});
+			}
+
+			return users;
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	public async Task<EtcdUser?> GetUserAsync(string username, CancellationToken ct = default)
@@ -160,9 +224,17 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				Roles = [.. response.Roles]
 			};
 		}
-		catch (RpcException)
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex) when (IsMissingUser(ex))
 		{
 			return null;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
 		}
 	}
 
@@ -174,6 +246,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				new AuthUserAddRequest { Name = username, Password = password }, cancellationToken: ct);
 
 			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
 		}
 		catch (RpcException ex)
 		{
@@ -190,6 +266,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -205,6 +285,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -213,22 +297,33 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 	public async Task<IReadOnlyList<EtcdRole>> GetRolesAsync(CancellationToken ct = default)
 	{
-		var response = await Client.RoleListAsync(new AuthRoleListRequest(), cancellationToken: ct);
-		List<EtcdRole> roles = [];
-
-		foreach (var role in response.Roles)
+		try
 		{
-			var roleInfo = await Client.RoleGetAsync(
-				new AuthRoleGetRequest { Role = role }, cancellationToken: ct);
+			var response = await Client.RoleListAsync(new AuthRoleListRequest(), cancellationToken: ct);
+			List<EtcdRole> roles = [];
 
-			roles.Add(new EtcdRole
+			foreach (var role in response.Roles)
 			{
-				Name = role,
-				Permissions = [.. roleInfo.Perm.Select(MapPermission)]
-			});
-		}
+				var roleInfo = await Client.RoleGetAsync(
+					new AuthRoleGetRequest { Role = role }, cancellationToken: ct);
 
-		return roles;
+				roles.Add(new EtcdRole
+				{
+					Name = role,
+					Permissions = [.. roleInfo.Perm.Select(MapPermission)]
+				});
+			}
+
+			return roles;
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	public async Task<EtcdRole?> GetRoleAsync(string roleName, CancellationToken ct = default)
@@ -244,9 +339,17 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				Permissions = [.. response.Perm.Select(MapPermission)]
 			};
 		}
-		catch (RpcException)
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex) when (IsMissingRole(ex))
 		{
 			return null;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
 		}
 	}
 
@@ -258,6 +361,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				new AuthRoleAddRequest { Name = roleName }, cancellationToken: ct);
 
 			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
 		}
 		catch (RpcException ex)
 		{
@@ -274,6 +381,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -289,6 +400,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -303,6 +418,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				new AuthUserRevokeRoleRequest { Name = username, Role = roleName }, cancellationToken: ct);
 
 			return EtcdOperationResult.Ok();
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
 		}
 		catch (RpcException ex)
 		{
@@ -335,6 +454,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -360,6 +483,10 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 			return EtcdOperationResult.Ok();
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
 		catch (RpcException ex)
 		{
 			return RpcFail(ex);
@@ -380,6 +507,14 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 			// Only an authenticated session can be denied here, so auth is definitely on.
 			return true;
 		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
 	}
 
 	/// <summary>
@@ -390,7 +525,40 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 		Client.MemberListAsync(new MemberListRequest(), cancellationToken: ct);
 
 	private static EtcdOperationResult RpcFail(RpcException ex) =>
-		EtcdOperationResult.Fail(string.IsNullOrEmpty(ex.Status.Detail) ? ex.Message : ex.Status.Detail);
+		EtcdOperationResult.Fail(DetailOrMessage(ex));
+
+	private static bool IsCancellation(RpcException ex) =>
+		ex.StatusCode == StatusCode.Cancelled;
+
+	private static EtcdOperationException Translate(RpcException ex) => ex.StatusCode switch
+	{
+		StatusCode.PermissionDenied => AccessDenied(ex),
+		StatusCode.Unauthenticated => AccessDenied(ex),
+		StatusCode.Unavailable => Failure(EtcdOperationFailureKind.Unavailable, ex),
+		StatusCode.DeadlineExceeded => Failure(EtcdOperationFailureKind.Unconfirmed, ex),
+		StatusCode.InvalidArgument when IsAuthenticationFailure(ex) => AccessDenied(ex),
+		_ => Failure(EtcdOperationFailureKind.TransportError, ex)
+	};
+
+	private static EtcdOperationException AccessDenied(RpcException ex) =>
+		Failure(EtcdOperationFailureKind.AccessDenied, ex);
+
+	private static EtcdOperationException Failure(EtcdOperationFailureKind kind, RpcException ex) =>
+		new(kind, $"etcd operation failed ({ex.StatusCode}): {DetailOrMessage(ex)}", ex);
+
+	private static string DetailOrMessage(RpcException ex) =>
+		string.IsNullOrEmpty(ex.Status.Detail) ? ex.Message : ex.Status.Detail;
+
+	// Verified against etcd 3.7.1: missing users and roles surface as
+	// FailedPrecondition with a not-found detail, not as gRPC NotFound.
+	private static bool IsMissingUser(RpcException ex) =>
+		ex.StatusCode == StatusCode.FailedPrecondition && ex.Status.Detail.Contains("user name not found", StringComparison.Ordinal);
+
+	private static bool IsMissingRole(RpcException ex) =>
+		ex.StatusCode == StatusCode.FailedPrecondition && ex.Status.Detail.Contains("role name not found", StringComparison.Ordinal);
+
+	private static bool IsAuthenticationFailure(RpcException ex) =>
+		ex.Status.Detail.Contains("authentication failed", StringComparison.Ordinal);
 
 	private static Compare VersionIs(string key, long version, Compare.Types.CompareResult result) => new()
 	{

@@ -12,8 +12,11 @@ public sealed class UserCapabilitiesProvider(IEtcdUserAdmin _userAdmin, IEtcdRol
 	{
 		var authEnabled = await _authAdmin.IsAuthenticationEnabledAsync(ct);
 
-		if (!authEnabled || username is null)
+		if (!authEnabled)
 			return UserCapabilities.Unrestricted;
+
+		if (username is null)
+			return new();
 
 		var user = await _userAdmin.GetUserAsync(username, ct);
 

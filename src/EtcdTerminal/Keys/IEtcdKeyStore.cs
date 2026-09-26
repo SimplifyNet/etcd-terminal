@@ -2,7 +2,15 @@ namespace EtcdTerminal.Keys;
 
 public interface IEtcdKeyStore
 {
+	/// <summary>
+	/// Returns the key or null when it is absent. Denied reads and transport
+	/// failures are reported as <see cref="EtcdOperationException"/>, never as null.
+	/// </summary>
 	Task<EtcdKeyValue?> GetKeyAsync(string key, CancellationToken ct = default);
+	/// <summary>
+	/// Returns matching keys; an empty collection means no keys matched, not a failure.
+	/// Failures are reported as <see cref="EtcdOperationException"/>.
+	/// </summary>
 	Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default);
 	/// <summary>
 	/// Creates a key only if it is absent, using a server-side transaction.

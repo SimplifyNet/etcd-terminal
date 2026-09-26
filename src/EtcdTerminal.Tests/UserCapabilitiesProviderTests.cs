@@ -101,6 +101,54 @@ public sealed class UserCapabilitiesProviderTests
 		});
 	}
 
+	[Test]
+	public async Task NullUsername_AuthEnabled_HasNoCapabilities()
+	{
+		var provider = CreateProvider(authEnabled: true, users: new(), roles: new());
+
+		var capabilities = await provider.GetCapabilitiesAsync(null);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(capabilities.IsRoot, Is.False);
+			Assert.That(capabilities.CanManageAuth, Is.False);
+			Assert.That(capabilities.CanReadKeys, Is.False);
+			Assert.That(capabilities.CanWriteKeys, Is.False);
+		});
+	}
+
+	[Test]
+	public async Task NullUsername_AuthDisabled_IsUnrestricted()
+	{
+		var provider = CreateProvider(authEnabled: false, users: new(), roles: new());
+
+		var capabilities = await provider.GetCapabilitiesAsync(null);
+
+		Assert.That(capabilities.IsRoot, Is.True);
+	}
+
+	[Test]
+	public void DiscoveryFailure_PropagatesInsteadOfEmptyCapabilities()
+	{
+		var provider = new UserCapabilitiesProvider(
+			new StubUserAdmin(new()),
+			new StubRoleAdmin(new()),
+			new ThrowingAuthAdmin());
+
+		Assert.ThrowsAsync<EtcdOperationException>(() => provider.GetCapabilitiesAsync("bob"));
+	}
+
+	[Test]
+	public void UserLookupFailure_PropagatesInsteadOfEmptyCapabilities()
+	{
+		var provider = new UserCapabilitiesProvider(
+			new ThrowingUserAdmin(),
+			new StubRoleAdmin(new()),
+			new StubAuthAdmin(true));
+
+		Assert.ThrowsAsync<EtcdOperationException>(() => provider.GetCapabilitiesAsync("bob"));
+	}
+
 	private static UserCapabilitiesProvider CreateProvider(bool authEnabled, Dictionary<string, EtcdUser> users, Dictionary<string, EtcdRole> roles) => new(
 		new StubUserAdmin(users),
 		new StubRoleAdmin(roles),
@@ -143,5 +191,29 @@ public sealed class UserCapabilitiesProviderTests
 	private sealed class StubAuthAdmin(bool enabled) : IEtcdAuthAdmin
 	{
 		public Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default) => Task.FromResult(enabled);
+	}
+
+	private sealed class ThrowingAuthAdmin : IEtcdAuthAdmin
+	{
+		public Task<bool> IsAuthenticationEnabledAsync(CancellationToken ct = default) =>
+			Task.FromException<bool>(new EtcdOperationException(EtcdOperationFailureKind.Unavailable, "unreachable"));
+	}
+
+	private sealed class ThrowingUserAdmin : IEtcdUserAdmin
+	{
+		public Task<IReadOnlyList<EtcdUser>> GetUsersAsync(CancellationToken ct = default) => throw new NotSupportedException();
+
+		public Task<EtcdUser?> GetUserAsync(string username, CancellationToken ct = default) =>
+			Task.FromException<EtcdUser?>(new EtcdOperationException(EtcdOperationFailureKind.Unavailable, "unreachable"));
+
+		public Task<EtcdOperationResult> CreateUserAsync(string username, string password, CancellationToken ct = default) => throw new NotSupportedException();
+
+		public Task<EtcdOperationResult> DeleteUserAsync(string username, CancellationToken ct = default) => throw new NotSupportedException();
+
+		public Task<EtcdOperationResult> ChangeUserPasswordAsync(string username, string newPassword, CancellationToken ct = default) => throw new NotSupportedException();
+
+		public Task<EtcdOperationResult> GrantRoleToUserAsync(string username, string roleName, CancellationToken ct = default) => throw new NotSupportedException();
+
+		public Task<EtcdOperationResult> RevokeRoleFromUserAsync(string username, string roleName, CancellationToken ct = default) => throw new NotSupportedException();
 	}
 }

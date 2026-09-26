@@ -14,6 +14,9 @@
 - Renaming a connection to an already used name is rejected instead of creating duplicates that were then deleted together
 - Creating a key that already exists (including concurrent creates) no longer overwrites it; only the first creator succeeds
 - Editing a key value preserves the key's lease (TTL) instead of silently detaching it
+- Reading keys without permission now reports an access error instead of an empty result; missing keys, users and roles are still reported as missing
+- Connecting without a username to a server with authentication enabled no longer grants full access
+- A failed permission lookup while connecting now reports a connection error instead of opening the main menu without permissions
 
 ## [0.8] - 2026-09-18
 

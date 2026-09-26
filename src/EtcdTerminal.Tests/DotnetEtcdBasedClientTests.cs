@@ -98,7 +98,7 @@ public sealed class DotnetEtcdBasedClientTests
 	}
 
 	[Test]
-	public async Task CreateKey_DeniedRequest_ThrowsInsteadOfFalse()
+	public async Task CreateKey_DeniedRequest_ThrowsAccessDeniedInsteadOfFalse()
 	{
 		var (transport, captured) = CapturingTransport.Create();
 		var client = CreateClient(transport);
@@ -107,13 +107,13 @@ public sealed class DotnetEtcdBasedClientTests
 
 		captured.NextError = new RpcException(new Status(StatusCode.PermissionDenied, "permission denied"));
 
-		var ex = Assert.ThrowsAsync<RpcException>(() => client.CreateKeyAsync("k", "v"));
+		var ex = Assert.ThrowsAsync<EtcdOperationException>(() => client.CreateKeyAsync("k", "v"));
 
-		Assert.That(ex!.StatusCode, Is.EqualTo(StatusCode.PermissionDenied));
+		Assert.That(ex!.Kind, Is.EqualTo(EtcdOperationFailureKind.AccessDenied));
 	}
 
 	[Test]
-	public async Task UpdateKey_DeniedRequest_ThrowsInsteadOfFalse()
+	public async Task UpdateKey_DeniedRequest_ThrowsAccessDeniedInsteadOfFalse()
 	{
 		var (transport, captured) = CapturingTransport.Create();
 		var client = CreateClient(transport);
@@ -122,9 +122,9 @@ public sealed class DotnetEtcdBasedClientTests
 
 		captured.NextError = new RpcException(new Status(StatusCode.PermissionDenied, "permission denied"));
 
-		var ex = Assert.ThrowsAsync<RpcException>(() => client.UpdateKeyAsync("k", "v"));
+		var ex = Assert.ThrowsAsync<EtcdOperationException>(() => client.UpdateKeyAsync("k", "v"));
 
-		Assert.That(ex!.StatusCode, Is.EqualTo(StatusCode.PermissionDenied));
+		Assert.That(ex!.Kind, Is.EqualTo(EtcdOperationFailureKind.AccessDenied));
 	}
 
 	[Test]
