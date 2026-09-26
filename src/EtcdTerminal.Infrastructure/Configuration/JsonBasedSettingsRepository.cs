@@ -30,7 +30,7 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 
 	public void Save(IAppSettings appSettings)
 	{
-		var root = _configFile.TryReadRoot() ?? [];
+		var root = _configFile.ReadRootOrThrow();
 
 		root[SettingsSection] = new JsonObject
 		{
