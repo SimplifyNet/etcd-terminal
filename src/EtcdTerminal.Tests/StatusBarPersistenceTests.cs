@@ -22,7 +22,7 @@ public sealed class StatusBarPersistenceTests
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 
-		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), TestSettings());
+		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()));
 
 		var result = prompt.Ask("Enter:");
 
@@ -56,15 +56,6 @@ public sealed class StatusBarPersistenceTests
 		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), new EnglishLocalization()).Show();
 
 		Assert.That(terminal.CursorTop, Is.EqualTo(terminal.WindowHeight - StatusBar.ReservedRows - 2));
-	}
-
-	private static AppSettingsStore TestSettings()
-	{
-		var settings = new AppSettingsStore();
-
-		settings.Update(new AppSettings { PageSize = 30, TrimInputValues = true });
-
-		return settings;
 	}
 
 	private sealed class StubTextInput(string answer) : ITextInput

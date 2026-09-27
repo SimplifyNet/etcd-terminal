@@ -6,7 +6,7 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLayout _screenLayout, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization)
+public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLayout _screenLayout, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
@@ -67,14 +67,15 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 
 	private void SaveInstanceInteractive(EtcdConnectionConfig? existing, string successMessage)
 	{
+		var trim = _settings.Current.TrimInputValues;
 		var name = existing is null
-			? _prompt.Ask(_localization.EnterInstanceName)
-			: _prompt.Ask(_localization.EnterInstanceName, existing.Name);
+			? _prompt.Ask(_localization.EnterInstanceName, trim: trim)
+			: _prompt.Ask(_localization.EnterInstanceName, existing.Name, trim: trim);
 
 		if (name is null)
 			return;
 
-		var connectionString = _prompt.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr);
+		var connectionString = _prompt.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr, trim: trim);
 
 		if (connectionString is null)
 			return;
@@ -87,8 +88,8 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 		}
 
 		var username = existing is null
-			? _prompt.Ask(_localization.EnterUsername, allowEmpty: true)
-			: _prompt.Ask(_localization.EnterUsername, existing.Username ?? string.Empty);
+			? _prompt.Ask(_localization.EnterUsername, allowEmpty: true, trim: trim)
+			: _prompt.Ask(_localization.EnterUsername, existing.Username ?? string.Empty, trim: trim);
 
 		if (username is null)
 			return;
@@ -103,7 +104,7 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 				? _localization.EnterPassword
 				: _localization.EnterPasswordKeepCurrent;
 
-			var entered = _prompt.Secret(passwordPrompt);
+			var entered = _prompt.Secret(passwordPrompt, trim: trim);
 
 			if (entered is null)
 				return;

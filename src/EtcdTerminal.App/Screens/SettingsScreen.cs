@@ -41,7 +41,7 @@ public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepos
 
 	private void EditPageSize()
 	{
-		var input = _prompt.Ask(_localization.EnterPageSize);
+		var input = _prompt.Ask(_localization.EnterPageSize, trim: _settings.Current.TrimInputValues);
 
 		if (input is null)
 			return;

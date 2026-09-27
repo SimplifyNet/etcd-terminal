@@ -206,9 +206,9 @@ public sealed class SessionFlowTests
 
 			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, StatusBar, Localization);
 			var message = new Message(Terminal, pressAnyKey);
-			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar, new AppSettingsStore());
+			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
 			var spinner = new Spinner(Terminal);
-			var manage = new ManageConnectionsScreen(Terminal, Layout, new StubConfigRepo(instances), Menu, prompt, message, Localization);
+			var manage = new ManageConnectionsScreen(Terminal, Layout, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
 			var settings = new SettingsScreen(Layout, new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 
 			Selection = new InstanceSelectionScreen(Terminal, new StubConfigRepo(instances), new StubDecryptSource(), Connection, Session, new StubCapabilities(discover), settings, Menu, message, Layout, spinner, manage, Localization);

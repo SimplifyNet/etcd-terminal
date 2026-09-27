@@ -1,12 +1,15 @@
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ITextInput _textInput, StatusBar _statusBar, IAppSettingsStore _settings)
+/// <summary>
+/// Generic input mechanics: cancellation versus validation. Trimming and empty
+/// policies come from the caller, which owns the application settings.
+/// </summary>
+public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ITextInput _textInput, StatusBar _statusBar)
 {
-	public string? Ask(string prompt, bool allowEmpty = false)
+	public string? Ask(string prompt, bool allowEmpty = false, bool trim = true)
 	{
 		_cursor.SetCursorVisible(true);
 
@@ -20,10 +23,10 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			if (input is null)
 				return null;
 
-			if (_settings.Current.TrimInputValues)
+			if (trim)
 				input = input.Trim();
 
-			if (string.IsNullOrWhiteSpace(input))
+			if (input.Length == 0)
 				return allowEmpty ? string.Empty : null;
 
 			return input;
@@ -34,7 +37,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 		}
 	}
 
-	public string? Ask(string prompt, string defaultValue)
+	public string? Ask(string prompt, string defaultValue, bool trim = true)
 	{
 		_cursor.SetCursorVisible(true);
 
@@ -48,7 +51,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			if (input is null)
 				return null;
 
-			return _settings.Current.TrimInputValues ? input.Trim() : input;
+			return trim ? input.Trim() : input;
 		}
 		finally
 		{
@@ -56,7 +59,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 		}
 	}
 
-	public string? Secret(string prompt)
+	public string? Secret(string prompt, bool trim = true)
 	{
 		_cursor.SetCursorVisible(true);
 
@@ -70,7 +73,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 			if (input is null)
 				return null;
 
-			return _settings.Current.TrimInputValues ? input.Trim() : input;
+			return trim ? input.Trim() : input;
 		}
 		finally
 		{

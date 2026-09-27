@@ -25,6 +25,10 @@
 - Revoking a permission no longer asks for a permission type it then ignores; revocation removes the whole permission for the key or prefix
 - Permission lists show exact keys, prefixes, bounded ranges and open-ended ranges distinctly, including the all-keys grant, with localized labels
 - An interrupted JSON import now keeps and shows the confirmed progress instead of discarding it, and states that remaining entries were not attempted and completed writes were not rolled back
+- Creating a key now accepts empty values, consistently with editing
+- Cancelling the separator or prefix prompt aborts JSON import instead of silently using defaults
+- With input trimming disabled, whitespace-only values are kept exactly as entered
+- A queued Esc cancels the JSON paste prompt instead of being swallowed
 
 ## [0.8] - 2026-09-18
 

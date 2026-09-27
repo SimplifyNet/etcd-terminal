@@ -23,9 +23,8 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 
 			_statusBar.RenderPreservingCursor();
 
-			while (_terminal.KeyAvailable)
-				_terminal.ReadKey();
-
+			// Previously queued input (a paste or an Escape that cancels) is
+			// consumed below, never discarded here.
 			var buffer = new StringBuilder();
 			var lastKeyAt = Stopwatch.StartNew();
 

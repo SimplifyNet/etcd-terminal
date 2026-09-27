@@ -3,13 +3,14 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Security;
+using EtcdTerminal.Configuration;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Permissions;
 using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
+public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageRoles;
 
@@ -73,7 +74,9 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 	private async Task CreateRoleAsync()
 	{
-		var roleName = _prompt.Ask(_localization.EnterRoleNamePrompt);
+		var trim = _settings.Current.TrimInputValues;
+
+		var roleName = _prompt.Ask(_localization.EnterRoleNamePrompt, trim: trim);
 
 		if (roleName is null)
 			return;
@@ -85,7 +88,9 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 	private async Task DeleteRoleAsync()
 	{
-		var roleName = _prompt.Ask(_localization.EnterRoleNameToDelete);
+		var trim = _settings.Current.TrimInputValues;
+
+		var roleName = _prompt.Ask(_localization.EnterRoleNameToDelete, trim: trim);
 
 		if (roleName is null)
 			return;
@@ -128,7 +133,9 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 
 	private PermissionTarget? PromptTarget()
 	{
-		var roleName = _prompt.Ask(_localization.EnterRoleNamePrompt);
+		var trim = _settings.Current.TrimInputValues;
+
+		var roleName = _prompt.Ask(_localization.EnterRoleNamePrompt, trim: trim);
 
 		if (roleName is null)
 			return null;
@@ -142,7 +149,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 			? _localization.EnterKeyPrefix
 			: _localization.EnterExactKey;
 
-		var key = _prompt.Ask(keyPromptText);
+		var key = _prompt.Ask(keyPromptText, trim: trim);
 
 		if (key is null)
 			return null;
