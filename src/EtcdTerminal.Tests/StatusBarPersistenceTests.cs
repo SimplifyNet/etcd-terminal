@@ -3,6 +3,7 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Terminal;
@@ -15,33 +16,37 @@ namespace EtcdTerminal.Tests;
 public sealed class StatusBarPersistenceTests
 {
 	[Test]
-	public void PromptAsk_RendersStatusBarWithActiveConnection()
+	public void PromptAsk_ShowsStatusBarWithActiveConnection()
 	{
 		var terminal = new FakeTerminal();
 		var session = new ConnectionSession();
+		var footer = new FakeStatusBarRenderer();
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 
-		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()));
+		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), footer));
 
 		var result = prompt.Ask("Enter:");
 
 		Assert.That(result, Is.EqualTo("value"));
-		Assert.That(terminal.Output.ToString(), Does.Contain("prod"));
+		Assert.That(footer.Models, Is.Not.Empty);
+		Assert.That(footer.Last.Name?.Text, Is.EqualTo("prod"));
 	}
 
 	[Test]
-	public void PressAnyKey_RendersStatusBarWithActiveConnection()
+	public void PressAnyKey_ShowsStatusBarWithActiveConnection()
 	{
 		var terminal = new FakeTerminal();
 		var session = new ConnectionSession();
+		var footer = new FakeStatusBarRenderer();
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), new EnglishLocalization()).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), footer), new EnglishLocalization()).Show();
 
-		Assert.That(terminal.Output.ToString(), Does.Contain("prod"));
+		Assert.That(footer.Models, Is.Not.Empty);
+		Assert.That(footer.Last.Name?.Text, Is.EqualTo("prod"));
 	}
 
 	[Test]
@@ -53,7 +58,7 @@ public sealed class StatusBarPersistenceTests
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, terminal, new StubAppInfo(), session, new EnglishLocalization()), new EnglishLocalization()).Show();
+		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), new FakeStatusBarRenderer()), new EnglishLocalization()).Show();
 
 		Assert.That(terminal.CursorTop, Is.EqualTo(terminal.WindowHeight - StatusBar.ReservedRows - 2));
 	}

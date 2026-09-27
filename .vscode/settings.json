@@ -3,6 +3,7 @@
 		"appsettings",
 		"Authpb",
 		"behaviour",
+		"borderless",
 		"ByteString",
 		"colour",
 		"colours",

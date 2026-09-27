@@ -8,7 +8,6 @@ using EtcdTerminal.Terminal;
 namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
-	ScreenLayout _screenLayout,
 	IEtcdConnection _connection,
 	IConnectionSession _session,
 	IEnumerable<IMainMenuEntry> _entries,
@@ -35,9 +34,7 @@ public sealed class MainScreen(
 	{
 		while (true)
 		{
-			_screenLayout.RenderHeader();
-
-			MainMenuAction? action = _menu.Show(string.Empty, BuildMenuItems())?.Id;
+			MainMenuAction? action = _menu.ShowFramed(string.Empty, BuildMenuItems())?.Id;
 
 			if (action is null)
 				return;

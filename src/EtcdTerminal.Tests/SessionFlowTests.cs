@@ -173,8 +173,14 @@ public sealed class SessionFlowTests
 		var second = await harness.Selection.ShowAsync();
 
 		Assert.That(second, Is.Null);
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("v<primary>0.0"));
-		Assert.That(harness.Terminal.Output.ToString(), Does.Not.Contain("<secondary> prod"));
+
+		// The framed screen owns the footer now, so the visible model comes from
+		// the host, not from the inline writer.
+		var footer = harness.Host.Frames[^1].Footer;
+
+		Assert.That(footer, Is.Not.Null);
+		Assert.That(footer!.Name, Is.Null);
+		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
 	}
 
 	private static EtcdConnectionConfig Config() => new()
@@ -189,6 +195,8 @@ public sealed class SessionFlowTests
 		public readonly ConnectionSession Session = new();
 		public readonly StubConnection Connection = new();
 		public readonly EnglishLocalization Localization = new();
+		public readonly FakeStatusBarRenderer Footer = new();
+		public readonly FakeScreenHost Host = new();
 		public readonly StatusBar StatusBar;
 		public readonly Menu Menu;
 		public readonly ScreenLayout Layout;
@@ -200,9 +208,10 @@ public sealed class SessionFlowTests
 			Func<string?, CancellationToken, Task<UserCapabilities>> discover,
 			IEnumerable<IMainMenuEntry> entries)
 		{
-			StatusBar = new StatusBar(Terminal, Terminal, Terminal, new StubAppInfo(), Session, Localization);
-			Menu = new Menu(Terminal, StatusBar);
-			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, new Header(Terminal));
+			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, Localization, Footer);
+			var header = new Header(Terminal);
+			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
+			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, header);
 
 			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, StatusBar, Localization);
 			var message = new Message(Terminal, pressAnyKey);
@@ -211,8 +220,8 @@ public sealed class SessionFlowTests
 			var manage = new ManageConnectionsScreen(Terminal, Layout, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
 			var settings = new SettingsScreen(Layout, new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 
-			Selection = new InstanceSelectionScreen(Terminal, new StubConfigRepo(instances), new StubDecryptSource(), Connection, Session, new StubCapabilities(discover), settings, Menu, message, Layout, spinner, manage, Localization);
-			Main = new MainScreen(Layout, Connection, Session, entries, Menu, Localization);
+			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), Connection, Session, new StubCapabilities(discover), settings, Menu, message, spinner, manage, Localization);
+			Main = new MainScreen(Connection, Session, entries, Menu, Localization);
 		}
 	}
 

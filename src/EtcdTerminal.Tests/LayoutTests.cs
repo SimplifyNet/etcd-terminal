@@ -58,7 +58,7 @@ public sealed class LayoutTests
 	}
 
 	[Test]
-	public void LongConnectionDetails_FooterFitsNarrowWindow()
+	public void LongConnectionDetails_FooterModelKeepsFullLiteralValues()
 	{
 		var harness = new Harness(40, 24);
 
@@ -71,8 +71,11 @@ public sealed class LayoutTests
 
 		harness.StatusBar.Render();
 
-		AssertBounds(harness.Terminal);
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("\u2026"));
+		var model = harness.StatusBarRenderer.Last;
+
+		Assert.That(model.Name?.Text, Is.EqualTo(new string('n', 60)));
+		Assert.That(model.Connection?.Text, Is.EqualTo("http://" + new string('h', 90) + ":2379"));
+		Assert.That(model.Username?.Text, Is.EqualTo(new string('u', 40)));
 	}
 
 	[Test]
@@ -165,6 +168,8 @@ public sealed class LayoutTests
 	{
 		public readonly RecordingTerminal Terminal;
 		public readonly ConnectionSession Session = new();
+		public readonly FakeStatusBarRenderer StatusBarRenderer = new();
+		public readonly FakePanelRenderer PanelRenderer = new();
 		public readonly StatusBar StatusBar;
 		public readonly ScreenLayout Layout;
 		public readonly KeyBrowseControl Control;
@@ -175,10 +180,10 @@ public sealed class LayoutTests
 
 			var localization = new EnglishLocalization();
 
-			StatusBar = new StatusBar(Terminal, Terminal, Terminal, new StubAppInfo(), Session, localization);
+			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
 			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, new Header(Terminal));
 
-			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization);
+			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization, PanelRenderer);
 
 			Control = new KeyBrowseControl(Terminal, Terminal, Terminal, StatusBar, browseLayout, Layout, Session);
 		}

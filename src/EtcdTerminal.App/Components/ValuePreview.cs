@@ -15,6 +15,13 @@ public static class ValuePreview
 	private const string TabMark = "\u2192";
 	private const string ControlMark = "\uFFFD";
 
+	/// <summary>
+	/// Normalizes control content for display without applying any width budget.
+	/// Callers that let Infrastructure own layout use this and let the renderer
+	/// decide how much of the result fits.
+	/// </summary>
+	public static string Sanitize(string value) => Flatten(value);
+
 	public static string Preview(string value, int maxWidth)
 	{
 		if (maxWidth <= 0)

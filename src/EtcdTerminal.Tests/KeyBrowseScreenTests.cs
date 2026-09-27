@@ -88,12 +88,12 @@ public sealed class KeyBrowseScreenTests
 
 			Store = new DictKeyStore(initial);
 
-			var statusBar = new StatusBar(Terminal, Terminal, Terminal, new StubAppInfo(), session, localization);
+			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 			var layout = new ScreenLayout(Terminal, Terminal, statusBar, new Header(Terminal));
 			var prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
 			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, statusBar, localization);
 			var message = new Message(Terminal, pressAnyKey);
-			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization);
+			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization, new FakePanelRenderer());
 
 			Control = new KeyBrowseControl(Terminal, Terminal, Terminal, statusBar, browseLayout, layout, session);
 

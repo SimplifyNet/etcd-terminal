@@ -1,12 +1,14 @@
+using System.Globalization;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Theming;
 using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ILocalization _localization)
+public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ILocalization _localization, IPanelRenderer _panels)
 {
 	private const int LinePadding = 2;
 	private const int PrefixWidth = 4;
@@ -42,9 +44,6 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 	private string BoundQuery(string searchQuery) =>
 		ValuePreview.Preview(searchQuery, Math.Max(0, _output.WindowWidth - 8));
 
-	private string BoundStyled(string content, int maxCells) =>
-		_output.GetVisibleLength(content) <= maxCells ? content : DisplayCells.TruncateStyled(content, maxCells) + _style.Reset;
-
 	public void RenderKeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
 		if (pageKeys.Count == 0)
@@ -75,18 +74,18 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		}
 	}
 
-	public void RenderPagination(int currentPage, int totalPages, int totalKeys)
-	{
-		var currentPageLabel = currentPage + 1;
-		var bg = _style.PanelBackground;
-		var content = $"{bg}{_style.Muted}  {_localization.Page} {_style.Primary}{currentPageLabel}/{totalPages}{_style.Muted}  \u2022  {_style.Primary}{totalKeys}{_style.Muted} {_localization.TotalKeys}{_style.Reset}";
-
-		_output.WriteFillRow(bg);
-		_output.Write(BoundStyled(content, _output.WindowWidth));
-		_output.PadCurrentRow(bg);
-		_output.WriteLine();
-		_output.WriteFillRow(bg);
-	}
+	public void RenderPagination(int currentPage, int totalPages, int totalKeys) =>
+		_panels.Write(new PanelModel(
+		[
+			new PanelLine(
+			[
+				new StyledText($"{_localization.Page} ", TextRole.Muted),
+				new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
+				new StyledText("  \u2022  ", TextRole.Muted),
+				new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
+				new StyledText($" {_localization.TotalKeys}", TextRole.Muted)
+			])
+		]));
 
 	public void RenderActionBar(string selectedKey, bool canModify)
 	{
@@ -94,32 +93,33 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		RenderButtonsPanel(canModify);
 	}
 
-	private void RenderSelectedPanel(string selectedKey)
-	{
-		var labelWidth = DisplayCells.Width("  " + _localization.Selected + " ");
-		var key = ValuePreview.Preview(selectedKey, Math.Max(0, _output.WindowWidth - 1 - labelWidth));
-
-		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
-		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {_localization.Selected} {_style.Accent}{key}");
-		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
-	}
+	private void RenderSelectedPanel(string selectedKey) =>
+		_panels.Write(new PanelModel(
+		[
+			new PanelLine(
+			[
+				new StyledText($"{_localization.Selected} ", TextRole.Muted),
+				new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent)
+			])
+		], PanelKind.Selection));
 
 	private void RenderButtonsPanel(bool canModify)
 	{
-		List<(string Key, string Label)> buttons = [];
+		List<StyledText> hints = [];
 
 		if (canModify)
 		{
-			buttons.Add(("E", _localization.Edit));
-			buttons.Add(("D", _localization.Delete));
+			hints.Add(new StyledText("E", TextRole.Primary));
+			hints.Add(new StyledText($" {_localization.Edit}", TextRole.Muted));
+			hints.Add(new StyledText("   ", TextRole.Muted));
+			hints.Add(new StyledText("D", TextRole.Primary));
+			hints.Add(new StyledText($" {_localization.Delete}", TextRole.Muted));
+			hints.Add(new StyledText("   ", TextRole.Muted));
 		}
 
-		buttons.Add(("Esc", _localization.Cancel));
+		hints.Add(new StyledText("Esc", TextRole.Primary));
+		hints.Add(new StyledText($" {_localization.Cancel}", TextRole.Muted));
 
-		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_style.Primary}{b.Key} {_style.Muted}{b.Label}"));
-
-		_output.WriteBorderedFillRow(_style.PanelBackground);
-		_output.WriteBorderedRow(_style.PanelBackground, BoundStyled(colored, _output.WindowWidth - 1));
-		_output.WriteBorderedFillRow(_style.PanelBackground);
+		_panels.Write(new PanelModel([new PanelLine(hints)], PanelKind.Actions));
 	}
 }

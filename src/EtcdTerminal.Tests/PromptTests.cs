@@ -125,7 +125,7 @@ public sealed class PromptTests
 		{
 			var session = new ConnectionSession();
 			var localization = new EnglishLocalization();
-			var statusBar = new StatusBar(Terminal, Terminal, Terminal, new StubAppInfo(), session, localization);
+			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 
 			Prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
 		}

@@ -8,6 +8,7 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Theming;
 using EtcdTerminal.Keys;
@@ -56,7 +57,13 @@ public static class IocRegistrations
 		.Register<ITerminalStyle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITerminalWidgets>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton);
+		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
+		.Register<RoleStyleMapper>(LifetimeType.Singleton)
+		.Register<SpectrePanelRenderer>(LifetimeType.Singleton)
+		.Register<SpectreStatusBarRenderer>(LifetimeType.Singleton)
+		.Register<IPanelRenderer>(c => c.Resolve<SpectrePanelRenderer>(), LifetimeType.Singleton)
+		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
+		.Register<IScreenHost>(c => new SpectreScreenHost(Spectre.Console.AnsiConsole.Console, c.Resolve<SpectrePanelRenderer>(), c.Resolve<SpectreStatusBarRenderer>()), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
 		.Register<ITheme, ReddyTheme>(LifetimeType.Singleton);

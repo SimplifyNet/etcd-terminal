@@ -1,11 +1,17 @@
 using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Engine;
 
-public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
+/// <summary>
+/// Selection over a list of items with stable identifiers. A screen that owns the
+/// whole console uses <see cref="ShowFramed"/>, where the menu is the only writer
+/// and the frame is replaced in place. A confirmation shown in the middle of
+/// other output uses <see cref="Show"/>, which draws inline.
+/// </summary>
+public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost _host, Header _header, StatusBar _statusBar)
 {
-
 	public MenuItem<TId>? Show<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter = null)
 	{
 		var index = ShowAndGetIndex(title, items, displayConverter);
@@ -14,6 +20,97 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 			return null;
 
 		return items[index.Value];
+	}
+
+	/// <summary>
+	/// Shows the menu as the whole screen: banner above, items in the middle and
+	/// the session footer pinned below. The frame is replaced on every selection
+	/// change and always released, including on cancellation.
+	/// </summary>
+	public MenuItem<TId>? ShowFramed<TId>(
+		string title,
+		IReadOnlyList<MenuItem<TId>> items,
+		Func<string, string>? displayConverter = null,
+		IReadOnlyList<PanelModel>? notices = null)
+	{
+		var selectable = items.Select(item => item.IsSelectable).ToList();
+		var index = selectable.FindIndex(isSelectable => isSelectable);
+
+		if (index < 0)
+			return null;
+
+		var labels = items
+			.Select(item => displayConverter?.Invoke(item.Label) ?? item.Label)
+			.ToList();
+
+		_host.Begin(Frame(title, labels, selectable, index, notices));
+
+		try
+		{
+			while (true)
+			{
+				var key = _input.ReadKey();
+				var previous = index;
+
+				switch (key.Key)
+				{
+					case ConsoleKey.Escape:
+						return null;
+					case ConsoleKey.Enter:
+						if (selectable[index])
+							return items[index];
+
+						continue;
+					case ConsoleKey.UpArrow:
+						index = StepSelection(index, -1, selectable);
+						break;
+					case ConsoleKey.DownArrow:
+						index = StepSelection(index, 1, selectable);
+						break;
+					default:
+						continue;
+				}
+
+				if (index != previous)
+					_host.Update(Frame(title, labels, selectable, index, notices));
+			}
+		}
+		finally
+		{
+			_host.End();
+		}
+	}
+
+	private ScreenModel Frame(
+		string title,
+		IReadOnlyList<string> labels,
+		IReadOnlyList<bool> selectable,
+		int selected,
+		IReadOnlyList<PanelModel>? notices)
+	{
+		List<PanelModel> body = [.. notices ?? []];
+
+		if (!string.IsNullOrEmpty(title))
+			body.Add(new PanelModel([new PanelLine([new StyledText(title, TextRole.Primary)])]));
+
+		List<PanelLine> rows = [];
+
+		for (var i = 0; i < labels.Count; i++)
+		{
+			var role = i == selected ? TextRole.Accent : TextRole.Primary;
+			var marker = i == selected ? _terminal.SelectionPointer : _terminal.Indent;
+
+			rows.Add(new PanelLine([new StyledText(marker, role), new StyledText(labels[i], role)]));
+		}
+
+		body.Add(new PanelModel(rows));
+
+		return new ScreenModel
+		{
+			Header = _header.BuildModel(),
+			Body = body,
+			Footer = _statusBar.BuildModel()
+		};
 	}
 
 	private int? ShowAndGetIndex<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<string, string>? displayConverter)
@@ -64,10 +161,10 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 					ClearMenu(menuStart);
 					return index;
 				case ConsoleKey.UpArrow:
-					index = StepSelection(index, -1);
+					index = StepSelection(index, -1, selectable);
 					break;
 				case ConsoleKey.DownArrow:
-					index = StepSelection(index, 1);
+					index = StepSelection(index, 1, selectable);
 					break;
 				default:
 					continue;
@@ -75,21 +172,6 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 
 			DrawItem(firstItemTop + oldIndex, plain[oldIndex], false);
 			DrawItem(firstItemTop + index, plain[index], true);
-		}
-
-		int StepSelection(int from, int direction)
-		{
-			var next = from;
-
-			for (var n = 0; n < items.Count; n++)
-			{
-				next = (next + direction + items.Count) % items.Count;
-
-				if (selectable[next])
-					return next;
-			}
-
-			return from;
 		}
 	}
 
@@ -122,5 +204,20 @@ public sealed class Menu(ITerminal _terminal, StatusBar _statusBar)
 		}
 		else
 			_terminal.Write(text);
+	}
+
+	private static int StepSelection(int from, int direction, IReadOnlyList<bool> selectable)
+	{
+		var next = from;
+
+		for (var n = 0; n < selectable.Count; n++)
+		{
+			next = (next + direction + selectable.Count) % selectable.Count;
+
+			if (selectable[next])
+				return next;
+		}
+
+		return from;
 	}
 }

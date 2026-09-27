@@ -4,18 +4,17 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, ScreenLayout _screenLayout, 	Spinner _spinner, ManageConnectionsScreen _manageConnections, ILocalization _localization)
+public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, Spinner _spinner, ManageConnectionsScreen _manageConnections, ILocalization _localization)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
 		while (true)
 		{
-			_screenLayout.RenderHeader();
-
 			var instances = _configRepo.LoadInstances();
 
 			ShowDecryptWarningIfNeeded();
@@ -99,8 +98,6 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 			return;
 
 		_message.ShowWarning(string.Format(_localization.UndecryptablePasswords, string.Join(", ", decryptFailures)));
-
-		_screenLayout.RenderHeader();
 	}
 
 	private InstanceMenuChoice? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
@@ -116,19 +113,18 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), _localization.Settings));
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), _localization.Exit));
 
-		if (instances.Count == 0)
-		{
-			_terminal.WriteIndentedLine(_localization.NoConnectionsMessage, TerminalColor.Warning);
-			_terminal.WriteLine();
-		}
+		List<PanelModel> notices = [];
 
-		return _menu.Show(string.Empty, items, c =>
+		if (instances.Count == 0)
+			notices.Add(new PanelModel([new PanelLine([new StyledText(_localization.NoConnectionsMessage, TextRole.Warning)])]));
+
+		return _menu.ShowFramed(string.Empty, items, c =>
 		{
 			var instance = instances.FirstOrDefault(i => i.Name == c);
 
 			return instance is not null
 				? $"{instance.Name}  ({instance.ConnectionString})"
 				: c;
-		})?.Id;
+		}, notices)?.Id;
 	}
 }
