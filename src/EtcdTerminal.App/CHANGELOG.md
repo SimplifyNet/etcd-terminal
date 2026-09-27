@@ -20,6 +20,8 @@
 - Key browsing works for accounts with exact-key or custom-range permissions; previously it failed with access errors or loaded unrelated keys
 - Prefix permissions over non-ASCII keys (e.g. emoji) match exactly the keys etcd covers
 - Permission bounds containing non-text data display safely instead of leaking raw control characters
+- A failed or cancelled connection attempt no longer leaves a half-open connection behind
+- Errors inside the main menu no longer leave the previous session active; disconnecting always clears it, even if the disconnect itself fails
 
 ## [0.8] - 2026-09-18
 

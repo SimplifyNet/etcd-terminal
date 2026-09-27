@@ -48,12 +48,29 @@ public sealed class InstanceSelectionScreen(ITerminalOutput _terminal, IConnecti
 
 				try
 				{
-					connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
-					{
-						await _connection.ConnectAsync(selected, ct);
+				connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
+				{
+					await _connection.ConnectAsync(selected, ct);
 
+					try
+					{
 						capabilities = await _capabilities.GetCapabilitiesAsync(selected.Username, ct);
-					});
+					}
+					catch
+					{
+						_session.End();
+
+						try
+						{
+							await _connection.DisconnectAsync();
+						}
+						catch
+						{
+						}
+
+						throw;
+					}
+				});
 				}
 				catch (Exception ex)
 				{

@@ -17,6 +17,22 @@ public sealed class MainScreen(
 {
 	public async Task ShowAsync()
 	{
+		try
+		{
+			await RunMenuLoopAsync();
+		}
+		catch
+		{
+			await DisconnectIgnoringErrorsAsync();
+
+			throw;
+		}
+
+		await DisconnectAsync();
+	}
+
+	private async Task RunMenuLoopAsync()
+	{
 		while (true)
 		{
 			_screenLayout.RenderHeader();
@@ -24,18 +40,12 @@ public sealed class MainScreen(
 			MainMenuAction? action = _menu.Show(string.Empty, BuildMenuItems())?.Id;
 
 			if (action is null)
-			{
-				await DisconnectAsync();
 				return;
-			}
 
 			var entry = _entries.FirstOrDefault(e => e.Action == action);
 
 			if (entry is null)
-			{
-				await DisconnectAsync();
 				return;
-			}
 
 			await entry.ShowAsync();
 		}
@@ -58,6 +68,22 @@ public sealed class MainScreen(
 	private async Task DisconnectAsync()
 	{
 		_session.End();
+
 		await _connection.DisconnectAsync();
+	}
+
+	private async Task DisconnectIgnoringErrorsAsync()
+	{
+		_session.End();
+
+		try
+		{
+			await _connection.DisconnectAsync();
+		}
+		catch
+		{
+			// The session is already cleared. A failed disconnect must not
+			// mask the menu error that is currently propagating.
+		}
 	}
 }
