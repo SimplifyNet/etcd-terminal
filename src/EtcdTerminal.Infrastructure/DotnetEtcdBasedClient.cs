@@ -1,3 +1,4 @@
+using System.Text;
 using Authpb;
 using dotnet_etcd;
 using dotnet_etcd.interfaces;
@@ -103,9 +104,47 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 	public async Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default)
 	{
+		// The vendor prefix helper is not byte-exact (e.g. for a prefix ending in
+		// U+D7FF), so the [prefix, successor) bounds are built here explicitly.
+		// An empty prefix reads all keys as [zero-byte, zero-byte).
 		try
 		{
-			var response = await Client.GetRangeAsync(prefix, cancellationToken: ct);
+			var start = prefix.Length == 0 || prefix == PermissionRange.AllKeys
+				? [0]
+				: Encoding.UTF8.GetBytes(prefix);
+
+			var response = await Client.GetAsync(new RangeRequest
+			{
+				Key = ByteString.CopyFrom(start),
+				RangeEnd = ByteString.CopyFrom(PermissionRange.PrefixRangeEndBytes(start))
+			}, cancellationToken: ct);
+
+			return [.. response.Kvs.Select(MapKeyValue)];
+		}
+		catch (RpcException ex) when (IsCancellation(ex))
+		{
+			throw;
+		}
+		catch (RpcException ex)
+		{
+			throw Translate(ex);
+		}
+	}
+
+	public async Task<IReadOnlyList<EtcdKeyValue>> GetKeysByRangeAsync(string start, string endExclusive, CancellationToken ct = default)
+	{
+		if (endExclusive.Length == 0)
+			throw new ArgumentException("A range read requires an explicit exclusive end.", nameof(endExclusive));
+
+		try
+		{
+			var response = await Client.GetAsync(new RangeRequest
+			{
+				Key = ByteString.CopyFromUtf8(start),
+				RangeEnd = endExclusive == PermissionRange.AllKeys
+					? ByteString.CopyFrom(0x00)
+					: ByteString.CopyFromUtf8(endExclusive)
+			}, cancellationToken: ct);
 
 			return [.. response.Kvs.Select(MapKeyValue)];
 		}
@@ -431,10 +470,12 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 	public async Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default)
 	{
+		if (scope is PermissionScope.Range)
+			throw new ArgumentException("A range grant requires an explicit range end.", nameof(scope));
+
 		try
 		{
 			var permType = MapPermissionType(permissionType);
-			var rangeEnd = PermissionRange.RangeEndFor(key, scope);
 
 			var permission = new Permission
 			{
@@ -442,8 +483,8 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 				Key = ByteString.CopyFromUtf8(key)
 			};
 
-			if (rangeEnd.Length > 0)
-				permission.RangeEnd = ByteString.CopyFromUtf8(rangeEnd);
+			if (scope is PermissionScope.Prefix)
+				permission.RangeEnd = ByteString.CopyFrom(PermissionRange.PrefixRangeEndBytes(Encoding.UTF8.GetBytes(key)));
 
 			await Client.RoleGrantPermissionAsync(
 				new AuthRoleGrantPermissionRequest
@@ -466,18 +507,19 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 
 	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default)
 	{
+		if (scope is PermissionScope.Range)
+			throw new ArgumentException("A range revocation requires an explicit range end.", nameof(scope));
+
 		try
 		{
-			var rangeEnd = PermissionRange.RangeEndFor(key, scope);
-
 			var request = new AuthRoleRevokePermissionRequest
 			{
 				Role = roleName,
 				Key = ByteString.CopyFromUtf8(key)
 			};
 
-			if (rangeEnd.Length > 0)
-				request.RangeEnd = ByteString.CopyFromUtf8(rangeEnd);
+			if (scope is PermissionScope.Prefix)
+				request.RangeEnd = ByteString.CopyFrom(PermissionRange.PrefixRangeEndBytes(Encoding.UTF8.GetBytes(key)));
 
 			await Client.RoleRevokePermissionAsync(request, cancellationToken: ct);
 
@@ -588,6 +630,9 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 		Lease = kv.Lease
 	};
 
+	// Text bounds (including the zero-byte sentinel) round-trip through UTF-8 exactly.
+	// Non-text server bounds decode with replacement characters: display-safe and
+	// self-consistent, but not byte-faithful. There is no binary key editor.
 	private static EtcdPermission MapPermission(Permission perm) => new()
 	{
 		Type = perm.PermType switch

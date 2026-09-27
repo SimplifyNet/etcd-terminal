@@ -37,6 +37,8 @@ public sealed class KeyImporterTests
 
 		public Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default) => throw new NotSupportedException();
 
+		public Task<IReadOnlyList<EtcdKeyValue>> GetKeysByRangeAsync(string start, string endExclusive, CancellationToken ct = default) => throw new NotSupportedException();
+
 		public Task<bool> CreateKeyAsync(string key, string value, CancellationToken ct = default) =>
 			Task.FromResult(!failingCreates.Contains(key));
 

@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace EtcdTerminal.Permissions;
 
 public sealed class EtcdPermission
@@ -12,10 +14,18 @@ public sealed class EtcdPermission
 
 	/// <summary>
 	/// etcd range end. Empty means the permission covers exactly one key.
+	/// A zero-byte end means the range is open-ended: every key from the start on.
 	/// </summary>
 	public string RangeEnd { get; init; } = string.Empty;
 
 	public PermissionScope Scope => PermissionRange.ScopeOf(KeyPrefix, RangeEnd);
+
+	/// <summary>
+	/// Display-safe form of <see cref="KeyPrefix"/>: control characters (such as the
+	/// zero-byte sentinel) are replaced so raw bytes never reach the terminal.
+	/// Display text is never used for requests; requests use the raw bounds.
+	/// </summary>
+	public string DisplayKey => new([.. KeyPrefix.Select(c => char.IsControl(c) ? '\uFFFD' : c)]);
 
 	/// <summary>
 	/// etcd stores the "all keys" permission as the zero byte key, which means an empty prefix.
@@ -30,7 +40,11 @@ public sealed class EtcdPermission
 		{
 			PermissionScope.Key => string.Equals(start, key, StringComparison.Ordinal),
 			PermissionScope.Prefix => start.Length == 0 || key.StartsWith(start, StringComparison.Ordinal),
-			_ => string.CompareOrdinal(key, start) >= 0 && string.CompareOrdinal(key, NormalizeKey(RangeEnd)) < 0
+			_ => CompareBytes(key, start) >= 0
+				&& (RangeEnd == PermissionRange.AllKeys || CompareBytes(key, RangeEnd) < 0)
 		};
 	}
+
+	private static int CompareBytes(string left, string right) =>
+		Encoding.UTF8.GetBytes(left).AsSpan().SequenceCompareTo(Encoding.UTF8.GetBytes(right).AsSpan());
 }

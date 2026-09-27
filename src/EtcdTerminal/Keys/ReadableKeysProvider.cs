@@ -8,7 +8,7 @@ public sealed class ReadableKeysProvider(IEtcdKeyStore _keyStore) : IReadableKey
 	public async Task<IReadOnlyList<EtcdKeyValue>> GetReadableKeysAsync(UserCapabilities capabilities, CancellationToken ct = default)
 	{
 		if (capabilities.IsRoot)
-			return await LoadAllKeysAsync(ct);
+			return await _keyStore.GetKeysByPrefixAsync("", ct);
 
 		var keys = new List<EtcdKeyValue>();
 
@@ -17,21 +17,23 @@ public sealed class ReadableKeysProvider(IEtcdKeyStore _keyStore) : IReadableKey
 			if (permission.Type is not (PermissionType.Read or PermissionType.ReadWrite))
 				continue;
 
-			var prefixKeys = await _keyStore.GetKeysByPrefixAsync(EtcdPermission.NormalizeKey(permission.KeyPrefix), ct);
+			IReadOnlyList<EtcdKeyValue> permissionKeys = permission.Scope switch
+			{
+				PermissionScope.Key => await GetExactOrEmptyAsync(permission.KeyPrefix, ct),
+				PermissionScope.Range => await _keyStore.GetKeysByRangeAsync(permission.KeyPrefix, permission.RangeEnd, ct),
+				_ => await _keyStore.GetKeysByPrefixAsync(EtcdPermission.NormalizeKey(permission.KeyPrefix), ct)
+			};
 
-			keys.AddRange(prefixKeys.Where(kv => permission.Covers(kv.Key)));
+			keys.AddRange(permissionKeys.Where(kv => permission.Covers(kv.Key)));
 		}
 
 		return [.. keys.DistinctBy(kv => kv.Key)];
 	}
 
-	private async Task<List<EtcdKeyValue>> LoadAllKeysAsync(CancellationToken ct)
+	private async Task<IReadOnlyList<EtcdKeyValue>> GetExactOrEmptyAsync(string key, CancellationToken ct)
 	{
-		var keys = await _keyStore.GetKeysByPrefixAsync("", ct);
+		var exact = await _keyStore.GetKeyAsync(key, ct);
 
-		if (keys.Count > 0)
-			return [.. keys];
-
-		return [.. await _keyStore.GetKeysByPrefixAsync("/", ct)];
+		return exact is null ? [] : [exact];
 	}
 }

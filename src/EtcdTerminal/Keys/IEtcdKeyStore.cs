@@ -9,9 +9,16 @@ public interface IEtcdKeyStore
 	Task<EtcdKeyValue?> GetKeyAsync(string key, CancellationToken ct = default);
 	/// <summary>
 	/// Returns matching keys; an empty collection means no keys matched, not a failure.
-	/// Failures are reported as <see cref="EtcdOperationException"/>.
+	/// An empty prefix reads all keys. Failures are reported as <see cref="EtcdOperationException"/>.
 	/// </summary>
 	Task<IReadOnlyList<EtcdKeyValue>> GetKeysByPrefixAsync(string prefix, CancellationToken ct = default);
+	/// <summary>
+	/// Returns keys in [start, endExclusive) in etcd byte order.
+	/// A zero-byte <paramref name="endExclusive"/> means the range is open-ended:
+	/// every key from <paramref name="start"/> on.
+	/// Failures are reported as <see cref="EtcdOperationException"/>.
+	/// </summary>
+	Task<IReadOnlyList<EtcdKeyValue>> GetKeysByRangeAsync(string start, string endExclusive, CancellationToken ct = default);
 	/// <summary>
 	/// Creates a key only if it is absent, using a server-side transaction.
 	/// Returns true when the key was created and false when it already exists.

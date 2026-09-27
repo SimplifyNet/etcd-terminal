@@ -28,7 +28,7 @@ public static class PermissionViewRenderer
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
 					var permissions = role is not null && role.Permissions.Count > 0
-						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope, localization)}]: {p.KeyPrefix}"))
+						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope, localization)}]: {p.DisplayKey}"))
 						: localization.NoPermissions;
 
 					rows.Add([roleName, permissions]);

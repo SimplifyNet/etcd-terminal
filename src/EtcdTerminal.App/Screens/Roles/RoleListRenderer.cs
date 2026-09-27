@@ -23,7 +23,7 @@ public static class RoleListRenderer
 				rows.Add([localization.None, localization.None, localization.None]);
 			else
 				foreach (var perm in role.Permissions)
-					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope, localization), perm.KeyPrefix]);
+					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope, localization), perm.DisplayKey]);
 
 			terminal.WriteTable(new TableData(
 				[localization.PermissionType, localization.PermissionScope, localization.KeyPrefix],

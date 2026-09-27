@@ -17,6 +17,9 @@
 - Reading keys without permission now reports an access error instead of an empty result; missing keys, users and roles are still reported as missing
 - Connecting without a username to a server with authentication enabled no longer grants full access
 - A failed permission lookup while connecting now reports a connection error instead of opening the main menu without permissions
+- Key browsing works for accounts with exact-key or custom-range permissions; previously it failed with access errors or loaded unrelated keys
+- Prefix permissions over non-ASCII keys (e.g. emoji) match exactly the keys etcd covers
+- Permission bounds containing non-text data display safely instead of leaking raw control characters
 
 ## [0.8] - 2026-09-18
 

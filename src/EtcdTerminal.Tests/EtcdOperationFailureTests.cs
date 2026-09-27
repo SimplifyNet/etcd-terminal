@@ -113,7 +113,7 @@ public sealed class EtcdOperationFailureTests
 		{
 			"MemberListAsync" => Task.FromResult(new MemberListResponse()),
 			"Dispose" => null,
-			"GetRangeAsync" => Task.FromException<RangeResponse>(Denied()),
+			"GetAsync" => Task.FromException<RangeResponse>(Denied()),
 			_ => throw new NotSupportedException($"Unexpected transport call: {name}.")
 		});
 
@@ -131,7 +131,7 @@ public sealed class EtcdOperationFailureTests
 		{
 			"MemberListAsync" => Task.FromResult(new MemberListResponse()),
 			"Dispose" => null,
-			"GetRangeAsync" => Task.FromResult(new RangeResponse()),
+			"GetAsync" => Task.FromResult(new RangeResponse()),
 			_ => throw new NotSupportedException($"Unexpected transport call: {name}.")
 		});
 
@@ -147,7 +147,7 @@ public sealed class EtcdOperationFailureTests
 		{
 			"MemberListAsync" => Task.FromResult(new MemberListResponse()),
 			"Dispose" => null,
-			"GetRangeAsync" => Task.FromException<RangeResponse>(new RpcException(new Status(StatusCode.Unavailable, "Error connecting to subchannel."))),
+			"GetAsync" => Task.FromException<RangeResponse>(new RpcException(new Status(StatusCode.Unavailable, "Error connecting to subchannel."))),
 			_ => throw new NotSupportedException($"Unexpected transport call: {name}.")
 		});
 
