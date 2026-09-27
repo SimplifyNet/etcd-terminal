@@ -20,7 +20,7 @@ public static class RoleListRenderer
 			List<IReadOnlyList<string>> rows = [];
 
 			if (role.Permissions.Count == 0)
-				rows.Add([localization.None, localization.None, localization.None]);
+				rows.Add([localization.NoPermissions]);
 			else
 				foreach (var perm in role.Permissions)
 					rows.Add([PermissionDisplay.For(perm, localization)]);
