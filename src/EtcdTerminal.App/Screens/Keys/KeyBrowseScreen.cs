@@ -101,6 +101,7 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 	{
 		await LoadKeysAsync();
 
+		_pager.Filter(_control.SearchQuery);
 		_control.ClampPage(_pager.GetTotalPages(_settings.Current.PageSize));
 	}
 

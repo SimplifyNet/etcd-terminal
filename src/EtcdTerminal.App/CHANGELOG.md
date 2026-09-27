@@ -29,6 +29,7 @@
 - Cancelling the separator or prefix prompt aborts JSON import instead of silently using defaults
 - With input trimming disabled, whitespace-only values are kept exactly as entered
 - A queued Esc cancels the JSON paste prompt instead of being swallowed
+- The key browser keeps the search filter after editing or deleting a key
 
 ## [0.8] - 2026-09-18
 
