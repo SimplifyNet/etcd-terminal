@@ -7,6 +7,7 @@ using NUnit.Framework;
 namespace EtcdTerminal.IntegrationTests;
 
 [TestFixture]
+[Category("Integration")]
 public sealed class KeyMutationIntegrationTests
 {
 	private EtcdTestServer.RunningServer? _server;

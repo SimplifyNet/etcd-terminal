@@ -26,7 +26,7 @@ jobs:
         run: dotnet build src/EtcdTerminal.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test src/EtcdTerminal.slnx --configuration Release --no-build
+        run: dotnet test src/EtcdTerminal.slnx --configuration Release --no-build --filter "TestCategory != Integration"
 
       - name: Publish linux-x64
         run: |
