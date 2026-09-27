@@ -164,6 +164,9 @@ public class EnglishLocalization : ILocalization
 	public string No => "No";
 	public string ImportCancelled => "Import cancelled.";
 	public string ImportResult => "Imported {0} keys ({1} overwritten, {2} failed)";
+	public string ImportPartialResult => "Confirmed: {0} created, {1} overwritten, {2} failed. Remaining entries were not attempted and completed writes were not rolled back.";
+	public string ImportEntryFailed => "Entry '{0}' failed: {1}";
+	public string ImportEntryUnconfirmed => "Entry '{0}' may have committed on the server; its outcome is unconfirmed: {1}";
 	public string ImportingKeys => "Importing {0} keys...";
 	public string InvalidJson => "Invalid JSON: {0}";
 	public string NoKeysInJson => "No keys found in JSON.";

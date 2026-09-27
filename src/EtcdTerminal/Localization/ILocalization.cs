@@ -161,6 +161,9 @@ public interface ILocalization
 	string No { get; }
 	string ImportCancelled { get; }
 	string ImportResult { get; }
+	string ImportPartialResult { get; }
+	string ImportEntryFailed { get; }
+	string ImportEntryUnconfirmed { get; }
 	string ImportingKeys { get; }
 	string InvalidJson { get; }
 	string NoKeysInJson { get; }

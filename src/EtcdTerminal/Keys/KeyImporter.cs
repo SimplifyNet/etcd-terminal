@@ -2,7 +2,7 @@ namespace EtcdTerminal.Keys;
 
 public sealed class KeyImporter(IEtcdKeyStore _keyStore) : IKeyImporter
 {
-	public async Task<KeyImportResult> ImportAsync(IReadOnlyList<KeyValuePair<string, string>> entries, CancellationToken ct)
+	public async Task<KeyImportResult> ImportAsync(IReadOnlyList<KeyValuePair<string, string>> entries, Action<KeyImportResult>? progress, CancellationToken ct)
 	{
 		var created = 0;
 		var overwritten = 0;
@@ -10,26 +10,23 @@ public sealed class KeyImporter(IEtcdKeyStore _keyStore) : IKeyImporter
 
 		foreach (var (Key, Value) in entries)
 		{
+			ct.ThrowIfCancellationRequested();
+
 			var existing = await _keyStore.GetKeyAsync(Key, ct);
 
 			if (existing is not null)
 			{
-				var updated = await _keyStore.UpdateKeyAsync(Key, Value, ct);
-
-				if (updated)
+				if (await _keyStore.UpdateKeyAsync(Key, Value, ct))
 					overwritten++;
 				else
 					failed++;
 			}
+			else if (await _keyStore.CreateKeyAsync(Key, Value, ct))
+				created++;
 			else
-			{
-				var result = await _keyStore.CreateKeyAsync(Key, Value, ct);
+				failed++;
 
-				if (result)
-					created++;
-				else
-					failed++;
-			}
+			progress?.Invoke(new(created, overwritten, failed));
 		}
 
 		return new(created, overwritten, failed);

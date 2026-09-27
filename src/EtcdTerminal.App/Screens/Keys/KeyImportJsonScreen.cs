@@ -81,16 +81,55 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		KeyImportResult result = default;
+		KeyImportResult confirmed = default;
 
 		_output.WriteLine();
 
-		var imported = await _spinner.RunAsync(string.Format(_localization.ImportingKeys, entries.Count), async ct =>
-		{
-			result = await _importer.ImportAsync(entries, ct);
-		});
+		bool completed;
 
-		if (!imported)
+		try
+		{
+			completed = await _spinner.RunAsync(string.Format(_localization.ImportingKeys, entries.Count), async ct =>
+			{
+				confirmed = await _importer.ImportAsync(entries, snapshot => confirmed = snapshot, ct);
+			});
+		}
+		catch (EtcdOperationException ex)
+		{
+			ShowStopped(entries, confirmed, ex);
+
+			return;
+		}
+
+		if (!completed)
+		{
+			ShowCancelled(entries, confirmed);
+
+			return;
+		}
+
+		var summary = string.Format(_localization.ImportResult, confirmed.Created + confirmed.Overwritten, confirmed.Overwritten, confirmed.Failed);
+
+		if (confirmed.Failed > 0)
+			_message.ShowWarning(summary);
+		else
+			_message.ShowSuccess(summary);
+	}
+
+	private void ShowStopped(IReadOnlyList<KeyValuePair<string, string>> entries, KeyImportResult confirmed, EtcdOperationException failure)
+	{
+		var pendingKey = entries[confirmed.Created + confirmed.Overwritten + confirmed.Failed].Key;
+		var outcome = failure.Kind is EtcdOperationFailureKind.Unconfirmed
+			? string.Format(_localization.ImportEntryUnconfirmed, pendingKey, failure.Message)
+			: string.Format(_localization.ImportEntryFailed, pendingKey, failure.Message);
+		var partial = string.Format(_localization.ImportPartialResult, confirmed.Created, confirmed.Overwritten, confirmed.Failed);
+
+		_message.ShowWarning(outcome + "\n" + partial);
+	}
+
+	private void ShowCancelled(IReadOnlyList<KeyValuePair<string, string>> entries, KeyImportResult confirmed)
+	{
+		if (confirmed.Created == 0 && confirmed.Overwritten == 0 && confirmed.Failed == 0)
 		{
 			_output.WriteLine();
 			_output.WriteIndentedLine(_localization.ImportCancelled, TerminalColor.Muted);
@@ -101,12 +140,11 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		var summary = string.Format(_localization.ImportResult, result.Created + result.Overwritten, result.Overwritten, result.Failed);
+		var pendingKey = entries[confirmed.Created + confirmed.Overwritten + confirmed.Failed].Key;
+		var unconfirmed = string.Format(_localization.ImportEntryUnconfirmed, pendingKey, _localization.OperationCancelled);
+		var partial = string.Format(_localization.ImportPartialResult, confirmed.Created, confirmed.Overwritten, confirmed.Failed);
 
-		if (result.Failed > 0)
-			_message.ShowWarning(summary);
-		else
-			_message.ShowSuccess(summary);
+		_message.ShowWarning(_localization.ImportCancelled + "\n" + unconfirmed + "\n" + partial);
 	}
 
 	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
