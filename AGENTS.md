@@ -2,29 +2,50 @@
 
 ## Architecture
 
-Layers: **Terminal → Components → Screens**.
+The following rules describe the target architecture. Existing violations are migration debt, not examples to copy. Implementation tasks and the inspected migration state are in `SPECTRE_UI_MIGRATION.md`.
 
-- `Terminal/` (domain `EtcdTerminal.Terminal`) — low-level abstraction (`ITerminal`, `TerminalColor`, `TableData`) and its `ConsoleTerminal` implementation. The only layer that knows about `System.Console` and ANSI escape sequences.
-- `Theming/` — color system (`ITheme`, `RgbColor`). Provides colors to Terminal layer.
-- `Components/` — reusable UI components (`Header`, `MenuScreen`, `Message`, `PressAnyKeyPrompt`, `ScreenLayout`, `Spinner`, `StatusBar`). Depend on `ITerminal` only. Colors come from `ITheme` through `ITerminal` (`ConsoleTerminal` takes `ITheme` via constructor).
-- `Engine/` — interactive input-loop primitives (`Menu`, `Prompt`). Used by screens and components to read key input and render selection lists; like Components, they depend on `ITerminal` and sibling primitives only — never on domain types like `EtcdConnectionConfig`.
-- `Screens/` — orchestration: only use components/engine + feature-local controls. Never perform raw console work.
-- `Localization/` — text system (`ILocalization`). Provides UI strings.
+**Responsibilities:**
+- **Domain:** business entities, value objects, business rules and domain contracts only. UI components, terminal geometry, themes and localization are not domain concepts merely because they are interfaces or have no package dependencies.
+- **Application:** use-case orchestration and application ports. Business and application code must not depend on a terminal renderer.
+- **Presentation contracts:** dependency-free UI data models, semantic roles and renderer/input interfaces. Separate these from the domain and from concrete implementations. Models are data only; interfaces describe operations separately.
+- **Presentation components:** `EtcdTerminal.App/Components`, `Engine`, `Screens` and feature-local controls. They assemble localized models, choose available actions and handle navigation/state transitions. They describe content, structure and semantic appearance, not physical rendering algorithms.
+- **Infrastructure:** concrete model-to-Spectre mapping, console capabilities, rendering and interactive adapter lifecycle. Repository and other technical implementations also live here.
+- **Composition root:** `EtcdTerminal.App/Setup/IocRegistrations.cs` connects interfaces to implementations. Screens and components must not resolve services or instantiate Infrastructure classes.
 
 **Dependency rules:**
-- `Screens` → `Components`/`Engine` (+ feature-local controls). No `Console.*`, `AnsiConsole.*`, ANSI.
-- `Components`/`Engine` → `Terminal`. Colors only from `ITheme` (through `ITerminal`).
-- `Terminal` — nothing from App. `ConsoleTerminal` and `SpectreTextInput` are the only Spectre touchdown's.
-- `Theming` — domain-only, no infrastructure dependencies.
-- `Localization` — domain-only, implementations live in App layer.
+- Domain must not reference Presentation, Infrastructure, Spectre or terminal APIs.
+- Presentation components depend on application/domain services and pure Presentation contracts, never on concrete renderers.
+- Infrastructure implements contracts and may depend on their assemblies, never on App components or screens.
+- All production Spectre types and `System.Console` access belong in Infrastructure. Test projects may reference `Spectre.Console.Testing` for thin adapter tests.
+- `ITheme`/`RgbColor` are presentation theme contracts; `ILocalization` is a presentation text contract. Keep contracts independent of Infrastructure. Components select semantic roles; only Infrastructure translates theme values into Spectre styles.
+- Feature-local controls have the same restrictions as shared components. Their location under `Screens/` is not an exception permitting cursor, ANSI, width calculation or raw color escapes.
 
-**Infrastructure layer** (`EtcdTerminal.Infrastructure`): implementations of technical interfaces (`ITerminal`, `ITextInput`, `IAppSettingsRepository`, `IConnectionConfigRepository`). All Spectre.Console dependencies live here (`ConsoleTerminal`, `SpectreTextInput`).
+**Current migration boundary:** UI contracts currently live in `src/EtcdTerminal/Presentation`, alongside legacy `Terminal` and `Theming` contracts in the core project. This is transitional placement, not the desired domain boundary. `PanelModel`, `PanelLine`, `StyledText`, `TextRole`, `StatusBarModel`, `IPanelRenderer` and `IStatusBarRenderer` already exist; inspect them before adding replacements. `SpectrePanelRenderer` and `SpectreStatusBarRenderer` already exist in Infrastructure. Do not assume the unfinished worktree is a working behavioral baseline.
 
-**Feature-local controls** (e.g. `KeyBrowseControl`, `UserListRenderer`, `RoleListRenderer`, `PermissionViewRenderer`) live in `Screens/` but may use `ITerminal` and `ITheme` directly for rendering — they are part of the Components layer conceptually but scoped to a single feature.
+**Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` to `ReddyTheme`, `ILocalization` to `EnglishLocalization`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
 
-**Shared services (all Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` → `ReddyTheme`, `ILocalization` → `EnglishLocalization`, `IAppSettingsStore` → `AppSettingsStore`, `IConnectionSession` → `ConnectionSession`. Inject them via primary-constructor parameters; no static service-locator access.
+## UI Rendering And Migration
 
-**Planned, not yet implemented** (no such types in `src/` yet — do not treat them as existing): `Panel` (core bordered-panel design element).
+- Maximize reuse of Spectre `Panel`, `Table`, `Grid`, `Layout`, `SelectionPrompt`, `TextPrompt`, `Status` and `Live` where their behavior fits. Do not recreate library widgets behind a new interface.
+- UI models contain literal text, semantic spans, selected/disabled state and logical regions. No Spectre types, markup strings, ANSI, RGB escape strings, cursor positions, terminal dimensions, measured widths or strings padded to screen size. Renderer interfaces may expose operations and results; models must not carry renderer callbacks.
+- For example, a menu component accepts items with stable IDs, decides which actions are available and handles the result. It does not calculate line widths, place the cursor, draw borders or fill backgrounds.
+- Map models and semantic roles to Spectre renderables in one cohesive Infrastructure rendering module. Share role/style conversion between renderers; do not duplicate it per screen. This does not require one giant class or a general-purpose UI framework.
+- Let Spectre measure, wrap, align, pad, crop and draw. Infrastructure may configure widget padding, region sizes, overflow and capability policy, but must not implement another geometry engine. Moving manual cursor/ANSI/width code into Infrastructure is not completion.
+- Target zero application-owned ANSI generation, cursor-based drawing, display-width calculation and space-based background filling. Before adding a small adapter for a proven library gap, inspect the pinned library and document the gap. Any exception to this target or visual parity needs explicit approval; do not silently weaken either requirement.
+- Literal user data must remain literal, including brackets, Unicode and connection strings. Preserve control-character sanitization and secret handling; these are application safety requirements, not redundant geometry code.
+- A screen has exactly one composition/output owner. Header, body, action panels and footer are composed once; child components must not independently append or reposition a shared footer. Repeated updates replace the current state rather than duplicating panels.
+- The footer must remain at the bottom of the visible interactive viewport, including input states unless an explicit exception is approved. An ordinary `Write(Panel)` is streaming output, not a pinned footer. `Layout`/`Live` are implementation candidates, not proof of parity.
+- Check Spectre interactive lifecycle constraints before combining widgets. Do not nest `TextPrompt` or `Status` inside an active `Live` on the same console. Do not assume `SelectionPrompt` can be embedded in a `Layout` region.
+- Preserve behavior and the established visual language: semantic colors, content/background distinction, spacing, selection, action availability, keyboard/cancellation behavior and session information. Exact byte-for-byte output is unnecessary; missing colors, inline/duplicated footers, inaccessible actions or lost input behavior are unacceptable.
+- Migrate complete vertical slices: model producer, mapper, composition, DI, callers and tests. Do not leave incompatible model versions or keep obsolete rendering as an undocumented fallback.
+
+## UI Verification
+
+- Reduce UI-specific test and maintenance burden by deleting manual rendering code and its geometry/cursor/ANSI tests together. Do not delete tests merely to make a broken migration pass.
+- Keep cheap tests for model content/roles, action availability, navigation, cancellation and application/domain behavior. Keep a small number of mapper tests using `TestConsole`, including literal text and style mapping.
+- Do not retest Spectre's width, border, padding, cursor or ANSI algorithms with a home-grown terminal emulator. Remove geometry-only fakes when their last meaningful consumer is gone.
+- `TestConsole` output is not a terminal screen emulator. Verify pinned footer, redraw, overflow, resize and interactive transitions in a real terminal or PTY; a text snapshot alone does not prove parity.
+- Keep architecture checks for dependency boundaries. A migration is accepted only with build/test results and explicit visual/behavioral verification; record unverified scenarios instead of claiming success.
 
 **Primary-constructor convention:** dependencies are declared as primary-constructor parameters with a leading underscore and used directly, e.g. `Menu(ITerminal _terminal, ...)`, then `_terminal.Write(...)` inside methods. Do not remove the underscore and do not redeclare separate backing fields for them.
 
