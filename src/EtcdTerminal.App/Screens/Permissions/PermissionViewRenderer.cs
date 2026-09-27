@@ -28,7 +28,7 @@ public static class PermissionViewRenderer
 				{
 					var role = roles.FirstOrDefault(r => r.Name == roleName);
 					var permissions = role is not null && role.Permissions.Count > 0
-						? string.Join("\n", role.Permissions.Select(p => $"{p.Type} [{PermissionScopeText.For(p.Scope, localization)}]: {p.DisplayKey}"))
+						? string.Join("\n", role.Permissions.Select(p => PermissionDisplay.For(p, localization)))
 						: localization.NoPermissions;
 
 					rows.Add([roleName, permissions]);
@@ -38,7 +38,7 @@ public static class PermissionViewRenderer
 				[localization.Role, localization.Permissions],
 				rows)
 			{
-				Title = $"User: {user.Username}"
+				Title = $"{localization.User}: {user.Username}"
 			});
 		}
 	}

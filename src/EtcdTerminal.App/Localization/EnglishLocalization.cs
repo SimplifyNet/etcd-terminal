@@ -134,6 +134,8 @@ public class EnglishLocalization : ILocalization
 	public string Username => "Username";
 	public string Roles => "Roles";
 	public string Role => "Role";
+	public string User => "User";
+	public string AllKeys => "All keys";
 	public string Permissions => "Permissions";
 	public string PermissionType => "Permission Type";
 	public string KeyPrefix => "Key / Prefix";

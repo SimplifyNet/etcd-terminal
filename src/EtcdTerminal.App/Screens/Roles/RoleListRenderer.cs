@@ -23,13 +23,13 @@ public static class RoleListRenderer
 				rows.Add([localization.None, localization.None, localization.None]);
 			else
 				foreach (var perm in role.Permissions)
-					rows.Add([perm.Type.ToString(), PermissionScopeText.For(perm.Scope, localization), perm.DisplayKey]);
+					rows.Add([PermissionDisplay.For(perm, localization)]);
 
 			terminal.WriteTable(new TableData(
-				[localization.PermissionType, localization.PermissionScope, localization.KeyPrefix],
+				[localization.Permissions],
 				rows)
 			{
-				Title = $"Role: {role.Name}"
+				Title = $"{localization.Role}: {role.Name}"
 			});
 		}
 	}

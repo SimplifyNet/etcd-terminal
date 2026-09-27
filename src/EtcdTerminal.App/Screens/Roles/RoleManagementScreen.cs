@@ -95,23 +95,48 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 		_message.ShowResult(result.Success, _localization.RoleDeleted, result.ErrorMessage ?? _localization.FailedDeleteRole);
 	}
 
-	private Task GrantPermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, key, scope) => _roleAdmin.GrantPermissionAsync(roleName, permType, key, scope), _localization.PermissionGranted, _localization.FailedGrantPermission);
+	private async Task GrantPermissionAsync()
+	{
+		var target = PromptTarget();
 
-	private Task RevokePermissionAsync() =>
-		GrantOrRevokeAsync((roleName, permType, key, scope) => _roleAdmin.RevokePermissionAsync(roleName, permType, key, scope), _localization.PermissionRevoked, _localization.FailedRevokePermission);
+		if (target is null)
+			return;
 
-	private async Task GrantOrRevokeAsync(Func<string, PermissionType, string, PermissionScope, Task<EtcdOperationResult>> action, string successMessage, string failureMessage)
+		var permType = _permissionTypeSelector.Select();
+
+		if (permType is null)
+			return;
+
+		var result = await _roleAdmin.GrantPermissionAsync(target.RoleName, permType.Value, target.Key, target.Scope);
+
+		_message.ShowResult(result.Success, _localization.PermissionGranted, result.ErrorMessage ?? _localization.FailedGrantPermission);
+	}
+
+	private async Task RevokePermissionAsync()
+	{
+		var target = PromptTarget();
+
+		if (target is null)
+			return;
+
+		// Revocation removes the whole permission for the target interval,
+		// so no permission type is requested here.
+		var result = await _roleAdmin.RevokePermissionAsync(target.RoleName, target.Key, target.Scope);
+
+		_message.ShowResult(result.Success, _localization.PermissionRevoked, result.ErrorMessage ?? _localization.FailedRevokePermission);
+	}
+
+	private PermissionTarget? PromptTarget()
 	{
 		var roleName = _prompt.Ask(_localization.EnterRoleNamePrompt);
 
 		if (roleName is null)
-			return;
+			return null;
 
 		var scope = _permissionScopeSelector.Select();
 
 		if (scope is null)
-			return;
+			return null;
 
 		var keyPromptText = scope is PermissionScope.Prefix
 			? _localization.EnterKeyPrefix
@@ -120,15 +145,10 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 		var key = _prompt.Ask(keyPromptText);
 
 		if (key is null)
-			return;
+			return null;
 
-		var permType = _permissionTypeSelector.Select();
-
-		if (permType is null)
-			return;
-
-		var result = await action(roleName, permType.Value, key, scope.Value);
-
-		_message.ShowResult(result.Success, successMessage, result.ErrorMessage ?? failureMessage);
+		return new(roleName, key, scope.Value);
 	}
+
+	private sealed record PermissionTarget(string RoleName, string Key, PermissionScope Scope);
 }

@@ -13,5 +13,9 @@ public interface IEtcdRoleAdmin
 	Task<EtcdOperationResult> CreateRoleAsync(string roleName, CancellationToken ct = default);
 	Task<EtcdOperationResult> DeleteRoleAsync(string roleName, CancellationToken ct = default);
 	Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default);
-	Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default);
+	/// <summary>
+	/// Removes the whole permission for the target interval, regardless of its type.
+	/// etcd revocation has no per-type distinction.
+	/// </summary>
+	Task<EtcdOperationResult> RevokePermissionAsync(string roleName, string key, PermissionScope scope, CancellationToken ct = default);
 }

@@ -2,7 +2,7 @@ namespace EtcdTerminal;
 
 /// <summary>
 /// How an etcd operation failed. Absence is reported as null, an empty
-/// collection, or false — never as a failure. Cancellation is reported as
+/// collection, or false - never as a failure. Cancellation is reported as
 /// <see cref="OperationCanceledException"/>, never as a failure.
 /// </summary>
 public enum EtcdOperationFailureKind

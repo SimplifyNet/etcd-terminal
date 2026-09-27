@@ -167,7 +167,7 @@ public sealed class KeyRangeReadTests
 
 		await client.ConnectAsync(new EtcdConnectionConfig { ConnectionString = "http://localhost:2379" });
 
-		var result = await client.RevokePermissionAsync("role", PermissionType.Read, "/a", PermissionScope.Prefix);
+		var result = await client.RevokePermissionAsync("role", "/a", PermissionScope.Prefix);
 
 		Assert.That(result.Success, Is.True);
 
@@ -178,6 +178,24 @@ public sealed class KeyRangeReadTests
 	}
 
 	[Test]
+	public async Task RevokeExact_SendsKeyWithoutEnd()
+	{
+		var (transport, captured) = CapturingTransport.Create();
+		var client = CreateClient(transport);
+
+		await client.ConnectAsync(new EtcdConnectionConfig { ConnectionString = "http://localhost:2379" });
+
+		var result = await client.RevokePermissionAsync("role", "/a", PermissionScope.Key);
+
+		Assert.That(result.Success, Is.True);
+
+		var request = captured.RevokeRequests.Single();
+
+		Assert.That(request.Key.ToStringUtf8(), Is.EqualTo("/a"));
+		Assert.That(request.RangeEnd.Length, Is.EqualTo(0));
+	}
+
+	[Test]
 	public async Task RevokeRange_ThrowsWithoutRequest()
 	{
 		var (transport, captured) = CapturingTransport.Create();
@@ -185,7 +203,7 @@ public sealed class KeyRangeReadTests
 
 		await client.ConnectAsync(new EtcdConnectionConfig { ConnectionString = "http://localhost:2379" });
 
-		Assert.ThrowsAsync<ArgumentException>(() => client.RevokePermissionAsync("role", PermissionType.Read, "a", PermissionScope.Range));
+		Assert.ThrowsAsync<ArgumentException>(() => client.RevokePermissionAsync("role", "a", PermissionScope.Range));
 		Assert.That(captured.RevokeRequests, Is.Empty);
 	}
 

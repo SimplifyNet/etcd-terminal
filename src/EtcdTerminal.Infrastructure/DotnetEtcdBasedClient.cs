@@ -505,7 +505,7 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 		}
 	}
 
-	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default)
+	public async Task<EtcdOperationResult> RevokePermissionAsync(string roleName, string key, PermissionScope scope, CancellationToken ct = default)
 	{
 		if (scope is PermissionScope.Range)
 			throw new ArgumentException("A range revocation requires an explicit range end.", nameof(scope));

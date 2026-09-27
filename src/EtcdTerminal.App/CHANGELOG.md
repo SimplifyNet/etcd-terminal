@@ -22,6 +22,8 @@
 - Permission bounds containing non-text data display safely instead of leaking raw control characters
 - A failed or cancelled connection attempt no longer leaves a half-open connection behind
 - Errors inside the main menu no longer leave the previous session active; disconnecting always clears it, even if the disconnect itself fails
+- Revoking a permission no longer asks for a permission type it then ignores; revocation removes the whole permission for the key or prefix
+- Permission lists show exact keys, prefixes, bounded ranges and open-ended ranges distinctly, including the all-keys grant, with localized labels
 
 ## [0.8] - 2026-09-18
 

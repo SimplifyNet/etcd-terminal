@@ -131,6 +131,8 @@ public interface ILocalization
 	string Username { get; }
 	string Roles { get; }
 	string Role { get; }
+	string User { get; }
+	string AllKeys { get; }
 	string Permissions { get; }
 	string PermissionType { get; }
 	string KeyPrefix { get; }

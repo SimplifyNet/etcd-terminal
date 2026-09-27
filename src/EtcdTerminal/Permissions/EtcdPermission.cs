@@ -25,7 +25,18 @@ public sealed class EtcdPermission
 	/// zero-byte sentinel) are replaced so raw bytes never reach the terminal.
 	/// Display text is never used for requests; requests use the raw bounds.
 	/// </summary>
-	public string DisplayKey => new([.. KeyPrefix.Select(c => char.IsControl(c) ? '\uFFFD' : c)]);
+	public string DisplayKey => DisplayText(KeyPrefix);
+
+	/// <summary>
+	/// Display-safe form of <see cref="RangeEnd"/>. See <see cref="DisplayKey"/>.
+	/// </summary>
+	public string DisplayRangeEnd => DisplayText(RangeEnd);
+
+	/// <summary>
+	/// Replaces control characters so a bound can be shown safely.
+	/// </summary>
+	public static string DisplayText(string bound) =>
+		new([.. bound.Select(c => char.IsControl(c) ? '\uFFFD' : c)]);
 
 	/// <summary>
 	/// etcd stores the "all keys" permission as the zero byte key, which means an empty prefix.

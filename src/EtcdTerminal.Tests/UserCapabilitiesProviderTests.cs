@@ -185,7 +185,7 @@ public sealed class UserCapabilitiesProviderTests
 
 		public Task<EtcdOperationResult> GrantPermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default) => throw new NotSupportedException();
 
-		public Task<EtcdOperationResult> RevokePermissionAsync(string roleName, PermissionType permissionType, string key, PermissionScope scope, CancellationToken ct = default) => throw new NotSupportedException();
+		public Task<EtcdOperationResult> RevokePermissionAsync(string roleName, string key, PermissionScope scope, CancellationToken ct = default) => throw new NotSupportedException();
 	}
 
 	private sealed class StubAuthAdmin(bool enabled) : IEtcdAuthAdmin
