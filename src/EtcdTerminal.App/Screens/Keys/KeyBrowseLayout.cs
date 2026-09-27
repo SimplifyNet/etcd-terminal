@@ -17,9 +17,6 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 	private int ValueColumnWidth => _output.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
 
-	public static string TruncateText(string text, int maxLength) =>
-		text.Length <= maxLength ? text : text[..maxLength] + "...";
-
 	public (int SearchEndCol, int SearchBarRow) RenderSearchBar(string searchQuery)
 	{
 		_output.WriteFillRow(_style.PanelBackground);
@@ -27,9 +24,9 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		_output.Write(_style.PanelBackground);
 
 		if (searchQuery.Length == 0)
-			_output.Write(_localization.TypeToSearch, TerminalColor.Muted);
+			_output.Write(ValuePreview.Preview(_localization.TypeToSearch, _output.WindowWidth), TerminalColor.Muted);
 		else
-			_output.Write($"  \U0001f50d {_style.Primary}{searchQuery}{_style.Reset}");
+			_output.Write($"  \U0001f50d {_style.Primary}{BoundQuery(searchQuery)}{_style.Reset}");
 
 		var searchEndCol = _cursor.CursorLeft;
 		var searchBarRow = _cursor.CursorTop;
@@ -42,6 +39,12 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		return (searchEndCol, searchBarRow);
 	}
 
+	private string BoundQuery(string searchQuery) =>
+		ValuePreview.Preview(searchQuery, Math.Max(0, _output.WindowWidth - 8));
+
+	private string BoundStyled(string content, int maxCells) =>
+		_output.GetVisibleLength(content) <= maxCells ? content : DisplayCells.TruncateStyled(content, maxCells) + _style.Reset;
+
 	public void RenderKeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
 		if (pageKeys.Count == 0)
@@ -51,8 +54,8 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 			return;
 		}
 
-		var keyWidth = KeyColumnWidth;
-		var valueWidth = ValueColumnWidth;
+		var keyWidth = Math.Max(0, KeyColumnWidth);
+		var valueWidth = Math.Max(0, ValueColumnWidth);
 
 		for (var i = 0; i < pageKeys.Count; i++)
 		{
@@ -60,14 +63,15 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 			var isSelected = i == selectedIndex;
 
 			var prefix = isSelected ? _style.SelectionPointer : _style.Indent;
-			var key = TruncateText(kv.Key, keyWidth);
-			var value = TruncateText(kv.Value, valueWidth);
-			var line = $"{prefix}{key.PadRight(keyWidth)} {value}";
+			var key = ValuePreview.Preview(kv.Key, keyWidth);
+			var value = ValuePreview.Preview(kv.Value, valueWidth);
+			var paddedKey = key + new string(' ', Math.Max(0, keyWidth - DisplayCells.Width(key)));
+			var line = ValuePreview.Preview($"  {prefix}{paddedKey} {value}", _output.WindowWidth);
 
 			if (isSelected)
-				_output.Write($"  {_style.Accent}{line}{_style.Reset}\n");
+				_output.Write($"{_style.Accent}{line}{_style.Reset}\n");
 			else
-				_output.Write($"  {_style.Primary}{line}{_style.Reset}\n");
+				_output.Write($"{_style.Primary}{line}{_style.Reset}\n");
 		}
 	}
 
@@ -78,7 +82,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		var content = $"{bg}{_style.Muted}  {_localization.Page} {_style.Primary}{currentPageLabel}/{totalPages}{_style.Muted}  \u2022  {_style.Primary}{totalKeys}{_style.Muted} {_localization.TotalKeys}{_style.Reset}";
 
 		_output.WriteFillRow(bg);
-		_output.Write(content);
+		_output.Write(BoundStyled(content, _output.WindowWidth));
 		_output.PadCurrentRow(bg);
 		_output.WriteLine();
 		_output.WriteFillRow(bg);
@@ -92,8 +96,11 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 
 	private void RenderSelectedPanel(string selectedKey)
 	{
+		var labelWidth = DisplayCells.Width("  " + _localization.Selected + " ");
+		var key = ValuePreview.Preview(selectedKey, Math.Max(0, _output.WindowWidth - 1 - labelWidth));
+
 		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
-		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {_localization.Selected} {_style.Accent}{selectedKey}");
+		_output.WriteBorderedRow(_style.PanelDarkerBackground, $"{_style.Muted}  {_localization.Selected} {_style.Accent}{key}");
 		_output.WriteBorderedFillRow(_style.PanelDarkerBackground);
 	}
 
@@ -112,7 +119,7 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		var colored = "  " + string.Join("   ", buttons.Select(b => $"{_style.Primary}{b.Key} {_style.Muted}{b.Label}"));
 
 		_output.WriteBorderedFillRow(_style.PanelBackground);
-		_output.WriteBorderedRow(_style.PanelBackground, colored);
+		_output.WriteBorderedRow(_style.PanelBackground, BoundStyled(colored, _output.WindowWidth - 1));
 		_output.WriteBorderedFillRow(_style.PanelBackground);
 	}
 }

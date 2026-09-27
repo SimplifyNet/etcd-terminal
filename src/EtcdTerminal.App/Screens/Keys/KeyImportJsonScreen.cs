@@ -167,7 +167,7 @@ public sealed class KeyImportJsonScreen(
 		{
 			_output.Write(_style.Indent + Key);
 			_output.Write(" = ");
-			_output.WriteLine(Truncate(Value), TerminalColor.Muted);
+			_output.WriteLine(ValuePreview.Preview(Value, _previewValueLength), TerminalColor.Muted);
 		}
 
 		if (entries.Count > _previewLimit)
@@ -181,12 +181,5 @@ public sealed class KeyImportJsonScreen(
 			])?.Id;
 
 		return confirmed ?? false;
-	}
-
-	private static string Truncate(string value)
-	{
-		var single = value.ReplaceLineEndings(" ");
-
-		return single.Length <= _previewValueLength ? single : single[.._previewValueLength] + "...";
 	}
 }

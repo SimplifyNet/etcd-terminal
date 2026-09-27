@@ -1,4 +1,6 @@
+using System.Buffers;
 using System.Reflection;
+using System.Text;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Theming;
 using Spectre.Console;
@@ -85,15 +87,33 @@ public sealed class ConsoleTerminal(ITheme _theme) : ITerminal
 
 	public int GetVisibleLength(string s)
 	{
-		var len = 0;
+		var length = 0;
+		var span = s.AsSpan();
 
-		for (var i = 0; i < s.Length; i++)
-			if (s[i] == '\x1b')
-				while (i < s.Length && s[i] != 'm') i++;
-			else
-				len++;
+		while (!span.IsEmpty)
+		{
+			if (span[0] == '\x1b')
+			{
+				var end = span.IndexOf('m');
 
-		return len;
+				span = end < 0 ? span[..0] : span[(end + 1)..];
+				continue;
+			}
+
+			if (Rune.DecodeFromUtf16(span, out var rune, out var consumed) is not OperationStatus.Done)
+			{
+				length++;
+
+				span = span[1..];
+				continue;
+			}
+
+			length += DisplayCells.Width(rune);
+
+			span = span[consumed..];
+		}
+
+		return length;
 	}
 
 	public void Initialize()

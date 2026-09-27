@@ -30,6 +30,9 @@
 - With input trimming disabled, whitespace-only values are kept exactly as entered
 - A queued Esc cancels the JSON paste prompt instead of being swallowed
 - The key browser keeps the search filter after editing or deleting a key
+- Long keys and values no longer overflow the window; they are shortened with an ellipsis, and multiline values show as single-line previews
+- The status bar shortens connection details and hints to fit narrow windows instead of writing past the edge
+- Wide characters (CJK, emoji) are measured correctly instead of shifting columns
 
 ## [0.8] - 2026-09-18
 

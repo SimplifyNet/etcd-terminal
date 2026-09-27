@@ -62,7 +62,7 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 		_terminal.Write($"{_localization.EditingKey} ");
 		_terminal.WriteLine(key.Key, TerminalColor.Primary);
 		_terminal.Write($"{_localization.CurrentValue} ");
-		_terminal.WriteLine(KeyBrowseLayout.TruncateText(key.Value, EditValueMaxLength), TerminalColor.Success);
+		_terminal.WriteLine(ValuePreview.Preview(key.Value, EditValueMaxLength), TerminalColor.Success);
 		_terminal.WriteLine();
 
 		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value, trim: _settings.Current.TrimInputValues);
