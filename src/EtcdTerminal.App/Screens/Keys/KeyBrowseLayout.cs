@@ -1,109 +1,84 @@
 using System.Globalization;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Keys;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Theming;
-using EtcdTerminal.Keys;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalStyle _style, ILocalization _localization, IPanelRenderer _panels)
+/// <summary>
+/// Builds the body models of the key browse frame. It holds no cursor, no
+/// window width and no colors: every line is literal text with semantic roles,
+/// and Infrastructure decides how much of it fits.
+/// </summary>
+public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _localization)
 {
-	private const int LinePadding = 2;
-	private const int PrefixWidth = 4;
+	private const string SearchPrefix = "  \U0001f50d ";
+	private const string Caret = "\u2588";
+	private const string PageSeparator = "  \u2022  ";
 
-	public string SelectionColor => _style.Accent;
+	public PanelModel Search(string searchQuery) =>
+		searchQuery.Length == 0
+			? Line([new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary)])
+			: Line(
+			[
+				new StyledText(SearchPrefix, TextRole.Muted),
+				new StyledText(ValuePreview.Sanitize(searchQuery), TextRole.Primary),
+				new StyledText(Caret, TextRole.Primary)
+			]);
 
-	private int KeyColumnWidth => (_output.WindowWidth - LinePadding - PrefixWidth - 1) / 2;
-
-	private int ValueColumnWidth => _output.WindowWidth - LinePadding - PrefixWidth - 1 - KeyColumnWidth;
-
-	public (int SearchEndCol, int SearchBarRow) RenderSearchBar(string searchQuery)
-	{
-		_output.WriteFillRow(_style.PanelBackground);
-
-		_output.Write(_style.PanelBackground);
-
-		if (searchQuery.Length == 0)
-			_output.Write(ValuePreview.Preview(_localization.TypeToSearch, _output.WindowWidth), TerminalColor.Muted);
-		else
-			_output.Write($"  \U0001f50d {_style.Primary}{BoundQuery(searchQuery)}{_style.Reset}");
-
-		var searchEndCol = _cursor.CursorLeft;
-		var searchBarRow = _cursor.CursorTop;
-
-		_output.PadCurrentRow(_style.PanelBackground);
-		_output.WriteLine();
-
-		_output.Write(_output.FillRow(_style.PanelBackground));
-
-		return (searchEndCol, searchBarRow);
-	}
-
-	private string BoundQuery(string searchQuery) =>
-		ValuePreview.Preview(searchQuery, Math.Max(0, _output.WindowWidth - 8));
-
-	public void RenderKeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
+	public PanelModel KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
 		if (pageKeys.Count == 0)
-		{
-			_output.WriteIndentedLine(_localization.NoKeysFound, TerminalColor.Muted);
+			return Line([new StyledText(_localization.NoKeysFound, TextRole.Muted)]);
 
-			return;
-		}
-
-		var keyWidth = Math.Max(0, KeyColumnWidth);
-		var valueWidth = Math.Max(0, ValueColumnWidth);
+		List<PanelLine> rows = [];
 
 		for (var i = 0; i < pageKeys.Count; i++)
 		{
 			var kv = pageKeys[i];
-			var isSelected = i == selectedIndex;
+			var role = i == selectedIndex ? TextRole.Accent : TextRole.Primary;
+			var prefix = i == selectedIndex ? _style.SelectionPointer : _style.Indent;
 
-			var prefix = isSelected ? _style.SelectionPointer : _style.Indent;
-			var key = ValuePreview.Preview(kv.Key, keyWidth);
-			var value = ValuePreview.Preview(kv.Value, valueWidth);
-			var paddedKey = key + new string(' ', Math.Max(0, keyWidth - DisplayCells.Width(key)));
-			var line = ValuePreview.Preview($"  {prefix}{paddedKey} {value}", _output.WindowWidth);
-
-			if (isSelected)
-				_output.Write($"{_style.Accent}{line}{_style.Reset}\n");
-			else
-				_output.Write($"{_style.Primary}{line}{_style.Reset}\n");
+			rows.Add(new PanelLine(
+			[
+				new StyledText(prefix, role),
+				new StyledText(ValuePreview.Sanitize(kv.Key), role),
+				new StyledText(ValuePreview.Sanitize(kv.Value), role)
+			]));
 		}
+
+		return new PanelModel(rows, PanelKind.Table);
 	}
 
-	public void RenderPagination(int currentPage, int totalPages, int totalKeys) =>
-		_panels.Write(new PanelModel(
+	public PanelModel Pagination(int currentPage, int totalPages, int totalKeys) =>
+		new(
 		[
 			new PanelLine(
 			[
 				new StyledText($"{_localization.Page} ", TextRole.Muted),
 				new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
-				new StyledText("  \u2022  ", TextRole.Muted),
+				new StyledText(PageSeparator, TextRole.Muted),
 				new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
 				new StyledText($" {_localization.TotalKeys}", TextRole.Muted)
 			])
-		]));
+		]);
 
-	public void RenderActionBar(string selectedKey, bool canModify)
-	{
-		RenderSelectedPanel(selectedKey);
-		RenderButtonsPanel(canModify);
-	}
+	public PanelModel Detail(string label, string value, TextRole valueRole) =>
+		new([new PanelLine([new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole)])]);
 
-	private void RenderSelectedPanel(string selectedKey) =>
-		_panels.Write(new PanelModel(
+	public PanelModel Selected(string selectedKey) =>
+		new(
 		[
 			new PanelLine(
 			[
 				new StyledText($"{_localization.Selected} ", TextRole.Muted),
 				new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent)
 			])
-		], PanelKind.Selection));
+		], PanelKind.Selection);
 
-	private void RenderButtonsPanel(bool canModify)
+	public PanelModel Actions(bool canModify)
 	{
 		List<StyledText> hints = [];
 
@@ -120,6 +95,8 @@ public sealed class KeyBrowseLayout(ITerminalOutput _output, ITerminalCursor _cu
 		hints.Add(new StyledText("Esc", TextRole.Primary));
 		hints.Add(new StyledText($" {_localization.Cancel}", TextRole.Muted));
 
-		_panels.Write(new PanelModel([new PanelLine(hints)], PanelKind.Actions));
+		return new PanelModel([new PanelLine(hints)], PanelKind.Actions);
 	}
+
+	private static PanelModel Line(IReadOnlyList<StyledText> spans) => new([new PanelLine(spans)]);
 }

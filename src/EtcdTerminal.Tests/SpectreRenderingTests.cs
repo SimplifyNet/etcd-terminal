@@ -57,6 +57,52 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void PanelRenderer_TablePanel_KeepsEveryRowOnOneLineAndWithinWidth()
+	{
+		var console = new TestConsole();
+
+		Render(console, new PanelModel(
+		[
+			new PanelLine(
+			[
+				new StyledText(new string('k', 200), TextRole.Accent),
+				new StyledText(new string('v', 200), TextRole.Accent)
+			]),
+			new PanelLine(
+			[
+				new StyledText("/a", TextRole.Primary),
+				new StyledText("short", TextRole.Primary)
+			])
+		], PanelKind.Table));
+
+		var lines = console.Output.Split('\n').Select(line => line.TrimEnd('\r')).ToList();
+		var rows = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToList();
+
+		Assert.That(rows, Has.Count.EqualTo(2), "one line per row");
+		Assert.That(lines.All(line => line.Length <= Width), Is.True, "cells must be cropped to the panel width");
+		Assert.That(console.Output, Does.Contain("/a"));
+		Assert.That(console.Output, Does.Contain("short"));
+	}
+
+	[Test]
+	public void PanelRenderer_TablePanel_KeepsColumnContentLiteral()
+	{
+		var console = new TestConsole();
+
+		Render(console, new PanelModel(
+		[
+			new PanelLine(
+			[
+				new StyledText("service/[a:b]/\u043a\u043b\u044e\u0447", TextRole.Accent),
+				new StyledText("value [x]", TextRole.Accent)
+			])
+		], PanelKind.Table));
+
+		Assert.That(console.Output, Does.Contain("service/[a:b]/\u043a\u043b\u044e\u0447"));
+		Assert.That(console.Output, Does.Contain("value [x]"));
+	}
+
+	[Test]
 	public void StatusBarRenderer_WritesSessionDetailsAndVersion()
 	{
 		var console = new TestConsole();

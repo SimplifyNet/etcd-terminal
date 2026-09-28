@@ -5,19 +5,18 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Localization;
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, ScreenLayout _screenLayout, KeyBrowseControl _control, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, KeyBrowseControl _control, KeyBrowseLayout _layout, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.BrowseKeys;
 
 	public string Label => _localization.BrowseKeys;
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanReadKeys;
-	private const int EditValueMaxLength = 200;
 
 	private readonly KeyPager _pager = new();
 
@@ -28,28 +27,39 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 
 		await LoadKeysAsync();
 
-		while (true)
+		try
 		{
-			var pageSize = _settings.Current.PageSize;
-
-			_control.Render(_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize), _pager.FilteredCount);
-
-			var command = _control.ReadCommand(_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize));
-
-			switch (command.Action)
+			while (true)
 			{
-				case KeyBrowseAction.SearchChanged:
-					ApplyFilter();
-					break;
-				case KeyBrowseAction.Edit:
-					await EditKeyAsync(command.SelectedKey!);
-					break;
-				case KeyBrowseAction.Delete:
-					await DeleteKeyAsync(command.SelectedKey!);
-					break;
-				case KeyBrowseAction.Exit:
-					return;
+				var pageSize = _settings.Current.PageSize;
+				var page = _pager.GetPage(_control.CurrentPage, pageSize);
+				var totalPages = _pager.GetTotalPages(pageSize);
+
+				_control.Render(page, totalPages, _pager.FilteredCount);
+
+				var command = _control.ReadCommand(page, totalPages);
+
+				switch (command.Action)
+				{
+					case KeyBrowseAction.SearchChanged:
+						ApplyFilter();
+						break;
+					case KeyBrowseAction.Edit:
+						_control.Release();
+						await EditKeyAsync(command.SelectedKey!);
+						break;
+					case KeyBrowseAction.Delete:
+						_control.Release();
+						await DeleteKeyAsync(command.SelectedKey!);
+						break;
+					case KeyBrowseAction.Exit:
+						return;
+				}
 			}
+		}
+		finally
+		{
+			_control.Release();
 		}
 	}
 
@@ -58,12 +68,9 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
-		_screenLayout.RenderHeader();
-		_terminal.Write($"{_localization.EditingKey} ");
-		_terminal.WriteLine(key.Key, TerminalColor.Primary);
-		_terminal.Write($"{_localization.CurrentValue} ");
-		_terminal.WriteLine(ValuePreview.Preview(key.Value, EditValueMaxLength), TerminalColor.Success);
-		_terminal.WriteLine();
+		_control.ShowDetails(
+			_layout.Detail(_localization.EditingKey, key.Key, TextRole.Primary),
+			_layout.Detail(_localization.CurrentValue, ValuePreview.Sanitize(key.Value), TextRole.Success));
 
 		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value, trim: _settings.Current.TrimInputValues);
 
@@ -71,8 +78,6 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 			return;
 
 		var result = await _keyStore.UpdateKeyAsync(key.Key, newValue);
-
-		_screenLayout.RenderHeader();
 
 		if (result)
 			await ReloadAsync();
@@ -82,14 +87,9 @@ public sealed class KeyBrowseScreen(ITerminalOutput _terminal, IEtcdKeyStore _ke
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
-		_screenLayout.RenderHeader();
-		_terminal.Write($"{_localization.DeleteKey} ");
-		_terminal.WriteLine(key.Key, TerminalColor.Danger);
-		_terminal.WriteLine();
+		_control.ShowDetails(_layout.Detail(_localization.DeleteKey, key.Key, TextRole.Danger));
 
 		var result = await _keyStore.DeleteKeyAsync(key.Key);
-
-		_screenLayout.RenderHeader();
 
 		if (result)
 			await ReloadAsync();

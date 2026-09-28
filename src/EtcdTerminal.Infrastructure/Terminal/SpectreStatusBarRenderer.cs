@@ -1,6 +1,7 @@
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Terminal;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace EtcdTerminal.Infrastructure.Terminal;
 
@@ -25,8 +26,18 @@ public sealed class SpectreStatusBarRenderer(RoleStyleMapper _styles) : IStatusB
 	private const int NameOverheadWidth = 4;
 	private const string TruncationMark = "\u2026";
 
-	public void Write(StatusBarModel model) =>
-		AnsiConsole.Write(Build(Fit(model, AnsiConsole.Profile.Width)));
+	/// <summary>
+	/// Draws the footer on the last row of the terminal. Callers keep their own
+	/// cursor: the bar is a bottom anchored region, never text that continues
+	/// from wherever the application happens to be writing.
+	/// </summary>
+	public void Write(StatusBarModel model)
+	{
+		var ansi = AnsiConsole.Profile.Capabilities.Ansi;
+
+		SpectreCursorPosition.MoveTo(AnsiConsole.Cursor, ansi, 0, AnsiConsole.Profile.Height - 1);
+		AnsiConsole.Write(new BottomLine(Build(Fit(model, AnsiConsole.Profile.Width))));
+	}
 
 	public Panel Build(StatusBarModel model)
 	{
@@ -149,5 +160,27 @@ public sealed class SpectreStatusBarRenderer(RoleStyleMapper _styles) : IStatusB
 		}
 
 		return span with { Text = span.Text[..length] + TruncationMark };
+	}
+
+	/// <summary>
+	/// A panel ends with a line break, which is what a parent layout needs and
+	/// what a bottom anchored footer must not get: written on the last row of
+	/// the terminal that break scrolls the whole screen by one. Spectre has no
+	/// renderable that drops it, so the footer renders itself without it.
+	/// </summary>
+	private sealed class BottomLine(IRenderable _target) : Renderable
+	{
+		protected override Measurement Measure(RenderOptions options, int maxWidth) =>
+			_target.Measure(options, maxWidth);
+
+		protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
+		{
+			var segments = new List<Segment>(_target.Render(options, maxWidth));
+
+			while (segments.Count > 0 && segments[^1].IsLineBreak)
+				segments.RemoveAt(segments.Count - 1);
+
+			return segments;
+		}
 	}
 }

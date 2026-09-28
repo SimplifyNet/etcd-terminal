@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
-using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
@@ -18,45 +17,6 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class LayoutTests
 {
-	[Test]
-	public void LongKeysAndValues_StayWithinWidth()
-	{
-		var harness = new Harness(80, 24);
-
-		harness.Control.Render(
-			[new EtcdKeyValue { Key = new string('k', 100), Value = new string('v', 200) }],
-			1, 1);
-
-		AssertBounds(harness.Terminal);
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("\u2026"));
-	}
-
-	[Test]
-	public void ControlCharacters_RenderedSingleLineWithinWidth()
-	{
-		var harness = new Harness(80, 24);
-
-		harness.Control.Render(
-			[new EtcdKeyValue { Key = "a", Value = "x\ny\tz" }],
-			1, 1);
-
-		AssertBounds(harness.Terminal);
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("\u23CE"));
-	}
-
-	[Test]
-	public void WideText_StayWithinWidth()
-	{
-		var harness = new Harness(80, 24);
-
-		harness.Control.Render(
-			[new EtcdKeyValue { Key = "\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d\u4e2d", Value = "\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587\u6587" }],
-			1, 1);
-
-		AssertBounds(harness.Terminal);
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("\u2026"));
-	}
-
 	[Test]
 	public void LongConnectionDetails_FooterModelKeepsFullLiteralValues()
 	{
@@ -76,25 +36,6 @@ public sealed class LayoutTests
 		Assert.That(model.Name?.Text, Is.EqualTo(new string('n', 60)));
 		Assert.That(model.Connection?.Text, Is.EqualTo("http://" + new string('h', 90) + ":2379"));
 		Assert.That(model.Username?.Text, Is.EqualTo(new string('u', 40)));
-	}
-
-	[Test]
-	public void VeryNarrowWindow_NoOverflowOrInvalidPositions()
-	{
-		var harness = new Harness(10, 24);
-
-		harness.Session.Start(new EtcdConnectionConfig
-		{
-			Name = new string('n', 30),
-			ConnectionString = "http://localhost:2379",
-			Username = new string('u', 20)
-		}, UserCapabilities.Unrestricted);
-
-		harness.Control.Render(
-			[new EtcdKeyValue { Key = new string('k', 50), Value = new string('v', 50) }],
-			1, 1);
-
-		AssertBounds(harness.Terminal);
 	}
 
 	[Test]
@@ -169,10 +110,8 @@ public sealed class LayoutTests
 		public readonly RecordingTerminal Terminal;
 		public readonly ConnectionSession Session = new();
 		public readonly FakeStatusBarRenderer StatusBarRenderer = new();
-		public readonly FakePanelRenderer PanelRenderer = new();
 		public readonly StatusBar StatusBar;
 		public readonly ScreenLayout Layout;
-		public readonly KeyBrowseControl Control;
 
 		public Harness(int width, int height)
 		{
@@ -182,10 +121,6 @@ public sealed class LayoutTests
 
 			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
 			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, new Header(Terminal));
-
-			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization, PanelRenderer);
-
-			Control = new KeyBrowseControl(Terminal, Terminal, Terminal, StatusBar, browseLayout, Layout, Session);
 		}
 	}
 

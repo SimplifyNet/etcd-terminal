@@ -74,6 +74,35 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 
 		_updates.Release();
 		pump.GetAwaiter().GetResult();
+		Paint();
+	}
+
+	/// <summary>
+	/// Leaves the released frame on the screen and parks the cursor on the row
+	/// below its content, so streaming output such as a prompt continues where
+	/// the frame ends instead of over the status bar on the last row.
+	/// </summary>
+	private void Paint()
+	{
+		ScreenModel? model;
+
+		lock (_gate)
+			model = _model;
+
+		if (model is null)
+			return;
+
+		_console.Write(Frame(model));
+		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, HandOverRow(model));
+	}
+
+	/// The last row of the frame's content, never past the row above the footer.
+	private int HandOverRow(ScreenModel model)
+	{
+		var lines = Segment.SplitLines(Main(model).Render(RenderOptions.Create(_console), _console.Profile.Width));
+		var lastRow = Math.Max(0, _console.Profile.Height - FooterRows - 1);
+
+		return Math.Min(lines.Count, lastRow);
 	}
 
 	private async Task PumpAsync()
@@ -88,6 +117,7 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 		_console.Live(Frame(model!))
 			.Overflow(VerticalOverflow.Crop)
 			.Cropping(VerticalOverflowCropping.Bottom)
+			.AutoClear(true)
 			.StartAsync(PumpAsync)
 			.GetAwaiter()
 			.GetResult();
@@ -144,7 +174,7 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 	}
 
 	private IRenderable Footer(ScreenModel model) =>
-		model.Footer is null ? new Rows() : _footer.Build(model.Footer);
+		model.Footer is null ? new Rows() : _footer.Build(SpectreStatusBarRenderer.Fit(model.Footer, _console.Profile.Width));
 
 	private const string MainRegion = "main";
 	private const string FooterRegion = "footer";

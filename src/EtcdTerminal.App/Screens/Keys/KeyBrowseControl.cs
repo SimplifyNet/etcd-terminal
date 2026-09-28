@@ -1,12 +1,21 @@
-using EtcdTerminal.Terminal;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
+using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseControl(ITerminalOutput _output, ITerminalCursor _cursor, ITerminalInput _input, StatusBar _statusBar, KeyBrowseLayout _keyBrowseLayout, ScreenLayout _screenLayout, IConnectionSession _session)
+public sealed class KeyBrowseControl(
+	ITerminalInput _input,
+	KeyBrowseLayout _layout,
+	IScreenHost _host,
+	Header _header,
+	StatusBar _statusBar,
+	IConnectionSession _session)
 {
+	private bool _frameOpen;
+
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
 	public int SelectedIndex { get; private set; }
@@ -18,25 +27,44 @@ public sealed class KeyBrowseControl(ITerminalOutput _output, ITerminalCursor _c
 	/// </summary>
 	public bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
 
+	/// <summary>
+	/// Paints the browse frame, replacing the previous one in place. The first
+	/// call takes the console; later calls update the same frame.
+	/// </summary>
 	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
-		_screenLayout.RenderHeader();
+		var model = Frame([.. Body(pageKeys, totalPages, totalKeys)]);
 
-		var (searchEndCol, searchBarRow) = _keyBrowseLayout.RenderSearchBar(SearchQuery);
+		if (_frameOpen)
+			_host.Update(model);
+		else
+		{
+			_host.Begin(model);
+			_frameOpen = true;
+		}
+	}
 
-		_cursor.SetCursorPosition(0, _cursor.CursorTop + 2);
-		_keyBrowseLayout.RenderKeyList(pageKeys, SelectedIndex);
+	/// <summary>
+	/// Shows a short frame of its own, for example the details written before a
+	/// prompt. The console is handed back so the prompt can draw underneath.
+	/// </summary>
+	public void ShowDetails(params IReadOnlyList<PanelModel> panels)
+	{
+		Release();
+		_host.Begin(Frame(panels));
+		_host.End();
+	}
 
-		_output.WriteLine();
-		_keyBrowseLayout.RenderPagination(CurrentPage, totalPages, totalKeys);
+	/// <summary>
+	/// Hands the console back. Safe to call when nothing is being shown.
+	/// </summary>
+	public void Release()
+	{
+		if (!_frameOpen)
+			return;
 
-		_output.WriteLine();
-		if (ShowActions && SelectedKey is not null)
-			_keyBrowseLayout.RenderActionBar(SelectedKey.Key, CanModifySelectedKey);
-
-		_statusBar.Render();
-
-		_cursor.SetCursorPosition(searchEndCol, searchBarRow);
+		_host.End();
+		_frameOpen = false;
 	}
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
@@ -140,4 +168,25 @@ public sealed class KeyBrowseControl(ITerminalOutput _output, ITerminalCursor _c
 		CurrentPage = Math.Clamp(CurrentPage, 0, Math.Max(0, totalPages - 1));
 		SelectedIndex = 0;
 	}
+
+	private IEnumerable<PanelModel> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
+	{
+		yield return _layout.Search(SearchQuery);
+		yield return _layout.KeyList(pageKeys, SelectedIndex);
+		yield return _layout.Pagination(CurrentPage, totalPages, totalKeys);
+
+		if (!ShowActions || SelectedKey is null)
+			yield break;
+
+		yield return _layout.Selected(SelectedKey.Key);
+		yield return _layout.Actions(CanModifySelectedKey);
+	}
+
+	private ScreenModel Frame(IReadOnlyList<PanelModel> body) =>
+		new()
+		{
+			Header = _header.BuildModel(),
+			Body = body,
+			Footer = _statusBar.BuildModel()
+		};
 }

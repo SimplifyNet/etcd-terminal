@@ -70,10 +70,47 @@ public sealed class KeyBrowseScreenTests
 		Assert.That(harness.Control.SelectedIndex, Is.EqualTo(0));
 	}
 
+	[Test]
+	public async Task BrowseFrame_CarriesHeaderBodyAndFooter()
+	{
+		var harness = new Harness(new() { ["/a/1"] = "x", ["/b/1"] = "y" });
+
+		harness.Terminal.Press(ConsoleKey.Escape);
+
+		await harness.Screen.ShowAsync();
+
+		var frame = harness.Host.Frames[0];
+
+		Assert.That(frame.Header, Is.Not.Null);
+		Assert.That(frame.Footer, Is.Not.Null);
+		Assert.That(frame.Body, Has.Count.EqualTo(3));
+		Assert.That(frame.Body[0].Lines.Single().Text, Does.Contain("Type to search"));
+		Assert.That(frame.Body[1].Lines[0].Spans[1].Text, Does.Contain("/a/1"));
+		Assert.That(frame.Body[2].Lines.Single().Text, Does.Contain("1/1"));
+		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount), "the screen must not leak the console");
+	}
+
+	[Test]
+	public async Task SelectedKey_OffersEditAndDeleteOnlyWithWriteRights()
+	{
+		var harness = new Harness(new() { ["/a/1"] = "x" });
+
+		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Escape);
+
+		await harness.Screen.ShowAsync();
+
+		var withActions = harness.Host.Frames.Last(frame => frame.Body.Count == 5);
+
+		Assert.That(withActions.Body[3].Lines.Single().Text, Does.Contain("Selected: /a/1"));
+		Assert.That(withActions.Body[4].Lines.Single().Text, Does.Contain("E Edit"));
+		Assert.That(withActions.Body[4].Lines.Single().Text, Does.Contain("D Delete"));
+	}
+
 	private sealed class Harness
 	{
 		public readonly FakeTerminal Terminal = new();
 		public readonly QueueTextInput TextInput = new();
+		public readonly FakeScreenHost Host = new();
 		public readonly DictKeyStore Store;
 		public readonly KeyBrowseControl Control;
 		public readonly KeyBrowseScreen Screen;
@@ -89,15 +126,14 @@ public sealed class KeyBrowseScreenTests
 			Store = new DictKeyStore(initial);
 
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
-			var layout = new ScreenLayout(Terminal, Terminal, statusBar, new Header(Terminal));
 			var prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
 			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, statusBar, localization);
 			var message = new Message(Terminal, pressAnyKey);
-			var browseLayout = new KeyBrowseLayout(Terminal, Terminal, Terminal, localization, new FakePanelRenderer());
+			var browseLayout = new KeyBrowseLayout(Terminal, localization);
 
-			Control = new KeyBrowseControl(Terminal, Terminal, Terminal, statusBar, browseLayout, layout, session);
+			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(Terminal), statusBar, session);
 
-			Screen = new KeyBrowseScreen(Terminal, Store, new ReadableKeysProvider(Store), session, layout, Control, prompt, message, localization, settings);
+			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings);
 		}
 	}
 
