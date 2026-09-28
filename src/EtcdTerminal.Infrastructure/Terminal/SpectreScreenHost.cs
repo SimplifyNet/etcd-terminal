@@ -14,6 +14,11 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 	/// The status bar is a single line pinned to the last row of the terminal.
 	private const int FooterRows = 1;
 
+	/// Rows kept free below a released frame so the screen can stream a result
+	/// without scrolling the frame away: blank, up to three text lines, blank
+	/// and the press-any-key label.
+	private const int StreamReserve = 7;
+
 	private readonly SemaphoreSlim _updates = new(0);
 	private TaskCompletionSource _painted = new(TaskCreationOptions.RunContinuationsAsynchronously);
 	private readonly Lock _gate = new();
@@ -84,9 +89,9 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 	}
 
 	/// <summary>
-	/// Leaves the released frame on the screen and parks the cursor on the row
-	/// below its content, so streaming output such as a prompt continues where
-	/// the frame ends instead of over the status bar on the last row.
+	/// Leaves the released frame on the screen and parks the cursor where the
+	/// screen can stream its result, so output such as a prompt continues below
+	/// the frame instead of over the status bar on the last row.
 	/// </summary>
 	private void Paint()
 	{
@@ -102,11 +107,15 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, HandOverRow(model));
 	}
 
-	/// The last row of the frame's content, never past the row above the footer.
+	/// The last row of the frame's content that still leaves room for the output
+	/// the screen streams after the frame is released. A message, its trailing
+	/// blank line and the press-any-key label must fit above the footer: when
+	/// they do not, the terminal scrolls and the frame's own footer comes back
+	/// on screen a second time.
 	private int HandOverRow(ScreenModel model)
 	{
 		var lines = Segment.SplitLines(Main(model).Render(RenderOptions.Create(_console), _console.Profile.Width));
-		var lastRow = Math.Max(0, _console.Profile.Height - FooterRows - 1);
+		var lastRow = Math.Max(0, _console.Profile.Height - FooterRows - 1 - StreamReserve);
 
 		return Math.Min(lines.Count, lastRow);
 	}

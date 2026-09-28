@@ -5,6 +5,7 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 using EtcdTerminal.Terminal;
 
@@ -159,26 +160,36 @@ public sealed class KeyImportJsonScreen(
 
 	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
 	{
-		_output.WriteLine();
-		_output.WriteIndentedLine(string.Format(_localization.ImportPreviewTitle, entries.Count));
-		_output.WriteLine();
+		// The preview, the question and the choices must stay on one screen, so
+		// they share panels instead of growing one panel per line.
+		List<PanelLine> preview =
+		[
+			new([new StyledText(string.Format(_localization.ImportPreviewTitle, entries.Count), TextRole.Primary)]),
+			new([])
+		];
 
 		foreach (var (Key, Value) in entries.Take(_previewLimit))
 		{
-			_output.Write(_style.Indent + Key);
-			_output.Write(" = ");
-			_output.WriteLine(ValuePreview.Preview(Value, _previewValueLength), TerminalColor.Muted);
+			preview.Add(new PanelLine(
+			[
+				new StyledText(_style.Indent + Key + " = ", TextRole.Primary),
+				new StyledText(ValuePreview.Preview(Value, _previewValueLength), TextRole.Muted)
+			]));
 		}
 
 		if (entries.Count > _previewLimit)
-			_output.WriteIndentedLine(string.Format(_localization.ImportPreviewMore, entries.Count - _previewLimit), TerminalColor.Muted);
+			preview.Add(new([new StyledText(string.Format(_localization.ImportPreviewMore, entries.Count - _previewLimit), TextRole.Muted)]));
 
-		bool? confirmed = _menu.Show<bool>(
-			_localization.ConfirmImport,
+		preview.Add(new([]));
+		preview.Add(new([new StyledText(_localization.ConfirmImport, TextRole.Primary)]));
+
+		bool? confirmed = _menu.ShowFramed<bool>(
+			string.Empty,
 			[
 				new(true, _localization.Yes),
 				new(false, _localization.No)
-			])?.Id;
+			],
+			notices: [new PanelModel(preview)])?.Id;
 
 		return confirmed ?? false;
 	}
