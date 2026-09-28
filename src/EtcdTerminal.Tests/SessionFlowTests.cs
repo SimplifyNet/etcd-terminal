@@ -199,7 +199,6 @@ public sealed class SessionFlowTests
 		public readonly FakeScreenHost Host = new();
 		public readonly StatusBar StatusBar;
 		public readonly Menu Menu;
-		public readonly ScreenLayout Layout;
 		public readonly MainScreen Main;
 		public readonly InstanceSelectionScreen Selection;
 
@@ -211,14 +210,13 @@ public sealed class SessionFlowTests
 			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, Localization, Footer);
 			var header = new Header(Terminal);
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
-			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, header);
 
 			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, StatusBar, Localization);
 			var message = new Message(Terminal, pressAnyKey);
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
 			var spinner = new Spinner(Terminal);
-			var manage = new ManageConnectionsScreen(Terminal, Layout, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
-			var settings = new SettingsScreen(Layout, new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
+			var manage = new ManageConnectionsScreen(Terminal, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
+			var settings = new SettingsScreen(new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 
 			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), Connection, Session, new StubCapabilities(discover), settings, Menu, message, spinner, manage, Localization);
 			Main = new MainScreen(Connection, Session, entries, Menu, Localization);

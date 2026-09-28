@@ -5,7 +5,7 @@ using EtcdTerminal.Localization;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
+public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -14,9 +14,7 @@ public sealed class SettingsScreen(ScreenLayout _screenLayout, IAppSettingsRepos
 	{
 		while (true)
 		{
-			_screenLayout.RenderHeader();
-
-			SettingsAction? action = _menu.Show<SettingsAction>(_localization.SettingsTitle,
+			SettingsAction? action = _menu.ShowFramed<SettingsAction>(_localization.SettingsTitle,
 			[
 				new(SettingsAction.EditPageSize, $"{_localization.PageSizeLabel} ({_settings.Current.PageSize})"),
 				new(SettingsAction.ToggleTrimInputValues, $"{_localization.TrimInputValuesLabel} ({OnOff(_settings.Current.TrimInputValues)})")

@@ -6,12 +6,10 @@ using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLayout _screenLayout, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
+public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		_screenLayout.RenderHeader();
-
 		List<MenuItem<ManageConnectionsAction>> actions = [new(ManageConnectionsAction.AddInstance, _localization.AddInstance)];
 
 		if (instances.Count > 0)
@@ -26,7 +24,7 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 			actions.Add(new(ManageConnectionsAction.MoveDownInstance, _localization.MoveDownInstance));
 		}
 
-		ManageConnectionsAction? action = _menu.Show(_localization.ManageConnections, actions)?.Id;
+		ManageConnectionsAction? action = _menu.ShowFramed(_localization.ManageConnections, actions)?.Id;
 
 		if (action is null)
 			return;
@@ -53,14 +51,12 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = _menu.Show(_localization.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
+		var existingName = _menu.ShowFramed(_localization.SelectInstanceToEdit, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (existingName is null)
 			return;
 
 		var existing = instances.First(i => i.Name == existingName);
-
-		_screenLayout.RenderHeader();
 
 		SaveInstanceInteractive(existing, _localization.InstanceUpdated);
 	}
@@ -131,7 +127,7 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = _menu.Show(direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
+		var name = _menu.ShowFramed(direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (name is null)
 			return;
@@ -144,7 +140,7 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, ScreenLay
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = _menu.Show(_localization.SelectInstanceToRemove, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
+		var nameToRemove = _menu.ShowFramed(_localization.SelectInstanceToRemove, instances.Select(i => new MenuItem<string>(i.Name, i.Name)).ToList())?.Id;
 
 		if (nameToRemove is null)
 			return;

@@ -75,6 +75,12 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 		_updates.Release();
 		pump.GetAwaiter().GetResult();
 		Paint();
+
+		// Spectre shows the cursor when its live display completes. A screen
+		// that streams its own output afterwards must start from the hidden
+		// cursor the terminal was initialized with; prompts that need the caret
+		// show it themselves.
+		_console.Cursor.Hide();
 	}
 
 	/// <summary>
