@@ -34,33 +34,21 @@ public sealed class StatusBarPersistenceTests
 	}
 
 	[Test]
-	public void PressAnyKey_ShowsStatusBarWithActiveConnection()
+	public void PressAnyKey_FrameCarriesStatusBarWithActiveConnection()
 	{
 		var terminal = new FakeTerminal();
 		var session = new ConnectionSession();
-		var footer = new FakeStatusBarRenderer();
+		var localization = new EnglishLocalization();
+		var host = new FakeScreenHost();
+		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), footer), new EnglishLocalization()).Show();
+		new PressAnyKeyPrompt(host, new Header(), statusBar, terminal, localization).Show([]);
 
-		Assert.That(footer.Models, Is.Not.Empty);
-		Assert.That(footer.Last.Name?.Text, Is.EqualTo("prod"));
-	}
-
-	[Test]
-	public void PressAnyKey_ScrollsContentSoLabelStaysAboveStatusBar()
-	{
-		var terminal = new FakeTerminal { CursorTop = 38 };
-		var session = new ConnectionSession();
-
-		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
-		terminal.Press(ConsoleKey.Enter);
-
-		new PressAnyKeyPrompt(terminal, terminal, new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), new FakeStatusBarRenderer()), new EnglishLocalization()).Show();
-
-		Assert.That(terminal.CursorTop, Is.EqualTo(terminal.WindowHeight - StatusBar.ReservedRows - 2));
+		Assert.That(host.Current.Footer?.Name?.Text, Is.EqualTo("prod"));
+		Assert.That(host.Current.Body[^1].Lines.Single().Text, Is.EqualTo(localization.PressAnyKey));
 	}
 
 	private sealed class StubTextInput(string answer) : ITextInput

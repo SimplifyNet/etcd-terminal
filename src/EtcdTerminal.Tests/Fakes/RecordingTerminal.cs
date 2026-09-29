@@ -19,8 +19,6 @@ public sealed class RecordingTerminal : ITerminal
 
 	public List<(int Left, int Top)> CursorSets { get; } = [];
 
-	public List<TableData> Tables { get; } = [];
-
 	public int WindowWidth { get; set; } = 80;
 
 	public int WindowHeight { get; set; } = 24;
@@ -157,13 +155,6 @@ public sealed class RecordingTerminal : ITerminal
 
 	public void SetCursorVisible(bool visible)
 	{
-	}
-
-	public void WriteTable(TableData table)
-	{
-		Tables.Add(table);
-
-		Output.Append("[table]");
 	}
 
 	public void ClearLine() => Output.Append("[clearline]");

@@ -51,17 +51,6 @@ public sealed class RecordingTerminalTests
 	}
 
 	[Test]
-	public void WriteTable_CapturesTable()
-	{
-		var terminal = new RecordingTerminal();
-		var table = new TableData(["a"], [["b"]]);
-
-		terminal.WriteTable(table);
-
-		Assert.That(terminal.Tables.Single(), Is.EqualTo(table));
-	}
-
-	[Test]
 	public void Dimensions_AreConfigurable()
 	{
 		var terminal = new RecordingTerminal { WindowWidth = 40, WindowHeight = 10 };

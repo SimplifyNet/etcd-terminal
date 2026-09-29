@@ -4,13 +4,12 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Security;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.Permissions;
 using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, RoleListLayout _layout, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageRoles;
 
@@ -66,10 +65,7 @@ public sealed class RoleManagementScreen(ITerminal _terminal, IEtcdRoleAdmin _ro
 			return;
 		}
 
-		RoleListRenderer.Render(_terminal, _localization, roles);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_pressAnyKey.Show(_layout.Body(roles));
 	}
 
 	private async Task CreateRoleAsync()

@@ -1,11 +1,8 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
-using EtcdTerminal.App.Screens.Roles;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Roles;
-using EtcdTerminal.Permissions;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Terminal;
@@ -66,27 +63,6 @@ public sealed class LayoutTests
 		Assert.That(harness.Host.Current.Header, Is.Not.Null);
 		Assert.That(harness.Host.Current.Footer, Is.Not.Null);
 		Assert.That(harness.Host.Current.Body, Is.Empty);
-	}
-
-	[Test]
-	public void Tables_CapturedWithContents()
-	{
-		var harness = new Harness(80, 24);
-		var roles = new[]
-		{
-			new EtcdRole
-			{
-				Name = "dev",
-				Permissions = [new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "/a", RangeEnd = string.Empty }]
-			}
-		};
-
-		RoleListRenderer.Render(harness.Terminal, new EnglishLocalization(), roles);
-
-		var table = harness.Terminal.Tables.Single();
-
-		Assert.That(table.Title, Is.EqualTo("Role: dev"));
-		Assert.That(table.Rows.Single().Single(), Is.EqualTo("Read [Exact key]: /a"));
 	}
 
 	private sealed class Harness

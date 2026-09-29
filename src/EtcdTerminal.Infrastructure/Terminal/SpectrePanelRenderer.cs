@@ -25,17 +25,28 @@ public sealed class SpectrePanelRenderer(RoleStyleMapper _styles, ITheme _theme)
 	// it so that keys and values keep their own columns.
 	private const int MarkerColumns = 1;
 
-	// A table sits between two padded panels, which already separate it from
-	// the search bar and the pagination row; padding it again would only push
-	// the rest of the frame out of the viewport.
-	private const int TableSpacing = 0;
+	// A table sits flush against the panels around it: padding it again would
+	// only push the rest of the frame out of the viewport.
+	private const int FlushSpacing = 0;
+
+	// A section title gets one blank line above it. Borders are gone, so the
+	// blank line is what keeps one section from running into the next.
+	private const int TitleSpacingAbove = 1;
 
 	public void Write(PanelModel panel) =>
 		AnsiConsole.Write(Build(panel, AnsiConsole.Profile.Width));
 
 	public Panel Build(PanelModel panel, int width) => new Panel(Content(panel, width))
 		.NoBorder()
-		.Padding(HorizontalSpacing, panel.Kind is PanelKind.Table ? TableSpacing : VerticalSpacing);
+		.Padding(HorizontalSpacing, Flush(panel), HorizontalSpacing, 0);
+
+	private static int Flush(PanelModel panel) =>
+		panel.Kind switch
+		{
+			PanelKind.Table => FlushSpacing,
+			PanelKind.Title => TitleSpacingAbove,
+			_ => VerticalSpacing
+		};
 
 	/// <summary>
 	/// Renders a title banner. The model carries the text; the widget, its

@@ -4,12 +4,11 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Security;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, Prompt _prompt, 	Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, UserListLayout _layout, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
@@ -69,10 +68,7 @@ public sealed class UserManagementScreen(ITerminal _terminal, IEtcdUserAdmin _us
 			return;
 		}
 
-		UserListRenderer.Render(_terminal, _localization, users);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_pressAnyKey.Show(_layout.Body(users));
 	}
 
 	private async Task CreateUserAsync()

@@ -2,10 +2,11 @@ using System.Reflection;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
+using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Permissions;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Roles;
-using EtcdTerminal.Tests.Fakes;
 using EtcdTerminal.Users;
 using NUnit.Framework;
 
@@ -15,9 +16,8 @@ namespace EtcdTerminal.Tests;
 public sealed class PermissionDisplayTests
 {
 	[Test]
-	public void RoleList_RendersDistinctScopesInCapturedTable()
+	public void RoleList_BuildsTitledTableWithDistinctScopes()
 	{
-		var terminal = new FakeTerminal();
 		var roles = new[]
 		{
 			new EtcdRole
@@ -33,13 +33,13 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		RoleListRenderer.Render(terminal, new EnglishLocalization(), roles);
+		var body = new RoleListLayout(new EnglishLocalization()).Body(roles);
 
-		var table = terminal.Tables.Single();
-
-		Assert.That(table.Title, Is.EqualTo("Role: dev"));
-		Assert.That(table.Columns, Is.EqualTo(["Permissions"]));
-		Assert.That(table.Rows.Select(r => r.Single()), Is.EqualTo([
+		Assert.That(body[0].Kind, Is.EqualTo(PanelKind.Title));
+		Assert.That(body[0].Lines.Single().Text, Is.EqualTo("Role: dev"));
+		Assert.That(body[1].Kind, Is.EqualTo(PanelKind.Table));
+		Assert.That(body[1].Lines.Select(line => line.Text), Is.EqualTo([
+			"Permissions",
 			"Read [Exact key]: /a",
 			"Write [Prefix]: /p",
 			"ReadWrite [Range]: [x, z)",
@@ -48,9 +48,8 @@ public sealed class PermissionDisplayTests
 	}
 
 	[Test]
-	public void RoleList_RendersAllKeysGrantDistinctly()
+	public void RoleList_BuildsAllKeysGrantDistinctly()
 	{
-		var terminal = new FakeTerminal();
 		var roles = new[]
 		{
 			new EtcdRole
@@ -60,17 +59,14 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		RoleListRenderer.Render(terminal, new EnglishLocalization(), roles);
+		var body = new RoleListLayout(new EnglishLocalization()).Body(roles);
 
-		var row = terminal.Tables.Single().Rows.Single().Single();
-
-		Assert.That(row, Is.EqualTo("ReadWrite [Prefix]: All keys"));
+		Assert.That(body[1].Lines[1].Text, Is.EqualTo("ReadWrite [Prefix]: All keys"));
 	}
 
 	[Test]
-	public void PermissionView_RendersLocalizedUserTitleAndSharedFormat()
+	public void PermissionView_BuildsLocalizedUserTitleAndSharedFormat()
 	{
-		var terminal = new FakeTerminal();
 		var users = new[] { new EtcdUser { Username = "bob", Roles = ["dev"] } };
 		var roles = new[]
 		{
@@ -81,19 +77,52 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		PermissionViewRenderer.Render(terminal, new EnglishLocalization(), users, roles);
+		var body = new PermissionViewLayout(new EnglishLocalization()).Body(users, roles);
 
-		var table = terminal.Tables.Single();
+		Assert.That(body[0].Kind, Is.EqualTo(PanelKind.Title));
+		Assert.That(body[0].Lines.Single().Text, Is.EqualTo("User: bob"));
+		Assert.That(body[1].Kind, Is.EqualTo(PanelKind.Table));
 
-		Assert.That(table.Title, Is.EqualTo("User: bob"));
-		Assert.That(table.Columns, Is.EqualTo(["Role", "Permissions"]));
-		Assert.That(table.Rows.Single(), Is.EqualTo((IReadOnlyList<string>)["dev", "Read [Exact key]: /a"]));
+		IReadOnlyList<IReadOnlyList<string>> expected =
+		[
+			["Role", "Permissions"],
+			["dev", "Read [Exact key]: /a"]
+		];
+
+		Assert.That(Cells(body[1]), Is.EqualTo(expected));
+	}
+
+	[Test]
+	public void PermissionView_EmptyDirectoryBuildsOneLocalizedNotice()
+	{
+		var body = new PermissionViewLayout(new EnglishLocalization()).Body([], []);
+
+		Assert.That(body, Has.Count.EqualTo(1));
+		Assert.That(body[0].Kind, Is.EqualTo(PanelKind.Default));
+		Assert.That(body[0].Lines.Single().Text, Is.EqualTo("No users or roles found."));
+	}
+
+	[Test]
+	public void UserList_BuildsLocalizedColumnsAndEmptyState()
+	{
+		var localization = new EnglishLocalization();
+		var body = new UserListLayout(localization).Body([new EtcdUser { Username = "alice", Roles = ["dev", "ops"] }]);
+
+		Assert.That(body.Single().Kind, Is.EqualTo(PanelKind.Table));
+
+		IReadOnlyList<IReadOnlyList<string>> expected =
+		[
+			["Username", "Roles"],
+			["alice", "dev, ops"]
+		];
+
+		Assert.That(Cells(body.Single()), Is.EqualTo(expected));
+		Assert.That(new UserListLayout(localization).Body([]).Single().Lines.Single().Text, Is.EqualTo("No users found."));
 	}
 
 	[Test]
 	public void MarkedLocalization_UsesLabelsNotHardcodedEnglish()
 	{
-		var terminal = new FakeTerminal();
 		var localization = MarkingLocalization.Create();
 		var users = new[] { new EtcdUser { Username = "bob", Roles = ["dev"] } };
 		var roles = new[]
@@ -109,11 +138,11 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		PermissionViewRenderer.Render(terminal, localization, users, roles);
-		RoleListRenderer.Render(terminal, localization, roles);
+		List<PanelModel> body = [.. new PermissionViewLayout(localization).Body(users, roles)];
+		body.AddRange(new RoleListLayout(localization).Body(roles));
 
-		var output = string.Join("\n", terminal.Tables.SelectMany(t => t.Rows.SelectMany(r => r)));
-		var titles = string.Join("\n", terminal.Tables.Select(t => t.Title));
+		var output = Joined([.. body.Where(panel => panel.Kind == PanelKind.Table)]);
+		var titles = Joined([.. body.Where(panel => panel.Kind == PanelKind.Title)]);
 
 		Assert.That(output, Does.Contain("MK_READ [MK_KEY]: /a"));
 		Assert.That(output, Does.Contain("MK_WRITE [MK_PREFIX]: MK_ALL"));
@@ -139,6 +168,12 @@ public sealed class PermissionDisplayTests
 		Assert.That(first, Is.Not.EqualTo(second));
 		Assert.That(open, Is.EqualTo("Read [Range]: [a, \u221E)"));
 	}
+
+	private static IReadOnlyList<IReadOnlyList<string>> Cells(PanelModel panel) =>
+		[.. panel.Lines.Select(line => line.Spans.Select(span => span.Text).ToList())];
+
+	private static string Joined(IReadOnlyList<PanelModel> panels) =>
+		string.Join("\n", panels.SelectMany(panel => panel.Lines).Select(line => line.Text));
 
 	private class MarkingLocalization : DispatchProxy
 	{

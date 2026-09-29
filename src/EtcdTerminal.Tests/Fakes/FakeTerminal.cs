@@ -9,8 +9,6 @@ public sealed class FakeTerminal : ITerminal
 
 	public Queue<ConsoleKeyInfo> Keys { get; } = new();
 
-	public List<TableData> Tables { get; } = [];
-
 	public int WindowWidth => 120;
 
 	public int WindowHeight => 40;
@@ -122,13 +120,6 @@ public sealed class FakeTerminal : ITerminal
 
 	public void SetCursorVisible(bool visible)
 	{
-	}
-
-	public void WriteTable(TableData table)
-	{
-		Tables.Add(table);
-
-		Output.Append("[table]");
 	}
 
 	public void ClearLine() => Output.Append("[clearline]");

@@ -3,12 +3,11 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Localization;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Security;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenShell _shell, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
+public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenShell _shell, PermissionViewLayout _layout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ViewPermissions;
 
@@ -35,9 +34,6 @@ public sealed class PermissionViewScreen(ITerminal _terminal, IEtcdUserAdmin _us
 			return;
 		}
 
-		PermissionViewRenderer.Render(_terminal, _localization, users, roles);
-
-		_terminal.WriteLine();
-		_pressAnyKey.Show();
+		_pressAnyKey.Show(_layout.Body(users, roles));
 	}
 }
