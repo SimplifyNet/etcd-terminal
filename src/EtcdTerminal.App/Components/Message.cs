@@ -5,10 +5,12 @@ using EtcdTerminal.Terminal;
 namespace EtcdTerminal.App.Components;
 
 /// <summary>
-/// Presents an outcome as one complete screen: banner, message, the hint that a
-/// key continues, and the footer. Composing the whole screen here keeps a single
-/// writer on the footer and keeps the message from appending below a released
-/// frame, which would scroll that frame's own footer back onto the screen.
+/// Presents an outcome as one complete screen: the banner, the message, and
+/// the session footer. The hint that a key continues belongs to the footer, so
+/// a screen with an unbounded body still tells the user what to do when the
+/// viewport is short. Composing the whole screen here keeps a single writer on
+/// the footer and keeps the message from appending below a released frame,
+/// which would scroll that frame's own footer back onto the screen.
 /// </summary>
 public sealed class Message(IScreenHost _host, Header _header, StatusBar _statusBar, ITerminalInput _input, ILocalization _localization)
 {
@@ -30,14 +32,14 @@ public sealed class Message(IScreenHost _host, Header _header, StatusBar _status
 	{
 		List<PanelLine> lines = [.. text.Split('\n').Select(line => new PanelLine([new StyledText(line.TrimEnd('\r'), role)]))];
 
-		lines.Add(new PanelLine([]));
-		lines.Add(new PanelLine([new StyledText(_localization.PressAnyKey, TextRole.Muted)]));
-
 		_host.Begin(new ScreenModel
 		{
 			Header = _header.BuildModel(),
 			Body = [new PanelModel(lines)],
-			Footer = _statusBar.BuildModel()
+			Footer = _statusBar.BuildModel(
+			[
+				new StyledText(_localization.PressAnyKey, TextRole.Muted)
+			])
 		});
 
 		try

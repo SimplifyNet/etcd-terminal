@@ -203,6 +203,17 @@ public sealed class PanelModelTests
 		}));
 	}
 
+	[Test]
+	public void BuildModel_WithCustomHints_UsesThemInsteadOfNavigationHints()
+	{
+		var statusBar = StatusBar(new FakeStatusBarRenderer(), new ConnectionSession());
+
+		var model = statusBar.BuildModel([new StyledText("Press any key", TextRole.Muted)]);
+
+		Assert.That(model.Hints.Single().Text, Is.EqualTo("Press any key"));
+		Assert.That(model.Hints.Single().Role, Is.EqualTo(TextRole.Muted));
+	}
+
 	private static KeyBrowseLayout Layout() =>
 		new(new FakeTerminal(), new EnglishLocalization());
 
