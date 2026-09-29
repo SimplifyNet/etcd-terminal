@@ -35,11 +35,6 @@ public sealed record UserCapabilities
 
 	public bool CanWriteKey(string key) => IsRoot || Permissions.Any(p => IsWritable(p) && p.Covers(key));
 
-	/// <summary>
-	/// etcd stores the "all keys" permission as the zero byte key, which means an empty prefix.
-	/// </summary>
-	public static string NormalizePrefix(string keyPrefix) => EtcdPermission.NormalizeKey(keyPrefix);
-
 	private static bool IsReadable(EtcdPermission permission) =>
 		permission.Type is PermissionType.Read or PermissionType.ReadWrite;
 

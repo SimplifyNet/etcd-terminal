@@ -105,6 +105,4 @@ public sealed class ConsoleTerminal(ITheme _theme) : ITerminal
 	}
 
 	private static string FgEscape(RgbColor color) => $"\x1b[38;2;{color.R};{color.G};{color.B}m";
-
-	private static string BgEscape(RgbColor color) => $"\x1b[48;2;{color.R};{color.G};{color.B}m";
 }

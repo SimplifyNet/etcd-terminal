@@ -107,7 +107,6 @@ public class EnglishLocalization : ILocalization
 	public string RoleCreated => "Role created successfully!";
 	public string FailedCreateRole => "Failed to create role (may already exist).";
 	public string EnterRoleNameToDelete => "Enter role name to delete:";
-	public string DeleteRoleConfirm => "Are you sure you want to delete role {0}?";
 	public string RoleDeleted => "Role deleted successfully!";
 	public string FailedDeleteRole => "Failed to delete role.";
 	public string EnterKeyPrefix => "Enter key prefix:";
