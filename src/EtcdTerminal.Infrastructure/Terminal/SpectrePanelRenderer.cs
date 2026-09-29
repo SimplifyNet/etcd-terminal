@@ -14,9 +14,10 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 {
 	// Padding takes (horizontal, vertical). The selection marker inside the
 	// model already carries the indentation, so the horizontal value is only a
-	// gutter; the vertical value separates the block from the banner and footer.
+	// gutter. Vertical padding is zero: a borderless block that opens with
+	// blank rows pushes the menu away from the banner, which the frame never
+	// did before the migration.
 	private const int HorizontalSpacing = 1;
-	private const int VerticalSpacing = 2;
 
 	// Spectre's grid leaves this much room between neighbouring columns.
 	private const int ColumnGap = 2;
@@ -24,10 +25,6 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	// The first cell of a table row is the selection marker. Spectre measures
 	// it so that keys and values keep their own columns.
 	private const int MarkerColumns = 1;
-
-	// A table sits flush against the panels around it: padding it again would
-	// only push the rest of the frame out of the viewport.
-	private const int FlushSpacing = 0;
 
 	// A section title gets one blank line above it. Borders are gone, so the
 	// blank line is what keeps one section from running into the next.
@@ -38,15 +35,10 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 
 	public Panel Build(PanelModel panel, int width) => new Panel(Content(panel, width))
 		.NoBorder()
-		.Padding(HorizontalSpacing, Flush(panel), HorizontalSpacing, 0);
+		.Padding(HorizontalSpacing, SpacingAbove(panel), HorizontalSpacing, 0);
 
-	private static int Flush(PanelModel panel) =>
-		panel.Kind switch
-		{
-			PanelKind.Table => FlushSpacing,
-			PanelKind.Title => TitleSpacingAbove,
-			_ => VerticalSpacing
-		};
+	private static int SpacingAbove(PanelModel panel) =>
+		panel.Kind is PanelKind.Title ? TitleSpacingAbove : 0;
 
 	/// <summary>
 	/// Renders a title banner. The model carries the text; the widget, its
