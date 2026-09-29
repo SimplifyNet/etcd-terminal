@@ -33,12 +33,6 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	private const int TitleSpacingAbove = 1;
 	private const int TitleSpacingBelow = 1;
 
-	// A standalone message reads as an outcome rather than as menu content: it
-	// starts one blank row below the banner and one indent further in, so it
-	// lines up with the labels of the menu it replaced.
-	private const int BlockIndent = 4;
-	private const int BlockSpacingAbove = 1;
-
 	public void Write(PanelModel panel) =>
 		_console.Write(Build(panel, _console.Profile.Width));
 
@@ -50,7 +44,6 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 		panel.Kind switch
 		{
 			PanelKind.Title => new Padding(HorizontalSpacing, TitleSpacingAbove, HorizontalSpacing, TitleSpacingBelow),
-			PanelKind.Block => new Padding(HorizontalSpacing + BlockIndent, BlockSpacingAbove, HorizontalSpacing, 0),
 			_ => new Padding(HorizontalSpacing, 0, HorizontalSpacing, 0)
 		};
 

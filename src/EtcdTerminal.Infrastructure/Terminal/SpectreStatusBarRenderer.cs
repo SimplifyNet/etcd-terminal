@@ -79,6 +79,32 @@ public sealed class SpectreStatusBarRenderer(IAnsiConsole _console, RoleStyleMap
 		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, lastContentRow);
 	}
 
+	/// <summary>
+	/// Erases everything from the cursor to the bottom of the screen, the footer
+	/// row included: a released frame leaves its rows painted there, and the
+	/// blank lines of whatever streams next pass over them without removing
+	/// them. The caller that keeps writing redraws the footer, so nothing is
+	/// left without one for longer than a single write burst.
+	/// </summary>
+	public void ClearBelow()
+	{
+		var firstRow = _cursor.CursorTop;
+		var lastRow = _console.Profile.Height - 1;
+
+		if (firstRow > lastRow)
+			return;
+
+		var blank = new string(' ', _console.Profile.Width);
+
+		for (var row = firstRow; row <= lastRow; row++)
+		{
+			SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, row);
+			_console.Write(blank);
+		}
+
+		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, firstRow);
+	}
+
 	public Panel Build(StatusBarModel model)
 	{
 		var grid = new Grid { Expand = true };

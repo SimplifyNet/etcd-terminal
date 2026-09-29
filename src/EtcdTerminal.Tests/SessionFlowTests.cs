@@ -183,10 +183,10 @@ public sealed class SessionFlowTests
 		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
 	}
 
-	/// The text every screen composed, in order. An outcome is a frame of its
-	/// own now, so it is asserted on the host rather than on streamed output.
+	/// The text every screen streamed, in order. An outcome is written below the
+	/// frame it follows, so it is asserted on the terminal rather than on the host.
 	private static string ComposedText(Harness harness) =>
-		string.Join('\n', harness.Host.Frames.SelectMany(frame => frame.Body).SelectMany(panel => panel.Lines).Select(line => line.Text));
+		harness.Terminal.Output.ToString();
 
 	private static EtcdConnectionConfig Config() => new()
 	{
@@ -216,7 +216,7 @@ public sealed class SessionFlowTests
 			var header = new Header();
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
 
-			var message = new Message(Host, header, StatusBar, Terminal, Localization);
+			var message = new Message(Terminal, StatusBar, Localization);
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
 			var spinner = new Spinner(Terminal, new FakeStatusIndicator());
 			var manage = new ManageConnectionsScreen(Terminal, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());

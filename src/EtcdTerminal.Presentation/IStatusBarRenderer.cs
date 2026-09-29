@@ -16,4 +16,13 @@ public interface IStatusBarRenderer
 	/// not the caller's.
 	/// </summary>
 	void EnsureRoomAbove(int rows);
+
+	/// <summary>
+	/// Erases everything from the cursor to the bottom of the screen. Output
+	/// that streams under a released frame would otherwise land on rows that
+	/// frame painted earlier, and the blank lines of the new text pass over them
+	/// without removing them. The footer lives on those rows too, so a caller
+	/// that keeps writing is responsible for drawing it again.
+	/// </summary>
+	void ClearBelow();
 }

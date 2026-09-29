@@ -11,6 +11,8 @@ public sealed class StatusBar(ITerminalCursor _cursor, IAppInfo _appInfo, IConne
 {
 	public void EnsureRoomAbove(int rows = 1) => _statusBar.EnsureRoomAbove(rows);
 
+	public void ClearBelow() => _statusBar.ClearBelow();
+
 	public void RenderPreservingCursor()
 	{
 		var left = _cursor.CursorLeft;

@@ -273,6 +273,36 @@ public sealed class SpectreRenderingTests
 		Assert.That(console.Output, Is.Not.Empty);
 	}
 
+	[Test]
+	public void StatusBarRenderer_ClearBelow_ErasesEverythingBelowTheCursorIncludingTheFooter()
+	{
+		var console = new TestConsole();
+		var cursor = new RecordingTerminal { CursorTop = 15 };
+
+		console.Profile.Width = Width;
+		console.Profile.Height = 24;
+
+		StatusBarRenderer(console, cursor).ClearBelow();
+
+		Assert.That(console.Output.Length, Is.EqualTo(9 * Width), "every row from the cursor to the last one is erased");
+		Assert.That(cursor.CursorTop, Is.EqualTo(15), "the caller keeps its own cursor");
+	}
+
+	[Test]
+	public void StatusBarRenderer_ClearBelow_OnTheLastRow_ErasesThatRowAndStopsAtTheScreenEdge()
+	{
+		var console = new TestConsole();
+		var cursor = new RecordingTerminal { CursorTop = 23 };
+
+		console.Profile.Width = Width;
+		console.Profile.Height = 24;
+
+		StatusBarRenderer(console, cursor).ClearBelow();
+
+		Assert.That(console.Output.Length, Is.EqualTo(Width), "the erase does not run past the last row");
+		Assert.That(cursor.CursorTop, Is.EqualTo(23), "the caller keeps its own cursor");
+	}
+
 	private static SpectreStatusBarRenderer StatusBarRenderer(TestConsole console, RecordingTerminal cursor) =>
 		new(console, new RoleStyleMapper(new ReddyTheme()), cursor);
 

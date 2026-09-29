@@ -65,7 +65,7 @@ public sealed class SettingsScreenTests
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
-			var message = new Message(Host, new Header(), statusBar, Terminal, localization);
+			var message = new Message(Terminal, statusBar, localization);
 			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 
 			Screen = new SettingsScreen(Repository, menu, prompt, message, localization, Settings);

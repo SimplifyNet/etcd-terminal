@@ -1,22 +1,22 @@
 using EtcdTerminal.Localization;
-using EtcdTerminal.Presentation;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
 /// <summary>
-/// Presents an outcome as one complete screen: banner, message, the hint that a
-/// key continues, and the footer. Composing the whole screen here keeps a single
-/// writer on the footer and keeps the message from appending below a released
-/// frame, which would scroll that frame's own footer back onto the screen.
+/// Writes an outcome below whatever the screen just did instead of opening a
+/// frame of its own, so the values the user typed stay on screen next to the
+/// result. Rows the released frame painted underneath are erased first, the
+/// status bar is held out of the way while the message streams, and the footer
+/// is put back on its row afterwards; the frame itself is never redrawn here.
 /// </summary>
-public sealed class Message(IScreenHost _host, Header _header, StatusBar _statusBar, ITerminalInput _input, ILocalization _localization)
+public sealed class Message(ITerminal _terminal, StatusBar _statusBar, ILocalization _localization)
 {
-	public void ShowSuccess(string text) => Show(text, TextRole.Success);
+	public void ShowSuccess(string text) => Show(text, TerminalColor.Success);
 
-	public void ShowError(string text) => Show(text, TextRole.Danger);
+	public void ShowError(string text) => Show(text, TerminalColor.Danger);
 
-	public void ShowWarning(string text) => Show(text, TextRole.Warning);
+	public void ShowWarning(string text) => Show(text, TerminalColor.Warning);
 
 	public void ShowResult(bool ok, string success, string failure)
 	{
@@ -26,27 +26,27 @@ public sealed class Message(IScreenHost _host, Header _header, StatusBar _status
 			ShowError(failure);
 	}
 
-	private void Show(string text, TextRole role)
+	private void Show(string text, TerminalColor color)
 	{
-		List<PanelLine> lines = [.. text.Split('\n').Select(line => new PanelLine([new StyledText(line.TrimEnd('\r'), role)]))];
+		var lines = text.Split('\n');
 
-		lines.Add(new PanelLine([]));
-		lines.Add(new PanelLine([new StyledText(_localization.PressAnyKey, TextRole.Muted)]));
+		// The blank line above, the blank line below and the press-any-key label
+		// follow the message, so the room is asked for in one go rather than one
+		// row at a time: a message that does not fit then scrolls while it is
+		// still being written instead of running onto the footer.
+		_statusBar.EnsureRoomAbove(lines.Length + 3);
+		_statusBar.ClearBelow();
 
-		_host.Begin(new ScreenModel
-		{
-			Header = _header.BuildModel(),
-			Body = [new PanelModel(lines, PanelKind.Block)],
-			Footer = _statusBar.BuildModel()
-		});
+		_terminal.WriteLine();
 
-		try
-		{
-			_input.ReadKey();
-		}
-		finally
-		{
-			_host.End();
-		}
+		foreach (var line in lines)
+			_terminal.WriteIndentedLine(line.TrimEnd('\r'), color);
+
+		_terminal.WriteLine();
+		_terminal.WriteIndentedLine(_localization.PressAnyKey, TerminalColor.Muted);
+
+		_statusBar.RenderPreservingCursor();
+
+		_terminal.ReadKey();
 	}
 }
