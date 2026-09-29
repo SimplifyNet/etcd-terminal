@@ -25,16 +25,15 @@ public sealed class StatusBar(ITerminalCursor _cursor, IAppInfo _appInfo, IConne
 	/// <summary>
 	/// Collects session information and localized hints. This component owns the
 	/// literal text and the role of every field; it does not know the available
-	/// width and does not decide what to drop. A screen that is not a menu
-	/// passes its own hints, because navigation hints are wrong there.
+	/// width and does not decide what to drop.
 	/// </summary>
-	public StatusBarModel BuildModel(IReadOnlyList<StyledText>? hints = null)
+	public StatusBarModel BuildModel()
 	{
 		var active = _session.Active;
 
 		return new StatusBarModel
 		{
-			Hints = hints ?? BuildHints(),
+			Hints = BuildHints(),
 			Name = active is null ? null : new StyledText(ValuePreview.Sanitize(active.Name), TextRole.Secondary),
 			Connection = active is null ? null : new StyledText(ValuePreview.Sanitize(active.ConnectionString), TextRole.Muted),
 			Username = Username(active),

@@ -6,10 +6,9 @@ namespace EtcdTerminal.App.Components;
 
 /// <summary>
 /// Presents content as one complete screen: the banner, the body the caller
-/// composed, and the session footer. The hint that a key continues belongs to
-/// the footer, because the body is unbounded and a hint appended to it is the
-/// first thing a short viewport crops. Holding the frame while waiting leaves a
-/// single writer on every region of the screen.
+/// composed, the hint that a key continues, and the session footer. Holding the
+/// frame while waiting keeps the hint above the footer and leaves a single
+/// writer on every region of the screen.
 /// </summary>
 public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusBar _statusBar, ITerminalInput _input, ILocalization _localization)
 {
@@ -18,8 +17,8 @@ public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusB
 		_host.Begin(new ScreenModel
 		{
 			Header = _header.BuildModel(),
-			Body = body,
-			Footer = _statusBar.BuildModel(Hints())
+			Body = [.. body, Hint()],
+			Footer = _statusBar.BuildModel()
 		});
 
 		try
@@ -32,6 +31,10 @@ public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusB
 		}
 	}
 
-	private IReadOnlyList<StyledText> Hints() =>
-		[new StyledText(_localization.PressAnyKey, TextRole.Muted)];
+	private PanelModel Hint() =>
+		new(
+		[
+			new PanelLine([]),
+			new PanelLine([new StyledText(_localization.PressAnyKey, TextRole.Muted)])
+		]);
 }

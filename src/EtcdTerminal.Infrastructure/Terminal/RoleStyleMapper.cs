@@ -25,7 +25,9 @@ public sealed class RoleStyleMapper(ITheme _theme)
 
 	/// <summary>
 	/// Renders literal spans as one paragraph. Text is passed to Spectre as
-	/// plain content, never as markup.
+	/// plain content, never as markup. A line with no spans is a blank line and
+	/// still has to occupy one row: Spectre drops a paragraph that was never
+	/// given any text.
 	/// </summary>
 	public Paragraph Build(IReadOnlyList<StyledText> spans)
 	{
@@ -33,6 +35,9 @@ public sealed class RoleStyleMapper(ITheme _theme)
 
 		foreach (var span in spans)
 			paragraph.Append(span.Text, Resolve(span.Role));
+
+		if (spans.Count == 0)
+			paragraph.Append(string.Empty, Style.Plain);
 
 		return paragraph;
 	}
