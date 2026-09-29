@@ -218,7 +218,7 @@ public sealed class SessionFlowTests
 
 			var message = new Message(Host, header, StatusBar, Terminal, Localization);
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
-			var spinner = new Spinner(Terminal);
+			var spinner = new Spinner(Terminal, new FakeStatusIndicator());
 			var manage = new ManageConnectionsScreen(Terminal, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
 			var settings = new SettingsScreen(new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 

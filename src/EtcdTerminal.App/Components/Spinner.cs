@@ -1,58 +1,34 @@
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class Spinner(ITerminal _terminal)
+/// <summary>
+/// Runs a long operation while an indicator is showing. The animation belongs
+/// to Infrastructure; this component owns the policy that does not: Escape
+/// cancels the operation, a completed operation reports success, and a failed
+/// one reaches the caller unchanged. The console is handed back by the
+/// indicator itself, so nothing here redraws a line or moves a cursor.
+/// </summary>
+public sealed class Spinner(ITerminal _terminal, IStatusIndicator _status)
 {
 	public async Task<bool> RunAsync(string message, Func<CancellationToken, Task> action)
 	{
-		const string frames = "⣷⣯⣟⡿⢿⣻⣽⣾";
-		var frameIndex = 0;
-
 		using var cts = new CancellationTokenSource();
 
 		var actionTask = action(cts.Token);
 
-		var spinnerTask = Task.Run(async () =>
-		{
-			while (!actionTask.IsCompleted)
-			{
-				_terminal.SetCursorVisible(false);
-				_terminal.Write("\r" + _terminal.Indent + _terminal.Accent + frames[frameIndex] + _terminal.Reset + " " + message);
-				_terminal.Flush();
-				frameIndex = (frameIndex + 1) % frames.Length;
-
-				try
-				{
-					await Task.Delay(100, cts.Token);
-				}
-				catch (OperationCanceledException)
-				{
-					break;
-				}
-			}
-			_terminal.ClearLine();
-			_terminal.Flush();
-		}, cts.Token);
-
-		bool completed;
-
 		try
 		{
-			while (!actionTask.IsCompleted)
-			{
-				if (PollEscape())
-					cts.Cancel();
-
-				await Task.WhenAny(actionTask, Task.Delay(50));
-			}
+			await _status.RunAsync(new StyledText(message, TextRole.Accent), () => WaitWhileRunning(actionTask, cts));
 
 			await actionTask;
-			completed = true;
+
+			return true;
 		}
 		catch (OperationCanceledException)
 		{
-			completed = false;
+			return false;
 		}
 		finally
 		{
@@ -60,16 +36,23 @@ public sealed class Spinner(ITerminal _terminal)
 
 			try
 			{
-				await spinnerTask;
+				await actionTask;
 			}
 			catch
 			{
 			}
-
-			_terminal.SetCursorVisible(false);
 		}
+	}
 
-		return completed;
+	private async Task WaitWhileRunning(Task actionTask, CancellationTokenSource cts)
+	{
+		while (!actionTask.IsCompleted)
+		{
+			if (PollEscape())
+				cts.Cancel();
+
+			await Task.WhenAny(actionTask, Task.Delay(50));
+		}
 	}
 
 	private bool PollEscape()

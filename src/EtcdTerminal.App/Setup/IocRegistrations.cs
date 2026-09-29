@@ -63,6 +63,8 @@ public static class IocRegistrations
 		.Register<SpectreStatusBarRenderer>(LifetimeType.Singleton)
 		.Register<IPanelRenderer>(c => c.Resolve<SpectrePanelRenderer>(), LifetimeType.Singleton)
 		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
+		.Register<SpectreStatusIndicator>(c => new SpectreStatusIndicator(Spectre.Console.AnsiConsole.Console, c.Resolve<RoleStyleMapper>()), LifetimeType.Singleton)
+		.Register<IStatusIndicator>(c => c.Resolve<SpectreStatusIndicator>(), LifetimeType.Singleton)
 		.Register<IScreenHost>(c => new SpectreScreenHost(Spectre.Console.AnsiConsole.Console, c.Resolve<SpectrePanelRenderer>(), c.Resolve<SpectreStatusBarRenderer>()), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
