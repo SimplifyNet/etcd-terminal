@@ -43,6 +43,19 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void PanelRenderer_LeavesTheIndentationToTheModel()
+	{
+		var console = new TestConsole();
+
+		Render(console, new PanelModel(
+		[
+			new PanelLine([new StyledText("    message", TextRole.Muted)])
+		]));
+
+		Assert.That(console.Output.Split('\n')[0].TrimEnd(), Is.EqualTo("    message"), "the panel adds no column of its own on the left");
+	}
+
+	[Test]
 	public void PanelRenderer_WritesEveryLineOfTheModel()
 	{
 		var console = new TestConsole();

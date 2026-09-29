@@ -12,13 +12,13 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme) : IPanelRenderer
 {
-	// The panel's own gutter. Padding takes (left, top, right, bottom) and is
-	// composed per kind in Spacing; the selection marker inside the model
-	// already carries the menu indentation, so this is only what the panel adds
-	// on top of it. A borderless block that opens with blank rows would push
-	// the menu away from the banner, which the frame never did before the
-	// migration, so the default kind stays flush.
-	private const int HorizontalSpacing = 1;
+	// Content starts at column zero. The selection marker or the terminal
+	// indent inside the model is what moves a line in, exactly as the inline
+	// menu and the inline details wrote them before the migration, so the panel
+	// must not add a column of its own on the left. The right edge keeps one
+	// column of its own, the same column the inline truncation reserved, so
+	// text never runs into it.
+	private const int PaddingRight = 1;
 
 	// Spectre's grid leaves this much room between neighbouring columns.
 	private const int ColumnGap = 2;
@@ -43,8 +43,8 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	private static Padding Spacing(PanelModel panel) =>
 		panel.Kind switch
 		{
-			PanelKind.Title => new Padding(HorizontalSpacing, TitleSpacingAbove, HorizontalSpacing, TitleSpacingBelow),
-			_ => new Padding(HorizontalSpacing, 0, HorizontalSpacing, 0)
+			PanelKind.Title => new Padding(0, TitleSpacingAbove, PaddingRight, TitleSpacingBelow),
+			_ => new Padding(0, 0, PaddingRight, 0)
 		};
 
 	/// <summary>
@@ -75,7 +75,7 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	private IRenderable Table(PanelModel panel, int width)
 	{
 		var columns = Columns(panel);
-		var contentWidth = Math.Max(1, width - 2 * HorizontalSpacing);
+		var contentWidth = Math.Max(1, width - PaddingRight);
 		var contentColumns = Math.Max(1, columns - MarkerColumns);
 		var cellWidth = Math.Max(1, (contentWidth - ColumnGap * columns) / contentColumns);
 
