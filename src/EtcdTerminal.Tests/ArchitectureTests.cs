@@ -103,7 +103,9 @@ public sealed class ArchitectureTests
 	[Test]
 	public void DomainDoesNotReferenceInfrastructure()
 	{
-		var domainAssembly = typeof(Terminal.ITerminal).Assembly;
+		var domainAssembly = typeof(IEtcdClient).Assembly;
+
+		Assert.That(domainAssembly.GetName().Name, Is.EqualTo("EtcdTerminal"));
 
 		var infrastructureRefs = domainAssembly.GetReferencedAssemblies()
 			.Where(a => a.Name == "EtcdTerminal.Infrastructure")
@@ -116,7 +118,9 @@ public sealed class ArchitectureTests
 	[Test]
 	public void DomainDoesNotReferencePresentation()
 	{
-		var domainAssembly = typeof(Terminal.ITerminal).Assembly;
+		var domainAssembly = typeof(IEtcdClient).Assembly;
+
+		Assert.That(domainAssembly.GetName().Name, Is.EqualTo("EtcdTerminal"));
 
 		var presentationRefs = domainAssembly.GetReferencedAssemblies()
 			.Where(a => a.Name == "EtcdTerminal.Presentation")
@@ -124,6 +128,17 @@ public sealed class ArchitectureTests
 			.ToList();
 
 		Assert.That(presentationRefs, Is.Empty);
+	}
+
+	[Test]
+	public void DomainSourcesContainNoUiContractNamespaces()
+	{
+		var hits = SourceFiles("EtcdTerminal")
+			.Where(f => Regex.IsMatch(File.ReadAllText(f), @"^namespace EtcdTerminal\.(Terminal|Theming|Localization)\b", RegexOptions.Multiline))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
 	}
 
 	[Test]
