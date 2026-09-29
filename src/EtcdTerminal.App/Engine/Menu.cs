@@ -80,7 +80,9 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 		List<PanelModel> body = [.. notices ?? []];
 
 		if (!string.IsNullOrEmpty(title))
-			body.Add(new PanelModel([new PanelLine([new StyledText(title, TextRole.Primary)])]));
+			body.Add(new PanelModel(
+				[new PanelLine([new StyledText(_terminal.Indent + title, TextRole.Primary)])],
+				PanelKind.Title));
 
 		List<PanelLine> rows = [];
 

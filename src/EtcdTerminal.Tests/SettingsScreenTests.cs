@@ -4,6 +4,7 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
@@ -28,7 +29,8 @@ public sealed class SettingsScreenTests
 		var actions = frame.Body[1].Lines.Select(line => line.Text).ToList();
 
 		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo("Settings"));
+		Assert.That(frame.Body[0].Kind, Is.EqualTo(PanelKind.Title));
+		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo(harness.Terminal.Indent + "Settings"));
 		Assert.That(actions, Has.Count.EqualTo(2));
 		Assert.That(actions[0], Does.Contain("Keys per page (30)"));
 		Assert.That(actions[1], Does.Contain("Trim input values (On)"));

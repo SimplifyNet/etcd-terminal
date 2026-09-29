@@ -26,19 +26,24 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	// it so that keys and values keep their own columns.
 	private const int MarkerColumns = 1;
 
-	// A section title gets one blank line above it. Borders are gone, so the
-	// blank line is what keeps one section from running into the next.
+	// A section title is separated from what surrounds it by a blank line on
+	// each side. Borders are gone, so those lines are what keep one section
+	// from running into the next.
 	private const int TitleSpacingAbove = 1;
+	private const int TitleSpacingBelow = 1;
 
 	public void Write(PanelModel panel) =>
 		_console.Write(Build(panel, _console.Profile.Width));
 
 	public Panel Build(PanelModel panel, int width) => new Panel(Content(panel, width))
 		.NoBorder()
-		.Padding(HorizontalSpacing, SpacingAbove(panel), HorizontalSpacing, 0);
+		.Padding(HorizontalSpacing, SpacingAbove(panel), HorizontalSpacing, SpacingBelow(panel));
 
 	private static int SpacingAbove(PanelModel panel) =>
 		panel.Kind is PanelKind.Title ? TitleSpacingAbove : 0;
+
+	private static int SpacingBelow(PanelModel panel) =>
+		panel.Kind is PanelKind.Title ? TitleSpacingBelow : 0;
 
 	/// <summary>
 	/// Renders a title banner. The model carries the text; the widget, its

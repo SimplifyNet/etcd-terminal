@@ -4,6 +4,7 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
@@ -26,7 +27,8 @@ public sealed class ManageConnectionsScreenTests
 		var frame = harness.Host.Frames.Single();
 
 		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo("Manage Connections"));
+		Assert.That(frame.Body[0].Kind, Is.EqualTo(PanelKind.Title));
+		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo(harness.Terminal.Indent + "Manage Connections"));
 
 		var actions = frame.Body[1].Lines.Select(line => line.Text).ToList();
 
