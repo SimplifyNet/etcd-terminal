@@ -10,7 +10,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// spacing, column widths and line composition are decided here, never in the
 /// component that builds the model.
 /// </summary>
-public sealed class SpectrePanelRenderer(RoleStyleMapper _styles, ITheme _theme) : IPanelRenderer
+public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme) : IPanelRenderer
 {
 	// Padding takes (horizontal, vertical). The selection marker inside the
 	// model already carries the indentation, so the horizontal value is only a
@@ -34,7 +34,7 @@ public sealed class SpectrePanelRenderer(RoleStyleMapper _styles, ITheme _theme)
 	private const int TitleSpacingAbove = 1;
 
 	public void Write(PanelModel panel) =>
-		AnsiConsole.Write(Build(panel, AnsiConsole.Profile.Width));
+		_console.Write(Build(panel, _console.Profile.Width));
 
 	public Panel Build(PanelModel panel, int width) => new Panel(Content(panel, width))
 		.NoBorder()

@@ -15,7 +15,7 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 
 		try
 		{
-			_statusBar.EnsureCursorAboveBar();
+			_statusBar.EnsureRoomAbove();
 			_terminal.Write(_terminal.Indent + prompt + " ");
 			_terminal.WriteLine();
 			_terminal.WriteLine();

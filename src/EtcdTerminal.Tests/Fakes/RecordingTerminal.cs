@@ -27,22 +27,6 @@ public sealed class RecordingTerminal : ITerminal
 
 	public int CursorTop { get; set; }
 
-	public string PanelBackground => "<panel>";
-
-	public string PanelDarkerBackground => "<darkpanel>";
-
-	public string Primary => "<primary>";
-
-	public string Secondary => "<secondary>";
-
-	public string Success => "<success>";
-
-	public string Danger => "<danger>";
-
-	public string Warning => "<warning>";
-
-	public string Muted => "<muted>";
-
 	public string Subtle => "<subtle>";
 
 	public string Accent => "<accent>";
@@ -96,44 +80,9 @@ public sealed class RecordingTerminal : ITerminal
 		CursorTop = top;
 	}
 
-	public void SetBackground(string ansiColor)
-	{
-	}
-
 	public void ResetBackground()
 	{
 	}
-
-	public void ResetColor()
-	{
-	}
-
-	public void SetDarkBackground()
-	{
-	}
-
-	public string FillRow(string bg) => bg + new string(' ', WindowWidth) + Reset;
-
-	public void WriteFillRow(string bg) => WriteLine(FillRow(bg));
-
-	public void WriteRow(string bg, string content) =>
-		WriteLine(bg + content + new string(' ', Math.Max(0, WindowWidth - GetVisibleLength(content))) + Reset);
-
-	public void WriteBorderedFillRow(string bg) =>
-		WriteLine(Accent + "|" + Reset + bg + new string(' ', WindowWidth - 1) + Reset);
-
-	public void WriteBorderedRow(string bg, string content) =>
-		WriteLine(Accent + "|" + Reset + bg + content + new string(' ', Math.Max(0, WindowWidth - 1 - GetVisibleLength(content))) + Reset);
-
-	public void PadCurrentRow(string bg)
-	{
-		var remaining = WindowWidth - CursorLeft;
-
-		if (remaining > 0)
-			Write(bg + new string(' ', remaining) + Reset);
-	}
-
-	public int GetVisibleLength(string s) => DisplayCells.Width(StripMarkers(s));
 
 	public void Flush()
 	{
@@ -156,10 +105,6 @@ public sealed class RecordingTerminal : ITerminal
 	public void SetCursorVisible(bool visible)
 	{
 	}
-
-	public void ClearLine() => Output.Append("[clearline]");
-
-	public void ClearToEndOfScreen() => Output.Append("[cleartoeos]");
 
 	public void OnInterrupt(Action handler)
 	{

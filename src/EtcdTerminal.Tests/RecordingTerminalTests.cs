@@ -8,15 +8,6 @@ namespace EtcdTerminal.Tests;
 public sealed class RecordingTerminalTests
 {
 	[Test]
-	public void Markers_CostNoCells()
-	{
-		var terminal = new RecordingTerminal();
-
-		Assert.That(terminal.GetVisibleLength("<accent>hi</>"), Is.EqualTo(2));
-		Assert.That(terminal.GetVisibleLength("<panel><muted>  </muted></>"), Is.EqualTo(2));
-	}
-
-	[Test]
 	public void Write_AdvancesCursorByCells()
 	{
 		var terminal = new RecordingTerminal();

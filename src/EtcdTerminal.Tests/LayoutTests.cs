@@ -36,21 +36,6 @@ public sealed class LayoutTests
 	}
 
 	[Test]
-	public void ShortTerminal_NoNegativePositions()
-	{
-		var harness = new Harness(80, 2);
-
-		harness.StatusBar.Render();
-		harness.StatusBar.EnsureCursorAboveBar();
-
-		foreach (var (left, top) in harness.Terminal.CursorSets)
-		{
-			Assert.That(left, Is.GreaterThanOrEqualTo(0));
-			Assert.That(top, Is.GreaterThanOrEqualTo(0));
-		}
-	}
-
-	[Test]
 	public void Shell_ComposesBannerAndFooterAndReleasesTheHost()
 	{
 		var harness = new Harness(80, 24);
@@ -80,7 +65,7 @@ public sealed class LayoutTests
 
 			var localization = new EnglishLocalization();
 
-			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
+			StatusBar = new StatusBar(Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
 			Shell = new ScreenShell(Host, new Header(), StatusBar);
 		}
 	}

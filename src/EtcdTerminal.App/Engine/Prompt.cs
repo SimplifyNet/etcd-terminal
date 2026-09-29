@@ -15,7 +15,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 
 		try
 		{
-			_statusBar.EnsureCursorAboveBar();
+			_statusBar.EnsureRoomAbove();
 			_output.Write(_style.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt));
@@ -43,7 +43,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 
 		try
 		{
-			_statusBar.EnsureCursorAboveBar();
+			_statusBar.EnsureRoomAbove();
 			_output.Write(_style.Indent);
 
 			var input = Read(() => _textInput.ReadLine(prompt, defaultValue));
@@ -65,7 +65,7 @@ public sealed class Prompt(ITerminalOutput _output, ITerminalCursor _cursor, ITe
 
 		try
 		{
-			_statusBar.EnsureCursorAboveBar();
+			_statusBar.EnsureRoomAbove();
 			_output.Write(_style.Indent);
 
 			var input = Read(() => _textInput.ReadSecret(prompt));

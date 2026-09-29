@@ -17,22 +17,6 @@ public sealed class FakeTerminal : ITerminal
 
 	public int CursorTop { get; set; }
 
-	public string PanelBackground => "<panel>";
-
-	public string PanelDarkerBackground => "<darkpanel>";
-
-	public string Primary => "<primary>";
-
-	public string Secondary => "<secondary>";
-
-	public string Success => "<success>";
-
-	public string Danger => "<danger>";
-
-	public string Warning => "<warning>";
-
-	public string Muted => "<muted>";
-
 	public string Subtle => "<subtle>";
 
 	public string Accent => "<accent>";
@@ -68,37 +52,9 @@ public sealed class FakeTerminal : ITerminal
 		CursorTop = top;
 	}
 
-	public void SetBackground(string ansiColor)
-	{
-	}
-
 	public void ResetBackground()
 	{
 	}
-
-	public void ResetColor()
-	{
-	}
-
-	public void SetDarkBackground()
-	{
-	}
-
-	public string FillRow(string bg) => bg + new string(' ', WindowWidth) + Reset;
-
-	public void WriteFillRow(string bg) => Output.AppendLine(FillRow(bg));
-
-	public void WriteRow(string bg, string content) => Output.AppendLine(bg + content + Reset);
-
-	public void WriteBorderedFillRow(string bg) => Output.AppendLine(bg + Reset);
-
-	public void WriteBorderedRow(string bg, string content) => Output.AppendLine(bg + content + Reset);
-
-	public void PadCurrentRow(string bg)
-	{
-	}
-
-	public int GetVisibleLength(string s) => s.Length;
 
 	public void Initialize()
 	{
@@ -121,10 +77,6 @@ public sealed class FakeTerminal : ITerminal
 	public void SetCursorVisible(bool visible)
 	{
 	}
-
-	public void ClearLine() => Output.Append("[clearline]");
-
-	public void ClearToEndOfScreen() => Output.Append("[cleartoeos]");
 
 	public void OnInterrupt(Action handler)
 	{

@@ -58,14 +58,38 @@ public static class IocRegistrations
 		.Register<ITerminalWidgets>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
+		.Register<SpectreConsoleSource>(LifetimeType.Singleton)
+		.Register<EscapableConsole>(c => new(c.Resolve<SpectreConsoleSource>().Console), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)
-		.Register<SpectrePanelRenderer>(LifetimeType.Singleton)
-		.Register<SpectreStatusBarRenderer>(LifetimeType.Singleton)
+
+		.Register<SpectrePanelRenderer>(c =>
+			new(c.Resolve<SpectreConsoleSource>().Console,
+				c.Resolve<RoleStyleMapper>(),
+				c.Resolve<ITheme>()),
+				LifetimeType.Singleton)
+
+		.Register<SpectreStatusBarRenderer>(c =>
+			new(c.Resolve<SpectreConsoleSource>().Console,
+				c.Resolve<RoleStyleMapper>(),
+				c.Resolve<ITerminalCursor>()),
+				LifetimeType.Singleton)
+
 		.Register<IPanelRenderer>(c => c.Resolve<SpectrePanelRenderer>(), LifetimeType.Singleton)
 		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
-		.Register<SpectreStatusIndicator>(c => new SpectreStatusIndicator(Spectre.Console.AnsiConsole.Console, c.Resolve<RoleStyleMapper>()), LifetimeType.Singleton)
+
+		.Register<SpectreStatusIndicator>(c =>
+			new(c.Resolve<SpectreConsoleSource>().Console,
+				c.Resolve<RoleStyleMapper>()),
+				LifetimeType.Singleton)
+
 		.Register<IStatusIndicator>(c => c.Resolve<SpectreStatusIndicator>(), LifetimeType.Singleton)
-		.Register<IScreenHost>(c => new SpectreScreenHost(Spectre.Console.AnsiConsole.Console, c.Resolve<SpectrePanelRenderer>(), c.Resolve<SpectreStatusBarRenderer>()), LifetimeType.Singleton);
+
+		.Register<IScreenHost>(c =>
+			new SpectreScreenHost(
+				c.Resolve<SpectreConsoleSource>().Console,
+				c.Resolve<SpectrePanelRenderer>(),
+				c.Resolve<SpectreStatusBarRenderer>()),
+				LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
 		.Register<ITheme, ReddyTheme>(LifetimeType.Singleton);
@@ -74,12 +98,14 @@ public static class IocRegistrations
 		.Register<ILocalization, EnglishLocalization>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterConfiguration(this IDIRegistrator registrator) => registrator
-		.Register<JsonConfigFile>(c => new JsonConfigFile(c.Resolve<IAppEnvironment>()), LifetimeType.Singleton)
-		.Register<ProtectedConfigRepository>(c =>
+		.Register<JsonConfigFile>(c => new(c.Resolve<IAppEnvironment>()), LifetimeType.Singleton)
+
+		.Register(c =>
 			new ProtectedConfigRepository(
 				new JsonBasedConnectionConfigRepository(c.Resolve<JsonConfigFile>()),
 				c.Resolve<IConfigProtector>()),
 			LifetimeType.Singleton)
+
 		.Register<IConnectionConfigRepository>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
 		.Register<IDecryptFailureSource>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
 

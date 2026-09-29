@@ -43,58 +43,6 @@ public static class DisplayCells
 		_ => 1
 	};
 
-	/// <summary>
-	/// Cuts styled text to <paramref name="maxWidth"/> cells. ANSI escape
-	/// sequences are preserved and cost no cells; anything else counts via
-	/// <see cref="Width(Rune)"/>. No trailing marker is appended.
-	/// </summary>
-	public static string TruncateStyled(string text, int maxWidth)
-	{
-		if (maxWidth <= 0)
-			return string.Empty;
-
-		var span = text.AsSpan();
-		var width = 0;
-		var length = 0;
-
-		while (!span.IsEmpty)
-		{
-			if (span[0] == '\x1b')
-			{
-				var end = span.IndexOf('m');
-
-				if (end < 0)
-					break;
-
-				length += end + 1;
-				span = span[(end + 1)..];
-				continue;
-			}
-
-			if (Rune.DecodeFromUtf16(span, out var rune, out var consumed) is not OperationStatus.Done)
-			{
-				if (width + 1 > maxWidth)
-					break;
-
-				width++;
-				length++;
-				span = span[1..];
-				continue;
-			}
-
-			var runeWidth = Width(rune);
-
-			if (width + runeWidth > maxWidth)
-				break;
-
-			width += runeWidth;
-			length += consumed;
-			span = span[consumed..];
-		}
-
-		return text[..length];
-	}
-
 	private static bool IsCombining(int value) =>
 		Rune.GetUnicodeCategory((Rune)value) is UnicodeCategory.NonSpacingMark or UnicodeCategory.EnclosingMark;
 

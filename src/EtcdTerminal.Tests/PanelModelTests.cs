@@ -218,7 +218,7 @@ public sealed class PanelModelTests
 		new(new FakeTerminal(), new EnglishLocalization());
 
 	private static StatusBar StatusBar(FakeStatusBarRenderer footer, ConnectionSession session) =>
-		new(new FakeTerminal(), new FakeTerminal(), new StubAppInfo(), session, new EnglishLocalization(), footer);
+		new(new FakeTerminal(), new StubAppInfo(), session, new EnglishLocalization(), footer);
 
 	private sealed class StubAppInfo : IAppInfo
 	{

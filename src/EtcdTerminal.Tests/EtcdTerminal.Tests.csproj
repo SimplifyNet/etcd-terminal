@@ -7,6 +7,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\EtcdTerminal.App\EtcdTerminal.App.csproj" />
+		<ProjectReference Include="..\EtcdTerminal.Presentation\EtcdTerminal.Presentation.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.*" />

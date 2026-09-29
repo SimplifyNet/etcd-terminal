@@ -3,11 +3,9 @@ using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;
 
-public sealed class SpectreTextInput : ITextInput
+public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 {
 	private static readonly Style _promptStyle = new(decoration: Decoration.Bold);
-
-	private readonly IAnsiConsole _console = new EscapableConsole(AnsiConsole.Console);
 
 	public string? ReadLine(string prompt, string? defaultValue = null)
 	{

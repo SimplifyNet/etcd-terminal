@@ -212,7 +212,7 @@ public sealed class SessionFlowTests
 			Func<string?, CancellationToken, Task<UserCapabilities>> discover,
 			IEnumerable<IMainMenuEntry> entries)
 		{
-			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, Localization, Footer);
+			StatusBar = new StatusBar(Terminal, new StubAppInfo(), Session, Localization, Footer);
 			var header = new Header();
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
 

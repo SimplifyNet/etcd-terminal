@@ -22,23 +22,5 @@ public interface ITerminalOutput
 
 	void Clear();
 
-	void ClearLine();
-
-	void ClearToEndOfScreen();
-
-	string FillRow(string bg);
-
-	void WriteFillRow(string bg);
-
-	void WriteRow(string bg, string content);
-
-	void WriteBorderedFillRow(string bg);
-
-	void WriteBorderedRow(string bg, string content);
-
-	void PadCurrentRow(string bg);
-
-	int GetVisibleLength(string s);
-
 	void Flush();
 }

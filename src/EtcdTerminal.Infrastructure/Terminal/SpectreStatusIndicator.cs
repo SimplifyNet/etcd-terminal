@@ -6,9 +6,10 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// <summary>
 /// Runs an operation behind Spectre's Status, which already owns the animated
 /// frames, the cursor and the region it used: it clears that region when the
-/// action ends, which is what the previous line redraw and ClearLine did by
-/// hand. The message is escaped because a status is markup to Spectre and must
-/// reach the screen as the literal text the component supplied.
+/// action ends, which is what the previous hand-rolled line redraw and line
+/// clearing used to do. The message is escaped because a status is markup to
+/// Spectre and must reach the screen as the literal text the component
+/// supplied.
 /// </summary>
 public sealed class SpectreStatusIndicator(IAnsiConsole _console, RoleStyleMapper _styles) : IStatusIndicator
 {

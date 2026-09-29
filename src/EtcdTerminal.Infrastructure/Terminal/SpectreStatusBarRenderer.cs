@@ -11,7 +11,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// is shortened in a fixed priority order so that a field is dropped before the
 /// line is allowed to overflow.
 /// </summary>
-public sealed class SpectreStatusBarRenderer(RoleStyleMapper _styles) : IStatusBarRenderer
+public sealed class SpectreStatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITerminalCursor _cursor) : IStatusBarRenderer
 {
 	private const int Indent = 2;
 
@@ -21,6 +21,11 @@ public sealed class SpectreStatusBarRenderer(RoleStyleMapper _styles) : IStatusB
 	/// screen host allocates, so a one-row footer can never compute a negative
 	/// height and break the whole frame.
 	private const int PanelHeight = 3;
+
+	/// The footer occupies the last row, but the reserve above it stays at the
+	/// three rows the original bordered footer asked for: tightening it would
+	/// move content that is already on screen.
+	private const int ReservedRows = 3;
 	private const int EndpointTruncationWidth = 20;
 	private const int NameTruncationWidth = 24;
 	private const int NameOverheadWidth = 4;
@@ -33,10 +38,45 @@ public sealed class SpectreStatusBarRenderer(RoleStyleMapper _styles) : IStatusB
 	/// </summary>
 	public void Write(StatusBarModel model)
 	{
-		var ansi = AnsiConsole.Profile.Capabilities.Ansi;
+		var ansi = _console.Profile.Capabilities.Ansi;
 
-		SpectreCursorPosition.MoveTo(AnsiConsole.Cursor, ansi, 0, AnsiConsole.Profile.Height - 1);
-		AnsiConsole.Write(new BottomLine(Build(Fit(model, AnsiConsole.Profile.Width))));
+		SpectreCursorPosition.MoveTo(_console.Cursor, ansi, 0, _console.Profile.Height - 1);
+		_console.Write(new BottomLine(Build(Fit(model, _console.Profile.Width))));
+	}
+
+	/// <summary>
+	/// Content that has run into the footer's reserve is pushed down until it
+	/// clears, which scrolls the screen, and the cursor is parked on the first
+	/// free row. A terminal too short for the reserve is left alone rather than
+	/// being asked for a negative row.
+	/// </summary>
+	/// <remarks>
+	/// Spectre's cursor is write only: <c>IAnsiConsoleCursor</c> offers Show,
+	/// SetPosition and Move but no way to read where the cursor currently is,
+	/// so the row comes from the terminal cursor contract instead. Both point
+	/// at the same console, and the gap is the reason the position is not read
+	/// from <c>_console</c> here.
+	/// </remarks>
+	public void EnsureRoomAbove(int rows)
+	{
+		var height = _console.Profile.Height;
+
+		if (height < ReservedRows + rows)
+			return;
+
+		var lastContentRow = height - ReservedRows - rows;
+		var cursorRow = _cursor.CursorTop;
+		var overflow = cursorRow - lastContentRow;
+
+		if (overflow <= 0)
+			return;
+
+		var newLines = height - 1 - cursorRow + overflow;
+
+		for (var i = 0; i < newLines; i++)
+			_console.WriteLine();
+
+		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, lastContentRow);
 	}
 
 	public Panel Build(StatusBarModel model)

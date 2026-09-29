@@ -24,7 +24,7 @@ public sealed class StatusBarPersistenceTests
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 
-		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, terminal, new StubAppInfo(), session, new EnglishLocalization(), footer));
+		var prompt = new Prompt(terminal, terminal, terminal, new StubTextInput("value"), new StatusBar(terminal, new StubAppInfo(), session, new EnglishLocalization(), footer));
 
 		var result = prompt.Ask("Enter:");
 
@@ -40,7 +40,7 @@ public sealed class StatusBarPersistenceTests
 		var session = new ConnectionSession();
 		var localization = new EnglishLocalization();
 		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 
 		session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 		terminal.Press(ConsoleKey.Enter);

@@ -10,7 +10,11 @@ public sealed class FakeStatusBarRenderer : IStatusBarRenderer
 {
 	public List<StatusBarModel> Models { get; } = [];
 
+	public List<int> RoomRequests { get; } = [];
+
 	public void Write(StatusBarModel model) => Models.Add(model);
+
+	public void EnsureRoomAbove(int rows) => RoomRequests.Add(rows);
 
 	public StatusBarModel Last => Models[^1];
 }

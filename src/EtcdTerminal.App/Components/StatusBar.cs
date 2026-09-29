@@ -7,28 +7,9 @@ using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminalOutput _output, ITerminalCursor _cursor, IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization, IStatusBarRenderer _statusBar)
+public sealed class StatusBar(ITerminalCursor _cursor, IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization, IStatusBarRenderer _statusBar)
 {
-	public const int ReservedRows = 3;
-
-	public void EnsureCursorAboveBar(int rowsNeeded = 1)
-	{
-		if (_output.WindowHeight < ReservedRows + rowsNeeded)
-			return;
-
-		var lastContentRow = _output.WindowHeight - ReservedRows - rowsNeeded;
-		var overflow = _cursor.CursorTop - lastContentRow;
-
-		if (overflow <= 0)
-			return;
-
-		var newLines = _output.WindowHeight - 1 - _cursor.CursorTop + overflow;
-
-		for (var i = 0; i < newLines; i++)
-			_output.WriteLine();
-
-		_cursor.SetCursorPosition(0, lastContentRow);
-	}
+	public void EnsureRoomAbove(int rows = 1) => _statusBar.EnsureRoomAbove(rows);
 
 	public void RenderPreservingCursor()
 	{

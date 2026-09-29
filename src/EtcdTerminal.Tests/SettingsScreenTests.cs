@@ -61,7 +61,7 @@ public sealed class SettingsScreenTests
 		public Harness()
 		{
 			var localization = new EnglishLocalization();
-			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
+			var statusBar = new StatusBar(Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
 			var message = new Message(Host, new Header(), statusBar, Terminal, localization);
 			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);

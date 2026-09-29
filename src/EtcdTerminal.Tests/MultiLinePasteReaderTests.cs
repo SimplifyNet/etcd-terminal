@@ -44,7 +44,7 @@ public sealed class MultiLinePasteReaderTests
 
 	private static MultiLinePasteReader CreateReader(FakeTerminal terminal)
 	{
-		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
 
 		return new MultiLinePasteReader(terminal, statusBar, new EnglishLocalization());
 	}

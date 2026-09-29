@@ -3,6 +3,7 @@ using EtcdTerminal.App.Theming;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Theming;
 using EtcdTerminal.Infrastructure.Terminal;
+using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 using Spectre.Console;
 using Spectre.Console.Testing;
@@ -231,9 +232,53 @@ public sealed class SpectreRenderingTests
 
 	private const int Width = 80;
 
-	private static SpectrePanelRenderer PanelRenderer() => new(new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
+	[Test]
+	public void StatusBarRenderer_ShortTerminal_LeavesTheScreenAndCursorAlone()
+	{
+		var console = new TestConsole();
+		var cursor = new RecordingTerminal();
 
-	private static SpectreStatusBarRenderer StatusBarRenderer() => new(new RoleStyleMapper(new ReddyTheme()));
+		console.Profile.Height = 2;
+
+		StatusBarRenderer(console, cursor).EnsureRoomAbove(1);
+
+		Assert.That(console.Output, Is.Empty);
+		Assert.That(cursor.CursorSets, Is.Empty);
+	}
+
+	[Test]
+	public void StatusBarRenderer_CursorClearOfTheFooter_DoesNotScroll()
+	{
+		var console = new TestConsole();
+		var cursor = new RecordingTerminal { CursorTop = 5 };
+
+		console.Profile.Height = 24;
+
+		StatusBarRenderer(console, cursor).EnsureRoomAbove(1);
+
+		Assert.That(console.Output, Is.Empty);
+		Assert.That(cursor.CursorSets, Is.Empty);
+	}
+
+	[Test]
+	public void StatusBarRenderer_CursorInsideTheFooterReserve_ScrollsTheScreen()
+	{
+		var console = new TestConsole();
+		var cursor = new RecordingTerminal { CursorTop = 23 };
+
+		console.Profile.Height = 24;
+
+		StatusBarRenderer(console, cursor).EnsureRoomAbove(1);
+
+		Assert.That(console.Output, Is.Not.Empty);
+	}
+
+	private static SpectreStatusBarRenderer StatusBarRenderer(TestConsole console, RecordingTerminal cursor) =>
+		new(console, new RoleStyleMapper(new ReddyTheme()), cursor);
+
+	private static SpectrePanelRenderer PanelRenderer() => new(new TestConsole(), new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
+
+	private static SpectreStatusBarRenderer StatusBarRenderer() => new(new TestConsole(), new RoleStyleMapper(new ReddyTheme()), new RecordingTerminal());
 
 	private static StatusBarModel Fit(StatusBarModel model, int width) => SpectreStatusBarRenderer.Fit(model, width);
 

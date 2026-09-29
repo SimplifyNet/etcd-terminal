@@ -42,20 +42,4 @@ public sealed class DisplayCellsTests
 	{
 		Assert.That(DisplayCells.Width("a\ud800b"), Is.EqualTo(3));
 	}
-
-	[Test]
-	public void TruncateStyled_PreservesAnsiAndBoundsCells()
-	{
-		var styled = "\x1b[38;2;1;2;3mabcdef";
-
-		Assert.That(DisplayCells.TruncateStyled(styled, 3), Is.EqualTo("\x1b[38;2;1;2;3mabc"));
-		Assert.That(DisplayCells.TruncateStyled(styled, 0), Is.EqualTo(string.Empty));
-		Assert.That(DisplayCells.TruncateStyled("abcdef", 10), Is.EqualTo("abcdef"));
-	}
-
-	[Test]
-	public void TruncateStyled_DropsUnterminatedEscape()
-	{
-		Assert.That(DisplayCells.TruncateStyled("ab\x1b[38", 10), Is.EqualTo("ab"));
-	}
 }

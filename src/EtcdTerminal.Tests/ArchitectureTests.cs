@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;
@@ -113,16 +114,88 @@ public sealed class ArchitectureTests
 	}
 
 	[Test]
-	public void ScreensContainNoEscapeLiterals()
+	public void DomainDoesNotReferencePresentation()
 	{
-		var screensDir = Path.Combine(FindRepoRoot(), "src", "EtcdTerminal.App", "Screens");
+		var domainAssembly = typeof(Terminal.ITerminal).Assembly;
 
-		var hits = Directory.GetFiles(screensDir, "*.cs", SearchOption.AllDirectories)
+		var presentationRefs = domainAssembly.GetReferencedAssemblies()
+			.Where(a => a.Name == "EtcdTerminal.Presentation")
+			.Select(a => a.FullName)
+			.ToList();
+
+		Assert.That(presentationRefs, Is.Empty);
+	}
+
+	[Test]
+	public void PresentationReferencesNoDomainInfrastructureOrSpectre()
+	{
+		var presentationAssembly = typeof(Presentation.PanelModel).Assembly;
+
+		var forbidden = new[] { "EtcdTerminal", "EtcdTerminal.Infrastructure", "EtcdTerminal.App" };
+
+		var violations = presentationAssembly.GetReferencedAssemblies()
+			.Where(a => forbidden.Contains(a.Name ?? string.Empty) || (a.Name?.StartsWith("Spectre", StringComparison.Ordinal) is true))
+			.Select(a => a.FullName)
+			.ToList();
+
+		Assert.That(violations, Is.Empty);
+	}
+
+	[Test]
+	public void AppSourcesContainNoSpectreConsoleReferences()
+	{
+		var hits = SourceFiles("EtcdTerminal.App")
+			.Where(f => File.ReadAllText(f).Contains("Spectre.Console"))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void AppSourcesContainNoEscapeLiterals()
+	{
+		var hits = SourceFiles("EtcdTerminal.App")
 			.Where(f => File.ReadAllText(f).Contains("\\x1b"))
 			.Select(Path.GetFileName)
 			.ToList();
 
 		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void AppSourcesContainNoSystemConsoleAccess()
+	{
+		var hits = SourceFiles("EtcdTerminal.App")
+			.Where(f => Regex.IsMatch(File.ReadAllText(f), @"\bConsole\."))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void PresentationSourcesContainNoEscapeSequencesOrConsoleAccess()
+	{
+		var hits = SourceFiles("EtcdTerminal.Presentation")
+			.Where(f =>
+			{
+				var text = File.ReadAllText(f);
+
+				return text.Contains("\\x1b") || Regex.IsMatch(text, @"\bConsole\.");
+			})
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	private static IEnumerable<string> SourceFiles(string project)
+	{
+		var dir = Path.Combine(FindRepoRoot(), "src", project);
+
+		return Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories)
+			.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"));
 	}
 
 	private static string FindRepoRoot()
