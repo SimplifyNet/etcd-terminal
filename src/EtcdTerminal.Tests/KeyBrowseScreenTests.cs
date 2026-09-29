@@ -127,10 +127,10 @@ public sealed class KeyBrowseScreenTests
 
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
-			var message = new Message(Host, new Header(Terminal), statusBar, Terminal, localization);
+			var message = new Message(Host, new Header(), statusBar, Terminal, localization);
 			var browseLayout = new KeyBrowseLayout(Terminal, localization);
 
-			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(Terminal), statusBar, session);
+			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(), statusBar, session);
 
 			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings);
 		}

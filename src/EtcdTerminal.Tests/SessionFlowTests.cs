@@ -213,7 +213,7 @@ public sealed class SessionFlowTests
 			IEnumerable<IMainMenuEntry> entries)
 		{
 			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, Localization, Footer);
-			var header = new Header(Terminal);
+			var header = new Header();
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
 
 			var message = new Message(Host, header, StatusBar, Terminal, Localization);

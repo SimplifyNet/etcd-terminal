@@ -23,7 +23,7 @@ public sealed class ScreenFrameTests
 		var console = new TestConsole();
 		var terminal = new FakeTerminal();
 		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
-		var header = new Header(terminal);
+		var header = new Header();
 
 		var menu = new Menu(terminal, terminal, Host(console, theme), header, statusBar);
 
@@ -54,7 +54,7 @@ public sealed class ScreenFrameTests
 		var terminal = new FakeTerminal();
 		var host = new FakeScreenHost();
 		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
-		var menu = new Menu(terminal, terminal, host, new Header(terminal), statusBar);
+		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
 
 		terminal.Press(ConsoleKey.DownArrow);
 		terminal.Press(ConsoleKey.Enter);
@@ -82,7 +82,7 @@ public sealed class ScreenFrameTests
 		var host = new FakeScreenHost();
 		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
 
-		var header = new Header(terminal);
+		var header = new Header();
 
 		var menu = new Menu(terminal, terminal, host, header, statusBar);
 
@@ -103,7 +103,7 @@ public sealed class ScreenFrameTests
 		var terminal = new FakeTerminal();
 		var host = new FakeScreenHost();
 		var statusBar = new StatusBar(terminal, terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
-		var menu = new Menu(terminal, terminal, host, new Header(terminal), statusBar);
+		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
 
 		terminal.Press(ConsoleKey.Enter);
 

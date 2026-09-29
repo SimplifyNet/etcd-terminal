@@ -80,7 +80,7 @@ public sealed class MenuTests
 		{
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
 
-			Menu = new Menu(Terminal, Terminal, Host, new Header(Terminal), statusBar);
+			Menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 		}
 	}
 

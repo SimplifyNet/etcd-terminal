@@ -54,16 +54,18 @@ public sealed class LayoutTests
 	}
 
 	[Test]
-	public void HeaderRender_PreservesCursorAboveFooter()
+	public void Shell_ComposesBannerAndFooterAndReleasesTheHost()
 	{
 		var harness = new Harness(80, 24);
 
-		harness.Terminal.SetCursorPosition(5, 5);
-		harness.Terminal.CursorSets.Clear();
-		harness.Layout.RenderHeader();
+		harness.Shell.Show();
 
-		Assert.That((harness.Terminal.CursorLeft, harness.Terminal.CursorTop), Is.EqualTo((0, 5)));
-		AssertBounds(harness.Terminal);
+		Assert.That(harness.Host.BeginCount, Is.EqualTo(1));
+		Assert.That(harness.Host.EndCount, Is.EqualTo(1));
+		Assert.That(harness.Host.IsRunning, Is.False);
+		Assert.That(harness.Host.Current.Header, Is.Not.Null);
+		Assert.That(harness.Host.Current.Footer, Is.Not.Null);
+		Assert.That(harness.Host.Current.Body, Is.Empty);
 	}
 
 	[Test]
@@ -87,31 +89,14 @@ public sealed class LayoutTests
 		Assert.That(table.Rows.Single().Single(), Is.EqualTo("Read [Exact key]: /a"));
 	}
 
-	private static void AssertBounds(RecordingTerminal terminal)
-	{
-		foreach (var (top, left, text) in terminal.Writes)
-		{
-			Assert.That(left, Is.GreaterThanOrEqualTo(0), $"write at ({top}, {left})");
-			Assert.That(top, Is.GreaterThanOrEqualTo(0), $"write at ({top}, {left})");
-
-			foreach (var line in text.Split('\n'))
-				Assert.That(terminal.GetVisibleLength(line), Is.LessThanOrEqualTo(terminal.WindowWidth), $"line exceeds width: {line}");
-		}
-
-		foreach (var (left, top) in terminal.CursorSets)
-		{
-			Assert.That(left, Is.GreaterThanOrEqualTo(0));
-			Assert.That(top, Is.GreaterThanOrEqualTo(0));
-		}
-	}
-
 	private sealed class Harness
 	{
 		public readonly RecordingTerminal Terminal;
 		public readonly ConnectionSession Session = new();
 		public readonly FakeStatusBarRenderer StatusBarRenderer = new();
 		public readonly StatusBar StatusBar;
-		public readonly ScreenLayout Layout;
+		public readonly FakeScreenHost Host = new();
+		public readonly ScreenShell Shell;
 
 		public Harness(int width, int height)
 		{
@@ -120,7 +105,7 @@ public sealed class LayoutTests
 			var localization = new EnglishLocalization();
 
 			StatusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
-			Layout = new ScreenLayout(Terminal, Terminal, StatusBar, new Header(Terminal));
+			Shell = new ScreenShell(Host, new Header(), StatusBar);
 		}
 	}
 

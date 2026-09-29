@@ -8,7 +8,7 @@ using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, ScreenLayout _screenLayout, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, ScreenShell _shell, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.CreateKey;
 
@@ -17,7 +17,7 @@ public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, ScreenLayout _scree
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanWriteKeys;
 	public async Task ShowAsync()
 	{
-		_screenLayout.RenderHeader();
+		_shell.Show();
 
 		var trim = _settings.Current.TrimInputValues;
 		var key = _prompt.Ask(_localization.EnterKey, trim: trim);

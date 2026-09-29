@@ -119,7 +119,7 @@ public static class IocRegistrations
 		.Register<StatusBar>(LifetimeType.Transient)
 		.Register<Header>(LifetimeType.Transient)
 		.Register<MenuScreen>(LifetimeType.Transient)
-		.Register<ScreenLayout>(LifetimeType.Transient)
+		.Register<ScreenShell>(LifetimeType.Transient)
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
 		.Register<Message>(LifetimeType.Transient)
 		.Register<MultiLinePasteReader>(LifetimeType.Transient)

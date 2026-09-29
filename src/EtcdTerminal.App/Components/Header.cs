@@ -1,19 +1,15 @@
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
 /// <summary>
-/// The application banner. A screen that owns the console places the banner
-/// inside its frame; <see cref="Render"/> remains for screens that still draw
-/// inline.
+/// The application banner. Screens place it inside their frame; there is no
+/// inline variant, because the host owns every write to the console.
 /// </summary>
-public sealed class Header(ITerminalWidgets _terminal)
+public sealed class Header
 {
 	private const string BannerText = "etcd-terminal";
 
 	public PanelModel BuildModel() =>
 		new([new PanelLine([new StyledText(BannerText, TextRole.Primary)])], PanelKind.Banner);
-
-	public void Render() => _terminal.WriteBanner(BannerText);
 }

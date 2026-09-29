@@ -15,8 +15,7 @@ public sealed class KeyImportJsonScreen(
 	ITerminalOutput _output,
 	ITerminalStyle _style,
 	IKeyImporter _importer,
-	ScreenLayout _screenLayout,
-	PressAnyKeyPrompt _pressAnyKey,
+	ScreenShell _shell,
 	Prompt _prompt,
 	MultiLinePasteReader _pasteReader,
 	Menu _menu,
@@ -36,7 +35,7 @@ public sealed class KeyImportJsonScreen(
 
 	public async Task ShowAsync()
 	{
-		_screenLayout.RenderHeader();
+		_shell.Show();
 
 		var trim = _settings.Current.TrimInputValues;
 		var separator = _prompt.Ask(_localization.EnterSeparator, ":", trim: trim);
@@ -84,10 +83,7 @@ public sealed class KeyImportJsonScreen(
 
 		if (!ConfirmImport(entries))
 		{
-			_output.WriteLine();
-			_output.WriteIndentedLine(_localization.ImportCancelled, TerminalColor.Muted);
-			_output.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowWarning(_localization.ImportCancelled);
 
 			return;
 		}
@@ -142,11 +138,7 @@ public sealed class KeyImportJsonScreen(
 	{
 		if (confirmed.Created == 0 && confirmed.Overwritten == 0 && confirmed.Failed == 0)
 		{
-			_output.WriteLine();
-			_output.WriteIndentedLine(_localization.ImportCancelled, TerminalColor.Muted);
-
-			_output.WriteLine();
-			_pressAnyKey.Show();
+			_message.ShowWarning(_localization.ImportCancelled);
 
 			return;
 		}

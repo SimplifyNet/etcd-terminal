@@ -87,8 +87,8 @@ public sealed class ManageConnectionsScreenTests
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
-			var message = new Message(Host, new Header(Terminal), statusBar, Terminal, localization);
-			var menu = new Menu(Terminal, Terminal, Host, new Header(Terminal), statusBar);
+			var message = new Message(Host, new Header(), statusBar, Terminal, localization);
+			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 
 			Screen = new ManageConnectionsScreen(Terminal, Repository, menu, prompt, message, localization, new AppSettingsStore());
 		}

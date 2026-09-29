@@ -131,8 +131,6 @@ public sealed class FakeTerminal : ITerminal
 		Output.Append("[table]");
 	}
 
-	public void WriteBanner(string text) => Output.Append("[banner]");
-
 	public void ClearLine() => Output.Append("[clearline]");
 
 	public void ClearToEndOfScreen() => Output.Append("[cleartoeos]");
