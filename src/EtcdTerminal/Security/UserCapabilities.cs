@@ -31,8 +31,6 @@ public sealed record UserCapabilities
 
 	public bool CanWriteKeys => IsRoot || Permissions.Any(IsWritable);
 
-	public bool CanReadKey(string key) => IsRoot || Permissions.Any(p => IsReadable(p) && p.Covers(key));
-
 	public bool CanWriteKey(string key) => IsRoot || Permissions.Any(p => IsWritable(p) && p.Covers(key));
 
 	private static bool IsReadable(EtcdPermission permission) =>

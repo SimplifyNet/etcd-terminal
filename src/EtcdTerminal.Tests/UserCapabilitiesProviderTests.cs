@@ -82,7 +82,6 @@ public sealed class UserCapabilitiesProviderTests
 		{
 			Assert.That(capabilities.CanReadKeys, Is.True);
 			Assert.That(capabilities.CanWriteKeys, Is.False);
-			Assert.That(capabilities.CanReadKey("/a/1"), Is.True);
 		});
 	}
 

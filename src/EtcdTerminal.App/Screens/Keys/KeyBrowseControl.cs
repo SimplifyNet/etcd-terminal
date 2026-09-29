@@ -19,13 +19,13 @@ public sealed class KeyBrowseControl(
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
 	public int SelectedIndex { get; private set; }
-	public bool ShowActions { get; private set; }
+	private bool ShowActions { get; set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
 
 	/// <summary>
 	/// Edit and delete are offered only when the account may write the selected key.
 	/// </summary>
-	public bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
+	private bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
 
 	/// <summary>
 	/// Paints the browse frame, replacing the previous one in place. The first

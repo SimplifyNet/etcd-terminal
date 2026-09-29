@@ -7,8 +7,6 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class ArchitectureTests
 {
-	private static readonly string[] _promptException = [];
-
 	[Test]
 	public void AppTypesDoNotReferenceSpectre()
 	{
@@ -18,9 +16,6 @@ public sealed class ArchitectureTests
 
 		foreach (var type in SafeGetTypes(appAssembly))
 		{
-			if (_promptException.Contains(type.FullName))
-				continue;
-
 			foreach (var referenced in GetReferencedTypes(type))
 				if (IsSpectreType(referenced))
 					violations.Add($"{type.FullName} -> {referenced.FullName}");
@@ -87,9 +82,6 @@ public sealed class ArchitectureTests
 				continue;
 
 			if (type.Namespace?.StartsWith("EtcdTerminal.App.Setup", StringComparison.Ordinal) is true)
-				continue;
-
-			if (_promptException.Contains(type.FullName))
 				continue;
 
 			foreach (var referenced in GetReferencedTypes(type))

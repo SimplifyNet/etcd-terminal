@@ -35,7 +35,7 @@ public sealed class EtcdPermission
 	/// <summary>
 	/// Replaces control characters so a bound can be shown safely.
 	/// </summary>
-	public static string DisplayText(string bound) =>
+	private static string DisplayText(string bound) =>
 		new([.. bound.Select(c => char.IsControl(c) ? '\uFFFD' : c)]);
 
 	/// <summary>
