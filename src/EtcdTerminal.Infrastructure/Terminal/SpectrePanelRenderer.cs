@@ -12,11 +12,12 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme) : IPanelRenderer
 {
-	// Padding takes (horizontal, vertical). The selection marker inside the
-	// model already carries the indentation, so the horizontal value is only a
-	// gutter. Vertical padding is zero: a borderless block that opens with
-	// blank rows pushes the menu away from the banner, which the frame never
-	// did before the migration.
+	// The panel's own gutter. Padding takes (left, top, right, bottom) and is
+	// composed per kind in Spacing; the selection marker inside the model
+	// already carries the menu indentation, so this is only what the panel adds
+	// on top of it. A borderless block that opens with blank rows would push
+	// the menu away from the banner, which the frame never did before the
+	// migration, so the default kind stays flush.
 	private const int HorizontalSpacing = 1;
 
 	// Spectre's grid leaves this much room between neighbouring columns.
@@ -32,18 +33,26 @@ public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper 
 	private const int TitleSpacingAbove = 1;
 	private const int TitleSpacingBelow = 1;
 
+	// A standalone message reads as an outcome rather than as menu content: it
+	// starts one blank row below the banner and one indent further in, so it
+	// lines up with the labels of the menu it replaced.
+	private const int BlockIndent = 4;
+	private const int BlockSpacingAbove = 1;
+
 	public void Write(PanelModel panel) =>
 		_console.Write(Build(panel, _console.Profile.Width));
 
 	public Panel Build(PanelModel panel, int width) => new Panel(Content(panel, width))
 		.NoBorder()
-		.Padding(HorizontalSpacing, SpacingAbove(panel), HorizontalSpacing, SpacingBelow(panel));
+		.Padding(Spacing(panel));
 
-	private static int SpacingAbove(PanelModel panel) =>
-		panel.Kind is PanelKind.Title ? TitleSpacingAbove : 0;
-
-	private static int SpacingBelow(PanelModel panel) =>
-		panel.Kind is PanelKind.Title ? TitleSpacingBelow : 0;
+	private static Padding Spacing(PanelModel panel) =>
+		panel.Kind switch
+		{
+			PanelKind.Title => new Padding(HorizontalSpacing, TitleSpacingAbove, HorizontalSpacing, TitleSpacingBelow),
+			PanelKind.Block => new Padding(HorizontalSpacing + BlockIndent, BlockSpacingAbove, HorizontalSpacing, 0),
+			_ => new Padding(HorizontalSpacing, 0, HorizontalSpacing, 0)
+		};
 
 	/// <summary>
 	/// Renders a title banner. The model carries the text; the widget, its

@@ -36,7 +36,7 @@ public sealed class Message(IScreenHost _host, Header _header, StatusBar _status
 		_host.Begin(new ScreenModel
 		{
 			Header = _header.BuildModel(),
-			Body = [new PanelModel(lines)],
+			Body = [new PanelModel(lines, PanelKind.Block)],
 			Footer = _statusBar.BuildModel()
 		});
 
