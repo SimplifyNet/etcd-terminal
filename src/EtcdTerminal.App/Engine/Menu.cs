@@ -32,7 +32,7 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 			.Select(item => displayConverter?.Invoke(item.Label) ?? item.Label)
 			.ToList();
 
-		_host.Begin(Frame(title, labels, selectable, index, notices));
+		_host.Begin(Frame(title, labels, index, notices));
 
 		try
 		{
@@ -61,7 +61,7 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 				}
 
 				if (index != previous)
-					_host.Update(Frame(title, labels, selectable, index, notices));
+					_host.Update(Frame(title, labels, index, notices));
 			}
 		}
 		finally
@@ -73,7 +73,6 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 	private ScreenModel Frame(
 		string title,
 		IReadOnlyList<string> labels,
-		IReadOnlyList<bool> selectable,
 		int selected,
 		IReadOnlyList<PanelModel>? notices)
 	{
