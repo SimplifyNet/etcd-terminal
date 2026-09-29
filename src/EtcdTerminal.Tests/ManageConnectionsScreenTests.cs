@@ -61,7 +61,7 @@ public sealed class ManageConnectionsScreenTests
 		harness.Screen.Show(harness.Instances);
 
 		Assert.That(harness.Repository.Removed, Is.EqualTo("prod"));
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(2), "the action menu and the instance picker each own a frame");
+		Assert.That(harness.Host.BeginCount, Is.EqualTo(3), "the action menu, the instance picker and the outcome each own a frame");
 		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount));
 	}
 
@@ -87,8 +87,7 @@ public sealed class ManageConnectionsScreenTests
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
-			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, statusBar, localization);
-			var message = new Message(Terminal, pressAnyKey);
+			var message = new Message(Host, new Header(Terminal), statusBar, Terminal, localization);
 			var menu = new Menu(Terminal, Terminal, Host, new Header(Terminal), statusBar);
 
 			Screen = new ManageConnectionsScreen(Terminal, Repository, menu, prompt, message, localization, new AppSettingsStore());

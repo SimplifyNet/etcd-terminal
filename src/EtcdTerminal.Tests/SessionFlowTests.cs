@@ -126,7 +126,7 @@ public sealed class SessionFlowTests
 		Assert.That(harness.Session.Active, Is.Null);
 		Assert.That(harness.Connection.ConnectCalls, Is.EqualTo(1));
 		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("Failed to connect"));
+		Assert.That(ComposedText(harness), Does.Contain("Failed to connect"));
 	}
 
 	[Test]
@@ -147,7 +147,7 @@ public sealed class SessionFlowTests
 		Assert.That(harness.Session.Active, Is.Null);
 		Assert.That(harness.Connection.ConnectCalls, Is.EqualTo(1));
 		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
-		Assert.That(harness.Terminal.Output.ToString(), Does.Contain("Operation cancelled."));
+		Assert.That(ComposedText(harness), Does.Contain("Operation cancelled."));
 	}
 
 	[Test]
@@ -183,6 +183,11 @@ public sealed class SessionFlowTests
 		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
 	}
 
+	/// The text every screen composed, in order. An outcome is a frame of its
+	/// own now, so it is asserted on the host rather than on streamed output.
+	private static string ComposedText(Harness harness) =>
+		string.Join('\n', harness.Host.Frames.SelectMany(frame => frame.Body).SelectMany(panel => panel.Lines).Select(line => line.Text));
+
 	private static EtcdConnectionConfig Config() => new()
 	{
 		Name = "prod",
@@ -211,8 +216,7 @@ public sealed class SessionFlowTests
 			var header = new Header(Terminal);
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
 
-			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, StatusBar, Localization);
-			var message = new Message(Terminal, pressAnyKey);
+			var message = new Message(Host, header, StatusBar, Terminal, Localization);
 			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
 			var spinner = new Spinner(Terminal);
 			var manage = new ManageConnectionsScreen(Terminal, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());

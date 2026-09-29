@@ -127,8 +127,7 @@ public sealed class KeyBrowseScreenTests
 
 			var statusBar = new StatusBar(Terminal, Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
 			var prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
-			var pressAnyKey = new PressAnyKeyPrompt(Terminal, Terminal, statusBar, localization);
-			var message = new Message(Terminal, pressAnyKey);
+			var message = new Message(Host, new Header(Terminal), statusBar, Terminal, localization);
 			var browseLayout = new KeyBrowseLayout(Terminal, localization);
 
 			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(Terminal), statusBar, session);

@@ -103,6 +103,12 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 		if (model is null)
 			return;
 
+		// The live display erased its region and left the cursor wherever its own
+		// bookkeeping put it. The frame always starts at the top row, so anchoring
+		// there before writing keeps a full height frame from running past the last
+		// row and scrolling its footer back on screen.
+		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, 0);
+
 		_console.Write(Frame(model));
 		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, HandOverRow(model));
 	}

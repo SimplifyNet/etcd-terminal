@@ -20,6 +20,9 @@ public sealed class FakeScreenHost : IScreenHost
 
 	public void Begin(ScreenModel model)
 	{
+		if (IsRunning)
+			throw new InvalidOperationException("The screen host is already running.");
+
 		BeginCount++;
 		Frames.Add(model);
 	}
