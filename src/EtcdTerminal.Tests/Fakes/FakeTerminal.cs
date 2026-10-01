@@ -60,6 +60,10 @@ public sealed class FakeTerminal : ITerminal
 	{
 	}
 
+	public void Shutdown()
+	{
+	}
+
 	public ConsoleKeyInfo ReadKey()
 	{
 		if (Keys.Count == 0)

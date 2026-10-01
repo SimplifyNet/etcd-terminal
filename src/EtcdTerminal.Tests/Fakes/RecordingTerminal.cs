@@ -79,6 +79,10 @@ public sealed class RecordingTerminal : ITerminal
 	{
 	}
 
+	public void Shutdown()
+	{
+	}
+
 	public ConsoleKeyInfo ReadKey() => throw new NotSupportedException();
 
 	public void WriteException(Exception ex)

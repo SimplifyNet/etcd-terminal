@@ -22,10 +22,7 @@ void Cleanup()
 
 	var terminal = DIContainer.Current.Resolve<ITerminal>();
 
-	terminal.Clear();
-	terminal.ResetBackground();
-	terminal.SetCursorVisible(true);
-	terminal.Flush();
+	terminal.Shutdown();
 
 	DIContainer.Current.Dispose();
 }

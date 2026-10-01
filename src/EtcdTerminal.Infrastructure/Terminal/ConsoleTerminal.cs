@@ -56,6 +56,14 @@ public sealed class ConsoleTerminal(ITheme _theme) : ITerminal
 		SetCursorVisible(false);
 	}
 
+	public void Shutdown()
+	{
+		Clear();
+		ResetBackground();
+		SetCursorVisible(true);
+		Flush();
+	}
+
 	public ConsoleKeyInfo ReadKey() => Console.ReadKey(true);
 
 	public void Flush()
