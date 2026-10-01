@@ -1,5 +1,5 @@
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Engine;
 

@@ -1,8 +1,8 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Localization;
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation.Localization;
+using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 

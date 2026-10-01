@@ -1,9 +1,9 @@
 using System.Globalization;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 

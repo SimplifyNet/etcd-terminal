@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Theming;
+namespace EtcdTerminal.Presentation.Theming;
 
 public interface ITheme
 {

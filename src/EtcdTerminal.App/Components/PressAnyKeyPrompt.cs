@@ -1,6 +1,6 @@
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Components;
 

@@ -1,3 +1,3 @@
-namespace EtcdTerminal.Terminal;
+namespace EtcdTerminal.Presentation.Terminal;
 
 public sealed record MenuItem<TId>(TId Id, string Label, bool IsSelectable = true);

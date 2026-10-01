@@ -1,5 +1,5 @@
 using System.Text;
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Components;
 

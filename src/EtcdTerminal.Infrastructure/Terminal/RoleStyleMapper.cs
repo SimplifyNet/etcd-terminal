@@ -1,5 +1,5 @@
+using EtcdTerminal.Presentation.Theming;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Theming;
 using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;

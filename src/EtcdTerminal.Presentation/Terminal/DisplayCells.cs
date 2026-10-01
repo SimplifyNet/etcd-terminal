@@ -2,7 +2,7 @@ using System.Buffers;
 using System.Globalization;
 using System.Text;
 
-namespace EtcdTerminal.Terminal;
+namespace EtcdTerminal.Presentation.Terminal;
 
 /// <summary>
 /// Display-cell measurement shared by production terminals and layout tests.

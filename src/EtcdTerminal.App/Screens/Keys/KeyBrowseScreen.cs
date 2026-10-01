@@ -4,7 +4,7 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Keys;
 

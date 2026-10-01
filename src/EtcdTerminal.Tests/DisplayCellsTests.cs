@@ -1,4 +1,4 @@
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation.Terminal;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;

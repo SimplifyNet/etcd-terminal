@@ -1,4 +1,4 @@
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Localization;
 

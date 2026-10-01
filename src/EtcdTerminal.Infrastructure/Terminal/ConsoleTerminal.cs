@@ -1,6 +1,6 @@
 using System.Reflection;
-using EtcdTerminal.Terminal;
-using EtcdTerminal.Theming;
+using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation.Theming;
 using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;

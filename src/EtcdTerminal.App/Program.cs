@@ -1,8 +1,8 @@
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.App.Setup;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Terminal;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation.Localization;
 using Simplify.DI;
 
 DIContainer.Current

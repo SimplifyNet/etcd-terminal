@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Terminal;
+namespace EtcdTerminal.Presentation.Terminal;
 
 public enum TerminalColor
 {

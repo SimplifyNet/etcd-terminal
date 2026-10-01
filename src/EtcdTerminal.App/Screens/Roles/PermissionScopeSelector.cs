@@ -1,6 +1,6 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Permissions;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Roles;
 

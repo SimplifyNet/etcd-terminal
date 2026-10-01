@@ -3,9 +3,9 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Keys;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 

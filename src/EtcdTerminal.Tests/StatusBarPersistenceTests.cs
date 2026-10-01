@@ -3,10 +3,10 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
-using EtcdTerminal.Terminal;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 

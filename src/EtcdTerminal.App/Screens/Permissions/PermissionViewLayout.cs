@@ -1,5 +1,5 @@
 using EtcdTerminal.App.Screens.Roles;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;

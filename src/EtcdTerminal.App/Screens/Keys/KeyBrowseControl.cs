@@ -1,8 +1,8 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 

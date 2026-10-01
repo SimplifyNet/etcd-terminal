@@ -4,10 +4,10 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
-using EtcdTerminal.Terminal;
 
 namespace EtcdTerminal.App.Screens.Keys;
 

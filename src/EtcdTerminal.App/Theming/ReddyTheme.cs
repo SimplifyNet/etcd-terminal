@@ -1,4 +1,4 @@
-using EtcdTerminal.Theming;
+using EtcdTerminal.Presentation.Theming;
 
 namespace EtcdTerminal.App.Theming;
 

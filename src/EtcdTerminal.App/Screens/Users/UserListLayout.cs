@@ -1,4 +1,4 @@
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Users;
 

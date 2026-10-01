@@ -1,6 +1,6 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Security;
 using EtcdTerminal.Users;

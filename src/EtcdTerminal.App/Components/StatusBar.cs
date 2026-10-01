@@ -1,7 +1,7 @@
-using EtcdTerminal.Terminal;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Localization;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Configuration;
 

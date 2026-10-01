@@ -1,7 +1,7 @@
 using System.Text;
 using EtcdTerminal.App.Theming;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Theming;
+using EtcdTerminal.Presentation.Theming;
 using EtcdTerminal.Infrastructure.Terminal;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
