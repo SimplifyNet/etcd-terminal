@@ -9,7 +9,18 @@ using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configRepo, IDecryptFailureSource _decryptFailures, IEtcdConnection _connection, IConnectionSession _session, IUserCapabilitiesProvider _capabilities, SettingsScreen _settings, Menu _menu, Message _message, Spinner _spinner, ManageConnectionsScreen _manageConnections, ILocalization _localization)
+public sealed class InstanceSelectionScreen(
+	IConnectionConfigRepository _configRepo,
+	IDecryptFailureSource _decryptFailures,
+	IEtcdConnection _connection,
+	IConnectionSession _session,
+	IUserCapabilitiesProvider _capabilities,
+	SettingsScreen _settings,
+	Menu _menu,
+	Message _message,
+	Spinner _spinner,
+	ManageConnectionsScreen _manageConnections,
+	ILocalization _localization)
 {
 	public async Task<EtcdConnectionConfig?> ShowAsync()
 	{
@@ -24,9 +35,9 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 			if (choice is null)
 				return null;
 
-		if (choice.Action is not null)
-		{
-			switch (choice.Action)
+			if (choice.Action is not null)
+			{
+				switch (choice.Action)
 				{
 					case InstanceFixedAction.ManageConnections:
 						_manageConnections.Show(instances);
@@ -38,38 +49,38 @@ public sealed class InstanceSelectionScreen(IConnectionConfigRepository _configR
 						return null;
 				}
 			}
-		else
-		{
-			var selected = choice.Instance!;
+			else
+			{
+				var selected = choice.Instance!;
 
 				bool connected;
 				UserCapabilities capabilities = new();
 
 				try
 				{
-				connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
-				{
-					await _connection.ConnectAsync(selected, ct);
-
-					try
+					connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
 					{
-						capabilities = await _capabilities.GetCapabilitiesAsync(selected.Username, ct);
-					}
-					catch
-					{
-						_session.End();
+						await _connection.ConnectAsync(selected, ct);
 
 						try
 						{
-							await _connection.DisconnectAsync();
+							capabilities = await _capabilities.GetCapabilitiesAsync(selected.Username, ct);
 						}
 						catch
 						{
-						}
+							_session.End();
 
-						throw;
-					}
-				});
+							try
+							{
+								await _connection.DisconnectAsync();
+							}
+							catch
+							{
+							}
+
+							throw;
+						}
+					});
 				}
 				catch (Exception ex)
 				{
