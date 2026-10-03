@@ -74,7 +74,6 @@ public static class IocRegistrations
 				c.Resolve<ITerminalCursor>()),
 				LifetimeType.Singleton)
 
-		.Register<IPanelRenderer>(c => c.Resolve<SpectrePanelRenderer>(), LifetimeType.Singleton)
 		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
 
 		.Register<SpectreStatusIndicator>(c =>

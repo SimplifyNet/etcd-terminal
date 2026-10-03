@@ -38,11 +38,11 @@ public sealed class PanelModelTests
 	{
 		var layout = Layout();
 
-		Assert.That(layout.Selected("mykey").Kind, Is.EqualTo(PanelKind.Selection));
+		Assert.That(layout.Selected("mykey").Kind, Is.EqualTo(PanelKind.Default));
 
 		var actions = layout.Actions(canModify: true);
 
-		Assert.That(actions.Kind, Is.EqualTo(PanelKind.Actions));
+		Assert.That(actions.Kind, Is.EqualTo(PanelKind.Default));
 		Assert.That(actions.Lines.Single().Text, Does.Contain("E Edit"));
 		Assert.That(actions.Lines.Single().Text, Does.Contain("D Delete"));
 		Assert.That(actions.Lines.Single().Text, Does.Contain("Esc Cancel"));

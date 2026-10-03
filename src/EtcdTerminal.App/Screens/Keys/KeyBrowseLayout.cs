@@ -76,7 +76,7 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 				new StyledText($"{_localization.Selected} ", TextRole.Muted),
 				new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent)
 			])
-		], PanelKind.Selection);
+		]);
 
 	public PanelModel Actions(bool canModify)
 	{
@@ -95,7 +95,7 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 		hints.Add(new StyledText("Esc", TextRole.Primary));
 		hints.Add(new StyledText($" {_localization.Cancel}", TextRole.Muted));
 
-		return new PanelModel([new PanelLine(hints)], PanelKind.Actions);
+		return new PanelModel([new PanelLine(hints)]);
 	}
 
 	private static PanelModel Line(IReadOnlyList<StyledText> spans) => new([new PanelLine(spans)]);

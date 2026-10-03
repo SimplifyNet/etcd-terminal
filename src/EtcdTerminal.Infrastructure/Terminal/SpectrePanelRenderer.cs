@@ -10,7 +10,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// spacing, column widths and line composition are decided here, never in the
 /// component that builds the model.
 /// </summary>
-public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme) : IPanelRenderer
+public sealed class SpectrePanelRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme)
 {
 	// Content starts at column zero. The selection marker or the terminal
 	// indent inside the model is what moves a line in, exactly as the inline

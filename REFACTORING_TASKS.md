@@ -31,11 +31,11 @@ This is the executable version of `REFACTORING.md`. Read `REFACTORING.md` sectio
 ## Phase 0 — Housekeeping
 
 ### T0.1 Remove dead contracts
-- [ ] Delete `src/EtcdTerminal.Presentation/IPanelRenderer.cs`.
-- [ ] In `IocRegistrations.cs` remove the `IPanelRenderer` registration and the `: IPanelRenderer` on `SpectrePanelRenderer`.
-- [ ] In `PanelKind.cs` remove `Selection` and `Actions`. In `KeyBrowseLayout.cs` change the two usages to `PanelKind.Default` (just drop the second argument).
-- [ ] In `ITheme.cs` remove `PanelBackground` and `PanelDarkerBackground`; remove them from `ReddyTheme.cs` and from `TerminalColor.cs`.
-- [ ] Build, test, commit.
+- [x] Delete `src/EtcdTerminal.Presentation/IPanelRenderer.cs`.
+- [x] In `IocRegistrations.cs` remove the `IPanelRenderer` registration and the `: IPanelRenderer` on `SpectrePanelRenderer`.
+- [x] In `PanelKind.cs` remove `Selection` and `Actions`. In `KeyBrowseLayout.cs` change the two usages to `PanelKind.Default` (just drop the second argument).
+- [x] In `ITheme.cs` remove `PanelBackground` and `PanelDarkerBackground`; remove them from `ReddyTheme.cs` and from `TerminalColor.cs`.
+- [x] Build, test, commit.
 
 ### T0.2 Register IAnsiConsole once
 - [ ] In `IocRegistrations.RegisterTerminal` add `.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)` (needs `using Spectre.Console;` — allowed only in this file under App because it is the composition root; this using already exists indirectly via Infrastructure types, keep it minimal).

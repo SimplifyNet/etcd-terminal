@@ -10,8 +10,6 @@ public enum TerminalColor
 	Muted,
 	Subtle,
 	Accent,
-	PanelBackground,
-	PanelDarkerBackground,
 	WindowBackground,
 	Banner
 }
