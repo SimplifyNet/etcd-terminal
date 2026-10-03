@@ -20,7 +20,7 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 		string title,
 		IReadOnlyList<MenuItem<TId>> items,
 		Func<string, string>? displayConverter = null,
-		IReadOnlyList<PanelModel>? notices = null)
+		IReadOnlyList<Block>? notices = null)
 	{
 		var selectable = items.Select(item => item.IsSelectable).ToList();
 		var index = selectable.FindIndex(isSelectable => isSelectable);
@@ -74,26 +74,24 @@ public sealed class Menu(ITerminal _terminal, ITerminalInput _input, IScreenHost
 		string title,
 		IReadOnlyList<string> labels,
 		int selected,
-		IReadOnlyList<PanelModel>? notices)
+		IReadOnlyList<Block>? notices)
 	{
-		List<PanelModel> body = [.. notices ?? []];
+		List<Block> body = [.. notices ?? []];
 
 		if (!string.IsNullOrEmpty(title))
-			body.Add(new PanelModel(
-				[new PanelLine([new StyledText(_terminal.Indent + title, TextRole.Primary)])],
-				PanelKind.Title));
+			body.Add(new TitleBlock(new StyledText(_terminal.Indent + title, TextRole.Primary)));
 
-		List<PanelLine> rows = [];
+		List<IReadOnlyList<StyledText>> rows = [];
 
 		for (var i = 0; i < labels.Count; i++)
 		{
 			var role = i == selected ? TextRole.Accent : TextRole.Primary;
 			var marker = i == selected ? _terminal.SelectionPointer : _terminal.Indent;
 
-			rows.Add(new PanelLine([new StyledText(marker, role), new StyledText(labels[i], role)]));
+			rows.Add([new StyledText(marker, role), new StyledText(labels[i], role)]);
 		}
 
-		body.Add(new PanelModel(rows));
+		body.Add(new TextBlock(rows));
 
 		return new ScreenModel
 		{

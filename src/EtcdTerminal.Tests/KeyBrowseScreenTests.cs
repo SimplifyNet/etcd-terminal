@@ -6,6 +6,7 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
@@ -84,9 +85,9 @@ public sealed class KeyBrowseScreenTests
 		Assert.That(frame.Header, Is.Not.Null);
 		Assert.That(frame.Footer, Is.Not.Null);
 		Assert.That(frame.Body, Has.Count.EqualTo(3));
-		Assert.That(frame.Body[0].Lines.Single().Text, Does.Contain("Type to search"));
-		Assert.That(frame.Body[1].Lines[0].Spans[1].Text, Does.Contain("/a/1"));
-		Assert.That(frame.Body[2].Lines.Single().Text, Does.Contain("1/1"));
+		Assert.That(LineText.Of(((TextBlock)frame.Body[0]).Lines.Single()), Does.Contain("Type to search"));
+		Assert.That(((TableBlock)frame.Body[1]).Rows[0][1].Text, Does.Contain("/a/1"));
+		Assert.That(LineText.Of(((TextBlock)frame.Body[2]).Lines.Single()), Does.Contain("1/1"));
 		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount), "the screen must not leak the console");
 	}
 
@@ -101,9 +102,9 @@ public sealed class KeyBrowseScreenTests
 
 		var withActions = harness.Host.Frames.Last(frame => frame.Body.Count == 5);
 
-		Assert.That(withActions.Body[3].Lines.Single().Text, Does.Contain("Selected: /a/1"));
-		Assert.That(withActions.Body[4].Lines.Single().Text, Does.Contain("E Edit"));
-		Assert.That(withActions.Body[4].Lines.Single().Text, Does.Contain("D Delete"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[3]).Lines.Single()), Does.Contain("Selected: /a/1"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("E Edit"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("D Delete"));
 	}
 
 	private sealed class Harness

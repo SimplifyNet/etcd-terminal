@@ -12,7 +12,7 @@ namespace EtcdTerminal.App.Components;
 /// </summary>
 public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusBar _statusBar, ITerminalInput _input, ILocalization _localization)
 {
-	public void Show(IReadOnlyList<PanelModel> body)
+	public void Show(IReadOnlyList<Block> body)
 	{
 		_host.Begin(new ScreenModel
 		{
@@ -31,10 +31,10 @@ public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusB
 		}
 	}
 
-	private PanelModel Hint() =>
+	private TextBlock Hint() =>
 		new(
 		[
-			new PanelLine([]),
-			new PanelLine([new StyledText(_localization.PressAnyKey, TextRole.Muted)])
+			[],
+			[new StyledText(_localization.PressAnyKey, TextRole.Muted)]
 		]);
 }

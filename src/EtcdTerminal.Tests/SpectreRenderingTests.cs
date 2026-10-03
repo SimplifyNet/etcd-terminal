@@ -30,40 +30,24 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
-	public void PanelRenderer_WritesLiteralTextWithoutTreatingBracketsAsMarkup()
+	public void BlockRenderer_WritesLiteralTextWithoutTreatingBracketsAsMarkup()
 	{
 		var console = new TestConsole();
 
-		Render(console, new PanelModel(
-		[
-			new PanelLine([new StyledText("service/[a:b]/ключ", TextRole.Accent)])
-		]));
+		Render(console, TextBlock.Line(new StyledText("service/[a:b]/ключ", TextRole.Accent)));
 
 		Assert.That(console.Output, Does.Contain("service/[a:b]/ключ"));
 	}
 
 	[Test]
-	public void PanelRenderer_LeavesTheIndentationToTheModel()
+	public void BlockRenderer_WritesEveryLineOfTheModel()
 	{
 		var console = new TestConsole();
 
-		Render(console, new PanelModel(
+		Render(console, new TextBlock(
 		[
-			new PanelLine([new StyledText("    message", TextRole.Muted)])
-		]));
-
-		Assert.That(console.Output.Split('\n')[0].TrimEnd(), Is.EqualTo("    message"), "the panel adds no column of its own on the left");
-	}
-
-	[Test]
-	public void PanelRenderer_WritesEveryLineOfTheModel()
-	{
-		var console = new TestConsole();
-
-		Render(console, new PanelModel(
-		[
-			new PanelLine([new StyledText("first", TextRole.Muted)]),
-			new PanelLine([new StyledText("second", TextRole.Primary)])
+			[new StyledText("first", TextRole.Muted)],
+			[new StyledText("second", TextRole.Primary)]
 		]));
 
 		Assert.That(console.Output, Does.Contain("first"));
@@ -71,49 +55,34 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
-	public void PanelRenderer_TablePanel_KeepsEveryRowOnOneLineAndWithinWidth()
+	public void BlockRenderer_TableBlock_KeepsColumnContentLiteral()
 	{
 		var console = new TestConsole();
 
-		Render(console, new PanelModel(
+		Render(console, new TableBlock(
+		[],
 		[
-			new PanelLine(
-			[
-				new StyledText(new string('k', 200), TextRole.Accent),
-				new StyledText(new string('v', 200), TextRole.Accent)
-			]),
-			new PanelLine(
-			[
-				new StyledText("/a", TextRole.Primary),
-				new StyledText("short", TextRole.Primary)
-			])
-		], PanelKind.Table));
-
-		var lines = console.Output.Split('\n').Select(line => line.TrimEnd('\r')).ToList();
-		var rows = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToList();
-
-		Assert.That(rows, Has.Count.EqualTo(2), "one line per row");
-		Assert.That(lines.All(line => line.Length <= Width), Is.True, "cells must be cropped to the panel width");
-		Assert.That(console.Output, Does.Contain("/a"));
-		Assert.That(console.Output, Does.Contain("short"));
-	}
-
-	[Test]
-	public void PanelRenderer_TablePanel_KeepsColumnContentLiteral()
-	{
-		var console = new TestConsole();
-
-		Render(console, new PanelModel(
-		[
-			new PanelLine(
 			[
 				new StyledText("service/[a:b]/\u043a\u043b\u044e\u0447", TextRole.Accent),
 				new StyledText("value [x]", TextRole.Accent)
-			])
-		], PanelKind.Table));
+			]
+		]));
 
 		Assert.That(console.Output, Does.Contain("service/[a:b]/\u043a\u043b\u044e\u0447"));
 		Assert.That(console.Output, Does.Contain("value [x]"));
+	}
+
+	[Test]
+	public void BlockRenderer_TableBlock_ShowsTheHeaderRowLiterally()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[new StyledText("scope [x]", TextRole.Muted)],
+		[[new StyledText("/a", TextRole.Primary), new StyledText("value", TextRole.Primary)]]));
+
+		Assert.That(console.Output, Does.Contain("scope [x]"));
+		Assert.That(console.Output, Does.Contain("/a"));
 	}
 
 	[Test]
@@ -319,14 +288,14 @@ public sealed class SpectreRenderingTests
 	private static SpectreStatusBarRenderer StatusBarRenderer(TestConsole console, RecordingTerminal cursor) =>
 		new(console, new RoleStyleMapper(new ReddyTheme()), cursor);
 
-	private static SpectrePanelRenderer PanelRenderer() => new(new TestConsole(), new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
+	private static BlockRenderer BlockRenderer() => new(new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
 
 	private static SpectreStatusBarRenderer StatusBarRenderer() => new(new TestConsole(), new RoleStyleMapper(new ReddyTheme()), new RecordingTerminal());
 
 	private static StatusBarModel Fit(StatusBarModel model, int width) => SpectreStatusBarRenderer.Fit(model, width);
 
-	private static void Render(TestConsole console, PanelModel panel) =>
-		console.Write(PanelRenderer().Build(panel, Width));
+	private static void Render(TestConsole console, Block block) =>
+		console.Write(BlockRenderer().Render(block));
 
 	private static void RenderStatusBar(TestConsole console, StatusBarModel model) =>
 		console.Write(StatusBarRenderer().Build(model));

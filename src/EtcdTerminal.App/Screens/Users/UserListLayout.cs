@@ -10,12 +10,12 @@ namespace EtcdTerminal.App.Screens.Users;
 /// </summary>
 public sealed class UserListLayout(ILocalization _localization)
 {
-	public IReadOnlyList<PanelModel> Body(IReadOnlyList<EtcdUser> users)
+	public IReadOnlyList<Block> Body(IReadOnlyList<EtcdUser> users)
 	{
 		if (users.Count == 0)
 			return [Notice(_localization.NoUsersFound)];
 
-		List<PanelLine> rows = [Header(_localization.Username, _localization.Roles)];
+		List<IReadOnlyList<StyledText>> rows = [];
 
 		foreach (var user in users)
 		{
@@ -23,19 +23,22 @@ public sealed class UserListLayout(ILocalization _localization)
 				? string.Join(", ", user.Roles)
 				: _localization.None;
 
-			rows.Add(new PanelLine(
+			rows.Add(
 			[
 				new StyledText(user.Username, TextRole.Primary),
 				new StyledText(roles, TextRole.Primary)
-			]));
+			]);
 		}
 
-		return [new PanelModel(rows, PanelKind.Table)];
+		return [new TableBlock(ColumnHeaders(), rows)];
 	}
 
-	private PanelLine Header(string username, string roles) =>
-		new([new StyledText(username, TextRole.Muted), new StyledText(roles, TextRole.Muted)]);
+	private IReadOnlyList<StyledText> ColumnHeaders() =>
+	[
+		new StyledText(_localization.Username, TextRole.Muted),
+		new StyledText(_localization.Roles, TextRole.Muted)
+	];
 
-	private PanelModel Notice(string text) =>
-		new([new PanelLine([new StyledText(text, TextRole.Warning)])]);
+	private static TextBlock Notice(string text) =>
+		TextBlock.Line(new StyledText(text, TextRole.Warning));
 }

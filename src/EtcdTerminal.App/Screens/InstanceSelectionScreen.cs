@@ -124,10 +124,10 @@ public sealed class InstanceSelectionScreen(
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), _localization.Settings));
 		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), _localization.Exit));
 
-		List<PanelModel> notices = [];
+		List<Block> notices = [];
 
 		if (instances.Count == 0)
-			notices.Add(new PanelModel([new PanelLine([new StyledText(_localization.NoConnectionsMessage, TextRole.Warning)])]));
+			notices.Add(TextBlock.Line(new StyledText(_localization.NoConnectionsMessage, TextRole.Warning)));
 
 		return _menu.ShowFramed(string.Empty, items, c =>
 		{

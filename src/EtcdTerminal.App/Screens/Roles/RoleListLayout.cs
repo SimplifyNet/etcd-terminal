@@ -12,12 +12,12 @@ namespace EtcdTerminal.App.Screens.Roles;
 /// </summary>
 public sealed class RoleListLayout(ILocalization _localization)
 {
-	public IReadOnlyList<PanelModel> Body(IReadOnlyList<EtcdRole> roles)
+	public IReadOnlyList<Block> Body(IReadOnlyList<EtcdRole> roles)
 	{
 		if (roles.Count == 0)
 			return [Notice(_localization.NoRolesFound)];
 
-		List<PanelModel> body = [];
+		List<Block> body = [];
 
 		foreach (var role in roles)
 		{
@@ -28,22 +28,22 @@ public sealed class RoleListLayout(ILocalization _localization)
 		return body;
 	}
 
-	private PanelModel Title(string text) =>
-		new([new PanelLine([new StyledText(text, TextRole.Primary)])], PanelKind.Title);
+	private static TitleBlock Title(string text) =>
+		new(new StyledText(text, TextRole.Primary));
 
-	private PanelModel Notice(string text) =>
-		new([new PanelLine([new StyledText(text, TextRole.Warning)])]);
+	private static TextBlock Notice(string text) =>
+		TextBlock.Line(new StyledText(text, TextRole.Warning));
 
-	private PanelModel Permissions(EtcdRole role)
+	private Block Permissions(EtcdRole role)
 	{
-		List<PanelLine> rows = [new([new StyledText(_localization.Permissions, TextRole.Muted)])];
+		List<IReadOnlyList<StyledText>> rows = [];
 
 		if (role.Permissions.Count == 0)
-			rows.Add(new([new StyledText(_localization.NoPermissions, TextRole.Muted)]));
+			rows.Add([new StyledText(_localization.NoPermissions, TextRole.Muted)]);
 		else
 			foreach (var permission in role.Permissions)
-				rows.Add(new([new StyledText(PermissionDisplay.For(permission, _localization), TextRole.Primary)]));
+				rows.Add([new StyledText(PermissionDisplay.For(permission, _localization), TextRole.Primary)]);
 
-		return new PanelModel(rows, PanelKind.Table);
+		return new TableBlock([new StyledText(_localization.Permissions, TextRole.Muted)], rows);
 	}
 }

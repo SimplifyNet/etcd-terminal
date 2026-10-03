@@ -48,7 +48,7 @@ public sealed class StatusBarPersistenceTests
 		new PressAnyKeyPrompt(host, new Header(), statusBar, terminal, localization).Show([]);
 
 		Assert.That(host.Current.Footer?.Name?.Text, Is.EqualTo("prod"));
-		Assert.That(host.Current.Body[^1].Lines[^1].Text, Is.EqualTo(localization.PressAnyKey));
+		Assert.That(LineText.Of(((TextBlock)host.Current.Body[^1]).Lines[^1]), Is.EqualTo(localization.PressAnyKey));
 	}
 
 	private sealed class StubTextInput(string answer) : ITextInput

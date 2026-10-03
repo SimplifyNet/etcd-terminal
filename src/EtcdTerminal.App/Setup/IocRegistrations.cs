@@ -63,7 +63,7 @@ public static class IocRegistrations
 		.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)
 		.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)
-		.Register<SpectrePanelRenderer>(LifetimeType.Singleton)
+		.Register<BlockRenderer>(LifetimeType.Singleton)
 		.Register<SpectreStatusBarRenderer>(LifetimeType.Singleton)
 		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
 		.Register<SpectreStatusIndicator>(LifetimeType.Singleton)

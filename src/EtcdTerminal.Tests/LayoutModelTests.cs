@@ -13,15 +13,14 @@ using NUnit.Framework;
 namespace EtcdTerminal.Tests;
 
 [TestFixture]
-public sealed class PanelModelTests
+public sealed class LayoutModelTests
 {
 	[Test]
 	public void Pagination_EmitsPageAndTotalsAsSeparateRoles()
 	{
-		var model = Layout().Pagination(0, 5, 42);
-		var spans = model.Lines.Single().Spans;
+		var model = (TextBlock)Layout().Pagination(0, 5, 42);
+		var spans = model.Lines.Single();
 
-		Assert.That(model.Kind, Is.EqualTo(PanelKind.Default));
 		Assert.That(spans.Select(span => span.Text), Is.EqualTo(new[] { "Page ", "1/5", "  \u2022  ", "42", " total keys" }));
 		Assert.That(spans.Select(span => span.Role), Is.EqualTo(new[]
 		{
@@ -38,20 +37,20 @@ public sealed class PanelModelTests
 	{
 		var layout = Layout();
 
-		Assert.That(layout.Selected("mykey").Kind, Is.EqualTo(PanelKind.Default));
+		Assert.That(layout.Selected("mykey"), Is.InstanceOf<TextBlock>());
 
-		var actions = layout.Actions(canModify: true);
+		var actions = (TextBlock)layout.Actions(canModify: true);
+		var hints = LineText.Of(actions.Lines.Single());
 
-		Assert.That(actions.Kind, Is.EqualTo(PanelKind.Default));
-		Assert.That(actions.Lines.Single().Text, Does.Contain("E Edit"));
-		Assert.That(actions.Lines.Single().Text, Does.Contain("D Delete"));
-		Assert.That(actions.Lines.Single().Text, Does.Contain("Esc Cancel"));
+		Assert.That(hints, Does.Contain("E Edit"));
+		Assert.That(hints, Does.Contain("D Delete"));
+		Assert.That(hints, Does.Contain("Esc Cancel"));
 	}
 
 	[Test]
 	public void Actions_WithoutModify_OffersOnlyCancel()
 	{
-		var hints = Layout().Actions(canModify: false).Lines.Single().Text;
+		var hints = LineText.Of(((TextBlock)Layout().Actions(canModify: false)).Lines.Single());
 
 		Assert.That(hints, Does.Contain("Esc Cancel"));
 		Assert.That(hints, Does.Not.Contain("Edit"));
@@ -61,18 +60,19 @@ public sealed class PanelModelTests
 	[Test]
 	public void Selected_KeepsSelectedKeyLiteral()
 	{
-		var selection = Layout().Selected("service/[a:b]/\u043a\u043b\u044e\u0447");
+		var selection = (TextBlock)Layout().Selected("service/[a:b]/\u043a\u043b\u044e\u0447");
+		var line = selection.Lines.Single();
 
-		Assert.That(selection.Lines.Single().Text, Is.EqualTo("Selected: service/[a:b]/\u043a\u043b\u044e\u0447"));
-		Assert.That(selection.Lines.Single().Spans[1].Role, Is.EqualTo(TextRole.Accent));
+		Assert.That(LineText.Of(line), Is.EqualTo("Selected: service/[a:b]/\u043a\u043b\u044e\u0447"));
+		Assert.That(line[1].Role, Is.EqualTo(TextRole.Accent));
 	}
 
 	[Test]
 	public void Selected_NormalizesControlCharactersInSelectedKey()
 	{
-		var model = Layout().Selected("a\nb");
+		var model = (TextBlock)Layout().Selected("a\nb");
 
-		Assert.That(model.Lines.Single().Text, Is.EqualTo("Selected: a\u23CEb"));
+		Assert.That(LineText.Of(model.Lines.Single()), Is.EqualTo("Selected: a\u23CEb"));
 	}
 
 	[Test]
@@ -83,44 +83,45 @@ public sealed class PanelModelTests
 			new EtcdKeyValue { Key = "/a", Value = "one" },
 			new EtcdKeyValue { Key = "/b", Value = "two" }
 		};
+		var model = (TableBlock)Layout().KeyList(keys, selectedIndex: 1);
 
-		var model = Layout().KeyList(keys, selectedIndex: 1);
-
-		Assert.That(model.Kind, Is.EqualTo(PanelKind.Table));
-		Assert.That(model.Lines, Has.Count.EqualTo(2));
-		Assert.That(model.Lines[0].Spans[0].Text, Does.StartWith("    "));
-		Assert.That(model.Lines[1].Spans[0].Text, Does.StartWith("  \u276f "));
-		Assert.That(model.Lines[1].Spans.Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent, TextRole.Accent }));
-		Assert.That(model.Lines[0].Spans.Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary, TextRole.Primary }));
-		Assert.That(model.Lines[1].Spans[1].Text, Is.EqualTo("/b"));
-		Assert.That(model.Lines[1].Spans[2].Text, Is.EqualTo("two"));
+		Assert.That(model.Header, Is.Empty);
+		Assert.That(model.Rows, Has.Count.EqualTo(2));
+		Assert.That(model.Rows[0][0].Text, Does.StartWith("    "));
+		Assert.That(model.Rows[1][0].Text, Does.StartWith("  \u276f "));
+		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent, TextRole.Accent }));
+		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary, TextRole.Primary }));
+		Assert.That(model.Rows[1][1].Text, Is.EqualTo("/b"));
+		Assert.That(model.Rows[1][2].Text, Is.EqualTo("two"));
 	}
 
 	[Test]
 	public void KeyList_EmptyPage_ReturnsASingleMutedNotice()
 	{
-		var model = Layout().KeyList([], selectedIndex: 0);
+		var model = (TextBlock)Layout().KeyList([], selectedIndex: 0);
 
-		Assert.That(model.Kind, Is.EqualTo(PanelKind.Default));
-		Assert.That(model.Lines.Single().Spans.Single().Role, Is.EqualTo(TextRole.Muted));
+		Assert.That(model.Lines, Has.Count.EqualTo(1));
+		Assert.That(model.Lines.Single().Single().Role, Is.EqualTo(TextRole.Muted));
 	}
 
 	[Test]
 	public void Search_WithoutQuery_ShowsPlaceholderAndCaret()
 	{
-		var model = Layout().Search(string.Empty);
+		var model = (TextBlock)Layout().Search(string.Empty);
+		var text = LineText.Of(model.Lines.Single());
 
-		Assert.That(model.Lines.Single().Text, Does.Contain("Type to search"));
-		Assert.That(model.Lines.Single().Text, Does.EndWith("\u2588"));
+		Assert.That(text, Does.Contain("Type to search"));
+		Assert.That(text, Does.EndWith("\u2588"));
 	}
 
 	[Test]
 	public void Search_WithQuery_KeepsTheQueryLiteral()
 	{
-		var model = Layout().Search("service/[a:b]");
+		var model = (TextBlock)Layout().Search("service/[a:b]");
+		var line = model.Lines.Single();
 
-		Assert.That(model.Lines.Single().Text, Does.Contain("service/[a:b]"));
-		Assert.That(model.Lines.Single().Spans[1].Role, Is.EqualTo(TextRole.Primary));
+		Assert.That(LineText.Of(line), Does.Contain("service/[a:b]"));
+		Assert.That(line[1].Role, Is.EqualTo(TextRole.Primary));
 	}
 
 	[Test]

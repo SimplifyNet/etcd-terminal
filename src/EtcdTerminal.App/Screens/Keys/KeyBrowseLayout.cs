@@ -18,22 +18,20 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 	private const string Caret = "\u2588";
 	private const string PageSeparator = "  \u2022  ";
 
-	public PanelModel Search(string searchQuery) =>
+	public Block Search(string searchQuery) =>
 		searchQuery.Length == 0
-			? Line([new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary)])
-			: Line(
-			[
+			? TextBlock.Line(new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary))
+			: TextBlock.Line(
 				new StyledText(SearchPrefix, TextRole.Muted),
 				new StyledText(ValuePreview.Sanitize(searchQuery), TextRole.Primary),
-				new StyledText(Caret, TextRole.Primary)
-			]);
+				new StyledText(Caret, TextRole.Primary));
 
-	public PanelModel KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
+	public Block KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
 		if (pageKeys.Count == 0)
-			return Line([new StyledText(_localization.NoKeysFound, TextRole.Muted)]);
+			return TextBlock.Line(new StyledText(_localization.NoKeysFound, TextRole.Muted));
 
-		List<PanelLine> rows = [];
+		List<IReadOnlyList<StyledText>> rows = [];
 
 		for (var i = 0; i < pageKeys.Count; i++)
 		{
@@ -41,44 +39,34 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 			var role = i == selectedIndex ? TextRole.Accent : TextRole.Primary;
 			var prefix = i == selectedIndex ? _style.SelectionPointer : _style.Indent;
 
-			rows.Add(new PanelLine(
+			rows.Add(
 			[
 				new StyledText(prefix, role),
 				new StyledText(ValuePreview.Sanitize(kv.Key), role),
 				new StyledText(ValuePreview.Sanitize(kv.Value), role)
-			]));
+			]);
 		}
 
-		return new PanelModel(rows, PanelKind.Table);
+		return new TableBlock([], rows);
 	}
 
-	public PanelModel Pagination(int currentPage, int totalPages, int totalKeys) =>
-		new(
-		[
-			new PanelLine(
-			[
-				new StyledText($"{_localization.Page} ", TextRole.Muted),
-				new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
-				new StyledText(PageSeparator, TextRole.Muted),
-				new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
-				new StyledText($" {_localization.TotalKeys}", TextRole.Muted)
-			])
-		]);
+	public Block Pagination(int currentPage, int totalPages, int totalKeys) =>
+		TextBlock.Line(
+			new StyledText($"{_localization.Page} ", TextRole.Muted),
+			new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
+			new StyledText(PageSeparator, TextRole.Muted),
+			new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
+			new StyledText($" {_localization.TotalKeys}", TextRole.Muted));
 
-	public PanelModel Detail(string label, string value, TextRole valueRole) =>
-		new([new PanelLine([new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole)])]);
+	public Block Detail(string label, string value, TextRole valueRole) =>
+		TextBlock.Line(new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole));
 
-	public PanelModel Selected(string selectedKey) =>
-		new(
-		[
-			new PanelLine(
-			[
-				new StyledText($"{_localization.Selected} ", TextRole.Muted),
-				new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent)
-			])
-		]);
+	public Block Selected(string selectedKey) =>
+		TextBlock.Line(
+			new StyledText($"{_localization.Selected} ", TextRole.Muted),
+			new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent));
 
-	public PanelModel Actions(bool canModify)
+	public Block Actions(bool canModify)
 	{
 		List<StyledText> hints = [];
 
@@ -95,8 +83,6 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 		hints.Add(new StyledText("Esc", TextRole.Primary));
 		hints.Add(new StyledText($" {_localization.Cancel}", TextRole.Muted));
 
-		return new PanelModel([new PanelLine(hints)]);
+		return TextBlock.Line([.. hints]);
 	}
-
-	private static PanelModel Line(IReadOnlyList<StyledText> spans) => new([new PanelLine(spans)]);
 }

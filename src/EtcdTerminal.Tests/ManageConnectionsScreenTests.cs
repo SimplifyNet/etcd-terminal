@@ -27,10 +27,10 @@ public sealed class ManageConnectionsScreenTests
 		var frame = harness.Host.Frames.Single();
 
 		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0].Kind, Is.EqualTo(PanelKind.Title));
-		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo(harness.Terminal.Indent + "Manage Connections"));
+		Assert.That(frame.Body[0], Is.InstanceOf<TitleBlock>());
+		Assert.That(((TitleBlock)frame.Body[0]).Title.Text, Is.EqualTo(harness.Terminal.Indent + "Manage Connections"));
 
-		var actions = frame.Body[1].Lines.Select(line => line.Text).ToList();
+		var actions = ((TextBlock)frame.Body[1]).Lines.Select(LineText.Of).ToList();
 
 		Assert.That(actions, Has.Count.EqualTo(5));
 		Assert.That(actions[0], Does.Contain("Add Instance"));
@@ -48,7 +48,7 @@ public sealed class ManageConnectionsScreenTests
 
 		harness.Screen.Show(harness.Instances);
 
-		var actions = harness.Host.Frames.Single().Body[1].Lines.Select(line => line.Text).ToList();
+		var actions = ((TextBlock)harness.Host.Frames.Single().Body[1]).Lines.Select(LineText.Of).ToList();
 
 		Assert.That(actions, Has.Count.EqualTo(1));
 	}

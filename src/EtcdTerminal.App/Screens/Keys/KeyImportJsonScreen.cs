@@ -13,7 +13,6 @@ namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyImportJsonScreen(
 	ITerminalOutput _output,
-	ITerminalStyle _style,
 	IKeyImporter _importer,
 	ScreenShell _shell,
 	Prompt _prompt,
@@ -25,7 +24,6 @@ public sealed class KeyImportJsonScreen(
 	IAppSettingsStore _settings) : IMainMenuEntry
 {
 	private const int _previewLimit = 15;
-	private const int _previewValueLength = 60;
 
 	public MainMenuAction Action => MainMenuAction.ImportJson;
 
@@ -152,28 +150,27 @@ public sealed class KeyImportJsonScreen(
 
 	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
 	{
-		// The preview, the question and the choices must stay on one screen, so
-		// they share panels instead of growing one panel per line.
-		List<PanelLine> preview =
+		List<Block> preview =
 		[
-			new([new StyledText(string.Format(_localization.ImportPreviewTitle, entries.Count), TextRole.Primary)]),
-			new([])
+			TextBlock.Line(new StyledText(string.Format(_localization.ImportPreviewTitle, entries.Count), TextRole.Primary)),
+			TextBlock.Blank()
 		];
+		List<IReadOnlyList<StyledText>> previewRows = [];
 
 		foreach (var (Key, Value) in entries.Take(_previewLimit))
-		{
-			preview.Add(new PanelLine(
+			previewRows.Add(
 			[
-				new StyledText(_style.Indent + Key + " = ", TextRole.Primary),
-				new StyledText(ValuePreview.Preview(Value, _previewValueLength), TextRole.Muted)
-			]));
-		}
+				new StyledText(Key, TextRole.Primary),
+				new StyledText(ValuePreview.Sanitize(Value), TextRole.Muted)
+			]);
+
+		preview.Add(new TableBlock([], previewRows));
 
 		if (entries.Count > _previewLimit)
-			preview.Add(new([new StyledText(string.Format(_localization.ImportPreviewMore, entries.Count - _previewLimit), TextRole.Muted)]));
+			preview.Add(TextBlock.Line(new StyledText(string.Format(_localization.ImportPreviewMore, entries.Count - _previewLimit), TextRole.Muted)));
 
-		preview.Add(new([]));
-		preview.Add(new([new StyledText(_localization.ConfirmImport, TextRole.Primary)]));
+		preview.Add(TextBlock.Blank());
+		preview.Add(TextBlock.Line(new StyledText(_localization.ConfirmImport, TextRole.Primary)));
 
 		bool? confirmed = _menu.ShowFramed<bool>(
 			string.Empty,
@@ -181,7 +178,7 @@ public sealed class KeyImportJsonScreen(
 				new(true, _localization.Yes),
 				new(false, _localization.No)
 			],
-			notices: [new PanelModel(preview)])?.Id;
+			notices: preview)?.Id;
 
 		return confirmed ?? false;
 	}

@@ -59,18 +59,18 @@ Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.
 - [x] Build (nothing uses them yet), commit.
 
 ### T1.2 Replace PanelModel with Block everywhere
-- [ ] `Header.BuildModel()` returns `BannerBlock` (`new BannerBlock("etcd-terminal")`).
-- [ ] `KeyBrowseLayout`: `Search`, `Pagination`, `Detail`, `Selected` return `TextBlock`; `KeyList` returns `TableBlock` with empty `Header` and rows `[marker, key, value]` (marker stays for now, removed in T3.3); `Actions` returns `TextBlock`. Return type of every method: `Block`.
-- [ ] `UserListLayout`, `RoleListLayout`, `PermissionViewLayout`: return `IReadOnlyList<Block>`; tables become `TableBlock` with the header row moved into `Header`; titles become `TitleBlock`; notices become `TextBlock.Line(new StyledText(text, TextRole.Warning))`.
-- [ ] `KeyImportJsonScreen.ConfirmImport` preview: build a `List<Block>` (title line as `TextBlock`, entries as `TableBlock(Header: [], Rows: [[key, value]])`, "more" line, question line). Keep the `Menu.ShowFramed(..., notices: blocks)` call for now; change the `notices` parameter type in `Menu` to `IReadOnlyList<Block>?`.
-- [ ] `Menu.Frame`: title → `TitleBlock`, rows → `TextBlock`.
-- [ ] `PressAnyKeyPrompt.Hint()` → `TextBlock` of two lines.
-- [ ] `ScreenModel`: `Header` becomes `BannerBlock?`, `Body` becomes `IReadOnlyList<Block>`.
-- [ ] `SpectrePanelRenderer`: rename file and class to `BlockRenderer`. Public API: `IRenderable Render(Block block)`. Implementation with a `switch` expression on the record type: `TextBlock` → `new Rows(lines.Select(_styles.Build))`; `TitleBlock` → `new Padder(_styles.Build([title]), new Padding(0, 1, 0, 1))`; `BannerBlock` → `FigletText` colored with `ITheme.Banner`, `.Centered()`; `TableBlock` → `new Table().NoBorder().Expand()`; add one `TableColumn` per header cell (or per widest row when header is empty) with `NoWrap = true`; `ShowHeaders = header.Count > 0`; every cell is `_styles.Build([span])` with `Overflow = Overflow.Ellipsis`. Delete all `cellWidth` arithmetic, `ColumnGap`, `MarkerColumns`, `PaddingRight`.
-- [ ] `SpectreScreenHost.Main` uses `_panels.Render(...)`.
-- [ ] Delete `PanelModel.cs`, `PanelLine.cs`, `PanelKind.cs`.
-- [ ] Update tests: `PanelModelTests` → rename to `LayoutModelTests`; assertions use `TextBlock.Lines[i]` and `TableBlock.Rows[i]`. `SpectreRenderingTests` panel tests call `BlockRenderer.Render`. Delete the tests at `SpectreRenderingTests.cs:46-56` (column-0 indentation) and `:74-99` (row count/line length).
-- [ ] Build, test, commit.
+- [x] `Header.BuildModel()` returns `BannerBlock` (`new BannerBlock("etcd-terminal")`).
+- [x] `KeyBrowseLayout`: `Search`, `Pagination`, `Detail`, `Selected` return `TextBlock`; `KeyList` returns `TableBlock` with empty `Header` and rows `[marker, key, value]` (marker stays for now, removed in T3.3); `Actions` returns `TextBlock`. Return type of every method: `Block`.
+- [x] `UserListLayout`, `RoleListLayout`, `PermissionViewLayout`: return `IReadOnlyList<Block>`; tables become `TableBlock` with the header row moved into `Header`; titles become `TitleBlock`; notices become `TextBlock.Line(new StyledText(text, TextRole.Warning))`.
+- [x] `KeyImportJsonScreen.ConfirmImport` preview: build a `List<Block>` (title line as `TextBlock`, entries as `TableBlock(Header: [], Rows: [[key, value]])`, "more" line, question line). Keep the `Menu.ShowFramed(..., notices: blocks)` call for now; change the `notices` parameter type in `Menu` to `IReadOnlyList<Block>?`.
+- [x] `Menu.Frame`: title → `TitleBlock`, rows → `TextBlock`.
+- [x] `PressAnyKeyPrompt.Hint()` → `TextBlock` of two lines.
+- [x] `ScreenModel`: `Header` becomes `BannerBlock?`, `Body` becomes `IReadOnlyList<Block>`.
+- [x] `SpectrePanelRenderer`: rename file and class to `BlockRenderer`. Public API: `IRenderable Render(Block block)`. Implementation with a `switch` expression on the record type: `TextBlock` → `new Rows(lines.Select(_styles.Build))`; `TitleBlock` → `new Padder(_styles.Build([title]), new Padding(0, 1, 0, 1))`; `BannerBlock` → `FigletText` colored with `ITheme.Banner`, `.Centered()`; `TableBlock` → `new Table().NoBorder().Expand()`; add one `TableColumn` per header cell (or per widest row when header is empty) with `NoWrap = true`; `ShowHeaders = header.Count > 0`; every cell is `_styles.Build([span])` with `Overflow = Overflow.Ellipsis`. Delete all `cellWidth` arithmetic, `ColumnGap`, `MarkerColumns`, `PaddingRight`.
+- [x] `SpectreScreenHost.Main` uses `_panels.Render(...)`.
+- [x] Delete `PanelModel.cs`, `PanelLine.cs`, `PanelKind.cs`.
+- [x] Update tests: `PanelModelTests` → rename to `LayoutModelTests`; assertions use `TextBlock.Lines[i]` and `TableBlock.Rows[i]`. `SpectreRenderingTests` panel tests call `BlockRenderer.Render`. Delete the tests at `SpectreRenderingTests.cs:46-56` (column-0 indentation) and `:74-99` (row count/line length).
+- [x] Build, test, commit.
 
 ### T1.3 New operation contracts in Presentation
 - [ ] `ITerminalSession.cs`:

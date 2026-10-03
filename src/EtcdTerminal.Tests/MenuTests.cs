@@ -3,6 +3,7 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -39,7 +40,7 @@ public sealed class MenuTests
 
 		var frame = harness.Host.Frames.Single();
 
-		Assert.That(frame.Body[1].Lines.Single().Text, Does.Contain("[::1]"));
+		Assert.That(LineText.Of(((TextBlock)frame.Body[1]).Lines.Single()), Does.Contain("[::1]"));
 	}
 
 	[Test]

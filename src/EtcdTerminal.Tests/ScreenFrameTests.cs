@@ -114,19 +114,19 @@ public sealed class ScreenFrameTests
 			new MenuItem<int>(2, "staging", true)
 		]);
 
-		var rows = host.Current.Body[^1].Lines;
+		var rows = ((TextBlock)host.Current.Body[^1]).Lines;
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(rows[0].Spans[0].Role, Is.EqualTo(TextRole.Accent), "Enter accepts the selected item");
-			Assert.That(rows[0].Spans[0].Text, Does.Contain("\u276f"));
-			Assert.That(rows[1].Spans[0].Role, Is.EqualTo(TextRole.Primary));
-			Assert.That(rows[1].Spans[0].Text, Does.Not.Contain("\u276f"));
+			Assert.That(rows[0][0].Role, Is.EqualTo(TextRole.Accent), "Enter accepts the selected item");
+			Assert.That(rows[0][0].Text, Does.Contain("\u276f"));
+			Assert.That(rows[1][0].Role, Is.EqualTo(TextRole.Primary));
+			Assert.That(rows[1][0].Text, Does.Not.Contain("\u276f"));
 		});
 	}
 
 	private static SpectreScreenHost Host(TestConsole console, ReddyTheme theme) =>
-		new(console, new SpectrePanelRenderer(console, new RoleStyleMapper(theme), theme), new SpectreStatusBarRenderer(console, new RoleStyleMapper(theme), new RecordingTerminal()));
+		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new SpectreStatusBarRenderer(console, new RoleStyleMapper(theme), new RecordingTerminal()));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

@@ -139,7 +139,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void PresentationReferencesNoDomainInfrastructureOrSpectre()
 	{
-		var presentationAssembly = typeof(Presentation.PanelModel).Assembly;
+		var presentationAssembly = typeof(Presentation.Block).Assembly;
 
 		var forbidden = new[] { "EtcdTerminal", "EtcdTerminal.Infrastructure", "EtcdTerminal.App" };
 

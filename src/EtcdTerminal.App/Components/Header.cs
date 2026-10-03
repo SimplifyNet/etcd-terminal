@@ -10,6 +10,5 @@ public sealed class Header
 {
 	private const string BannerText = "etcd-terminal";
 
-	public PanelModel BuildModel() =>
-		new([new PanelLine([new StyledText(BannerText, TextRole.Primary)])], PanelKind.Banner);
+	public BannerBlock BuildModel() => new(BannerText);
 }

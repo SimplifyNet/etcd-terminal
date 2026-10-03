@@ -9,7 +9,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// top row, every update replaces it instead of appending, and the footer region
 /// has a fixed height so it stays on the last row of the terminal.
 /// </summary>
-public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRenderer _panels, SpectreStatusBarRenderer _footer) : IScreenHost
+public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _panels, SpectreStatusBarRenderer _footer) : IScreenHost
 {
 	/// The status bar is a single line pinned to the last row of the terminal.
 	private const int FooterRows = 1;
@@ -186,10 +186,10 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, SpectrePanelRendere
 		var content = new List<IRenderable>();
 
 		if (model.Header is not null)
-			content.Add(_panels.Banner(model.Header));
+			content.Add(_panels.Render(model.Header));
 
-		foreach (var panel in model.Body)
-			content.Add(_panels.Build(panel, _console.Profile.Width));
+		foreach (var block in model.Body)
+			content.Add(_panels.Render(block));
 
 		return new Rows(content);
 	}

@@ -48,10 +48,10 @@ public sealed class KeyBrowseControl(
 	/// Shows a short frame of its own, for example the details written before a
 	/// prompt. The console is handed back so the prompt can draw underneath.
 	/// </summary>
-	public void ShowDetails(params IReadOnlyList<PanelModel> panels)
+	public void ShowDetails(params IReadOnlyList<Block> blocks)
 	{
 		Release();
-		_host.Begin(Frame(panels));
+		_host.Begin(Frame(blocks));
 		_host.End();
 	}
 
@@ -169,7 +169,7 @@ public sealed class KeyBrowseControl(
 		SelectedIndex = 0;
 	}
 
-	private IEnumerable<PanelModel> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
+	private IEnumerable<Block> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
 		yield return _layout.Search(SearchQuery);
 		yield return _layout.KeyList(pageKeys, SelectedIndex);
@@ -182,7 +182,7 @@ public sealed class KeyBrowseControl(
 		yield return _layout.Actions(CanModifySelectedKey);
 	}
 
-	private ScreenModel Frame(IReadOnlyList<PanelModel> body) =>
+	private ScreenModel Frame(IReadOnlyList<Block> body) =>
 		new()
 		{
 			Header = _header.BuildModel(),

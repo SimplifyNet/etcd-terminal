@@ -14,12 +14,12 @@ namespace EtcdTerminal.App.Screens.Permissions;
 /// </summary>
 public sealed class PermissionViewLayout(ILocalization _localization)
 {
-	public IReadOnlyList<PanelModel> Body(IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
+	public IReadOnlyList<Block> Body(IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
 	{
 		if (users.Count == 0 && roles.Count == 0)
 			return [Notice(_localization.NoUsersOrRoles)];
 
-		List<PanelModel> body = [];
+		List<Block> body = [];
 
 		foreach (var user in users)
 		{
@@ -30,25 +30,25 @@ public sealed class PermissionViewLayout(ILocalization _localization)
 		return body;
 	}
 
-	private PanelModel Title(string text) =>
-		new([new PanelLine([new StyledText(text, TextRole.Primary)])], PanelKind.Title);
+	private static TitleBlock Title(string text) =>
+		new(new StyledText(text, TextRole.Primary));
 
-	private PanelModel Notice(string text) =>
-		new([new PanelLine([new StyledText(text, TextRole.Warning)])]);
+	private static TextBlock Notice(string text) =>
+		TextBlock.Line(new StyledText(text, TextRole.Warning));
 
-	private PanelModel Permissions(EtcdUser user, IReadOnlyList<EtcdRole> roles)
+	private Block Permissions(EtcdUser user, IReadOnlyList<EtcdRole> roles)
 	{
-		List<PanelLine> rows = [Header(_localization.Role, _localization.Permissions)];
+		List<IReadOnlyList<StyledText>> rows = [];
 
 		if (user.Roles.Count == 0)
 		{
-			rows.Add(new PanelLine(
+			rows.Add(
 			[
 				new StyledText(_localization.NoRoles, TextRole.Muted),
 				new StyledText("-", TextRole.Muted)
-			]));
+			]);
 
-			return new PanelModel(rows, PanelKind.Table);
+			return new TableBlock(ColumnHeaders(), rows);
 		}
 
 		foreach (var roleName in user.Roles)
@@ -58,16 +58,19 @@ public sealed class PermissionViewLayout(ILocalization _localization)
 				? string.Join("\n", role.Permissions.Select(permission => PermissionDisplay.For(permission, _localization)))
 				: _localization.NoPermissions;
 
-			rows.Add(new PanelLine(
+			rows.Add(
 			[
 				new StyledText(roleName, TextRole.Primary),
 				new StyledText(permissions, TextRole.Primary)
-			]));
+			]);
 		}
 
-		return new PanelModel(rows, PanelKind.Table);
+		return new TableBlock(ColumnHeaders(), rows);
 	}
 
-	private PanelLine Header(string role, string permissions) =>
-		new([new StyledText(role, TextRole.Muted), new StyledText(permissions, TextRole.Muted)]);
+	private IReadOnlyList<StyledText> ColumnHeaders() =>
+	[
+		new StyledText(_localization.Role, TextRole.Muted),
+		new StyledText(_localization.Permissions, TextRole.Muted)
+	];
 }

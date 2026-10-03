@@ -10,12 +10,12 @@ public sealed record ScreenModel
 	/// <summary>
 	/// Banner shown above the body, or null for screens without one.
 	/// </summary>
-	public PanelModel? Header { get; init; }
+	public BannerBlock? Header { get; init; }
 
 	/// <summary>
 	/// Content of the screen, in order.
 	/// </summary>
-	public IReadOnlyList<PanelModel> Body { get; init; } = [];
+	public IReadOnlyList<Block> Body { get; init; } = [];
 
 	/// <summary>
 	/// Session information pinned below the body. Null hides the footer.

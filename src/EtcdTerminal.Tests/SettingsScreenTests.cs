@@ -26,11 +26,11 @@ public sealed class SettingsScreenTests
 
 		var frame = harness.Host.Frames.Single();
 
-		var actions = frame.Body[1].Lines.Select(line => line.Text).ToList();
+		var actions = ((TextBlock)frame.Body[1]).Lines.Select(LineText.Of).ToList();
 
 		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0].Kind, Is.EqualTo(PanelKind.Title));
-		Assert.That(frame.Body[0].Lines.Single().Text, Is.EqualTo(harness.Terminal.Indent + "Settings"));
+		Assert.That(frame.Body[0], Is.InstanceOf<TitleBlock>());
+		Assert.That(((TitleBlock)frame.Body[0]).Title.Text, Is.EqualTo(harness.Terminal.Indent + "Settings"));
 		Assert.That(actions, Has.Count.EqualTo(2));
 		Assert.That(actions[0], Does.Contain("Keys per page (30)"));
 		Assert.That(actions[1], Does.Contain("Trim input values (On)"));
