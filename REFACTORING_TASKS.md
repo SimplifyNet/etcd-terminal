@@ -454,10 +454,18 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 - [x] `ITerminalSession.BeginFrame`/`EndFrame` keep their tests but have no caller while `SpectreScreenHost` is gone; whether the key browser frames adopt them or the clamped frames make them obsolete is decided after the T3.4 pty run.
 
 ### T3.4 Phase 3 PTY check
-- [ ] Key browser: type to filter, arrows, Enter → actions, E/D, Esc; frame redraws in place; after edit the browser is back; footer intact.
-- [ ] Import JSON: paste → counter updates → final "Pasted N lines" stays → preview → Yes/No.
+- [x] Key browser: type to filter, arrows, Enter → actions, E/D, Esc; frame redraws in place; after edit the browser is back; footer intact.
+- [x] Import JSON: paste → counter updates → final "Pasted N lines" stays → preview → Yes/No.
 
 ---
+
+
+Verified on a 24x80 pty with the scroll region aware emulator (`/tmp/opencode/steps_t34a.py`, `steps_t34b.py`, `steps_t34c.py`, `vt.py`), connecting to `etcd-local` with five seeded keys:
+
+- Key browser: typed `service` filters to two rows while the banner and footer rows stay untouched; Down/Up repaint only the two marker rows; Enter adds `Selected` and the `E Edit   D Delete   Esc Cancel` hints; `E` opens the detail screen and the value prompt, accepting it shows `Key updated successfully!`, any key returns to the browser with filter and selection preserved; `D` shows `Delete key: ...`, deletes the key and the browser comes back with reloaded counts; Esc walks back through the main menu and the instance menu and exits the application. The selected row and the `Selected:` value carry accent `220;95;51`.
+- Import JSON: separator and prefix prompts stream below the banner; the paste prompt is followed by a blank line and the subtle `waiting for paste...` status; pasting four lines repaints the counter to accent `[pasted 4 lines]`, which stays on screen until the preview screen replaces it; the preview lists both keys and offers `Yes`/`No` with the accent on the selection, `Down` + `Enter` on `No` shows `Import cancelled.` and any key returns to the main menu.
+- The footer sits on row 23 at every checkpoint (session bullet present after connect, never touched by a frame), the banner rows stay stable, and all three runs record zero scroll events.
+- Not verified: terminal resize, the non ANSI backend, a real terminal emulator's colours, the delete path when the key store rejects the write.
 
 ## Phase 4 — Delete the legacy terminal layer
 
