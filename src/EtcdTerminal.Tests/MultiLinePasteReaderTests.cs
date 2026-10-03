@@ -1,8 +1,6 @@
 using System.Text;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
-using EtcdTerminal.Environment;
-using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 
@@ -42,15 +40,6 @@ public sealed class MultiLinePasteReaderTests
 		Assert.That(await CreateReader(terminal).ReadAsync("Paste:"), Is.Null);
 	}
 
-	private static MultiLinePasteReader CreateReader(FakeTerminal terminal)
-	{
-		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
-
-		return new MultiLinePasteReader(terminal, statusBar, new EnglishLocalization());
-	}
-
-	private sealed class StubAppInfo : IAppInfo
-	{
-		public string Version => "0.0";
-	}
+	private static MultiLinePasteReader CreateReader(FakeTerminal terminal) =>
+		new(terminal, new EnglishLocalization());
 }

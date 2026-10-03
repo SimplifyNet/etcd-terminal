@@ -1,4 +1,3 @@
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation.Localization;
@@ -7,28 +6,14 @@ using EtcdTerminal.Configuration;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class StatusBar(ITerminalCursor _cursor, IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization, IStatusBarRenderer _statusBar)
+/// <summary>
+/// The session footer's model: the localized keyboard hints on the left and the
+/// connection details on the right. This component owns the literal text and
+/// the role of every field; it does not know the available width and does not
+/// decide what to drop.
+/// </summary>
+public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization)
 {
-	public void EnsureRoomAbove(int rows = 1) => _statusBar.EnsureRoomAbove(rows);
-
-	public void ClearBelow() => _statusBar.ClearBelow();
-
-	public void RenderPreservingCursor()
-	{
-		var left = _cursor.CursorLeft;
-		var top = _cursor.CursorTop;
-
-		Render();
-		_cursor.SetCursorPosition(left, top);
-	}
-
-	public void Render() => _statusBar.Write(BuildModel());
-
-	/// <summary>
-	/// Collects session information and localized hints. This component owns the
-	/// literal text and the role of every field; it does not know the available
-	/// width and does not decide what to drop.
-	/// </summary>
 	public StatusBarModel BuildModel()
 	{
 		var active = _session.Active;

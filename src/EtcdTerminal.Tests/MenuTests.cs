@@ -79,7 +79,7 @@ public sealed class MenuTests
 
 		public Harness()
 		{
-			var statusBar = new StatusBar(Terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 
 			Menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 		}

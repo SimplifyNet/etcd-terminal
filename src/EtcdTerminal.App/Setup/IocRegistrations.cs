@@ -44,6 +44,7 @@ public static class IocRegistrations
 			   .RegisterRoles()
 			   .RegisterSecurity()
 			   .RegisterEnvironment()
+			   .RegisterApplication()
 			   .RegisterEngine()
 			   .RegisterComponents()
 			   .RegisterScreens();
@@ -61,12 +62,13 @@ public static class IocRegistrations
 		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
 		.Register<ITerminalSession, ConsoleTerminalSession>(LifetimeType.Singleton)
+		.Register<IScreenCanvas, SpectreScreenCanvas>(LifetimeType.Singleton)
+		.Register<IKeyReader, SpectreKeyReader>(LifetimeType.Singleton)
 		.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)
 		.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)
 		.Register<BlockRenderer>(LifetimeType.Singleton)
-		.Register<SpectreStatusBarRenderer>(LifetimeType.Singleton)
-		.Register<IStatusBarRenderer>(c => c.Resolve<SpectreStatusBarRenderer>(), LifetimeType.Singleton)
+		.Register<StatusBarRenderer>(LifetimeType.Singleton)
 		.Register<SpectreStatusIndicator>(LifetimeType.Singleton)
 		.Register<IStatusIndicator>(c => c.Resolve<SpectreStatusIndicator>(), LifetimeType.Singleton)
 		.Register<SpectreScreenHost>(LifetimeType.Singleton)
@@ -120,6 +122,10 @@ public static class IocRegistrations
 		.Register<IAppEnvironment, AppEnvironment>(LifetimeType.Singleton)
 		.Register<IAppInfo, AppInfo>(LifetimeType.Singleton);
 
+	public static IDIRegistrator RegisterApplication(this IDIRegistrator registrator) => registrator
+		.Register<IDIContainerProvider>(c => DIContainer.Current, LifetimeType.Singleton)
+		.Register<AppRunner>(LifetimeType.Singleton);
+
 	public static IDIRegistrator RegisterEngine(this IDIRegistrator registrator) => registrator
 		.Register<Menu>(LifetimeType.Transient)
 		.Register<Prompt>(LifetimeType.Transient);
@@ -128,7 +134,7 @@ public static class IocRegistrations
 		.Register<StatusBar>(LifetimeType.Transient)
 		.Register<Header>(LifetimeType.Transient)
 		.Register<MenuScreen>(LifetimeType.Transient)
-		.Register<ScreenShell>(LifetimeType.Transient)
+		.Register<Screen>(LifetimeType.Transient)
 		.Register<UserListLayout>(LifetimeType.Transient)
 		.Register<RoleListLayout>(LifetimeType.Transient)
 		.Register<PermissionViewLayout>(LifetimeType.Transient)

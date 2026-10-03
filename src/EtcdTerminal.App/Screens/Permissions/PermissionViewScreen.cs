@@ -7,7 +7,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, ScreenShell _shell, PermissionViewLayout _layout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
+public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, Screen _screen, PermissionViewLayout _layout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ViewPermissions;
 
@@ -16,7 +16,7 @@ public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdm
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync()
 	{
-		_shell.Show();
+		_screen.Open();
 
 		IReadOnlyList<EtcdUser> users = [];
 		IReadOnlyList<EtcdRole> roles = [];

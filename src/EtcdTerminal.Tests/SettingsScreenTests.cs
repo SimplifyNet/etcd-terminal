@@ -56,16 +56,18 @@ public sealed class SettingsScreenTests
 	{
 		public readonly FakeTerminal Terminal = new();
 		public readonly FakeScreenHost Host = new();
+		public readonly FakeScreenCanvas Canvas = new();
 		public readonly RecordingSettingsRepository Repository = new();
 		public readonly AppSettingsStore Settings = new();
 		public readonly SettingsScreen Screen;
 
 		public Harness()
 		{
+			var keys = new FakeKeyReader(Terminal.Keys);
 			var localization = new EnglishLocalization();
-			var statusBar = new StatusBar(Terminal, new StubAppInfo(), new ConnectionSession(), localization, new FakeStatusBarRenderer());
-			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
-			var message = new Message(Terminal, statusBar, localization);
+			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
+			var prompt = new Prompt(new StubTextInput());
+			var message = new Message(new Screen(Canvas, new Header(), statusBar), keys, localization);
 			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 
 			Screen = new SettingsScreen(Repository, menu, prompt, message, localization, Settings);

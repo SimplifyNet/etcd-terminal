@@ -5,16 +5,14 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyImportJsonScreen(
-	ITerminalOutput _output,
 	IKeyImporter _importer,
-	ScreenShell _shell,
+	Screen _screen,
 	Prompt _prompt,
 	MultiLinePasteReader _pasteReader,
 	Menu _menu,
@@ -33,7 +31,7 @@ public sealed class KeyImportJsonScreen(
 
 	public async Task ShowAsync()
 	{
-		_shell.Show();
+		_screen.Open();
 
 		var trim = _settings.Current.TrimInputValues;
 		var separator = _prompt.Ask(_localization.EnterSeparator, ":", trim: trim);
@@ -45,8 +43,6 @@ public sealed class KeyImportJsonScreen(
 
 		if (prefix is null)
 			return;
-
-		_output.WriteLine();
 
 		var json = await _pasteReader.ReadAsync(_localization.PasteJson);
 
@@ -87,8 +83,6 @@ public sealed class KeyImportJsonScreen(
 		}
 
 		KeyImportResult confirmed = default;
-
-		_output.WriteLine();
 
 		bool completed;
 

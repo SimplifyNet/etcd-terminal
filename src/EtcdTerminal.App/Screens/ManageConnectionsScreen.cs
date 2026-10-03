@@ -6,7 +6,7 @@ using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
+public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
@@ -144,8 +144,6 @@ public sealed class ManageConnectionsScreen(ITerminalOutput _terminal, IConnecti
 
 		if (nameToRemove is null)
 			return;
-
-		_terminal.WriteLine();
 
 		_configRepo.RemoveInstance(nameToRemove);
 

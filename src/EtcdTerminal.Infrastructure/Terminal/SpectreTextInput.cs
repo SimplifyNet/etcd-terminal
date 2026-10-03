@@ -9,9 +9,11 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 
 	public string? ReadLine(string prompt, string? defaultValue = null)
 	{
+		_console.Cursor.Show(true);
+
 		try
 		{
-			var textPrompt = new TextPrompt<string>(prompt)
+			var textPrompt = new TextPrompt<string>(Markup.Escape(prompt))
 				.PromptStyle(_promptStyle)
 				.AllowEmpty();
 
@@ -27,13 +29,19 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 		{
 			return null;
 		}
+		finally
+		{
+			_console.Cursor.Show(false);
+		}
 	}
 
 	public string? ReadSecret(string prompt)
 	{
+		_console.Cursor.Show(true);
+
 		try
 		{
-			return _console.Prompt(new TextPrompt<string>(prompt)
+			return _console.Prompt(new TextPrompt<string>(Markup.Escape(prompt))
 				.PromptStyle(_promptStyle)
 				.Secret()
 				.AllowEmpty());
@@ -41,6 +49,10 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 		catch (OperationCanceledException)
 		{
 			return null;
+		}
+		finally
+		{
+			_console.Cursor.Show(false);
 		}
 	}
 }

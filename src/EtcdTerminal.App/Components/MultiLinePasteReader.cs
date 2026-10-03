@@ -5,7 +5,7 @@ using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusBar, ILocalization _localization)
+public sealed class MultiLinePasteReader(ITerminal _terminal, ILocalization _localization)
 {
 	private const int _pasteBurstThresholdMs = 40;
 
@@ -15,13 +15,11 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 
 		try
 		{
-			_statusBar.EnsureRoomAbove();
 			_terminal.Write(_terminal.Indent + prompt + " ");
 			_terminal.WriteLine();
 			_terminal.WriteLine();
 			_terminal.Flush();
 
-			_statusBar.RenderPreservingCursor();
 
 			// Previously queued input (a paste or an Escape that cancels) is
 			// consumed below, never discarded here.
@@ -70,7 +68,6 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 		}
 		finally
 		{
-			_statusBar.RenderPreservingCursor();
 			_terminal.SetCursorVisible(false);
 		}
 	}

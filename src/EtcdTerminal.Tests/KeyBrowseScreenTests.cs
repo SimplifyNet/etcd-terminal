@@ -126,9 +126,10 @@ public sealed class KeyBrowseScreenTests
 
 			Store = new DictKeyStore(initial);
 
-			var statusBar = new StatusBar(Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
-			var prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
-			var message = new Message(Terminal, statusBar, localization);
+			var keys = new FakeKeyReader(Terminal.Keys);
+			var statusBar = new StatusBar(new StubAppInfo(), session, localization);
+			var prompt = new Prompt(TextInput);
+			var message = new Message(new Screen(new FakeScreenCanvas(), new Header(), statusBar), keys, localization);
 			var browseLayout = new KeyBrowseLayout(Terminal, localization);
 
 			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(), statusBar, session);

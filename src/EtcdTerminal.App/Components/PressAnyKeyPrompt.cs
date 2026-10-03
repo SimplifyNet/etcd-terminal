@@ -1,40 +1,25 @@
 using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Components;
 
 /// <summary>
 /// Presents content as one complete screen: the banner, the body the caller
-/// composed, the hint that a key continues, and the session footer. Holding the
-/// frame while waiting keeps the hint above the footer and leaves a single
-/// writer on every region of the screen.
+/// composed, the hint that a key continues, and the session footer. The screen
+/// stays on while waiting, so the hint sits above the footer and a single
+/// component owns every row of the viewport.
 /// </summary>
-public sealed class PressAnyKeyPrompt(IScreenHost _host, Header _header, StatusBar _statusBar, ITerminalInput _input, ILocalization _localization)
+public sealed class PressAnyKeyPrompt(Screen _screen, IKeyReader _keys, ILocalization _localization)
 {
 	public void Show(IReadOnlyList<Block> body)
 	{
-		_host.Begin(new ScreenModel
-		{
-			Header = _header.BuildModel(),
-			Body = [.. body, Hint()],
-			Footer = _statusBar.BuildModel()
-		});
-
-		try
-		{
-			_input.ReadKey();
-		}
-		finally
-		{
-			_host.End();
-		}
-	}
-
-	private TextBlock Hint() =>
-		new(
+		_screen.Open(
 		[
-			[],
-			[new StyledText(_localization.PressAnyKey, TextRole.Muted)]
+			.. body,
+			TextBlock.Blank(),
+			TextBlock.Line(new StyledText(_localization.PressAnyKey, TextRole.Muted))
 		]);
+
+		_keys.ReadKey();
+	}
 }

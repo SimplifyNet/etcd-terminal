@@ -127,8 +127,7 @@ public sealed class LayoutModelTests
 	[Test]
 	public void BuildModel_WithoutSession_CarriesVersionOnly()
 	{
-		var footer = new FakeStatusBarRenderer();
-		var statusBar = StatusBar(footer, new ConnectionSession());
+		var statusBar = StatusBar(new ConnectionSession());
 
 		var model = statusBar.BuildModel();
 
@@ -142,7 +141,6 @@ public sealed class LayoutModelTests
 	[Test]
 	public void BuildModel_WithAuthenticatedSession_AssignsRolesToSessionFields()
 	{
-		var footer = new FakeStatusBarRenderer();
 		var session = new ConnectionSession();
 
 		session.Start(new EtcdConnectionConfig
@@ -152,7 +150,7 @@ public sealed class LayoutModelTests
 			Username = "root"
 		}, UserCapabilities.Unrestricted);
 
-		var model = StatusBar(footer, session).BuildModel();
+		var model = StatusBar(session).BuildModel();
 
 		Assert.That(model.Name?.Text, Is.EqualTo("prod"));
 		Assert.That(model.Name?.Role, Is.EqualTo(TextRole.Secondary));
@@ -172,13 +170,13 @@ public sealed class LayoutModelTests
 			ConnectionString = "http://localhost:2379"
 		}, UserCapabilities.Unrestricted);
 
-		Assert.That(StatusBar(new FakeStatusBarRenderer(), session).BuildModel().Username, Is.Null);
+		Assert.That(StatusBar(session).BuildModel().Username, Is.Null);
 	}
 
 	[Test]
 	public void BuildModel_MarksVersionExactlyOnce()
 	{
-		var model = StatusBar(new FakeStatusBarRenderer(), new ConnectionSession()).BuildModel();
+		var model = StatusBar(new ConnectionSession()).BuildModel();
 
 		var versionSpans = model.Hints
 			.Append(model.Version)
@@ -191,7 +189,7 @@ public sealed class LayoutModelTests
 	[Test]
 	public void BuildModel_HintsUsePrimaryForKeysAndMutedForDescriptions()
 	{
-		var hints = StatusBar(new FakeStatusBarRenderer(), new ConnectionSession()).BuildModel().Hints;
+		var hints = StatusBar(new ConnectionSession()).BuildModel().Hints;
 
 		Assert.That(hints.Select(span => span.Role), Is.EqualTo(new[]
 		{
@@ -207,8 +205,8 @@ public sealed class LayoutModelTests
 	private static KeyBrowseLayout Layout() =>
 		new(new FakeTerminal(), new EnglishLocalization());
 
-	private static StatusBar StatusBar(FakeStatusBarRenderer footer, ConnectionSession session) =>
-		new(new FakeTerminal(), new StubAppInfo(), session, new EnglishLocalization(), footer);
+	private static StatusBar StatusBar(ConnectionSession session) =>
+		new(new StubAppInfo(), session, new EnglishLocalization());
 
 	private sealed class StubAppInfo : IAppInfo
 	{

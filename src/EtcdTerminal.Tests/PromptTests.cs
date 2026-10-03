@@ -1,11 +1,5 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Localization;
-using EtcdTerminal.Configuration;
-using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation.Terminal;
-using EtcdTerminal.Session;
-using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;
@@ -117,17 +111,12 @@ public sealed class PromptTests
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
 		public readonly QueueTextInput TextInput = new();
 		public readonly Prompt Prompt;
 
 		public Harness()
 		{
-			var session = new ConnectionSession();
-			var localization = new EnglishLocalization();
-			var statusBar = new StatusBar(Terminal, new StubAppInfo(), session, localization, new FakeStatusBarRenderer());
-
-			Prompt = new Prompt(Terminal, Terminal, Terminal, TextInput, statusBar);
+			Prompt = new(TextInput);
 		}
 	}
 
@@ -138,10 +127,5 @@ public sealed class PromptTests
 		public string? ReadLine(string prompt, string? defaultValue = null) => Answers.Dequeue();
 
 		public string? ReadSecret(string prompt) => Answers.Dequeue();
-	}
-
-	private sealed class StubAppInfo : IAppInfo
-	{
-		public string Version => "0.0";
 	}
 }

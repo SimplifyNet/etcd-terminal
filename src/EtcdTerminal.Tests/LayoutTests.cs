@@ -2,8 +2,6 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Keys;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
@@ -17,7 +15,7 @@ public sealed class LayoutTests
 	[Test]
 	public void LongConnectionDetails_FooterModelKeepsFullLiteralValues()
 	{
-		var harness = new Harness(40, 24);
+		var harness = new Harness();
 
 		harness.Session.Start(new EtcdConnectionConfig
 		{
@@ -26,9 +24,7 @@ public sealed class LayoutTests
 			Username = new string('u', 40)
 		}, UserCapabilities.Unrestricted);
 
-		harness.StatusBar.Render();
-
-		var model = harness.StatusBarRenderer.Last;
+		var model = harness.StatusBar.BuildModel();
 
 		Assert.That(model.Name?.Text, Is.EqualTo(new string('n', 60)));
 		Assert.That(model.Connection?.Text, Is.EqualTo("http://" + new string('h', 90) + ":2379"));
@@ -36,37 +32,33 @@ public sealed class LayoutTests
 	}
 
 	[Test]
-	public void Shell_ComposesBannerAndFooterAndReleasesTheHost()
+	public void Screen_ComposesBannerAndFooterOnTheCanvas()
 	{
-		var harness = new Harness(80, 24);
+		var harness = new Harness();
 
-		harness.Shell.Show();
+		harness.Screen.Open();
 
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(1));
-		Assert.That(harness.Host.EndCount, Is.EqualTo(1));
-		Assert.That(harness.Host.IsRunning, Is.False);
-		Assert.That(harness.Host.Current.Header, Is.Not.Null);
-		Assert.That(harness.Host.Current.Footer, Is.Not.Null);
-		Assert.That(harness.Host.Current.Body, Is.Empty);
+		Assert.Multiple(() =>
+		{
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));
+			Assert.That(harness.Canvas.Footers, Has.Count.EqualTo(1));
+			Assert.That(harness.Canvas.Blocks, Has.Count.EqualTo(1), "an empty screen is the banner alone");
+		});
 	}
 
 	private sealed class Harness
 	{
-		public readonly RecordingTerminal Terminal;
 		public readonly ConnectionSession Session = new();
-		public readonly FakeStatusBarRenderer StatusBarRenderer = new();
+		public readonly FakeScreenCanvas Canvas = new();
 		public readonly StatusBar StatusBar;
-		public readonly FakeScreenHost Host = new();
-		public readonly ScreenShell Shell;
+		public readonly Screen Screen;
 
-		public Harness(int width, int height)
+		public Harness()
 		{
-			Terminal = new RecordingTerminal { WindowWidth = width, WindowHeight = height };
-
 			var localization = new EnglishLocalization();
 
-			StatusBar = new StatusBar(Terminal, new StubAppInfo(), Session, localization, StatusBarRenderer);
-			Shell = new ScreenShell(Host, new Header(), StatusBar);
+			StatusBar = new StatusBar(new StubAppInfo(), Session, localization);
+			Screen = new Screen(Canvas, new Header(), StatusBar);
 		}
 	}
 

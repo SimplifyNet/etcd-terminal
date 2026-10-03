@@ -4,6 +4,7 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
@@ -183,10 +184,13 @@ public sealed class SessionFlowTests
 		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
 	}
 
-	/// The text every screen streamed, in order. An outcome is written below the
-	/// frame it follows, so it is asserted on the terminal rather than on the host.
+	/// The text every screen streamed, in order. An outcome is written to the
+	/// canvas below the frame it follows, so it is asserted there.
 	private static string ComposedText(Harness harness) =>
-		harness.Terminal.Output.ToString();
+		string.Join('\n', harness.Canvas.Blocks.SelectMany(BlockLines));
+
+	private static IEnumerable<string> BlockLines(Block block) =>
+		block is TextBlock text ? text.Lines.Select(LineText.Of) : [];
 
 	private static EtcdConnectionConfig Config() => new()
 	{
@@ -200,8 +204,9 @@ public sealed class SessionFlowTests
 		public readonly ConnectionSession Session = new();
 		public readonly StubConnection Connection = new();
 		public readonly EnglishLocalization Localization = new();
-		public readonly FakeStatusBarRenderer Footer = new();
 		public readonly FakeScreenHost Host = new();
+		public readonly FakeScreenCanvas Canvas = new();
+		public readonly FakeKeyReader Keys;
 		public readonly StatusBar StatusBar;
 		public readonly Menu Menu;
 		public readonly MainScreen Main;
@@ -212,14 +217,18 @@ public sealed class SessionFlowTests
 			Func<string?, CancellationToken, Task<UserCapabilities>> discover,
 			IEnumerable<IMainMenuEntry> entries)
 		{
-			StatusBar = new StatusBar(Terminal, new StubAppInfo(), Session, Localization, Footer);
+			Keys = new FakeKeyReader(Terminal.Keys);
+			StatusBar = new StatusBar(new StubAppInfo(), Session, Localization);
+
 			var header = new Header();
+			var screen = new Screen(Canvas, header, StatusBar);
+
 			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
 
-			var message = new Message(Terminal, StatusBar, Localization);
-			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), StatusBar);
+			var message = new Message(screen, Keys, Localization);
+			var prompt = new Prompt(new StubTextInput());
 			var spinner = new Spinner(Terminal, new FakeStatusIndicator());
-			var manage = new ManageConnectionsScreen(Terminal, new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
+			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
 			var settings = new SettingsScreen(new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 
 			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), Connection, Session, new StubCapabilities(discover), settings, Menu, message, spinner, manage, Localization);

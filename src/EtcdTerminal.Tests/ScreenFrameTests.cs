@@ -22,7 +22,7 @@ public sealed class ScreenFrameTests
 		var theme = new ReddyTheme();
 		var console = new TestConsole();
 		var terminal = new FakeTerminal();
-		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 		var header = new Header();
 
 		var menu = new Menu(terminal, terminal, Host(console, theme), header, statusBar);
@@ -53,7 +53,7 @@ public sealed class ScreenFrameTests
 		var theme = new ReddyTheme();
 		var terminal = new FakeTerminal();
 		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
 
 		terminal.Press(ConsoleKey.DownArrow);
@@ -80,7 +80,7 @@ public sealed class ScreenFrameTests
 		var theme = new ReddyTheme();
 		var terminal = new FakeTerminal();
 		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 
 		var header = new Header();
 
@@ -102,7 +102,7 @@ public sealed class ScreenFrameTests
 	{
 		var terminal = new FakeTerminal();
 		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(terminal, new StubAppInfo(), new ConnectionSession(), new EnglishLocalization(), new FakeStatusBarRenderer());
+		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
 
 		terminal.Press(ConsoleKey.Enter);
@@ -126,7 +126,7 @@ public sealed class ScreenFrameTests
 	}
 
 	private static SpectreScreenHost Host(TestConsole console, ReddyTheme theme) =>
-		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new SpectreStatusBarRenderer(console, new RoleStyleMapper(theme), new RecordingTerminal()));
+		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new StatusBarRenderer(console, new RoleStyleMapper(theme)));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

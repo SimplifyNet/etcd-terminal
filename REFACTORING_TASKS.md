@@ -169,7 +169,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 - [x] Build, commit.
 
 ### T1.5 SpectreScreenCanvas and StatusBarRenderer (Infrastructure)
-- [ ] Rename `SpectreStatusBarRenderer` → `StatusBarRenderer`. Keep only `Build(StatusBarModel)` and the private `Right(...)`/`Spaced(...)` helpers. `Build` returns `IRenderable`:
+- [x] Rename `SpectreStatusBarRenderer` → `StatusBarRenderer`. Keep only `Build(StatusBarModel)` and the private `Right(...)`/`Spaced(...)` helpers. `Build` returns `IRenderable`:
   ```csharp
   var grid = new Grid { Expand = true };
   grid.AddColumn(new GridColumn { NoWrap = true, Padding = new Padding(2, 0, 0, 0) });
@@ -180,7 +180,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
   return new BottomLine(grid);
   ```
   Keep the `BottomLine` nested class. Delete `Fit`, `Fits`, `WidthOf`, `RightWidth`, `Truncate`, `Write`, `EnsureRoomAbove`, `ClearBelow`, all `const int`s except none, the `ITerminalCursor` parameter, `using EtcdTerminal.Presentation.Terminal`.
-- [ ] Create `SpectreScreenCanvas.cs`:
+- [x] Create `SpectreScreenCanvas.cs`:
   ```csharp
   public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _blocks, StatusBarRenderer _footer) : IScreenCanvas
   {
@@ -217,15 +217,15 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
       public void WriteException(Exception exception) => _console.WriteException(exception);
   }
   ```
-- [ ] Create `SpectreKeyReader.cs`: `KeyAvailable => _console.Input.IsKeyAvailable()`, `ReadKey() => _console.Input.ReadKey(true) ?? throw new InvalidOperationException("No key available.")`.
-- [ ] `SpectreTextInput`: wrap each `_console.Prompt(...)` with `_console.Cursor.Show(true)` before and `_console.Cursor.Show(false)` in `finally`; pass `Markup.Escape(prompt)` to `TextPrompt`.
-- [ ] Register `IScreenCanvas` → `SpectreScreenCanvas`, `IKeyReader` → `SpectreKeyReader`, `BlockRenderer`, `StatusBarRenderer` (all Singleton). Remove the `IStatusBarRenderer` registration and delete `IStatusBarRenderer.cs`.
-- [ ] `SpectreScreenHost`: temporarily change its footer region to use `_footer.Build(model.Footer)` directly (no `Fit`). It is deleted in Phase 3.
-- [ ] Build (App does not compile yet because `StatusBar` uses `IStatusBarRenderer` — continue to T1.6 before committing).
+- [x] Create `SpectreKeyReader.cs`: `KeyAvailable => _console.Input.IsKeyAvailable()`, `ReadKey() => _console.Input.ReadKey(true) ?? throw new InvalidOperationException("No key available.")`.
+- [x] `SpectreTextInput`: wrap each `_console.Prompt(...)` with `_console.Cursor.Show(true)` before and `_console.Cursor.Show(false)` in `finally`; pass `Markup.Escape(prompt)` to `TextPrompt`.
+- [x] Register `IScreenCanvas` → `SpectreScreenCanvas`, `IKeyReader` → `SpectreKeyReader`, `BlockRenderer`, `StatusBarRenderer` (all Singleton). Remove the `IStatusBarRenderer` registration and delete `IStatusBarRenderer.cs`.
+- [x] `SpectreScreenHost`: temporarily change its footer region to use `_footer.Build(model.Footer)` directly (no `Fit`). It is deleted in Phase 3.
+- [x] Build (App does not compile yet because `StatusBar` uses `IStatusBarRenderer` — continue to T1.6 before committing).
 
 ### T1.6 Streaming components in App
-- [ ] `StatusBar`: constructor `(IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization)`; keep only `BuildModel()`, `Username(...)`, `BuildHints()`.
-- [ ] New `Components/Screen.cs`:
+- [x] `StatusBar`: constructor `(IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization)`; keep only `BuildModel()`, `Username(...)`, `BuildHints()`.
+- [x] New `Components/Screen.cs`:
   ```csharp
   public sealed class Screen(IScreenCanvas _canvas, Header _header, StatusBar _statusBar)
   {
@@ -243,23 +243,23 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
       public void Write(IReadOnlyList<Block> blocks) => _canvas.Write(blocks);
   }
   ```
-- [ ] Delete `ScreenShell.cs`; replace every `_shell.Show()` with `_screen.Open()`.
-- [ ] `PressAnyKeyPrompt(Screen _screen, IKeyReader _keys, ILocalization _localization)`: `Show(body)` = `_screen.Open([.. body, TextBlock.Blank(), TextBlock.Line(new StyledText(_localization.PressAnyKey, TextRole.Muted))])` then `_keys.ReadKey()`.
-- [ ] `Message(Screen _screen, IKeyReader _keys, ILocalization _localization)`: `Show(text, role)` writes `TextBlock.Blank()`, one `TextBlock` with every line in `role`, `TextBlock.Blank()`, the press-any-key line in `TextRole.Muted`, then `_keys.ReadKey()`. Signature of the public methods unchanged; `TerminalColor` → `TextRole`.
-- [ ] `Prompt(ITextInput _textInput)`: remove every other dependency, the cursor calls, `_output.Write(_style.Indent)`, `_statusBar.*`. Keep the three `Ask`/`Secret` methods and trim/empty policies.
-- [ ] `ManageConnectionsScreen`: remove `ITerminalOutput _terminal` and the `_terminal.WriteLine()` call. `KeyImportJsonScreen`: remove `ITerminalOutput _output`, `ITerminalStyle _style`, both `_output.WriteLine()` calls, and the `_style.Indent +` prefix.
-- [ ] New `App/AppRunner.cs` (namespace `EtcdTerminal.App`):
+- [x] Delete `ScreenShell.cs`; replace every `_shell.Show()` with `_screen.Open()`.
+- [x] `PressAnyKeyPrompt(Screen _screen, IKeyReader _keys, ILocalization _localization)`: `Show(body)` = `_screen.Open([.. body, TextBlock.Blank(), TextBlock.Line(new StyledText(_localization.PressAnyKey, TextRole.Muted))])` then `_keys.ReadKey()`.
+- [x] `Message(Screen _screen, IKeyReader _keys, ILocalization _localization)`: `Show(text, role)` writes `TextBlock.Blank()`, one `TextBlock` with every line in `role`, `TextBlock.Blank()`, the press-any-key line in `TextRole.Muted`, then `_keys.ReadKey()`. Signature of the public methods unchanged; `TerminalColor` → `TextRole`.
+- [x] `Prompt(ITextInput _textInput)`: remove every other dependency, the cursor calls, `_output.Write(_style.Indent)`, `_statusBar.*`. Keep the three `Ask`/`Secret` methods and trim/empty policies.
+- [x] `ManageConnectionsScreen`: remove `ITerminalOutput _terminal` and the `_terminal.WriteLine()` call. `KeyImportJsonScreen`: remove `ITerminalOutput _output`, `ITerminalStyle _style`, both `_output.WriteLine()` calls, and the `_style.Indent +` prefix.
+- [x] New `App/AppRunner.cs` (namespace `EtcdTerminal.App`):
   ```csharp
   public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas, ILocalization _localization, IKeyReader _keys, IDIContainerProvider _container)
   ```
   with `Task RunAsync()` containing the loop currently in `Program.cs` (scope per iteration, settings load, `InstanceSelectionScreen`, `MainScreen`, `catch` → `_canvas.WriteException(ex)`, `_canvas.Write(TextBlock.Line(new StyledText(_localization.PressAnyKeyRestart, TextRole.Muted)))`, `_keys.ReadKey()`), and `Start()`/`Stop()` wrappers around `_terminal`. `Program.cs` becomes: register, verify, resolve `AppRunner`, `runner.Start()`, `OnInterrupt(() => { runner.Stop(); Environment.Exit(0); })`, `try { await runner.RunAsync(); } finally { runner.Stop(); }`. `Stop` must be idempotent (keep the `Interlocked.Exchange` guard inside `AppRunner`).
-- [ ] `IocRegistrations`: register `Screen`, `AppRunner`; remove `ScreenShell`.
-- [ ] Tests: create `Fakes/FakeScreenCanvas.cs` (records `Footers`, `Blocks`, `NewScreenCount`) and `Fakes/FakeKeyReader.cs` (queue + `Press(ConsoleKey)`/`Press(char)`); delete `Fakes/FakeStatusBarRenderer.cs`. Update `PromptTests`, `StatusBarPersistenceTests`, `LayoutTests`, `SessionFlowTests`, `SettingsScreenTests`, `ManageConnectionsScreenTests` constructors. Delete `SpectreRenderingTests.cs:151-230` (Fit) and `:249-317` (EnsureRoomAbove/ClearBelow). Add two `TestConsole` tests for `StatusBarRenderer.Build`: literal connection string with brackets appears; version appears.
-- [ ] Build, test, commit.
+- [x] `IocRegistrations`: register `Screen`, `AppRunner`; remove `ScreenShell`.
+- [x] Tests: create `Fakes/FakeScreenCanvas.cs` (records `Footers`, `Blocks`, `NewScreenCount`) and `Fakes/FakeKeyReader.cs` (queue + `Press(ConsoleKey)`/`Press(char)`); delete `Fakes/FakeStatusBarRenderer.cs`. Update `PromptTests`, `StatusBarPersistenceTests`, `LayoutTests`, `SessionFlowTests`, `SettingsScreenTests`, `ManageConnectionsScreenTests` constructors. Delete `SpectreRenderingTests.cs:151-230` (Fit) and `:249-317` (EnsureRoomAbove/ClearBelow). Add two `TestConsole` tests for `StatusBarRenderer.Build`: literal connection string with brackets appears; version appears.
+- [x] Build, test, commit.
 
 ### T1.7 Phase 1 PTY check
-- [ ] Run the app in a real terminal. Check: footer on the last row at start; add a connection (text prompts) — footer stays on the last row while typing; a message after saving — footer intact. If the footer line scrolls the screen by one row, STOP AND ASK (the `BottomLine` wrapper may need adjusting).
-- [ ] Record results in the commit message of the next task or in the PR description.
+- [x] Run the app in a real terminal. Check: footer on the last row at start; add a connection (text prompts) — footer stays on the last row while typing; a message after saving — footer intact. If the footer line scrolls the screen by one row, STOP AND ASK (the `BottomLine` wrapper may need adjusting).
+- [x] Record results in the commit message of the next task or in the PR description.
 
 ---
 

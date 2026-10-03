@@ -65,8 +65,11 @@ public sealed class ManageConnectionsScreenTests
 		Assert.That(harness.Repository.Removed, Is.EqualTo("prod"));
 		Assert.That(harness.Host.BeginCount, Is.EqualTo(2), "the action menu and the instance picker own a frame, the outcome streams below them");
 		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount));
-		Assert.That(harness.Renderer.ClearRequests, Is.EqualTo(1), "the outcome clears the frame rows it streams over");
+		Assert.That(CanvasText(harness), Does.Contain("Instance removed successfully!"), "the outcome streams below the frames on the same canvas");
 	}
+
+	private static string CanvasText(Harness harness) =>
+		string.Join('\n', harness.Canvas.Blocks.OfType<TextBlock>().SelectMany(block => block.Lines.Select(LineText.Of)));
 
 	private static EtcdConnectionConfig Config(string name) => new()
 	{
@@ -80,7 +83,7 @@ public sealed class ManageConnectionsScreenTests
 		public readonly FakeScreenHost Host = new();
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly RecordingConfigRepository Repository;
-		public readonly FakeStatusBarRenderer Renderer = new();
+		public readonly FakeScreenCanvas Canvas = new();
 		public readonly ManageConnectionsScreen Screen;
 
 		public Harness(params EtcdConnectionConfig[] instances)
@@ -88,13 +91,14 @@ public sealed class ManageConnectionsScreenTests
 			Instances = instances;
 			Repository = new RecordingConfigRepository(instances);
 
+			var keys = new FakeKeyReader(Terminal.Keys);
 			var localization = new EnglishLocalization();
-			var statusBar = new StatusBar(Terminal, new StubAppInfo(), new ConnectionSession(), localization, Renderer);
-			var prompt = new Prompt(Terminal, Terminal, Terminal, new StubTextInput(), statusBar);
-			var message = new Message(Terminal, statusBar, localization);
+			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
+			var prompt = new Prompt(new StubTextInput());
+			var message = new Message(new Screen(Canvas, new Header(), statusBar), keys, localization);
 			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
 
-			Screen = new ManageConnectionsScreen(Terminal, Repository, menu, prompt, message, localization, new AppSettingsStore());
+			Screen = new ManageConnectionsScreen(Repository, menu, prompt, message, localization, new AppSettingsStore());
 		}
 	}
 
