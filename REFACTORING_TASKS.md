@@ -28,6 +28,25 @@ This is the executable version of `REFACTORING.md`. Read `REFACTORING.md` sectio
 
 ---
 
+## Open visual regressions (fix before continuing)
+
+Both reports have one root cause: `a3bf879` (T1.4) made `ConsoleTerminalSession.Start()` set the scroll region `ESC[1;{H-1}r`. Spectre's `Layout` always renders the whole console height: it writes `H` lines and emits a line feed after each of the first `H-1`. The feed from the viewport's last row (`H-1`) scrolls the viewport up by one line inside the region, so every paint shifts the whole content area up by one row while row `H` is never written. The same PTY stream with `ESC[1;{H}r` renders byte-identical to `6c1166f` (verified with a scroll-region-aware emulator: `orig == fixed`).
+
+### V1 Header lost its one-line top indent
+- [x] Reported: the header no longer has the one-line indent above it that it always had.
+- [x] Confirmed not an intermediate bug: `6c1166f` renders the top line, `d0b9863` loses it; only the scroll region differs in the startup prefix.
+- [x] Fixed together with V2 (same root cause); the first screen again starts exactly as it did before T1.4.
+
+### V2 Whole content area repaints on every menu keypress
+- [x] Reported: moving in a menu repaints everything except the footer; the area visibly blinks. Unacceptable.
+- [x] Root cause: the one-line viewport scroll per paint described above; unchanged glyphs are rewritten after the shift, so the whole content area jumps on every arrow key.
+- [x] Fix: while a Live frame owns the console the region is `ESC[1;{H}r`. `ITerminalSession` gained `BeginFrame()`/`EndFrame()`, called by `SpectreScreenHost`: `Begin` widens the region before the pump starts, `End` restores `ESC[1;{H-1}r` after the final paint and re-parks the cursor on the hand-over row (changing the region homes it). Approved by the user as "region for the lifetime of the Live frame"; recorded as the third raw sequence in `REFACTORING.md` D1.
+- [x] PTY check: arrow keys in a menu change only the highlighted line, banner top line present, footer on the last row, no content shift over repeated navigation.
+
+Verified on a 24x80 pty with a scroll-region-aware emulator, input `7x Down, Enter, ESC, Down, Enter, ESC`: first paint shows the full banner including its top line, each arrow key changes exactly the two marker rows, zero scroll events, footer stays on row 23, output streamed after the frame lands on the hand-over rows, and every checkpoint screen matches `6c1166f` running the same input (the only difference is a connection-cancellation race on the last step). Not verified: terminal resize while a frame is open, the non ANSI backend, colors in a real terminal emulator.
+
+---
+
 ## Phase 0 — Housekeeping
 
 ### T0.1 Remove dead contracts

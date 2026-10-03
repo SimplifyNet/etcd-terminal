@@ -126,7 +126,7 @@ public sealed class ScreenFrameTests
 	}
 
 	private static SpectreScreenHost Host(TestConsole console, ReddyTheme theme) =>
-		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new StatusBarRenderer(console, new RoleStyleMapper(theme)));
+		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new StatusBarRenderer(console, new RoleStyleMapper(theme)), new ConsoleTerminalSession(console, theme));
 
 	private sealed class StubAppInfo : IAppInfo
 	{

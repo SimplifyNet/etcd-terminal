@@ -9,7 +9,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// top row, every update replaces it instead of appending, and the footer region
 /// has a fixed height so it stays on the last row of the terminal.
 /// </summary>
-public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _panels, StatusBarRenderer _footer) : IScreenHost
+public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _panels, StatusBarRenderer _footer, ITerminalSession _session) : IScreenHost
 {
 	/// The status bar is a single line pinned to the last row of the terminal.
 	private const int FooterRows = 1;
@@ -39,6 +39,7 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _pane
 			_model = model;
 			_closing = false;
 			_painted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+			_session.BeginFrame();
 			_pump = Task.Run(PumpAsync);
 		}
 
@@ -79,7 +80,15 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _pane
 
 		_updates.Release();
 		pump.GetAwaiter().GetResult();
-		Paint();
+
+		var row = Paint();
+
+		// Restoring the viewport split homes the cursor, so the hand-over row
+		// Paint chose has to be set again for the output streamed below.
+		_session.EndFrame();
+
+		if (row >= 0)
+			SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, row);
 
 		// Spectre shows the cursor when its live display completes. A screen
 		// that streams its own output afterwards must start from the hidden
@@ -91,9 +100,10 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _pane
 	/// <summary>
 	/// Leaves the released frame on the screen and parks the cursor where the
 	/// screen can stream its result, so output such as a prompt continues below
-	/// the frame instead of over the status bar on the last row.
+	/// the frame instead of over the status bar on the last row. Returns the row
+	/// it parked on, or a negative value when there is no model to paint.
 	/// </summary>
-	private void Paint()
+	private int Paint()
 	{
 		ScreenModel? model;
 
@@ -101,7 +111,7 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _pane
 			model = _model;
 
 		if (model is null)
-			return;
+			return -1;
 
 		// The live display erased its region and left the cursor wherever its own
 		// bookkeeping put it. The frame always starts at the top row, so anchoring
@@ -110,7 +120,12 @@ public sealed class SpectreScreenHost(IAnsiConsole _console, BlockRenderer _pane
 		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, 0);
 
 		_console.Write(Frame(model));
-		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, HandOverRow(model));
+
+		var row = HandOverRow(model);
+
+		SpectreCursorPosition.MoveTo(_console.Cursor, _console.Profile.Capabilities.Ansi, 0, row);
+
+		return row;
 	}
 
 	/// The last row of the frame's content that still leaves room for the output
