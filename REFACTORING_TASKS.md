@@ -488,12 +488,18 @@ Verified: `dotnet build src -warnaserror` 0 errors/0 warnings, 201 unit + 17 int
 
 ### T4.2 Architecture tests
 Add to `ArchitectureTests.cs` (source-text tests like the existing `AppSourcesContainNoEscapeLiterals`):
-- [ ] `AppAndPresentationSourcesContainNoGeometryApis` — forbidden substrings: `CursorTop`, `CursorLeft`, `SetCursorPosition`, `WindowWidth`, `WindowHeight`, `DisplayCells`, `SelectionPointer`, `new string(' '`.
-- [ ] `InfrastructureEscapeSequencesLiveOnlyInTerminalSession` — every Infrastructure `.cs` except `ConsoleTerminalSession.cs` has no `\u001b`/`\x1b`.
-- [ ] `InfrastructureDoesNotReferenceApp` — no `using EtcdTerminal.App` in Infrastructure.
-- [ ] `SystemConsoleIsUsedOnlyByTerminalSession` — `Console.` appears only in `ConsoleTerminalSession.cs` within Infrastructure.
-- [ ] `EveryMainMenuEntryIsRegistered` — reflection: all non-abstract types implementing `IMainMenuEntry` appear in the resolved `IEnumerable<IMainMenuEntry>`.
-- [ ] Build, test, commit.
+- [x] `AppAndPresentationSourcesContainNoGeometryApis` — forbidden substrings: `CursorTop`, `CursorLeft`, `SetCursorPosition`, `WindowWidth`, `WindowHeight`, `DisplayCells`, `SelectionPointer`, `new string(' '`.
+- [x] `InfrastructureEscapeSequencesLiveOnlyInTerminalSession` — every Infrastructure `.cs` except `ConsoleTerminalSession.cs` has no `\u001b`/`\x1b`.
+- [x] `InfrastructureDoesNotReferenceApp` — no `using EtcdTerminal.App` in Infrastructure.
+- [x] `SystemConsoleIsUsedOnlyByTerminalSession` — `Console.` appears only in `ConsoleTerminalSession.cs` within Infrastructure.
+- [x] `EveryMainMenuEntryIsRegistered` — reflection: all non-abstract types implementing `IMainMenuEntry` appear in the resolved `IEnumerable<IMainMenuEntry>`.
+- [x] Build, test, commit.
+
+
+Verified: `dotnet build src -warnaserror` 0/0, 205 unit + 17 integration green; the ArchitectureTests fixture runs 18 tests (14 existing + 4 added).
+
+- `InfrastructureDoesNotReferenceApp` already existed in the file (source-text variant, `using EtcdTerminal.App`), so only the other four were added; `SystemConsoleIsUsedOnlyByTerminalSession` matches `(?<!Spectre\.)\bConsole\.` so `Spectre.Console.*` usings and `AnsiConsole.Console` in `SpectreConsoleHost` are not flagged while `Console.OutputEncoding`/`Console.CancelKeyPress` in `ConsoleTerminalSession.cs` are.
+- `EveryMainMenuEntryIsRegistered` boots the real container (`DIContainer.Current.RegisterAll()`), resolves `IEnumerable<IMainMenuEntry>` and asserts the instance types equal every non-abstract `IMainMenuEntry` in the App assembly (six screens); resolving constructs the screens and their graphs headless without touching the terminal.
 
 ### T4.3 Full PTY checklist
 - [ ] Execute `REFACTORING.md` section 7 items 1–11 and record pass/fail per item in the PR description.

@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
+using EtcdTerminal.App.Setup;
 using NUnit.Framework;
+using Simplify.DI;
 
 namespace EtcdTerminal.Tests;
 
@@ -220,6 +222,68 @@ public sealed class ArchitectureTests
 			.ToList();
 
 		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void AppAndPresentationSourcesContainNoGeometryApis()
+	{
+		var forbidden = new[] { "CursorTop", "CursorLeft", "SetCursorPosition", "WindowWidth", "WindowHeight", "DisplayCells", "SelectionPointer", "new string(' '" };
+		var hits = SourceFiles("EtcdTerminal.App")
+			.Concat(SourceFiles("EtcdTerminal.Presentation"))
+			.Where(f =>
+			{
+				var text = File.ReadAllText(f);
+
+				return forbidden.Any(s => text.Contains(s));
+			})
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void InfrastructureEscapeSequencesLiveOnlyInTerminalSession()
+	{
+		var hits = SourceFiles("EtcdTerminal.Infrastructure")
+			.Where(f => Path.GetFileName(f) != "ConsoleTerminalSession.cs")
+			.Where(f =>
+			{
+				var text = File.ReadAllText(f);
+
+				return text.Contains("\\x1b") || text.Contains("\\u001b");
+			})
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void SystemConsoleIsUsedOnlyByTerminalSession()
+	{
+		var hits = SourceFiles("EtcdTerminal.Infrastructure")
+			.Where(f => Path.GetFileName(f) != "ConsoleTerminalSession.cs")
+			.Where(f => Regex.IsMatch(File.ReadAllText(f), @"(?<!Spectre\.)\bConsole\."))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void EveryMainMenuEntryIsRegistered()
+	{
+		DIContainer.Current.RegisterAll();
+
+		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.IMainMenuEntry>>()
+			.Select(e => e.GetType())
+			.ToList();
+		var declared = SafeGetTypes(typeof(App.Screens.InstanceSelectionScreen).Assembly)
+			.Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(App.Screens.IMainMenuEntry).IsAssignableFrom(t))
+			.ToList();
+
+		Assert.That(resolved, Is.EquivalentTo(declared));
 	}
 
 	/// <summary>
