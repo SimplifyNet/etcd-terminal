@@ -65,6 +65,7 @@ public static class IocRegistrations
 		.Register<IScreenCanvas, SpectreScreenCanvas>(LifetimeType.Singleton)
 		.Register<IKeyReader, SpectreKeyReader>(LifetimeType.Singleton)
 		.Register<ISelectionPrompt, SpectreSelectionPrompt>(LifetimeType.Singleton)
+		.Register<ILiveFrame, SpectreLiveFrame>(LifetimeType.Singleton)
 		.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)
 		.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)

@@ -413,7 +413,7 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 }
 ```
 (`SegmentLine` is a `List<Segment>`; it has no `Append`, so the loop above is the way.)
-- [ ] Create, register `ILiveFrame` → `SpectreLiveFrame` Singleton.
+- [x] Create, register `ILiveFrame` → `SpectreLiveFrame` Singleton.
 - [ ] Delete `SpectreScreenHost.cs`, `SpectreCursorPosition.cs`, `Presentation/IScreenHost.cs`, `Presentation/ScreenModel.cs`, test fake `FakeScreenHost.cs` (replace by `FakeLiveFrame` in T3.3).
 
 ### T3.3 Key browser (App)
