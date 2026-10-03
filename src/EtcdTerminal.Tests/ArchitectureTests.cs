@@ -16,6 +16,9 @@ public sealed class ArchitectureTests
 
 		foreach (var type in SafeGetTypes(appAssembly))
 		{
+			if (type.Namespace?.StartsWith("EtcdTerminal.App.Setup", StringComparison.Ordinal) is true)
+				continue;
+
 			foreach (var referenced in GetReferencedTypes(type))
 				if (IsSpectreType(referenced))
 					violations.Add($"{type.FullName} -> {referenced.FullName}");
@@ -151,7 +154,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void AppSourcesContainNoSpectreConsoleReferences()
 	{
-		var hits = SourceFiles("EtcdTerminal.App")
+		var hits = SourceFilesOutsideCompositionRoot("EtcdTerminal.App")
 			.Where(f => File.ReadAllText(f).Contains("Spectre.Console"))
 			.Select(Path.GetFileName)
 			.ToList();
@@ -173,7 +176,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void AppSourcesContainNoSystemConsoleAccess()
 	{
-		var hits = SourceFiles("EtcdTerminal.App")
+		var hits = SourceFilesOutsideCompositionRoot("EtcdTerminal.App")
 			.Where(f => Regex.IsMatch(File.ReadAllText(f), @"\bConsole\."))
 			.Select(Path.GetFileName)
 			.ToList();
@@ -196,6 +199,14 @@ public sealed class ArchitectureTests
 
 		Assert.That(hits, Is.Empty);
 	}
+
+	/// <summary>
+	/// Source files outside <c>Setup</c>. The composition root is the one App
+	/// file allowed to name Infrastructure and Spectre types while wiring them.
+	/// </summary>
+	private static IEnumerable<string> SourceFilesOutsideCompositionRoot(string project) =>
+		SourceFiles(project)
+			.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}Setup{Path.DirectorySeparatorChar}"));
 
 	private static IEnumerable<string> SourceFiles(string project)
 	{

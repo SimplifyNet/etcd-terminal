@@ -38,11 +38,11 @@ This is the executable version of `REFACTORING.md`. Read `REFACTORING.md` sectio
 - [x] Build, test, commit.
 
 ### T0.2 Register IAnsiConsole once
-- [ ] In `IocRegistrations.RegisterTerminal` add `.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)` (needs `using Spectre.Console;` — allowed only in this file under App because it is the composition root; this using already exists indirectly via Infrastructure types, keep it minimal).
-- [ ] Change `SpectrePanelRenderer`, `SpectreStatusBarRenderer`, `SpectreStatusIndicator`, `SpectreScreenHost` registrations to plain `.Register<X>(LifetimeType.Singleton)` so the container injects `IAnsiConsole` by constructor.
-- [ ] `EscapableConsole` registration: `.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)`.
-- [ ] Delete `SpectreConsoleSource.cs`.
-- [ ] Build, test, commit.
+- [x] In `IocRegistrations.RegisterTerminal` add `.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)` (needs `using Spectre.Console;` — allowed only in this file under App because it is the composition root; this using already exists indirectly via Infrastructure types, keep it minimal).
+- [x] Change `SpectrePanelRenderer`, `SpectreStatusBarRenderer`, `SpectreStatusIndicator`, `SpectreScreenHost` registrations to plain `.Register<X>(LifetimeType.Singleton)` so the container injects `IAnsiConsole` by constructor.
+- [x] `EscapableConsole` registration: `.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)`.
+- [x] Delete `SpectreConsoleSource.cs`.
+- [x] Build, test, commit.
 
 ---
 
