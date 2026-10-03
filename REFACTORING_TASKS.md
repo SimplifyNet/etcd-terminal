@@ -164,9 +164,9 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 ```
 (Move the constants above the constructor to satisfy member ordering.)
 
-- [ ] Create the file as above.
-- [ ] Register `ITerminalSession` → `ConsoleTerminalSession` Singleton.
-- [ ] Build, commit.
+- [x] Create the file as above.
+- [x] Register `ITerminalSession` → `ConsoleTerminalSession` Singleton.
+- [x] Build, commit.
 
 ### T1.5 SpectreScreenCanvas and StatusBarRenderer (Infrastructure)
 - [ ] Rename `SpectreStatusBarRenderer` → `StatusBarRenderer`. Keep only `Build(StatusBarModel)` and the private `Right(...)`/`Spaced(...)` helpers. `Build` returns `IRenderable`:

@@ -60,6 +60,7 @@ public static class IocRegistrations
 		.Register<ITerminalWidgets>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
+		.Register<ITerminalSession, ConsoleTerminalSession>(LifetimeType.Singleton)
 		.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)
 		.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)
