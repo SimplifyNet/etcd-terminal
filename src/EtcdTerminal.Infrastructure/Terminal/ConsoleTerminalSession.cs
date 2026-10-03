@@ -8,9 +8,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// The only class in the application allowed to talk to <c>System.Console</c>
 /// and to raw escape sequences. It splits the terminal once per session into a
 /// scrolling viewport above the footer row and the footer row itself, so that
-/// everything Spectre writes afterwards streams inside the viewport. A frame
-/// that draws the footer itself temporarily takes the whole terminal and gives
-/// the viewport split back when it is released.
+/// everything Spectre writes afterwards streams inside the viewport.
 /// </summary>
 public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme) : ITerminalSession
 {
@@ -58,23 +56,11 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 		});
 	}
 
-	public void BeginFrame() => SetScrollRegion(_console.Profile.Height);
-
-	public void EndFrame() => SetScrollRegion(_console.Profile.Height - FooterRows);
-
 	public void OnInterrupt(Action handler) => Console.CancelKeyPress += (_, args) =>
 	{
 		args.Cancel = true;
 		handler();
 	};
-
-	private void SetScrollRegion(int lastRow)
-	{
-		if (!_console.Profile.Capabilities.Ansi)
-			return;
-
-		_console.WriteAnsi(writer => writer.Write(ScrollRegionSequence(lastRow)));
-	}
 
 	private static string ScrollRegionSequence(int lastRow) => $"\u001b[1;{lastRow}r";
 
