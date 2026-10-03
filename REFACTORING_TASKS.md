@@ -285,11 +285,11 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 ## Phase 2 — Menus on SelectionPrompt
 
 ### T2.1 Contracts
-- [ ] `Choice.cs`: `public sealed record Choice<TId>(TId Id, string Label);`
-- [ ] `ChoiceList.cs`: `public sealed record ChoiceList<TId>(string? Title, IReadOnlyList<Choice<TId>> Items);`
-- [ ] `ISelectionPrompt.cs`: `TId? Select<TId>(ChoiceList<TId> list) where TId : notnull;` — returns `default`/null on Escape. To keep value-type ids (enums) distinguishable from "cancelled", return `Choice<TId>?` instead: `Choice<TId>? Select<TId>(ChoiceList<TId> list);`. Use this second signature.
+- [x] `Choice.cs`: `public sealed record Choice<TId>(TId Id, string Label);`
+- [x] `ChoiceList.cs`: `public sealed record ChoiceList<TId>(string? Title, IReadOnlyList<Choice<TId>> Items);`
+- [x] `ISelectionPrompt.cs`: `TId? Select<TId>(ChoiceList<TId> list) where TId : notnull;` — returns `default`/null on Escape. To keep value-type ids (enums) distinguishable from "cancelled", return `Choice<TId>?` instead: `Choice<TId>? Select<TId>(ChoiceList<TId> list);`. Use this second signature.
 - [ ] Delete `Presentation/Terminal/MenuItem.cs` after T2.3 (keep until callers are updated).
-- [ ] `ILocalization`: add `string MoreChoices { get; }` → `EnglishLocalization`: `"(move up and down to reveal more)"`.
+- [x] `ILocalization`: add `string MoreChoices { get; }` → `EnglishLocalization`: `"(move up and down to reveal more)"`.
 
 ### T2.2 SpectreSelectionPrompt (Infrastructure)
 ```csharp

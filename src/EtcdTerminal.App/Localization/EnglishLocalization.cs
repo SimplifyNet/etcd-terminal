@@ -169,4 +169,5 @@ public class EnglishLocalization : ILocalization
 	public string ImportingKeys => "Importing {0} keys...";
 	public string InvalidJson => "Invalid JSON: {0}";
 	public string NoKeysInJson => "No keys found in JSON.";
+	public string MoreChoices => "(move up and down to reveal more)";
 }

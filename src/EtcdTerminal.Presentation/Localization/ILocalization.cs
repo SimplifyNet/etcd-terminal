@@ -167,4 +167,5 @@ public interface ILocalization
 	string ImportingKeys { get; }
 	string InvalidJson { get; }
 	string NoKeysInJson { get; }
+	string MoreChoices { get; }
 }
