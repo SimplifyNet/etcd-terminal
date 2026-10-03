@@ -344,7 +344,9 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 - [x] Build, test, commit.
 
 ### T2.4 Phase 2 PTY check
-- [ ] Instance menu, main menu, settings, manage connections: arrows, Enter, Esc; highlight in accent color; footer on the last row throughout.
+- [x] Instance menu, main menu, settings, manage connections: arrows, Enter, Esc; highlight in accent color; footer on the last row throughout.
+
+Verified on a 24x80 pty with a scroll region aware emulator (`/tmp/opencode/steps_t24.py`, `/tmp/opencode/vt.py`): the instance menu, Manage Connections, Settings (including a toggle that composes the menu again) and the main menu after connecting to `etcd-local` were driven with arrows, Enter and Esc. Arrows move only the marker rows, the highlighted row carries the accent colour `220;95;51` while the other rows are default, the footer stays on row 23 at every step (the session bullet appears after connect and disappears after Esc), there are zero scroll events, the banner top line stays on row 0, and Esc from the instance menu exits the application. Not verified: terminal resize, the non ANSI backend, a real terminal emulator's colours.
 
 ---
 
