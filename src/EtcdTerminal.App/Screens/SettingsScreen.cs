@@ -14,7 +14,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 	{
 		while (true)
 		{
-			SettingsAction? action = _menu.ShowFramed<SettingsAction>(_localization.SettingsTitle,
+			SettingsAction? action = _menu.Show<SettingsAction>(_localization.SettingsTitle,
 			[
 				new(SettingsAction.EditPageSize, $"{_localization.PageSizeLabel} ({_settings.Current.PageSize})"),
 				new(SettingsAction.ToggleTrimInputValues, $"{_localization.TrimInputValuesLabel} ({OnOff(_settings.Current.TrimInputValues)})")

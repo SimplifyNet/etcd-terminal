@@ -4,8 +4,8 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -16,25 +16,26 @@ namespace EtcdTerminal.Tests;
 public sealed class SettingsScreenTests
 {
 	[Test]
-	public void Show_Escape_PresentsTheTitleAndBothActionsInOneFrame()
+	public void Show_Cancel_PresentsTheTitleAndBothActions()
 	{
 		var harness = new Harness();
 
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		harness.Screen.Show();
 
-		var frame = harness.Host.Frames.Single();
+		var offered = harness.Answers.Prompt<SettingsAction>(0);
 
-		var actions = ((TextBlock)frame.Body[1]).Lines.Select(LineText.Of).ToList();
-
-		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0], Is.InstanceOf<TitleBlock>());
-		Assert.That(((TitleBlock)frame.Body[0]).Title.Text, Is.EqualTo(harness.Terminal.Indent + "Settings"));
-		Assert.That(actions, Has.Count.EqualTo(2));
-		Assert.That(actions[0], Does.Contain("Keys per page (30)"));
-		Assert.That(actions[1], Does.Contain("Trim input values (On)"));
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(harness.Host.EndCount), "the frame is released even when cancelled");
+		Assert.Multiple(() =>
+		{
+			Assert.That(offered.Title, Is.EqualTo("Settings"));
+			Assert.That(offered.Items.Select(i => i.Label), Is.EqualTo(new[]
+			{
+				"Keys per page (30)",
+				"Trim input values (On)"
+			}));
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));
+		});
 	}
 
 	[Test]
@@ -42,20 +43,22 @@ public sealed class SettingsScreenTests
 	{
 		var harness = new Harness();
 
-		harness.Terminal.Press(ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Answers.Answer(SettingsAction.ToggleTrimInputValues);
+		harness.Answers.Cancel();
 
 		harness.Screen.Show();
 
-		Assert.That(harness.Settings.Current.TrimInputValues, Is.False);
-		Assert.That(harness.Repository.Saved?.TrimInputValues, Is.False);
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(2), "the menu is composed again after the action");
-		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount));
+		Assert.Multiple(() =>
+		{
+			Assert.That(harness.Settings.Current.TrimInputValues, Is.False);
+			Assert.That(harness.Repository.Saved?.TrimInputValues, Is.False);
+			Assert.That(harness.Answers.Prompts, Has.Count.EqualTo(2), "the menu is composed again after the action");
+		});
 	}
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
-		public readonly FakeScreenHost Host = new();
+		public readonly FakeSelectionPrompt Answers = new();
 		public readonly FakeScreenCanvas Canvas = new();
 		public readonly RecordingSettingsRepository Repository = new();
 		public readonly AppSettingsStore Settings = new();
@@ -63,12 +66,12 @@ public sealed class SettingsScreenTests
 
 		public Harness()
 		{
-			var keys = new FakeKeyReader(Terminal.Keys);
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var prompt = new Prompt(new StubTextInput());
-			var message = new Message(new Screen(Canvas, new Header(), statusBar), keys, localization);
-			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
+			var screen = new Screen(Canvas, new Header(), statusBar);
+			var message = new Message(screen, new FakeKeyReader(), localization);
+			var menu = new Menu(screen, Answers);
 
 			Screen = new SettingsScreen(Repository, menu, prompt, message, localization, Settings);
 		}

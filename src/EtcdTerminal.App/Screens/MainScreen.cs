@@ -3,7 +3,7 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens;
 
@@ -34,7 +34,7 @@ public sealed class MainScreen(
 	{
 		while (true)
 		{
-			MainMenuAction? action = _menu.ShowFramed(string.Empty, BuildMenuItems())?.Id;
+			MainMenuAction? action = _menu.Show(string.Empty, BuildMenuItems())?.Id;
 
 			if (action is null)
 				return;
@@ -51,11 +51,11 @@ public sealed class MainScreen(
 	/// <summary>
 	/// Only shows the actions the connected account is actually permitted to perform.
 	/// </summary>
-	private List<MenuItem<MainMenuAction>> BuildMenuItems()
+	private List<Choice<MainMenuAction>> BuildMenuItems()
 	{
-		List<MenuItem<MainMenuAction>> items = [.. _entries
+		List<Choice<MainMenuAction>> items = [.. _entries
 			.Where(e => e.IsAvailable(_session.Capabilities))
-			.Select(e => new MenuItem<MainMenuAction>(e.Action, e.Label))];
+			.Select(e => new Choice<MainMenuAction>(e.Action, e.Label))];
 
 		items.Add(new(MainMenuAction.Disconnect, _localization.Disconnect));
 

@@ -22,7 +22,7 @@ public sealed class SessionFlowTests
 		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
 
 		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		await harness.Main.ShowAsync();
 
@@ -39,7 +39,7 @@ public sealed class SessionFlowTests
 		]);
 
 		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Terminal.Press(ConsoleKey.DownArrow, ConsoleKey.Enter);
+		harness.Answers.Answer(MainMenuAction.Disconnect);
 
 		await harness.Main.ShowAsync();
 
@@ -56,7 +56,7 @@ public sealed class SessionFlowTests
 		]);
 
 		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Answers.Answer(MainMenuAction.BrowseKeys);
 
 		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
 
@@ -75,7 +75,7 @@ public sealed class SessionFlowTests
 
 		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
 		harness.Connection.OnDisconnect = () => Task.FromException(new InvalidOperationException("disconnect boom"));
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Answers.Answer(MainMenuAction.BrowseKeys);
 
 		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
 
@@ -90,7 +90,7 @@ public sealed class SessionFlowTests
 
 		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
 		harness.Connection.OnDisconnect = () => Task.FromException(new InvalidOperationException("disconnect boom"));
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
 
@@ -103,7 +103,7 @@ public sealed class SessionFlowTests
 	{
 		var harness = new Harness([Config()], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
 
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
 
 		var selected = await harness.Selection.ShowAsync();
 
@@ -119,7 +119,9 @@ public sealed class SessionFlowTests
 		var harness = new Harness([Config()], (_, _) =>
 			Task.FromException<UserCapabilities>(new EtcdOperationException(EtcdOperationFailureKind.Unavailable, "unreachable")), []);
 
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
+		harness.Answers.Cancel();
+		harness.Terminal.Press(ConsoleKey.Enter);
 
 		var selected = await harness.Selection.ShowAsync();
 
@@ -140,7 +142,9 @@ public sealed class SessionFlowTests
 			return UserCapabilities.Unrestricted;
 		}, []);
 
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
+		harness.Answers.Cancel();
+		harness.Terminal.Press(ConsoleKey.Escape, ConsoleKey.Enter);
 
 		var selected = await harness.Selection.ShowAsync();
 
@@ -156,28 +160,26 @@ public sealed class SessionFlowTests
 	{
 		var harness = new Harness([Config()], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
 
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
 
 		var selected = await harness.Selection.ShowAsync();
 
 		Assert.That(selected?.Name, Is.EqualTo("prod"));
 
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		await harness.Main.ShowAsync();
 
 		Assert.That(harness.Session.Active, Is.Null);
 
-		harness.Terminal.Output.Clear();
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		var second = await harness.Selection.ShowAsync();
 
 		Assert.That(second, Is.Null);
 
-		// The framed screen owns the footer now, so the visible model comes from
-		// the host, not from the inline writer.
-		var footer = harness.Host.Frames[^1].Footer;
+		// The screen owns the footer, so the visible model comes from the canvas.
+		var footer = harness.Canvas.Footers[^1];
 
 		Assert.That(footer, Is.Not.Null);
 		Assert.That(footer!.Name, Is.Null);
@@ -185,7 +187,7 @@ public sealed class SessionFlowTests
 	}
 
 	/// The text every screen streamed, in order. An outcome is written to the
-	/// canvas below the frame it follows, so it is asserted there.
+	/// canvas below the prompt it follows, so it is asserted there.
 	private static string ComposedText(Harness harness) =>
 		string.Join('\n', harness.Canvas.Blocks.SelectMany(BlockLines));
 
@@ -204,10 +206,11 @@ public sealed class SessionFlowTests
 		public readonly ConnectionSession Session = new();
 		public readonly StubConnection Connection = new();
 		public readonly EnglishLocalization Localization = new();
-		public readonly FakeScreenHost Host = new();
+		public readonly FakeSelectionPrompt Answers = new();
 		public readonly FakeScreenCanvas Canvas = new();
 		public readonly FakeKeyReader Keys;
 		public readonly StatusBar StatusBar;
+		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly Menu Menu;
 		public readonly MainScreen Main;
 		public readonly InstanceSelectionScreen Selection;
@@ -217,13 +220,14 @@ public sealed class SessionFlowTests
 			Func<string?, CancellationToken, Task<UserCapabilities>> discover,
 			IEnumerable<IMainMenuEntry> entries)
 		{
+			Instances = instances;
 			Keys = new FakeKeyReader(Terminal.Keys);
 			StatusBar = new StatusBar(new StubAppInfo(), Session, Localization);
 
 			var header = new Header();
 			var screen = new Screen(Canvas, header, StatusBar);
 
-			Menu = new Menu(Terminal, Terminal, Host, header, StatusBar);
+			Menu = new Menu(screen, Answers);
 
 			var message = new Message(screen, Keys, Localization);
 			var prompt = new Prompt(new StubTextInput());

@@ -2,7 +2,6 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
@@ -14,74 +13,65 @@ namespace EtcdTerminal.Tests;
 public sealed class MenuTests
 {
 	[Test]
-	public void ShowFramed_WithDuplicateLabels_ReturnsChosenItem()
+	public void Show_WithDuplicateLabels_ReturnsTheAnsweredChoice()
 	{
 		var harness = new Harness();
 
-		IReadOnlyList<MenuItem<int>> items = [new(1, "same"), new(2, "same")];
+		IReadOnlyList<Choice<int>> items = [new(1, "same"), new(2, "same")];
 
-		harness.Terminal.Press(ConsoleKey.DownArrow, ConsoleKey.Enter);
+		harness.Answers.Answer(2);
 
-		var chosen = harness.Menu.ShowFramed("title", items);
+		var chosen = harness.Menu.Show("title", items);
 
 		Assert.That(chosen?.Id, Is.EqualTo(2));
 	}
 
 	[Test]
-	public void ShowFramed_LabelWithBrackets_RendersUnchanged()
+	public void Show_OffersEveryLabelUnchanged()
 	{
 		var harness = new Harness();
 
-		IReadOnlyList<MenuItem<int>> items = [new(1, "http://[::1]:2379")];
+		IReadOnlyList<Choice<int>> items = [new(1, "http://[::1]:2379")];
 
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Answers.Cancel();
 
-		harness.Menu.ShowFramed("title", items);
+		harness.Menu.Show("title", items);
 
-		var frame = harness.Host.Frames.Single();
+		var offered = harness.Answers.Prompt<int>(0);
 
-		Assert.That(LineText.Of(((TextBlock)frame.Body[1]).Lines.Single()), Does.Contain("[::1]"));
+		Assert.Multiple(() =>
+		{
+			Assert.That(offered.Title, Is.EqualTo("title"));
+			Assert.That(offered.Items.Single().Label, Is.EqualTo("http://[::1]:2379"));
+		});
 	}
 
 	[Test]
-	public void ShowFramed_SkipsNonSelectableItem_WhenNavigating()
+	public void Show_WithoutItems_ReturnsNullAndLeavesTheScreenClosed()
 	{
 		var harness = new Harness();
 
-		IReadOnlyList<MenuItem<int>> items = [new(1, "a"), new(0, string.Empty, IsSelectable: false), new(2, "b")];
+		var chosen = harness.Menu.Show<int>("title", []);
 
-		harness.Terminal.Press(ConsoleKey.DownArrow, ConsoleKey.Enter);
-
-		var chosen = harness.Menu.ShowFramed("title", items);
-
-		Assert.That(chosen?.Id, Is.EqualTo(2));
-	}
-
-	[Test]
-	public void ShowFramed_AlwaysReleasesTheConsole()
-	{
-		var harness = new Harness();
-
-		IReadOnlyList<MenuItem<int>> items = [new(1, "a")];
-
-		harness.Terminal.Press(ConsoleKey.Escape);
-
-		harness.Menu.ShowFramed("title", items);
-
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(harness.Host.EndCount));
+		Assert.Multiple(() =>
+		{
+			Assert.That(chosen, Is.Null);
+			Assert.That(harness.Canvas.NewScreenCount, Is.Zero);
+			Assert.That(harness.Answers.Prompts, Is.Empty);
+		});
 	}
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
-		public readonly FakeScreenHost Host = new();
+		public readonly FakeSelectionPrompt Answers = new();
+		public readonly FakeScreenCanvas Canvas = new();
 		public readonly Menu Menu;
 
 		public Harness()
 		{
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 
-			Menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
+			Menu = new Menu(new Screen(Canvas, new Header(), statusBar), Answers);
 		}
 	}
 

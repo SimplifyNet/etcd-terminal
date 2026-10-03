@@ -4,8 +4,8 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
+using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -16,27 +16,29 @@ namespace EtcdTerminal.Tests;
 public sealed class ManageConnectionsScreenTests
 {
 	[Test]
-	public void Show_Escape_PresentsTheTitleAndEveryActionInOneFrame()
+	public void Show_Cancel_PresentsTheTitleAndEveryAction()
 	{
 		var harness = new Harness(Config("prod"), Config("staging"));
 
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		harness.Screen.Show(harness.Instances);
 
-		var frame = harness.Host.Frames.Single();
+		var offered = harness.Answers.Prompt<ManageConnectionsAction>(0);
 
-		Assert.That(frame.Body, Has.Count.EqualTo(2));
-		Assert.That(frame.Body[0], Is.InstanceOf<TitleBlock>());
-		Assert.That(((TitleBlock)frame.Body[0]).Title.Text, Is.EqualTo(harness.Terminal.Indent + "Manage Connections"));
-
-		var actions = ((TextBlock)frame.Body[1]).Lines.Select(LineText.Of).ToList();
-
-		Assert.That(actions, Has.Count.EqualTo(5));
-		Assert.That(actions[0], Does.Contain("Add Instance"));
-		Assert.That(actions[1], Does.Contain("Edit Instance"));
-		Assert.That(actions[2], Does.Contain("Remove Instance"));
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(harness.Host.EndCount), "the frame is released even when cancelled");
+		Assert.Multiple(() =>
+		{
+			Assert.That(offered.Title, Is.EqualTo("Manage Connections"));
+			Assert.That(offered.Items.Select(i => i.Label), Is.EqualTo(new[]
+			{
+				"Add Instance",
+				"Edit Instance",
+				"Remove Instance",
+				"Move Up",
+				"Move Down"
+			}));
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));
+		});
 	}
 
 	[Test]
@@ -44,28 +46,33 @@ public sealed class ManageConnectionsScreenTests
 	{
 		var harness = new Harness();
 
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Answers.Cancel();
 
 		harness.Screen.Show(harness.Instances);
 
-		var actions = ((TextBlock)harness.Host.Frames.Single().Body[1]).Lines.Select(LineText.Of).ToList();
+		var offered = harness.Answers.Prompt<ManageConnectionsAction>(0);
 
-		Assert.That(actions, Has.Count.EqualTo(1));
+		Assert.That(offered.Items, Has.Count.EqualTo(1));
 	}
 
 	[Test]
-	public void RemoveInstance_Confirmed_RemovesItAndReleasesEveryFrame()
+	public void RemoveInstance_Confirmed_RemovesItAndStreamsTheOutcome()
 	{
 		var harness = new Harness(Config("prod"), Config("staging"));
 
-		harness.Terminal.Press(ConsoleKey.DownArrow, ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.Enter, ConsoleKey.Enter);
+		harness.Answers.Answer(ManageConnectionsAction.RemoveInstance);
+		harness.Answers.Answer("prod");
+		harness.Terminal.Press(ConsoleKey.Enter);
 
 		harness.Screen.Show(harness.Instances);
 
-		Assert.That(harness.Repository.Removed, Is.EqualTo("prod"));
-		Assert.That(harness.Host.BeginCount, Is.EqualTo(2), "the action menu and the instance picker own a frame, the outcome streams below them");
-		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount));
-		Assert.That(CanvasText(harness), Does.Contain("Instance removed successfully!"), "the outcome streams below the frames on the same canvas");
+		Assert.Multiple(() =>
+		{
+			Assert.That(harness.Repository.Removed, Is.EqualTo("prod"));
+			Assert.That(harness.Answers.Prompts, Has.Count.EqualTo(2), "the action menu and the instance picker");
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(2), "every menu opens the screen it prompts on");
+			Assert.That(CanvasText(harness), Does.Contain("Instance removed successfully!"), "the outcome streams below the prompt");
+		});
 	}
 
 	private static string CanvasText(Harness harness) =>
@@ -80,7 +87,7 @@ public sealed class ManageConnectionsScreenTests
 	private sealed class Harness
 	{
 		public readonly FakeTerminal Terminal = new();
-		public readonly FakeScreenHost Host = new();
+		public readonly FakeSelectionPrompt Answers = new();
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly RecordingConfigRepository Repository;
 		public readonly FakeScreenCanvas Canvas = new();
@@ -95,8 +102,9 @@ public sealed class ManageConnectionsScreenTests
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var prompt = new Prompt(new StubTextInput());
-			var message = new Message(new Screen(Canvas, new Header(), statusBar), keys, localization);
-			var menu = new Menu(Terminal, Terminal, Host, new Header(), statusBar);
+			var screen = new Screen(Canvas, new Header(), statusBar);
+			var message = new Message(screen, keys, localization);
+			var menu = new Menu(screen, Answers);
 
 			Screen = new ManageConnectionsScreen(Repository, menu, prompt, message, localization, new AppSettingsStore());
 		}

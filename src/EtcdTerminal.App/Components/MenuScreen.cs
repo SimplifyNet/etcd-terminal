@@ -1,15 +1,15 @@
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Components;
 
 public sealed class MenuScreen(Menu _menu)
 {
-	public async Task RunAsync<TId>(string title, IReadOnlyList<MenuItem<TId>> items, Func<TId, Task> onChoice)
+	public async Task RunAsync<TId>(string title, IReadOnlyList<Choice<TId>> items, Func<TId, Task> onChoice)
 	{
 		while (true)
 		{
-			var choice = _menu.ShowFramed(title, items);
+			var choice = _menu.Show(title, items);
 
 			if (choice is null)
 				return;

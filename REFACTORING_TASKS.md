@@ -288,7 +288,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 - [x] `Choice.cs`: `public sealed record Choice<TId>(TId Id, string Label);`
 - [x] `ChoiceList.cs`: `public sealed record ChoiceList<TId>(string? Title, IReadOnlyList<Choice<TId>> Items);`
 - [x] `ISelectionPrompt.cs`: `TId? Select<TId>(ChoiceList<TId> list) where TId : notnull;` — returns `default`/null on Escape. To keep value-type ids (enums) distinguishable from "cancelled", return `Choice<TId>?` instead: `Choice<TId>? Select<TId>(ChoiceList<TId> list);`. Use this second signature.
-- [ ] Delete `Presentation/Terminal/MenuItem.cs` after T2.3 (keep until callers are updated).
+- [x] Delete `Presentation/Terminal/MenuItem.cs` after T2.3 (keep until callers are updated).
 - [x] `ILocalization`: add `string MoreChoices { get; }` → `EnglishLocalization`: `"(move up and down to reveal more)"`.
 
 ### T2.2 SpectreSelectionPrompt (Infrastructure)
@@ -322,7 +322,7 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 - [x] `TestConsole` test: two choices, push `DownArrow` + `Enter` → second choice; push `Escape` → null; a label containing `[x]` is shown literally in `console.Output`.
 
 ### T2.3 Menu and callers (App)
-- [ ] `Engine/Menu.cs` becomes:
+- [x] `Engine/Menu.cs` becomes:
   ```csharp
   public sealed class Menu(Screen _screen, ISelectionPrompt _selection)
   {
@@ -335,12 +335,13 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
   }
   ```
   Delete `ShowFramed`, `Frame`, `StepSelection`, `displayConverter`.
-- [ ] Replace every `MenuItem<T>` with `Choice<T>` and every `_menu.ShowFramed(` with `_menu.Show(` in: `MenuScreen`, `InstanceSelectionScreen`, `MainScreen`, `ManageConnectionsScreen`, `SettingsScreen`, `PermissionTypeSelector`, `PermissionScopeSelector`, `KeyImportJsonScreen`.
-- [ ] `InstanceSelectionScreen.PromptForChoice`: labels are `$"{i.Name}  ({i.ConnectionString})"` built directly; remove the separator item and the converter lambda; the "no connections" notice goes in `preamble`.
-- [ ] `KeyImportJsonScreen.ConfirmImport`: `preamble` = preview blocks; items `[new(true, Yes), new(false, No)]`; `return _menu.Show(null, items, preview)?.Id ?? false;`.
-- [ ] Delete `MenuItem.cs`.
-- [ ] Tests: create `Fakes/FakeSelectionPrompt.cs` (queue of answers: `Answer<TId>(TId id)` / `Cancel()`, records every `ChoiceList`). Rewrite `MenuTests`, `ScreenFrameTests` (delete the live-frame ones, keep "cancel returns null" and "preamble is written before the prompt" via `FakeScreenCanvas`), `SessionFlowTests`, `ManageConnectionsScreenTests`, `SettingsScreenTests`, `KeyBrowseScreenTests` (where they use menus) to script answers instead of key presses. Assertions on which labels/ids are offered stay.
-- [ ] Build, test, commit.
+- [x] An empty item list returns null without opening a screen (the old menu did the same; `SelectionPrompt` throws on an empty list).
+- [x] Replace every `MenuItem<T>` with `Choice<T>` and every `_menu.ShowFramed(` with `_menu.Show(` in: `MenuScreen`, `InstanceSelectionScreen`, `MainScreen`, `ManageConnectionsScreen`, `SettingsScreen`, `PermissionTypeSelector`, `PermissionScopeSelector`, `KeyImportJsonScreen`.
+- [x] `InstanceSelectionScreen.PromptForChoice`: labels are `$"{i.Name}  ({i.ConnectionString})"` built directly; remove the separator item and the converter lambda; the "no connections" notice goes in `preamble`.
+- [x] `KeyImportJsonScreen.ConfirmImport`: `preamble` = preview blocks; items `[new(true, Yes), new(false, No)]`; `return _menu.Show(null, items, preview)?.Id ?? false;`.
+- [x] Delete `MenuItem.cs`.
+- [x] Tests: create `Fakes/FakeSelectionPrompt.cs` (queue of answers: `Answer<TId>(TId id)` / `Cancel()`, records every `ChoiceList`). Rewrite `MenuTests`, `ScreenFrameTests` (delete the live-frame ones, keep "cancel returns null" and "preamble is written before the prompt" via `FakeScreenCanvas`), `SessionFlowTests`, `ManageConnectionsScreenTests`, `SettingsScreenTests`, `KeyBrowseScreenTests` (where they use menus) to script answers instead of key presses. Assertions on which labels/ids are offered stay.
+- [x] Build, test, commit.
 
 ### T2.4 Phase 2 PTY check
 - [ ] Instance menu, main menu, settings, manage connections: arrows, Enter, Esc; highlight in accent color; footer on the last row throughout.

@@ -166,14 +166,12 @@ public sealed class KeyImportJsonScreen(
 		preview.Add(TextBlock.Blank());
 		preview.Add(TextBlock.Line(new StyledText(_localization.ConfirmImport, TextRole.Primary)));
 
-		bool? confirmed = _menu.ShowFramed<bool>(
-			string.Empty,
-			[
-				new(true, _localization.Yes),
-				new(false, _localization.No)
-			],
-			notices: preview)?.Id;
+		IReadOnlyList<Choice<bool>> items =
+		[
+			new(true, _localization.Yes),
+			new(false, _localization.No)
+		];
 
-		return confirmed ?? false;
+		return _menu.Show(null, items, preview)?.Id ?? false;
 	}
 }

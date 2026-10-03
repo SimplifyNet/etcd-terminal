@@ -5,7 +5,6 @@ using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Screens;
 
@@ -113,29 +112,18 @@ public sealed class InstanceSelectionScreen(
 
 	private InstanceMenuChoice? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		List<MenuItem<InstanceMenuChoice>> items = [];
+		List<Choice<InstanceMenuChoice>> items =
+		[
+			.. instances.Select(i => new Choice<InstanceMenuChoice>(new(null, i), $"{i.Name}  ({i.ConnectionString})")),
+			new(new(InstanceFixedAction.ManageConnections, null), _localization.ManageConnections),
+			new(new(InstanceFixedAction.Settings, null), _localization.Settings),
+			new(new(InstanceFixedAction.Exit, null), _localization.Exit)
+		];
 
-		items.AddRange(instances.Select(i => new MenuItem<InstanceMenuChoice>(new(null, i), i.Name)));
+		List<Block>? preamble = instances.Count is 0
+			? [TextBlock.Line(new StyledText(_localization.NoConnectionsMessage, TextRole.Warning))]
+			: null;
 
-		if (instances.Count > 0)
-			items.Add(new MenuItem<InstanceMenuChoice>(new(null, null), string.Empty, IsSelectable: false));
-
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.ManageConnections, null), _localization.ManageConnections));
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Settings, null), _localization.Settings));
-		items.Add(new MenuItem<InstanceMenuChoice>(new(InstanceFixedAction.Exit, null), _localization.Exit));
-
-		List<Block> notices = [];
-
-		if (instances.Count == 0)
-			notices.Add(TextBlock.Line(new StyledText(_localization.NoConnectionsMessage, TextRole.Warning)));
-
-		return _menu.ShowFramed(string.Empty, items, c =>
-		{
-			var instance = instances.FirstOrDefault(i => i.Name == c);
-
-			return instance is not null
-				? $"{instance.Name}  ({instance.ConnectionString})"
-				: c;
-		}, notices)?.Id;
+		return _menu.Show(string.Empty, items, preamble)?.Id;
 	}
 }

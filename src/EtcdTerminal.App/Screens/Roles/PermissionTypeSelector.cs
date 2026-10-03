@@ -12,7 +12,7 @@ public sealed class PermissionTypeSelector(Menu _menu, ILocalization _localizati
 		var write = _localization.Write;
 		var readWrite = _localization.ReadWrite;
 
-		return _menu.ShowFramed<PermissionType>(_localization.SelectPermissionType,
+		return _menu.Show<PermissionType>(_localization.SelectPermissionType,
 		[
 			new(PermissionType.Read, read),
 			new(PermissionType.Write, write),

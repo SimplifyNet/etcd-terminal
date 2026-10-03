@@ -1,15 +1,11 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Localization;
-using EtcdTerminal.App.Theming;
 using EtcdTerminal.Environment;
-using EtcdTerminal.Infrastructure.Terminal;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
-using Spectre.Console.Testing;
 
 namespace EtcdTerminal.Tests;
 
@@ -17,116 +13,54 @@ namespace EtcdTerminal.Tests;
 public sealed class ScreenFrameTests
 {
 	[Test]
-	public void FramedMenu_ComposesBannerItemsAndFooterInOneFrame()
+	public void Show_OnCancel_ReturnsNullAndKeepsTheScreenItOpened()
 	{
-		var theme = new ReddyTheme();
-		var console = new TestConsole();
-		var terminal = new FakeTerminal();
-		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
-		var header = new Header();
+		var harness = new Harness();
 
-		var menu = new Menu(terminal, terminal, Host(console, theme), header, statusBar);
+		harness.Answers.Cancel();
 
-		terminal.Press(ConsoleKey.DownArrow);
-		terminal.Press(ConsoleKey.Escape);
-
-		var items = new[]
-		{
-			new MenuItem<int>(1, "prod", true),
-			new MenuItem<int>(2, "staging", true)
-		};
-
-		menu.ShowFramed(string.Empty, items);
-
-		Assert.That(console.Output, Does.Contain("prod"));
-		Assert.That(console.Output, Does.Contain("staging"));
-		Assert.That(console.Output, Does.Contain("v0.0"));
-		Assert.That(
-			console.Lines.Count(line => line.Trim().Length > 0),
-			Is.GreaterThanOrEqualTo(8),
-			"banner, menu items and footer share one frame");
-	}
-
-	[Test]
-	public void FramedMenu_ReplacesTheFrameAndAlwaysEndsTheHost()
-	{
-		var theme = new ReddyTheme();
-		var terminal = new FakeTerminal();
-		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
-		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
-
-		terminal.Press(ConsoleKey.DownArrow);
-		terminal.Press(ConsoleKey.Enter);
-
-		menu.ShowFramed(string.Empty,
-		[
-			new MenuItem<int>(1, "prod", true),
-			new MenuItem<int>(2, "staging", true)
-		]);
+		var chosen = harness.Menu.Show("title", [new Choice<int>(1, "prod")]);
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(host.BeginCount, Is.EqualTo(1));
-			Assert.That(host.EndCount, Is.EqualTo(1));
-			Assert.That(host.IsRunning, Is.False);
-			Assert.That(host.Frames.Count, Is.EqualTo(2), "one frame per selection change, never appended content");
+			Assert.That(chosen, Is.Null);
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1), "the screen is opened once for the prompt");
 		});
 	}
 
 	[Test]
-	public void FramedMenu_ReleasesTheHostWhenCancelled()
+	public void Show_WritesThePreambleBeforeThePrompt()
 	{
-		var theme = new ReddyTheme();
-		var terminal = new FakeTerminal();
-		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
+		var harness = new Harness();
 
-		var header = new Header();
+		var preamble = TextBlock.Line(new StyledText("notice", TextRole.Warning));
 
-		var menu = new Menu(terminal, terminal, host, header, statusBar);
+		harness.Answers.Cancel();
 
-		terminal.Press(ConsoleKey.Escape);
-
-		var result = menu.ShowFramed(string.Empty, [new MenuItem<int>(1, "prod", true)]);
+		harness.Menu.Show("title", [new Choice<int>(1, "prod")], [preamble]);
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(result, Is.Null);
-			Assert.That(host.EndCount, Is.EqualTo(1));
+			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));
+			Assert.That(harness.Canvas.Blocks, Has.Count.EqualTo(2), "banner and preamble are the only writes");
+			Assert.That(harness.Canvas.Blocks[0], Is.InstanceOf<BannerBlock>());
+			Assert.That(harness.Canvas.Blocks[1], Is.SameAs(preamble), "the preamble lands under the banner before the prompt runs");
 		});
 	}
 
-	[Test]
-	public void FramedMenu_MovesTheMarkerAndKeepsUnavailableItems()
+	private sealed class Harness
 	{
-		var terminal = new FakeTerminal();
-		var host = new FakeScreenHost();
-		var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
-		var menu = new Menu(terminal, terminal, host, new Header(), statusBar);
+		public readonly FakeSelectionPrompt Answers = new();
+		public readonly FakeScreenCanvas Canvas = new();
+		public readonly Menu Menu;
 
-		terminal.Press(ConsoleKey.Enter);
-
-		menu.ShowFramed(string.Empty,
-		[
-			new MenuItem<int>(1, "prod", true),
-			new MenuItem<int>(0, string.Empty, false),
-			new MenuItem<int>(2, "staging", true)
-		]);
-
-		var rows = ((TextBlock)host.Current.Body[^1]).Lines;
-
-		Assert.Multiple(() =>
+		public Harness()
 		{
-			Assert.That(rows[0][0].Role, Is.EqualTo(TextRole.Accent), "Enter accepts the selected item");
-			Assert.That(rows[0][0].Text, Does.Contain("\u276f"));
-			Assert.That(rows[1][0].Role, Is.EqualTo(TextRole.Primary));
-			Assert.That(rows[1][0].Text, Does.Not.Contain("\u276f"));
-		});
-	}
+			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
 
-	private static SpectreScreenHost Host(TestConsole console, ReddyTheme theme) =>
-		new(console, new BlockRenderer(new RoleStyleMapper(theme), theme), new StatusBarRenderer(console, new RoleStyleMapper(theme)), new ConsoleTerminalSession(console, theme));
+			Menu = new Menu(new Screen(Canvas, new Header(), statusBar), Answers);
+		}
+	}
 
 	private sealed class StubAppInfo : IAppInfo
 	{
