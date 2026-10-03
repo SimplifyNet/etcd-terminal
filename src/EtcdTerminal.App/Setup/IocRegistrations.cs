@@ -18,10 +18,9 @@ using EtcdTerminal.Infrastructure.Configuration;
 using EtcdTerminal.Infrastructure.Environment;
 using EtcdTerminal.Infrastructure.Security;
 using EtcdTerminal.Infrastructure.Terminal;
-using EtcdTerminal.Presentation.Terminal;
 using Simplify.DI;
-using AnsiConsole = Spectre.Console.AnsiConsole;
-using IAnsiConsole = Spectre.Console.IAnsiConsole;
+using Spectre.Console;
+using Spinner = EtcdTerminal.App.Components.Spinner;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Infrastructure;
 using EtcdTerminal.App.Components;
@@ -53,26 +52,18 @@ public static class IocRegistrations
 	}
 
 	public static IDIRegistrator RegisterTerminal(this IDIRegistrator registrator) => registrator
-		.Register<ITerminal, ConsoleTerminal>(LifetimeType.Singleton)
-		.Register<ITerminalOutput>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITerminalCursor>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITerminalInput>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITerminalStyle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITerminalWidgets>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
-		.Register<ITerminalLifecycle>(c => c.Resolve<ITerminal>(), LifetimeType.Singleton)
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
 		.Register<ITerminalSession, ConsoleTerminalSession>(LifetimeType.Singleton)
 		.Register<IScreenCanvas, SpectreScreenCanvas>(LifetimeType.Singleton)
 		.Register<IKeyReader, SpectreKeyReader>(LifetimeType.Singleton)
 		.Register<ISelectionPrompt, SpectreSelectionPrompt>(LifetimeType.Singleton)
 		.Register<ILiveFrame, SpectreLiveFrame>(LifetimeType.Singleton)
-		.Register<IAnsiConsole>(c => AnsiConsole.Console, LifetimeType.Singleton)
+		.Register<IAnsiConsole>(c => SpectreConsoleHost.Default, LifetimeType.Singleton)
 		.Register<EscapableConsole>(c => new(c.Resolve<IAnsiConsole>()), LifetimeType.Singleton)
 		.Register<RoleStyleMapper>(LifetimeType.Singleton)
 		.Register<BlockRenderer>(LifetimeType.Singleton)
 		.Register<StatusBarRenderer>(LifetimeType.Singleton)
-		.Register<SpectreStatusIndicator>(LifetimeType.Singleton)
-		.Register<IStatusIndicator>(c => c.Resolve<SpectreStatusIndicator>(), LifetimeType.Singleton);
+		.Register<IStatusIndicator, SpectreStatusIndicator>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
 		.Register<ITheme, ReddyTheme>(LifetimeType.Singleton);

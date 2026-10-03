@@ -1,4 +1,3 @@
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Components;
@@ -10,7 +9,7 @@ namespace EtcdTerminal.App.Components;
 /// one reaches the caller unchanged. The console is handed back by the
 /// indicator itself, so nothing here redraws a line or moves a cursor.
 /// </summary>
-public sealed class Spinner(ITerminal _terminal, IStatusIndicator _status)
+public sealed class Spinner(IKeyReader _keys, IStatusIndicator _status)
 {
 	public async Task<bool> RunAsync(string message, Func<CancellationToken, Task> action)
 	{
@@ -59,7 +58,7 @@ public sealed class Spinner(ITerminal _terminal, IStatusIndicator _status)
 	{
 		try
 		{
-			return _terminal.KeyAvailable && _terminal.ReadKey().Key == ConsoleKey.Escape;
+			return _keys.KeyAvailable && _keys.ReadKey().Key == ConsoleKey.Escape;
 		}
 		catch (InvalidOperationException)
 		{

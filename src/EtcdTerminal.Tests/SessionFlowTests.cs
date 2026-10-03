@@ -5,7 +5,6 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
@@ -121,7 +120,7 @@ public sealed class SessionFlowTests
 
 		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
 		harness.Answers.Cancel();
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Keys.Press(ConsoleKey.Enter);
 
 		var selected = await harness.Selection.ShowAsync();
 
@@ -144,7 +143,7 @@ public sealed class SessionFlowTests
 
 		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
 		harness.Answers.Cancel();
-		harness.Terminal.Press(ConsoleKey.Escape, ConsoleKey.Enter);
+		harness.Keys.Press(ConsoleKey.Escape, ConsoleKey.Enter);
 
 		var selected = await harness.Selection.ShowAsync();
 
@@ -202,13 +201,12 @@ public sealed class SessionFlowTests
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
 		public readonly ConnectionSession Session = new();
 		public readonly StubConnection Connection = new();
 		public readonly EnglishLocalization Localization = new();
 		public readonly FakeSelectionPrompt Answers = new();
 		public readonly FakeScreenCanvas Canvas = new();
-		public readonly FakeKeyReader Keys;
+		public readonly FakeKeyReader Keys = new();
 		public readonly StatusBar StatusBar;
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly Menu Menu;
@@ -221,7 +219,6 @@ public sealed class SessionFlowTests
 			IEnumerable<IMainMenuEntry> entries)
 		{
 			Instances = instances;
-			Keys = new FakeKeyReader(Terminal.Keys);
 			StatusBar = new StatusBar(new StubAppInfo(), Session, Localization);
 
 			var header = new Header();
@@ -231,7 +228,7 @@ public sealed class SessionFlowTests
 
 			var message = new Message(screen, Keys, Localization);
 			var prompt = new Prompt(new StubTextInput());
-			var spinner = new Spinner(Terminal, new FakeStatusIndicator());
+			var spinner = new Spinner(Keys, new FakeStatusIndicator());
 			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
 			var settings = new SettingsScreen(new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
 

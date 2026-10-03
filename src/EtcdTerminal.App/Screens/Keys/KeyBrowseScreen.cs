@@ -70,7 +70,7 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 		_screen.Open(
 		[
 			_layout.Detail(_localization.EditingKey, key.Key, TextRole.Primary),
-			_layout.Detail(_localization.CurrentValue, ValuePreview.Sanitize(key.Value), TextRole.Success)
+			_layout.Detail(_localization.CurrentValue, DisplayText.Sanitize(key.Value), TextRole.Success)
 		]);
 
 		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value, trim: _settings.Current.TrimInputValues);

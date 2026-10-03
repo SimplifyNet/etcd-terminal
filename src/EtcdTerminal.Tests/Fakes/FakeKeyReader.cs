@@ -26,7 +26,11 @@ public sealed class FakeKeyReader : IKeyReader
 		return Keys.Dequeue();
 	}
 
-	public void Press(ConsoleKey key) => Keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
+	public void Press(params ConsoleKey[] keys)
+	{
+		foreach (var key in keys)
+			Keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
+	}
 
 	public void Press(char key) => Keys.Enqueue(new ConsoleKeyInfo(key, ConsoleKey.None, false, false, false));
 }

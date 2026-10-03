@@ -1,4 +1,4 @@
-namespace EtcdTerminal.Presentation.Terminal;
+namespace EtcdTerminal.Presentation;
 
 public interface ITextInput
 {

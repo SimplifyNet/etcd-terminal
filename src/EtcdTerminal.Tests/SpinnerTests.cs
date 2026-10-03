@@ -10,9 +10,9 @@ public sealed class SpinnerTests
 	[Test]
 	public async Task RunAsync_CompletedAction_ReturnsTrue()
 	{
-		var terminal = new FakeTerminal();
+		var keys = new FakeKeyReader();
 		var status = new FakeStatusIndicator();
-		var spinner = new Spinner(terminal, status);
+		var spinner = new Spinner(keys, status);
 
 		var completed = await spinner.RunAsync("loading", _ => Task.CompletedTask);
 
@@ -23,10 +23,10 @@ public sealed class SpinnerTests
 	[Test]
 	public async Task RunAsync_EscapePressed_ReturnsFalse()
 	{
-		var terminal = new FakeTerminal();
-		var spinner = new Spinner(terminal, new FakeStatusIndicator());
+		var keys = new FakeKeyReader();
+		var spinner = new Spinner(keys, new FakeStatusIndicator());
 
-		terminal.Press(ConsoleKey.Escape);
+		keys.Press(ConsoleKey.Escape);
 
 		var completed = await spinner.RunAsync("loading", ct => Task.Delay(Timeout.Infinite, ct));
 
@@ -36,7 +36,7 @@ public sealed class SpinnerTests
 	[Test]
 	public void RunAsync_FailingAction_PropagatesTheFailure()
 	{
-		var spinner = new Spinner(new FakeTerminal(), new FakeStatusIndicator());
+		var spinner = new Spinner(new FakeKeyReader(), new FakeStatusIndicator());
 
 		Assert.ThrowsAsync<InvalidOperationException>(async () =>
 			await spinner.RunAsync("loading", _ => throw new InvalidOperationException("boom")));

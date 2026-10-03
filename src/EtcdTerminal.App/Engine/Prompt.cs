@@ -1,4 +1,4 @@
-using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Engine;
 

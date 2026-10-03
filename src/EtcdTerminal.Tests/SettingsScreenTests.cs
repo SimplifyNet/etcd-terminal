@@ -5,7 +5,6 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;

@@ -21,8 +21,8 @@ public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, IL
 		return new StatusBarModel
 		{
 			Hints = BuildHints(),
-			Name = active is null ? null : new StyledText(ValuePreview.Sanitize(active.Name), TextRole.Secondary),
-			Connection = active is null ? null : new StyledText(ValuePreview.Sanitize(active.ConnectionString), TextRole.Muted),
+			Name = active is null ? null : new StyledText(DisplayText.Sanitize(active.Name), TextRole.Secondary),
+			Connection = active is null ? null : new StyledText(DisplayText.Sanitize(active.ConnectionString), TextRole.Muted),
 			Username = Username(active),
 			Version = new StyledText(_appInfo.Version, TextRole.Primary)
 		};
@@ -30,7 +30,7 @@ public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, IL
 
 	private StyledText? Username(EtcdConnectionConfig? active) =>
 		active is not null && active.IsAuthenticationEnabled && active.Username is not null
-			? new StyledText(ValuePreview.Sanitize(active.Username), TextRole.Warning)
+			? new StyledText(DisplayText.Sanitize(active.Username), TextRole.Warning)
 			: null;
 
 	private IReadOnlyList<StyledText> BuildHints() =>

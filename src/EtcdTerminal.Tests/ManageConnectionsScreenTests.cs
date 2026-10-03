@@ -5,7 +5,6 @@ using EtcdTerminal.App.Screens;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -62,7 +61,7 @@ public sealed class ManageConnectionsScreenTests
 
 		harness.Answers.Answer(ManageConnectionsAction.RemoveInstance);
 		harness.Answers.Answer("prod");
-		harness.Terminal.Press(ConsoleKey.Enter);
+		harness.Keys.Press(ConsoleKey.Enter);
 
 		harness.Screen.Show(harness.Instances);
 
@@ -86,7 +85,7 @@ public sealed class ManageConnectionsScreenTests
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
+		public readonly FakeKeyReader Keys = new();
 		public readonly FakeSelectionPrompt Answers = new();
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly RecordingConfigRepository Repository;
@@ -98,7 +97,7 @@ public sealed class ManageConnectionsScreenTests
 			Instances = instances;
 			Repository = new RecordingConfigRepository(instances);
 
-			var keys = new FakeKeyReader(Terminal.Keys);
+			var keys = Keys;
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var prompt = new Prompt(new StubTextInput());

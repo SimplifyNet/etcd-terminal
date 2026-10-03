@@ -155,7 +155,7 @@ public sealed class KeyImportJsonScreen(
 			previewRows.Add(
 			[
 				new StyledText(Key, TextRole.Primary),
-				new StyledText(ValuePreview.Sanitize(Value), TextRole.Muted)
+				new StyledText(DisplayText.Sanitize(Value), TextRole.Muted)
 			]);
 
 		preview.Add(new TableBlock([], previewRows));

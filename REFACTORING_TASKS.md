@@ -470,13 +470,21 @@ Verified on a 24x80 pty with the scroll region aware emulator (`/tmp/opencode/st
 ## Phase 4 — Delete the legacy terminal layer
 
 ### T4.1 Delete
-- [ ] `git rm` these files: `Presentation/Terminal/ITerminal.cs`, `ITerminalOutput.cs`, `ITerminalCursor.cs`, `ITerminalInput.cs`, `ITerminalStyle.cs`, `ITerminalWidgets.cs`, `ITerminalLifecycle.cs`, `TerminalColor.cs`, `DisplayCells.cs`; `Infrastructure/Terminal/ConsoleTerminal.cs`; `Tests/Fakes/FakeTerminal.cs`, `Tests/Fakes/RecordingTerminal.cs`, `Tests/DisplayCellsTests.cs`.
-- [ ] Move `Presentation/Terminal/ITextInput.cs` to `Presentation/ITextInput.cs` (namespace `EtcdTerminal.Presentation`); delete the empty `Terminal` folder.
-- [ ] `ValuePreview` → rename to `DisplayText`, keep `Sanitize` only; delete `Preview` and `_previewValueLength`. Update `ValuePreviewTests` → `DisplayTextTests` (sanitization cases only).
-- [ ] `Spinner(IKeyReader _keys, IStatusIndicator _status)`.
-- [ ] `IocRegistrations.RegisterTerminal` contains exactly: `IAnsiConsole`, `EscapableConsole`, `RoleStyleMapper`, `BlockRenderer`, `StatusBarRenderer`, `ITerminalSession`, `IScreenCanvas`, `ISelectionPrompt`, `ITextInput`, `IStatusIndicator`, `IKeyReader`, `ILiveFrame`.
-- [ ] Run: `rg -n '\\x1b|\\u001b|Console\.|CursorTop|CursorLeft|WindowWidth|WindowHeight|DisplayCells|SelectionPointer|\.Indent\b' src/EtcdTerminal.App src/EtcdTerminal.Presentation` → must print nothing. `rg -n '\\u001b|\\x1b' src/EtcdTerminal.Infrastructure` → only `ConsoleTerminalSession.cs`.
-- [ ] Build, test, commit.
+- [x] `git rm` these files: `Presentation/Terminal/ITerminal.cs`, `ITerminalOutput.cs`, `ITerminalCursor.cs`, `ITerminalInput.cs`, `ITerminalStyle.cs`, `ITerminalWidgets.cs`, `ITerminalLifecycle.cs`, `TerminalColor.cs`, `DisplayCells.cs`; `Infrastructure/Terminal/ConsoleTerminal.cs`; `Tests/Fakes/FakeTerminal.cs`, `Tests/Fakes/RecordingTerminal.cs`, `Tests/DisplayCellsTests.cs`.
+- [x] Move `Presentation/Terminal/ITextInput.cs` to `Presentation/ITextInput.cs` (namespace `EtcdTerminal.Presentation`); delete the empty `Terminal` folder.
+- [x] `ValuePreview` → rename to `DisplayText`, keep `Sanitize` only; delete `Preview` and `_previewValueLength`. Update `ValuePreviewTests` → `DisplayTextTests` (sanitization cases only).
+- [x] `Spinner(IKeyReader _keys, IStatusIndicator _status)`.
+- [x] `IocRegistrations.RegisterTerminal` contains exactly: `IAnsiConsole`, `EscapableConsole`, `RoleStyleMapper`, `BlockRenderer`, `StatusBarRenderer`, `ITerminalSession`, `IScreenCanvas`, `ISelectionPrompt`, `ITextInput`, `IStatusIndicator`, `IKeyReader`, `ILiveFrame`.
+- [x] Run: `rg -n '\\x1b|\\u001b|Console\.|CursorTop|CursorLeft|WindowWidth|WindowHeight|DisplayCells|SelectionPointer|\.Indent\b' src/EtcdTerminal.App src/EtcdTerminal.Presentation` → must print nothing. `rg -n '\\u001b|\\x1b' src/EtcdTerminal.Infrastructure` → only `ConsoleTerminalSession.cs`.
+- [x] Build, test, commit.
+
+
+Verified: `dotnet build src -warnaserror` 0 errors/0 warnings, 201 unit + 17 integration green, both `rg` checks from the task pass (App/Presentation print nothing; Infrastructure prints only `ConsoleTerminalSession.cs`).
+
+- `Tests/Fakes/RecordingTerminal.cs` and `ValuePreview._previewValueLength` were already absent at T4.1 start; recorded as pre-deleted rather than skipped. Test key feeding moved to `FakeKeyReader` (`Press` now takes `params ConsoleKey[]`), the five harnesses that shared one queue through `FakeTerminal` now own a single `FakeKeyReader`.
+- `RegisterTerminal` holds exactly the twelve listed registrations: `SpectreStatusIndicator` collapsed into `IStatusIndicator`, and the default console comes from the new Infrastructure `SpectreConsoleHost.Default` (which wraps `AnsiConsole.Console`) so the composition root itself matches check 1 — `AnsiConsole.Console` or any identifier ending in `Console` followed by `.` would print. `using Spectre.Console;` there needs a `Spinner` alias because Spectre also ships a `Spinner`.
+- PTY smoke (`/tmp/opencode/steps_t41.py`, 24x80): boots to the instance menu, connect failure path shows `Failed to connect: ...` + `Press any key`, Enter returns to the menu, Esc exits with a cleared screen; footer row 23 present while running, zero scroll events.
+- Not verified: terminal resize, the non ANSI backend, colors in a real terminal emulator (covered by the T4.3 full checklist).
 
 ### T4.2 Architecture tests
 Add to `ArchitectureTests.cs` (source-text tests like the existing `AppSourcesContainNoEscapeLiterals`):

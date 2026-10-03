@@ -22,7 +22,7 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 			? TextBlock.Line(new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary))
 			: TextBlock.Line(
 				new StyledText(SearchPrefix, TextRole.Muted),
-				new StyledText(ValuePreview.Sanitize(searchQuery), TextRole.Primary),
+				new StyledText(DisplayText.Sanitize(searchQuery), TextRole.Primary),
 				new StyledText(Caret, TextRole.Primary));
 
 	public Block KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
@@ -39,8 +39,8 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 
 			rows.Add(
 			[
-				new StyledText(ValuePreview.Sanitize(kv.Key), role),
-				new StyledText(ValuePreview.Sanitize(kv.Value), role)
+				new StyledText(DisplayText.Sanitize(kv.Key), role),
+				new StyledText(DisplayText.Sanitize(kv.Value), role)
 			]);
 		}
 
@@ -61,7 +61,7 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 	public Block Selected(string selectedKey) =>
 		TextBlock.Line(
 			new StyledText($"{_localization.Selected} ", TextRole.Muted),
-			new StyledText(ValuePreview.Sanitize(selectedKey), TextRole.Accent));
+			new StyledText(DisplayText.Sanitize(selectedKey), TextRole.Accent));
 
 	public Block Actions(bool canModify)
 	{

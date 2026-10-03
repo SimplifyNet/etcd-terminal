@@ -5,7 +5,6 @@ using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;
@@ -24,8 +23,8 @@ public sealed class KeyBrowseScreenTests
 
 		harness.TextInput.Answers.Enqueue("x2");
 		harness.TextInput.Answers.Enqueue("z");
-		harness.Terminal.Keys.Enqueue(new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false));
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Keys.Keys.Enqueue(new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false));
+		harness.Keys.Press(ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.Escape);
 
 		await harness.Screen.ShowAsync();
 
@@ -41,8 +40,8 @@ public sealed class KeyBrowseScreenTests
 	{
 		var harness = new Harness(new() { ["/a/1"] = "v" });
 
-		harness.Terminal.Keys.Enqueue(new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false));
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.D, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Keys.Keys.Enqueue(new ConsoleKeyInfo('a', ConsoleKey.A, false, false, false));
+		harness.Keys.Press(ConsoleKey.Enter, ConsoleKey.D, ConsoleKey.Enter, ConsoleKey.Escape);
 
 		await harness.Screen.ShowAsync();
 
@@ -59,8 +58,8 @@ public sealed class KeyBrowseScreenTests
 
 		harness.TextInput.Answers.Enqueue("y");
 		harness.TextInput.Answers.Enqueue("w");
-		harness.Terminal.Keys.Enqueue(new ConsoleKeyInfo('x', ConsoleKey.X, false, false, false));
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.Escape);
+		harness.Keys.Keys.Enqueue(new ConsoleKeyInfo('x', ConsoleKey.X, false, false, false));
+		harness.Keys.Press(ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.DownArrow, ConsoleKey.Enter, ConsoleKey.E, ConsoleKey.Enter, ConsoleKey.Escape);
 
 		await harness.Screen.ShowAsync();
 
@@ -76,7 +75,7 @@ public sealed class KeyBrowseScreenTests
 	{
 		var harness = new Harness(new() { ["/a/1"] = "x", ["/b/1"] = "y" });
 
-		harness.Terminal.Press(ConsoleKey.Escape);
+		harness.Keys.Press(ConsoleKey.Escape);
 
 		await harness.Screen.ShowAsync();
 
@@ -96,7 +95,7 @@ public sealed class KeyBrowseScreenTests
 	{
 		var harness = new Harness(new() { ["/a/1"] = "x" });
 
-		harness.Terminal.Press(ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Escape);
+		harness.Keys.Press(ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Escape);
 
 		await harness.Screen.ShowAsync();
 
@@ -109,7 +108,7 @@ public sealed class KeyBrowseScreenTests
 
 	private sealed class Harness
 	{
-		public readonly FakeTerminal Terminal = new();
+		public readonly FakeKeyReader Keys = new();
 		public readonly QueueTextInput TextInput = new();
 		public readonly FakeScreenCanvas Canvas = new();
 		public readonly FakeLiveFrame Live = new();
@@ -127,7 +126,7 @@ public sealed class KeyBrowseScreenTests
 
 			Store = new DictKeyStore(initial);
 
-			var keys = new FakeKeyReader(Terminal.Keys);
+			var keys = Keys;
 			var statusBar = new StatusBar(new StubAppInfo(), session, localization);
 			var prompt = new Prompt(TextInput);
 			var screen = new Screen(Canvas, new Header(), statusBar);

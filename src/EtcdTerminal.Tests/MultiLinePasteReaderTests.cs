@@ -3,7 +3,6 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
@@ -24,11 +23,11 @@ public sealed class MultiLinePasteReaderTests
 	[Test]
 	public async Task QueuedEscape_ReturnsNullAndKeepsTheWaitingStatus()
 	{
-		var terminal = new FakeTerminal();
+		var keys = new FakeKeyReader();
 
-		terminal.Press(ConsoleKey.Escape);
+		keys.Press(ConsoleKey.Escape);
 
-		var harness = Create(terminal);
+		var harness = Create(keys);
 
 		Assert.That(await harness.Reader.ReadAsync("Paste:"), Is.Null);
 		Assert.That(harness.Live.Ends, Is.EqualTo(new[] { LiveFrameEnd.Keep }));
@@ -40,14 +39,14 @@ public sealed class MultiLinePasteReaderTests
 	[Test]
 	public async Task QueuedContentFollowedByEscape_ReturnsNullWithoutThrowing()
 	{
-		var terminal = new FakeTerminal();
+		var keys = new FakeKeyReader();
 
 		foreach (var c in "{\"a\":1}")
-			terminal.Keys.Enqueue(new ConsoleKeyInfo(c, ConsoleKey.None, false, false, false));
+			keys.Keys.Enqueue(new ConsoleKeyInfo(c, ConsoleKey.None, false, false, false));
 
-		terminal.Press(ConsoleKey.Escape);
+		keys.Press(ConsoleKey.Escape);
 
-		var harness = Create(terminal, oneUpdatePerKey: true);
+		var harness = Create(keys, oneUpdatePerKey: true);
 
 		Assert.That(await harness.Reader.ReadAsync("Paste:"), Is.Null);
 		Assert.That(harness.Live.Frames, Has.Count.EqualTo(8), "the counter updates after every queued character");
@@ -58,11 +57,11 @@ public sealed class MultiLinePasteReaderTests
 	[Test]
 	public async Task ReadAsync_WritesThePromptAndABlankLineBeforeTheStatus()
 	{
-		var terminal = new FakeTerminal();
+		var keys = new FakeKeyReader();
 
-		terminal.Press(ConsoleKey.Escape);
+		keys.Press(ConsoleKey.Escape);
 
-		var harness = Create(terminal);
+		var harness = Create(keys);
 
 		await harness.Reader.ReadAsync("Paste JSON:");
 
@@ -71,13 +70,13 @@ public sealed class MultiLinePasteReaderTests
 		Assert.That(LineText.Of(((TextBlock)harness.Canvas.Blocks[1]).Lines.Single()), Is.EqualTo(string.Empty));
 	}
 
-	private static Harness Create(FakeTerminal terminal, bool oneUpdatePerKey = false)
+	private static Harness Create(FakeKeyReader reader, bool oneUpdatePerKey = false)
 	{
 		var localization = new EnglishLocalization();
 		var live = new RecordingLiveFrame();
 		var canvas = new FakeScreenCanvas();
 		var screen = new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), new ConnectionSession(), localization));
-		IKeyReader keys = oneUpdatePerKey ? new SingleStepKeyReader(terminal.Keys) : new FakeKeyReader(terminal.Keys);
+		IKeyReader keys = oneUpdatePerKey ? new SingleStepKeyReader(reader.Keys) : reader;
 
 		return new Harness(new MultiLinePasteReader(keys, live, screen, localization), live, canvas);
 	}

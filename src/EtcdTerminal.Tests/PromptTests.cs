@@ -1,5 +1,5 @@
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Presentation;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;
