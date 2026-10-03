@@ -18,6 +18,8 @@ public sealed class Screen(IScreenCanvas _canvas, Header _header, StatusBar _sta
 			_canvas.Write(body);
 	}
 
+	public void Reset() => _canvas.NewScreen(_statusBar.BuildModel());
+
 	public void Write(Block block) => _canvas.Write(block);
 
 	public void Write(IReadOnlyList<Block> blocks) => _canvas.Write(blocks);

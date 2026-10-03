@@ -76,7 +76,7 @@ public sealed class LayoutModelTests
 	}
 
 	[Test]
-	public void KeyList_MarksTheSelectedRowAndKeepsThreeColumns()
+	public void KeyList_MarksTheSelectedRowAndKeepsLiteralCells()
 	{
 		var keys = new[]
 		{
@@ -87,12 +87,11 @@ public sealed class LayoutModelTests
 
 		Assert.That(model.Header, Is.Empty);
 		Assert.That(model.Rows, Has.Count.EqualTo(2));
-		Assert.That(model.Rows[0][0].Text, Does.StartWith("    "));
-		Assert.That(model.Rows[1][0].Text, Does.StartWith("  \u276f "));
-		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent, TextRole.Accent }));
-		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary, TextRole.Primary }));
-		Assert.That(model.Rows[1][1].Text, Is.EqualTo("/b"));
-		Assert.That(model.Rows[1][2].Text, Is.EqualTo("two"));
+		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary }));
+		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent }));
+		Assert.That(model.Rows[0][0].Text, Is.EqualTo("/a"));
+		Assert.That(model.Rows[1][0].Text, Is.EqualTo("/b"));
+		Assert.That(model.Rows[1][1].Text, Is.EqualTo("two"));
 	}
 
 	[Test]
@@ -203,7 +202,7 @@ public sealed class LayoutModelTests
 	}
 
 	private static KeyBrowseLayout Layout() =>
-		new(new FakeTerminal(), new EnglishLocalization());
+		new(new EnglishLocalization());
 
 	private static StatusBar StatusBar(ConnectionSession session) =>
 		new(new StubAppInfo(), session, new EnglishLocalization());

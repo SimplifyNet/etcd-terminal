@@ -80,15 +80,15 @@ public sealed class KeyBrowseScreenTests
 
 		await harness.Screen.ShowAsync();
 
-		var frame = harness.Host.Frames[0];
+		var frame = harness.Live.Frames[0];
 
-		Assert.That(frame.Header, Is.Not.Null);
-		Assert.That(frame.Footer, Is.Not.Null);
-		Assert.That(frame.Body, Has.Count.EqualTo(3));
-		Assert.That(LineText.Of(((TextBlock)frame.Body[0]).Lines.Single()), Does.Contain("Type to search"));
-		Assert.That(((TableBlock)frame.Body[1]).Rows[0][1].Text, Does.Contain("/a/1"));
-		Assert.That(LineText.Of(((TextBlock)frame.Body[2]).Lines.Single()), Does.Contain("1/1"));
-		Assert.That(harness.Host.EndCount, Is.EqualTo(harness.Host.BeginCount), "the screen must not leak the console");
+		Assert.That(frame.Body[0], Is.InstanceOf<BannerBlock>());
+		Assert.That(frame.Body, Has.Count.EqualTo(4));
+		Assert.That(LineText.Of(((TextBlock)frame.Body[1]).Lines.Single()), Does.Contain("Type to search"));
+		Assert.That(((TableBlock)frame.Body[2]).Rows[0][0].Text, Does.Contain("/a/1"));
+		Assert.That(LineText.Of(((TextBlock)frame.Body[3]).Lines.Single()), Does.Contain("1/1"));
+		Assert.That(harness.Live.Ends, Is.EqualTo(new[] { LiveFrameEnd.Clear }), "the released frame clears its viewport");
+		Assert.That(harness.Canvas.Footers, Has.Count.EqualTo(1), "the footer is pinned once per frame");
 	}
 
 	[Test]
@@ -100,18 +100,19 @@ public sealed class KeyBrowseScreenTests
 
 		await harness.Screen.ShowAsync();
 
-		var withActions = harness.Host.Frames.Last(frame => frame.Body.Count == 5);
+		var withActions = harness.Live.Frames.Last(frame => frame.Body.Count == 6);
 
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[3]).Lines.Single()), Does.Contain("Selected: /a/1"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("E Edit"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("D Delete"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("Selected: /a/1"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[5]).Lines.Single()), Does.Contain("E Edit"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[5]).Lines.Single()), Does.Contain("D Delete"));
 	}
 
 	private sealed class Harness
 	{
 		public readonly FakeTerminal Terminal = new();
 		public readonly QueueTextInput TextInput = new();
-		public readonly FakeScreenHost Host = new();
+		public readonly FakeScreenCanvas Canvas = new();
+		public readonly FakeLiveFrame Live = new();
 		public readonly DictKeyStore Store;
 		public readonly KeyBrowseControl Control;
 		public readonly KeyBrowseScreen Screen;
@@ -129,12 +130,13 @@ public sealed class KeyBrowseScreenTests
 			var keys = new FakeKeyReader(Terminal.Keys);
 			var statusBar = new StatusBar(new StubAppInfo(), session, localization);
 			var prompt = new Prompt(TextInput);
-			var message = new Message(new Screen(new FakeScreenCanvas(), new Header(), statusBar), keys, localization);
-			var browseLayout = new KeyBrowseLayout(Terminal, localization);
+			var screen = new Screen(Canvas, new Header(), statusBar);
+			var message = new Message(screen, keys, localization);
+			var browseLayout = new KeyBrowseLayout(localization);
 
-			Control = new KeyBrowseControl(Terminal, browseLayout, Host, new Header(), statusBar, session);
+			Control = new KeyBrowseControl(keys, browseLayout, new Header(), session);
 
-			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings);
+			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings, screen, Live);
 		}
 	}
 

@@ -414,12 +414,13 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 ```
 (`SegmentLine` is a `List<Segment>`; it has no `Append`, so the loop above is the way.)
 - [x] Create, register `ILiveFrame` → `SpectreLiveFrame` Singleton.
-- [ ] Delete `SpectreScreenHost.cs`, `SpectreCursorPosition.cs`, `Presentation/IScreenHost.cs`, `Presentation/ScreenModel.cs`, test fake `FakeScreenHost.cs` (replace by `FakeLiveFrame` in T3.3).
+- [x] Delete `SpectreScreenHost.cs`, `SpectreCursorPosition.cs`, `Presentation/IScreenHost.cs`, `Presentation/ScreenModel.cs`, test fake `FakeScreenHost.cs` (replace by `FakeLiveFrame` in T3.3). Ticked with T3.3: `KeyBrowseControl` was the last caller of `IScreenHost`, so removing the types earlier left the tree unbuildable.
+- [x] `Run` paints the initial frame (`ctx.Refresh()`) before the interaction starts. The plan's snippet starts the interaction directly, which leaves the screen blank until the first update.
 
 ### T3.3 Key browser (App)
-- [ ] `KeyBrowseControl(IKeyReader _keys, KeyBrowseLayout _layout, Header _header, IConnectionSession _session)`: replace `Render`/`ShowDetails`/`Release`/`_frameOpen` with `public FrameModel Frame(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys) => new([_header.BuildModel(), .. Body(...)]);`. `ReadCommand` uses `_keys.ReadKey()`.
-- [ ] `KeyBrowseLayout.KeyList`: `TableBlock(Header: [], Rows: [[key, value]])` with both cells `TextRole.Accent` on the selected row and `TextRole.Primary` otherwise. Remove the marker column and the `ITerminalStyle` dependency.
-- [ ] `KeyBrowseScreen.ShowAsync`:
+- [x] `KeyBrowseControl(IKeyReader _keys, KeyBrowseLayout _layout, Header _header, IConnectionSession _session)`: replace `Render`/`ShowDetails`/`Release`/`_frameOpen` with `public FrameModel Frame(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys) => new([_header.BuildModel(), .. Body(...)]);`. `ReadCommand` uses `_keys.ReadKey()`.
+- [x] `KeyBrowseLayout.KeyList`: `TableBlock(Header: [], Rows: [[key, value]])` with both cells `TextRole.Accent` on the selected row and `TextRole.Primary` otherwise. Remove the marker column and the `ITerminalStyle` dependency.
+- [x] `KeyBrowseScreen.ShowAsync`:
   ```csharp
   while (true)
   {
@@ -444,9 +445,13 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
   }
   ```
   `Frame()` builds the current page from `_pager` and `_control`. `EditKeyAsync`/`DeleteKeyAsync` start with `_screen.Open([detail blocks])` instead of `_control.ShowDetails(...)`.
-- [ ] `MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Screen _screen, ILocalization _localization)`: `_screen.Write(TextBlock.Line(prompt))`, then `_live.Run(Status(0), LiveFrameEnd.Keep, updater => { ...existing key loop with _keys...; updater.Update(Status(CountLines(buffer))); })`. `Status(n)` returns `TextBlock.Line(new StyledText(text, n == 0 ? TextRole.Subtle : TextRole.Accent))`. Delete `RenderPasteStatus`, the cursor calls and the `_statusBar` calls. `ReadAsync` becomes synchronous inside `Run`; the `IsPastedNewLineAsync` delay becomes `Thread.Sleep(_pasteBurstThresholdMs)`; the public method may stay `Task<string?> ReadAsync` returning `Task.FromResult`.
-- [ ] Tests: `Fakes/FakeLiveFrame.cs` (runs `interaction` immediately with an updater that records every `FrameModel`). Update `KeyBrowseScreenTests`, `MultiLinePasteReaderTests`, `LayoutModelTests` (selected row role, literal key).
-- [ ] Build, test, commit.
+- [x] `MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Screen _screen, ILocalization _localization)`: `_screen.Write(TextBlock.Line(prompt))`, then `_live.Run(Status(0), LiveFrameEnd.Keep, updater => { ...existing key loop with _keys...; updater.Update(Status(CountLines(buffer))); })`. `Status(n)` returns `TextBlock.Line(new StyledText(text, n == 0 ? TextRole.Subtle : TextRole.Accent))`. Delete `RenderPasteStatus`, the cursor calls and the `_statusBar` calls. `ReadAsync` becomes synchronous inside `Run`; the `IsPastedNewLineAsync` delay becomes `Thread.Sleep(_pasteBurstThresholdMs)`; the public method may stay `Task<string?> ReadAsync` returning `Task.FromResult`.
+- [x] Tests: `Fakes/FakeLiveFrame.cs` (runs `interaction` immediately with an updater that records every `FrameModel`). Update `KeyBrowseScreenTests`, `MultiLinePasteReaderTests`, `LayoutModelTests` (selected row role, literal key).
+- [x] Build, test, commit.
+
+- [x] `KeyBrowseScreen.ShowAsync` opens the canvas (`Screen.Reset()`, viewport cleared and footer pinned) at the top of each loop before `_live.Run`, so the frame starts on row 0 with the banner inside it; the plan's sketch omits that call and the frame would start wherever the previous screen left the cursor.
+- [x] `MultiLinePasteReader` writes `[prompt line, blank line]` and `Status` returns a `FrameModel`; the plan's `_screen.Write(TextBlock.Line(prompt))` would drop the blank line between prompt and counter, and `Run`/`Update` take a `FrameModel`.
+- [x] `ITerminalSession.BeginFrame`/`EndFrame` keep their tests but have no caller while `SpectreScreenHost` is gone; whether the key browser frames adopt them or the clamped frames make them obsolete is decided after the T3.4 pty run.
 
 ### T3.4 Phase 3 PTY check
 - [ ] Key browser: type to filter, arrows, Enter → actions, E/D, Esc; frame redraws in place; after edit the browser is back; footer intact.

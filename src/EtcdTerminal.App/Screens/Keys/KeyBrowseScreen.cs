@@ -10,7 +10,7 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, KeyBrowseControl _control, KeyBrowseLayout _layout, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, KeyBrowseControl _control, KeyBrowseLayout _layout, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings, Screen _screen, ILiveFrame _live) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.BrowseKeys;
 
@@ -27,39 +27,38 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 
 		await LoadKeysAsync();
 
-		try
+		while (true)
 		{
-			while (true)
+			_screen.Reset();
+
+			var command = _live.Run(Frame(), LiveFrameEnd.Clear, updater =>
 			{
-				var pageSize = _settings.Current.PageSize;
-				var page = _pager.GetPage(_control.CurrentPage, pageSize);
-				var totalPages = _pager.GetTotalPages(pageSize);
-
-				_control.Render(page, totalPages, _pager.FilteredCount);
-
-				var command = _control.ReadCommand(page, totalPages);
-
-				switch (command.Action)
+				while (true)
 				{
-					case KeyBrowseAction.SearchChanged:
+					var (page, totalPages) = CurrentPage();
+					var next = _control.ReadCommand(page, totalPages);
+
+					if (next.Action is KeyBrowseAction.SearchChanged)
 						ApplyFilter();
-						break;
-					case KeyBrowseAction.Edit:
-						_control.Release();
-						await EditKeyAsync(command.SelectedKey!);
-						break;
-					case KeyBrowseAction.Delete:
-						_control.Release();
-						await DeleteKeyAsync(command.SelectedKey!);
-						break;
-					case KeyBrowseAction.Exit:
-						return;
+
+					if (next.Action is KeyBrowseAction.Edit or KeyBrowseAction.Delete or KeyBrowseAction.Exit)
+						return next;
+
+					updater.Update(Frame());
 				}
+			});
+
+			switch (command.Action)
+			{
+				case KeyBrowseAction.Edit:
+					await EditKeyAsync(command.SelectedKey!);
+					break;
+				case KeyBrowseAction.Delete:
+					await DeleteKeyAsync(command.SelectedKey!);
+					break;
+				case KeyBrowseAction.Exit:
+					return;
 			}
-		}
-		finally
-		{
-			_control.Release();
 		}
 	}
 
@@ -68,9 +67,11 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 
 	private async Task EditKeyAsync(EtcdKeyValue key)
 	{
-		_control.ShowDetails(
+		_screen.Open(
+		[
 			_layout.Detail(_localization.EditingKey, key.Key, TextRole.Primary),
-			_layout.Detail(_localization.CurrentValue, ValuePreview.Sanitize(key.Value), TextRole.Success));
+			_layout.Detail(_localization.CurrentValue, ValuePreview.Sanitize(key.Value), TextRole.Success)
+		]);
 
 		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value, trim: _settings.Current.TrimInputValues);
 
@@ -87,7 +88,7 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 
 	private async Task DeleteKeyAsync(EtcdKeyValue key)
 	{
-		_control.ShowDetails(_layout.Detail(_localization.DeleteKey, key.Key, TextRole.Danger));
+		_screen.Open([_layout.Detail(_localization.DeleteKey, key.Key, TextRole.Danger)]);
 
 		var result = await _keyStore.DeleteKeyAsync(key.Key);
 
@@ -109,5 +110,19 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 	{
 		_pager.Filter(_control.SearchQuery);
 		_control.ResetNavigation();
+	}
+
+	private (IReadOnlyList<EtcdKeyValue> Page, int TotalPages) CurrentPage()
+	{
+		var pageSize = _settings.Current.PageSize;
+
+		return (_pager.GetPage(_control.CurrentPage, pageSize), _pager.GetTotalPages(pageSize));
+	}
+
+	private FrameModel Frame()
+	{
+		var (page, totalPages) = CurrentPage();
+
+		return _control.Frame(page, totalPages, _pager.FilteredCount);
 	}
 }

@@ -1,75 +1,31 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Session;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyBrowseControl(
-	ITerminalInput _input,
+	IKeyReader _keys,
 	KeyBrowseLayout _layout,
-	IScreenHost _host,
 	Header _header,
-	StatusBar _statusBar,
 	IConnectionSession _session)
 {
-	private bool _frameOpen;
-
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
 	public int SelectedIndex { get; private set; }
 	private bool ShowActions { get; set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
 
-	/// <summary>
 	/// Edit and delete are offered only when the account may write the selected key.
-	/// </summary>
 	private bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
 
-	/// <summary>
-	/// Paints the browse frame, replacing the previous one in place. The first
-	/// call takes the console; later calls update the same frame.
-	/// </summary>
-	public void Render(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
-	{
-		var model = Frame([.. Body(pageKeys, totalPages, totalKeys)]);
-
-		if (_frameOpen)
-			_host.Update(model);
-		else
-		{
-			_host.Begin(model);
-			_frameOpen = true;
-		}
-	}
-
-	/// <summary>
-	/// Shows a short frame of its own, for example the details written before a
-	/// prompt. The console is handed back so the prompt can draw underneath.
-	/// </summary>
-	public void ShowDetails(params IReadOnlyList<Block> blocks)
-	{
-		Release();
-		_host.Begin(Frame(blocks));
-		_host.End();
-	}
-
-	/// <summary>
-	/// Hands the console back. Safe to call when nothing is being shown.
-	/// </summary>
-	public void Release()
-	{
-		if (!_frameOpen)
-			return;
-
-		_host.End();
-		_frameOpen = false;
-	}
+	public FrameModel Frame(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys) =>
+		new([_header.BuildModel(), .. Body(pageKeys, totalPages, totalKeys)]);
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
 	{
-		var key = _input.ReadKey();
+		var key = _keys.ReadKey();
 
 		if (ShowActions)
 		{
@@ -181,12 +137,4 @@ public sealed class KeyBrowseControl(
 		yield return _layout.Selected(SelectedKey.Key);
 		yield return _layout.Actions(CanModifySelectedKey);
 	}
-
-	private ScreenModel Frame(IReadOnlyList<Block> body) =>
-		new()
-		{
-			Header = _header.BuildModel(),
-			Body = body,
-			Footer = _statusBar.BuildModel()
-		};
 }

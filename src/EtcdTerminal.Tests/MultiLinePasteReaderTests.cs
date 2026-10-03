@@ -1,6 +1,10 @@
 using System.Text;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Localization;
+using EtcdTerminal.Environment;
+using EtcdTerminal.Presentation;
+using EtcdTerminal.Presentation.Terminal;
+using EtcdTerminal.Session;
 using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 
@@ -18,13 +22,19 @@ public sealed class MultiLinePasteReaderTests
 	}
 
 	[Test]
-	public async Task QueuedEscape_ReturnsNull()
+	public async Task QueuedEscape_ReturnsNullAndKeepsTheWaitingStatus()
 	{
 		var terminal = new FakeTerminal();
 
 		terminal.Press(ConsoleKey.Escape);
 
-		Assert.That(await CreateReader(terminal).ReadAsync("Paste:"), Is.Null);
+		var harness = Create(terminal);
+
+		Assert.That(await harness.Reader.ReadAsync("Paste:"), Is.Null);
+		Assert.That(harness.Live.Ends, Is.EqualTo(new[] { LiveFrameEnd.Keep }));
+		Assert.That(harness.Live.Frames, Has.Count.EqualTo(1));
+		Assert.That(Status(harness.Live.Frames[0]), Is.EqualTo("waiting for paste..."));
+		Assert.That(harness.Live.StatusRoles[0], Is.EqualTo(TextRole.Subtle));
 	}
 
 	[Test]
@@ -37,9 +47,85 @@ public sealed class MultiLinePasteReaderTests
 
 		terminal.Press(ConsoleKey.Escape);
 
-		Assert.That(await CreateReader(terminal).ReadAsync("Paste:"), Is.Null);
+		var harness = Create(terminal, oneUpdatePerKey: true);
+
+		Assert.That(await harness.Reader.ReadAsync("Paste:"), Is.Null);
+		Assert.That(harness.Live.Frames, Has.Count.EqualTo(8), "the counter updates after every queued character");
+		Assert.That(Status(harness.Live.Frames[^1]), Is.EqualTo("[pasted 1 lines]"));
+		Assert.That(harness.Live.StatusRoles[^1], Is.EqualTo(TextRole.Accent));
 	}
 
-	private static MultiLinePasteReader CreateReader(FakeTerminal terminal) =>
-		new(terminal, new EnglishLocalization());
+	[Test]
+	public async Task ReadAsync_WritesThePromptAndABlankLineBeforeTheStatus()
+	{
+		var terminal = new FakeTerminal();
+
+		terminal.Press(ConsoleKey.Escape);
+
+		var harness = Create(terminal);
+
+		await harness.Reader.ReadAsync("Paste JSON:");
+
+		Assert.That(harness.Canvas.Blocks, Has.Count.EqualTo(2));
+		Assert.That(LineText.Of(((TextBlock)harness.Canvas.Blocks[0]).Lines.Single()), Is.EqualTo("Paste JSON:"));
+		Assert.That(LineText.Of(((TextBlock)harness.Canvas.Blocks[1]).Lines.Single()), Is.EqualTo(string.Empty));
+	}
+
+	private static Harness Create(FakeTerminal terminal, bool oneUpdatePerKey = false)
+	{
+		var localization = new EnglishLocalization();
+		var live = new RecordingLiveFrame();
+		var canvas = new FakeScreenCanvas();
+		var screen = new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), new ConnectionSession(), localization));
+		IKeyReader keys = oneUpdatePerKey ? new SingleStepKeyReader(terminal.Keys) : new FakeKeyReader(terminal.Keys);
+
+		return new Harness(new MultiLinePasteReader(keys, live, screen, localization), live, canvas);
+	}
+
+	private static string Status(FrameModel frame) =>
+		LineText.Of(((TextBlock)frame.Body.Single()).Lines.Single());
+
+	private sealed record Harness(MultiLinePasteReader Reader, RecordingLiveFrame Live, FakeScreenCanvas Canvas);
+
+	/// Pretends no further input is queued, so the component repaints the
+	/// counter after every key instead of waiting for the burst to end.
+	private sealed class SingleStepKeyReader(Queue<ConsoleKeyInfo> keys) : IKeyReader
+	{
+		public bool KeyAvailable => false;
+
+		public ConsoleKeyInfo ReadKey() => keys.Dequeue();
+	}
+
+	private sealed class RecordingLiveFrame : ILiveFrame
+	{
+		public List<FrameModel> Frames { get; } = [];
+
+		public List<LiveFrameEnd> Ends { get; } = [];
+
+		public List<TextRole> StatusRoles { get; } = [];
+
+		public T Run<T>(FrameModel initial, LiveFrameEnd end, Func<ILiveFrameUpdater, T> interaction)
+		{
+			Observe(initial);
+			Ends.Add(end);
+
+			return interaction(new Updater(this));
+		}
+
+		private void Observe(FrameModel model)
+		{
+			Frames.Add(model);
+			StatusRoles.Add(((TextBlock)model.Body.Single()).Lines.Single()[^1].Role);
+		}
+
+		private sealed class Updater(RecordingLiveFrame _owner) : ILiveFrameUpdater
+		{
+			public void Update(FrameModel model) => _owner.Observe(model);
+		}
+	}
+
+	private sealed class StubAppInfo : IAppInfo
+	{
+		public string Version => "0.0";
+	}
 }

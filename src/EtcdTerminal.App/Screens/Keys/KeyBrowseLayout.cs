@@ -2,7 +2,6 @@ using System.Globalization;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation.Terminal;
 using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -12,7 +11,7 @@ namespace EtcdTerminal.App.Screens.Keys;
 /// window width and no colors: every line is literal text with semantic roles,
 /// and Infrastructure decides how much of it fits.
 /// </summary>
-public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _localization)
+public sealed class KeyBrowseLayout(ILocalization _localization)
 {
 	private const string SearchPrefix = "  \U0001f50d ";
 	private const string Caret = "\u2588";
@@ -37,11 +36,9 @@ public sealed class KeyBrowseLayout(ITerminalStyle _style, ILocalization _locali
 		{
 			var kv = pageKeys[i];
 			var role = i == selectedIndex ? TextRole.Accent : TextRole.Primary;
-			var prefix = i == selectedIndex ? _style.SelectionPointer : _style.Indent;
 
 			rows.Add(
 			[
-				new StyledText(prefix, role),
 				new StyledText(ValuePreview.Sanitize(kv.Key), role),
 				new StyledText(ValuePreview.Sanitize(kv.Value), role)
 			]);

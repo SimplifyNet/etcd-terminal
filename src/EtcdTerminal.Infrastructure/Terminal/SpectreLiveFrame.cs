@@ -15,7 +15,12 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 			return _console.Live(Render(initial))
 				.AutoClear(end is LiveFrameEnd.Clear)
 				.Overflow(VerticalOverflow.Crop)
-				.Start(ctx => interaction(new Updater(ctx, this)));
+				.Start(ctx =>
+				{
+					ctx.Refresh();
+
+					return interaction(new Updater(ctx, this));
+				});
 		}
 		finally
 		{

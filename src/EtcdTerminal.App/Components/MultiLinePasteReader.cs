@@ -1,50 +1,42 @@
 using System.Diagnostics;
 using System.Text;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation.Terminal;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MultiLinePasteReader(ITerminal _terminal, ILocalization _localization)
+public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Screen _screen, ILocalization _localization)
 {
 	private const int _pasteBurstThresholdMs = 40;
 
-	public async Task<string?> ReadAsync(string prompt)
+	public Task<string?> ReadAsync(string prompt)
 	{
-		_terminal.SetCursorVisible(false);
+		_screen.Write(
+		[
+			TextBlock.Line(new StyledText(prompt)),
+			TextBlock.Blank()
+		]);
 
-		try
+		var text = _live.Run<string?>(Status(0), LiveFrameEnd.Keep, updater =>
 		{
-			_terminal.Write(_terminal.Indent + prompt + " ");
-			_terminal.WriteLine();
-			_terminal.WriteLine();
-			_terminal.Flush();
-
-
 			// Previously queued input (a paste or an Escape that cancels) is
 			// consumed below, never discarded here.
 			var buffer = new StringBuilder();
 			var lastKeyAt = Stopwatch.StartNew();
 
-			RenderPasteStatus(0);
-
 			while (true)
 			{
-				var key = _terminal.ReadKey();
+				var key = _keys.ReadKey();
 				var elapsed = lastKeyAt.ElapsedMilliseconds;
 
 				lastKeyAt.Restart();
 
 				if (key.Key == ConsoleKey.Escape)
-				{
-					_terminal.WriteLine();
-
 					return null;
-				}
 
 				if (key.Key == ConsoleKey.Enter)
 				{
-					if (buffer.Length > 0 && !await IsPastedNewLineAsync(elapsed))
+					if (buffer.Length > 0 && !IsPastedNewLine(elapsed))
 						break;
 
 					buffer.Append('\n');
@@ -56,20 +48,16 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, ILocalization _loc
 				else if (!char.IsControl(key.KeyChar))
 					buffer.Append(key.KeyChar);
 
-				if (!_terminal.KeyAvailable)
-					RenderPasteStatus(CountLines(buffer));
+				if (!_keys.KeyAvailable)
+					updater.Update(Status(CountLines(buffer)));
 			}
 
-			_terminal.WriteLine();
+			var pasted = buffer.ToString();
 
-			var text = buffer.ToString();
+			return string.IsNullOrWhiteSpace(pasted) ? null : pasted;
+		});
 
-			return string.IsNullOrWhiteSpace(text) ? null : text;
-		}
-		finally
-		{
-			_terminal.SetCursorVisible(false);
-		}
+		return Task.FromResult(text);
 	}
 
 	internal static int CountLines(StringBuilder buffer)
@@ -93,33 +81,25 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, ILocalization _loc
 		return lineHasContent ? lines + 1 : lines;
 	}
 
-	private async Task<bool> IsPastedNewLineAsync(long elapsedSinceLastKey)
+	private bool IsPastedNewLine(long elapsedSinceLastKey)
 	{
 		if (elapsedSinceLastKey < _pasteBurstThresholdMs)
 			return true;
 
-		if (_terminal.KeyAvailable)
+		if (_keys.KeyAvailable)
 			return true;
 
-		await Task.Delay(_pasteBurstThresholdMs);
+		Thread.Sleep(_pasteBurstThresholdMs);
 
-		return _terminal.KeyAvailable;
+		return _keys.KeyAvailable;
 	}
 
-	/// The status line stays on screen after the paste finishes, above the
-	/// preview the caller is about to show. Spectre's Status hardcodes
-	/// AutoClear, so it would erase that line. Replaced by a Live frame with
-	/// AutoClear(false) in REFACTORING.md Phase 3 (decision D7).
-	private void RenderPasteStatus(int lines)
+	private FrameModel Status(int lines)
 	{
 		var text = lines == 0
 			? _localization.WaitingForPaste
 			: string.Format(_localization.PastedLines, lines);
 
-		var color = lines == 0 ? _terminal.Subtle : _terminal.Accent;
-
-		_terminal.Write("\r" + new string(' ', Math.Max(0, _terminal.WindowWidth - 1)));
-		_terminal.Write("\r" + _terminal.Indent + color + text + _terminal.Reset);
-		_terminal.Flush();
+		return new([TextBlock.Line(new StyledText(text, lines == 0 ? TextRole.Subtle : TextRole.Accent))]);
 	}
 }

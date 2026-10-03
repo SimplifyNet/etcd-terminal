@@ -52,30 +52,4 @@ public sealed class TerminalSessionTests
 
 		Assert.That(console.Output, Does.Contain("\u001b[r"));
 	}
-
-	[Test]
-	public void ScreenHost_BracketsTheFrameWithTheScrollRegionSwitch()
-	{
-		var theme = new ReddyTheme();
-		var console = new TestConsole();
-		var session = new ConsoleTerminalSession(console, theme);
-		var host = new SpectreScreenHost(
-			console,
-			new BlockRenderer(new RoleStyleMapper(theme), theme),
-			new StatusBarRenderer(console, new RoleStyleMapper(theme)),
-			session);
-
-		host.Begin(new ScreenModel());
-		host.End();
-
-		var output = console.Output;
-		var frame = output.IndexOf("\u001b[1;24r", StringComparison.Ordinal);
-		var viewport = output.IndexOf("\u001b[1;23r", StringComparison.Ordinal);
-
-		Assert.Multiple(() =>
-		{
-			Assert.That(frame, Is.GreaterThanOrEqualTo(0), "the frame runs on the whole terminal");
-			Assert.That(viewport, Is.GreaterThan(frame), "the viewport split comes back when the frame is released");
-		});
-	}
 }
