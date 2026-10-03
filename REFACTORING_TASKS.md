@@ -353,10 +353,10 @@ Verified on a 24x80 pty with a scroll region aware emulator (`/tmp/opencode/step
 ## Phase 3 — Live frame for key browser and paste reader
 
 ### T3.1 Contracts
-- [ ] `FrameModel.cs`: `public sealed record FrameModel(IReadOnlyList<Block> Body);`
-- [ ] `LiveFrameEnd.cs`: `public enum LiveFrameEnd { Clear, Keep }`
-- [ ] `ILiveFrameUpdater.cs`: `void Update(FrameModel model);`
-- [ ] `ILiveFrame.cs`: `T Run<T>(FrameModel initial, LiveFrameEnd end, Func<ILiveFrameUpdater, T> interaction);`
+- [x] `FrameModel.cs`: `public sealed record FrameModel(IReadOnlyList<Block> Body);`
+- [x] `LiveFrameEnd.cs`: `public enum LiveFrameEnd { Clear, Keep }`
+- [x] `ILiveFrameUpdater.cs`: `void Update(FrameModel model);`
+- [x] `ILiveFrame.cs`: `T Run<T>(FrameModel initial, LiveFrameEnd end, Func<ILiveFrameUpdater, T> interaction);`
 
 ### T3.2 SpectreLiveFrame (Infrastructure)
 ```csharp
