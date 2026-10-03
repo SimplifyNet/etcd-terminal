@@ -185,6 +185,28 @@ public sealed class ArchitectureTests
 	}
 
 	[Test]
+	public void InfrastructureDoesNotReferenceApp()
+	{
+		var hits = SourceFiles("EtcdTerminal.Infrastructure")
+			.Where(f => File.ReadAllText(f).Contains("using EtcdTerminal.App"))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
+	public void PresentationSourcesContainNoSpectre()
+	{
+		var hits = SourceFiles("EtcdTerminal.Presentation")
+			.Where(f => File.ReadAllText(f).Contains("Spectre"))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.Empty);
+	}
+
+	[Test]
 	public void PresentationSourcesContainNoEscapeSequencesOrConsoleAccess()
 	{
 		var hits = SourceFiles("EtcdTerminal.Presentation")
