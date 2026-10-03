@@ -73,7 +73,7 @@ Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.
 - [x] Build, test, commit.
 
 ### T1.3 New operation contracts in Presentation
-- [ ] `ITerminalSession.cs`:
+- [x] `ITerminalSession.cs`:
   ```csharp
   public interface ITerminalSession
   {
@@ -82,7 +82,7 @@ Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.
       void OnInterrupt(Action handler);
   }
   ```
-- [ ] `IScreenCanvas.cs`:
+- [x] `IScreenCanvas.cs`:
   ```csharp
   public interface IScreenCanvas
   {
@@ -93,7 +93,7 @@ Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.
       void WriteException(Exception exception);
   }
   ```
-- [ ] `IKeyReader.cs`:
+- [x] `IKeyReader.cs`:
   ```csharp
   public interface IKeyReader
   {
@@ -101,7 +101,7 @@ Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.
       ConsoleKeyInfo ReadKey();
   }
   ```
-- [ ] Build, commit.
+- [x] Build, commit.
 
 ### T1.4 ConsoleTerminalSession (Infrastructure)
 Create `src/EtcdTerminal.Infrastructure/Terminal/ConsoleTerminalSession.cs`. This is the only file allowed to contain `Console.` and raw escape strings.
