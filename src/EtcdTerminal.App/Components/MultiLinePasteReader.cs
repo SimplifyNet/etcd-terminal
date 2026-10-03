@@ -60,6 +60,8 @@ public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Scr
 		return Task.FromResult(text);
 	}
 
+	internal static int CountLines(string text) => CountLines(new StringBuilder(text));
+
 	internal static int CountLines(StringBuilder buffer)
 	{
 		var lines = 0;

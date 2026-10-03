@@ -49,6 +49,9 @@ public sealed class KeyImportJsonScreen(
 		if (json is null)
 			return;
 
+		var pastedStatus = TextBlock.Line(
+			new StyledText(string.Format(_localization.PastedLines, MultiLinePasteReader.CountLines(json)), TextRole.Accent));
+
 		IReadOnlyList<KeyValuePair<string, string>> entries;
 
 		try
@@ -75,7 +78,7 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
-		if (!ConfirmImport(entries))
+		if (!ConfirmImport(entries, pastedStatus))
 		{
 			_message.ShowWarning(_localization.ImportCancelled);
 
@@ -142,10 +145,11 @@ public sealed class KeyImportJsonScreen(
 		_message.ShowWarning(_localization.ImportCancelled + "\n" + unconfirmed + "\n" + partial);
 	}
 
-	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries)
+	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries, Block pastedStatus)
 	{
 		List<Block> preview =
 		[
+			pastedStatus,
 			TextBlock.Line(new StyledText(string.Format(_localization.ImportPreviewTitle, entries.Count), TextRole.Primary)),
 			TextBlock.Blank()
 		];

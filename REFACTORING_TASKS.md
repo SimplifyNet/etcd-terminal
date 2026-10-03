@@ -502,7 +502,23 @@ Verified: `dotnet build src -warnaserror` 0/0, 205 unit + 17 integration green; 
 - `EveryMainMenuEntryIsRegistered` boots the real container (`DIContainer.Current.RegisterAll()`), resolves `IEnumerable<IMainMenuEntry>` and asserts the instance types equal every non-abstract `IMainMenuEntry` in the App assembly (six screens); resolving constructs the screens and their graphs headless without touching the terminal.
 
 ### T4.3 Full PTY checklist
-- [ ] Execute `REFACTORING.md` section 7 items 1–11 and record pass/fail per item in the PR description.
+- [x] Execute `REFACTORING.md` section 7 items 1–11 and record pass/fail per item in the PR description.
+
+Verified: `dotnet build src -nologo -warnaserror` 0/0, 205 unit + 17 integration green; PTY runs on a real Linux terminal via a pty harness (shell marker for primary-screen restore, `TIOCSWINSZ` resize steps, `TIOCSCTTY` for ISIG/Ctrl+C, per-step output chunking into a VT emulator), each item at 80×24 and 120×40:
+
+- PASS 1 Start — banner on row 0, footer on the last row (23/39), raw `ESC[?25l` and `ESC]11;#` at boot; `ESC[1;{H-1}r` region set once (S2b, S1w).
+- PASS 2 Instance menu — arrows move the highlight, Enter selects, Esc returns/exits, footer pinned while navigating; 13 items page with the reveal hint (S2, S3, S3b, S1w).
+- PASS 3 Text input — name typing, default connection string shown and editable over, username prompt, secret mask renders `*******` with no plaintext on screen or in the raw log, Esc from the name prompt cancels without persisting, footer intact during and after prompts (S2b, S2bw).
+- PASS 4 Spinner — frames animate (`⠋⠙⠹⠸⠼⠴⠦⠧`), Esc to a blackhole endpoint prints `Operation cancelled.` and leaves the menu clean, footer intact; connection-failure message also observed (S2, item4w).
+- PASS 5 Messages — text, press-any-key hint, footer intact; the 40-instance undecryptable-password warning (~2.6k chars) scrolls strictly inside the viewport (78 scroll events at `(0,22)`; 5 at `(0,38)` when wide) and never overwrites the footer row; the first footer is drawn with the first frame after the key press (S4, S4w).
+- PASS 6 Key browser — live filter, Up/Down, Enter shows `Selected: … E Edit D Delete Esc Cancel`, edit with prefilled value + success, delete + success, `No keys found.` after, Esc back to the main menu, frame replaces itself without duplicates; viewer account sees only `/ro/pub` with `Esc Cancel` alone (no E/D), menu filtered to Browse + Disconnect (S3, S3w, S3b, S3bw).
+- PASS 7 Import JSON — `waiting for paste...` while pasting, final `[pasted N lines]` row directly above the preview title, long values cropped with a real `…` (U+2026) in the preview table, No → `Import cancelled.`, Yes → `Imported 1 keys`, footer intact (S5, S5w; includes the `pastedStatus` fix committed with this task).
+- PASS 8 Lists — users (`root`, `viewer`, `üser[2]`), roles (`root`, `viewer-ro`, `rolé[3]`, verified as raw UTF-8 bytes), permissions tables with headers and titles, press-any-key, footer intact (S3, S3w).
+- PASS 9 Resize between screens — 80×24 → 120×40 then Settings draws with the footer on row 39; back to 80×24 then Manage draws with the footer on row 23; each next screen uses the new size (S6).
+- PASS 10 Exit — menu Exit and Ctrl+C both emit `ESC[r`, `OSC 111`, `ESC[?25h`, `ESC[?1049l` in that order after the start sequences, and `SHELL-CONTENT-MARKER` proves the primary screen content; Ctrl+C goes through `OnInterrupt` → `Stop()` → `Environment.Exit(0)` (S2b, S3b, S1w, S5w, S1b, S1bw).
+- PASS 11 Crash path — config corrupted mid-run, Manage → Add → `ReadRootOrThrow` throws `JsonException`, stack panel through `ProtectedConfigRepository.AddInstance`, `Press any key to restart...`, footer on the last row, restart shows the restored menu and a clean exit follows (S7, S7w).
+
+Not verified: Windows Terminal (not available in this environment); the checks ran on a PTY with a VT emulator rather than a graphical terminal, so color rendering in a real emulator remains untested (raw SGR sequences are emitted as before).
 
 ---
 
