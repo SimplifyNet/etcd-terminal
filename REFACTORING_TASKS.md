@@ -318,8 +318,8 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
     }
 }
 ```
-- [ ] Create, register `ISelectionPrompt` → `SpectreSelectionPrompt` Singleton.
-- [ ] `TestConsole` test: two choices, push `DownArrow` + `Enter` → second choice; push `Escape` → null; a label containing `[x]` is shown literally in `console.Output`.
+- [x] Create, register `ISelectionPrompt` → `SpectreSelectionPrompt` Singleton.
+- [x] `TestConsole` test: two choices, push `DownArrow` + `Enter` → second choice; push `Escape` → null; a label containing `[x]` is shown literally in `console.Output`.
 
 ### T2.3 Menu and callers (App)
 - [ ] `Engine/Menu.cs` becomes:
