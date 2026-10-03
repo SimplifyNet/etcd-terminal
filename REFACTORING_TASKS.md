@@ -51,12 +51,12 @@ This is the executable version of `REFACTORING.md`. Read `REFACTORING.md` sectio
 ### T1.1 New block models in Presentation
 Create these files in `src/EtcdTerminal.Presentation/` (namespace `EtcdTerminal.Presentation`):
 
-- [ ] `Block.cs`: `public abstract record Block;`
-- [ ] `TextBlock.cs`: `public sealed record TextBlock(IReadOnlyList<IReadOnlyList<StyledText>> Lines) : Block` plus two static helpers: `public static TextBlock Line(params IReadOnlyList<StyledText> spans) => new([spans]);` and `public static TextBlock Blank() => new([[]]);`
-- [ ] `TitleBlock.cs`: `public sealed record TitleBlock(StyledText Title) : Block;`
-- [ ] `BannerBlock.cs`: `public sealed record BannerBlock(string Text) : Block;`
-- [ ] `TableBlock.cs`: `public sealed record TableBlock(IReadOnlyList<StyledText> Header, IReadOnlyList<IReadOnlyList<StyledText>> Rows) : Block;`
-- [ ] Build (nothing uses them yet), commit.
+- [x] `Block.cs`: `public abstract record Block;`
+- [x] `TextBlock.cs`: `public sealed record TextBlock(IReadOnlyList<IReadOnlyList<StyledText>> Lines) : Block` plus two static helpers: `public static TextBlock Line(params IReadOnlyList<StyledText> spans) => new([spans]);` and `public static TextBlock Blank() => new([[]]);`
+- [x] `TitleBlock.cs`: `public sealed record TitleBlock(StyledText Title) : Block;`
+- [x] `BannerBlock.cs`: `public sealed record BannerBlock(string Text) : Block;`
+- [x] `TableBlock.cs`: `public sealed record TableBlock(IReadOnlyList<StyledText> Header, IReadOnlyList<IReadOnlyList<StyledText>> Rows) : Block;`
+- [x] Build (nothing uses them yet), commit.
 
 ### T1.2 Replace PanelModel with Block everywhere
 - [ ] `Header.BuildModel()` returns `BannerBlock` (`new BannerBlock("etcd-terminal")`).
