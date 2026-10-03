@@ -111,9 +111,8 @@ public sealed class MultiLinePasteReader(ITerminal _terminal, StatusBar _statusB
 
 	/// The status line stays on screen after the paste finishes, above the
 	/// preview the caller is about to show. Spectre's Status hardcodes
-	/// AutoClear, so it would erase that line, and Live would take the whole
-	/// screen with it: an approved exception, recorded in the migration plan
-	/// as a proven library gap rather than moved into Infrastructure.
+	/// AutoClear, so it would erase that line. Replaced by a Live frame with
+	/// AutoClear(false) in REFACTORING.md Phase 3 (decision D7).
 	private void RenderPasteStatus(int lines)
 	{
 		var text = lines == 0

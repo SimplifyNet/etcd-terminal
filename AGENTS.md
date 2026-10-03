@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The following rules describe the target architecture. Existing violations are migration debt, not examples to copy. Implementation tasks and the inspected migration state are in `SPECTRE_UI_MIGRATION.md`.
+The following rules describe the target architecture. Existing violations are refactoring debt, not examples to copy. The current cleanup plan, its decisions and its phase order are in `REFACTORING.md`.
 
 **Responsibilities:**
 - **Domain:** business entities, value objects, business rules and domain contracts only. UI components, terminal geometry, themes and localization are not domain concepts merely because they are interfaces or have no package dependencies.
@@ -19,8 +19,6 @@ The following rules describe the target architecture. Existing violations are mi
 - All production Spectre types and `System.Console` access belong in Infrastructure. Test projects may reference `Spectre.Console.Testing` for thin adapter tests.
 - `ITheme`/`RgbColor` are presentation theme contracts; `ILocalization` is a presentation text contract. Keep contracts independent of Infrastructure. Components select semantic roles; only Infrastructure translates theme values into Spectre styles.
 - Feature-local controls have the same restrictions as shared components. Their location under `Screens/` is not an exception permitting cursor, ANSI, width calculation or raw color escapes.
-
-**Current migration boundary:** at commit `ee4aee2` there are no Presentation contracts yet. `src/EtcdTerminal/Presentation` does not exist, and neither do `PanelModel`, `PanelLine`, `StyledText`, `TextRole`, `StatusBarModel`, `IPanelRenderer`, `IStatusBarRenderer`, `SpectrePanelRenderer` or `SpectreStatusBarRenderer`. The core project still mixes business contracts with legacy `Terminal`, `Theming` and `Localization`. `SpectreTextInput` and `EscapableConsole` in Infrastructure are the only existing Spectre consumers. An earlier uncommitted attempt at these contracts was deleted: its models and its consumers were mutually incompatible, the solution did not compile, and it changed no observable behavior. Read `SPECTRE_UI_MIGRATION.md` before adding any UI contract, and never introduce a second version of a model that already exists. The tree at `ee4aee2` builds with 0 errors and 0 warnings and passes 177 unit tests; it is the behavioral baseline.
 
 **Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` to `ReddyTheme`, `ILocalization` to `EnglishLocalization`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
 
