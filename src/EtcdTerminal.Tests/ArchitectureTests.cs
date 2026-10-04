@@ -100,7 +100,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void DomainDoesNotReferenceInfrastructure()
 	{
-		var domainAssembly = typeof(IEtcdClient).Assembly;
+		var domainAssembly = typeof(EtcdOperationException).Assembly;
 
 		Assert.That(domainAssembly.GetName().Name, Is.EqualTo("EtcdTerminal"));
 
@@ -115,7 +115,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void DomainDoesNotReferencePresentation()
 	{
-		var domainAssembly = typeof(IEtcdClient).Assembly;
+		var domainAssembly = typeof(EtcdOperationException).Assembly;
 
 		Assert.That(domainAssembly.GetName().Name, Is.EqualTo("EtcdTerminal"));
 

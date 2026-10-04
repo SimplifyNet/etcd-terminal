@@ -84,29 +84,29 @@ public static class IocRegistrations
 		.Register<IDecryptFailureSource>(c => c.Resolve<ProtectedConfigRepository>(), LifetimeType.Singleton)
 
 		.Register<IAppSettingsRepository, JsonBasedSettingsRepository>(LifetimeType.Singleton)
-		.Register<IAppSettingsStore, AppSettingsStore>(LifetimeType.Singleton)
-		.Register<IEtcdConnection>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+		.Register<IAppSettingsStore, AppSettingsStore>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterSession(this IDIRegistrator registrator) => registrator
 		.Register<IConnectionSession, ConnectionSession>(LifetimeType.Singleton)
 		.Register<IConnectionWorkflow, ConnectionWorkflow>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterClient(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdClient>(c => new DotnetEtcdBasedClient(DotnetEtcdTransportFactory.Create), LifetimeType.Singleton);
+		.Register(c => new EtcdConnectionHandle(DotnetEtcdTransportFactory.Create), LifetimeType.Singleton)
+		.Register<IEtcdConnection>(c => c.Resolve<EtcdConnectionHandle>(), LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterKeys(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdKeyStore>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdKeyStore, DotnetEtcdKeyStore>(LifetimeType.Singleton)
 		.Register<IReadableKeysProvider, ReadableKeysProvider>(LifetimeType.Transient)
 		.Register<IKeyImporter, KeyImporter>(LifetimeType.Transient);
 
 	public static IDIRegistrator RegisterUsers(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdUserAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+		.Register<IEtcdUserAdmin, DotnetEtcdUserAdmin>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterRoles(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdRoleAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton);
+		.Register<IEtcdRoleAdmin, DotnetEtcdRoleAdmin>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterSecurity(this IDIRegistrator registrator) => registrator
-		.Register<IEtcdAuthAdmin>(c => c.Resolve<IEtcdClient>(), LifetimeType.Singleton)
+		.Register<IEtcdAuthAdmin, DotnetEtcdAuthAdmin>(LifetimeType.Singleton)
 		.Register<IUserCapabilitiesProvider, UserCapabilitiesProvider>(LifetimeType.Transient)
 		.Register<IConfigProtector, ConfigProtector>(LifetimeType.Singleton);
 
