@@ -1,10 +1,15 @@
 namespace EtcdTerminal.Configuration;
 
-public sealed class AppSettingsStore : IAppSettingsStore
+public sealed class AppSettingsStore(IAppSettingsRepository _repository) : IAppSettingsStore
 {
-	private IAppSettings _current = new AppSettings();
+	public AppSettings Current { get; private set; } = new();
 
-	public IAppSettings Current => _current;
+	public void Reload() => Current = _repository.Load();
 
-	public void Update(IAppSettings settings) => _current = settings;
+	public void Save(AppSettings settings)
+	{
+		_repository.Save(settings);
+
+		Current = settings;
+	}
 }

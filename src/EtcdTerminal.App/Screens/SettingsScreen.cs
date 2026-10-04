@@ -5,7 +5,7 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens;
 
-public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
+public sealed class SettingsScreen(Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
@@ -54,9 +54,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 
 			try
 			{
-				_repository.Save(updated);
-
-				_settings.Update(updated);
+				_settings.Save(updated);
 
 				_message.ShowSuccess(_localization.SettingsSaved);
 			}
@@ -79,9 +77,7 @@ public sealed class SettingsScreen(IAppSettingsRepository _repository, Menu _men
 
 		try
 		{
-			_repository.Save(updated);
-
-			_settings.Update(updated);
+			_settings.Save(updated);
 		}
 		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{

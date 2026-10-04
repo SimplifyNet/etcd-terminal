@@ -34,10 +34,9 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 			{
 				using var scope = _container.BeginLifetimeScope();
 
-				var settingsRepository = scope.Resolver.Resolve<IAppSettingsRepository>();
 				var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
 
-				settingsStore.Update(settingsRepository.Load());
+				settingsStore.Reload();
 
 				var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
 				var config = await instanceScreen.ShowAsync();

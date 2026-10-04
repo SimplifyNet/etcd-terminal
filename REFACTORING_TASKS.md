@@ -534,10 +534,12 @@ Not verified: Windows Terminal (not available in this environment); the checks r
 Verified: build 0/0, 205 unit (3 connect/rollback tests moved, none removed) + 17 integration green; PTY smoke boots through `RegisterAll().Verify()` to the instance menu and the connect attempt runs through `ConnectionWorkflow` (rollback + `Failed to connect` message live; a full connected-session smoke was blocked because the local etcd root/viewer passwords stopped validating after the server was restarted this morning — environment, not code).
 
 ### T5.2 Settings
-- [ ] Delete `IAppSettings.cs`; `AppSettings` stays a record.
-- [ ] `IAppSettingsStore`: `AppSettings Current { get; } void Reload(); void Save(AppSettings settings);`. `AppSettingsStore(IAppSettingsRepository _repository)` implements `Reload` = `Current = _repository.Load()`, `Save` = `_repository.Save(settings); Current = settings;`.
-- [ ] `SettingsScreen`: remove `IAppSettingsRepository`; single `_settings.Save(updated)` inside the existing `try`. `AppRunner`: `settingsStore.Reload()`.
-- [ ] Update `SettingsScreenTests`. Build, test, commit.
+- [x] Delete `IAppSettings.cs`; `AppSettings` stays a record.
+- [x] `IAppSettingsStore`: `AppSettings Current { get; } void Reload(); void Save(AppSettings settings);`. `AppSettingsStore(IAppSettingsRepository _repository)` implements `Reload` = `Current = _repository.Load()`, `Save` = `_repository.Save(settings); Current = settings;`.
+- [x] `SettingsScreen`: remove `IAppSettingsRepository`; single `_settings.Save(updated)` inside the existing `try`. `AppRunner`: `settingsStore.Reload()`.
+- [x] Update `SettingsScreenTests`. Build, test, commit.
+
+Verified: build 0/0, 205 unit + 17 integration green. `IAppSettingsRepository` now speaks `AppSettings` (interface + `JsonBasedSettingsRepository`); stores in test harnesses get the shared `Fakes/FakeSettingsRepository`, and the duplicated `StubSettingsRepo` copies in `SessionFlowTests`/`ConnectionWorkflowTests` are gone.
 
 ### T5.3 Display concerns out of the domain
 - [ ] Remove `DisplayKey`, `DisplayRangeEnd`, `DisplayText` from `EtcdPermission`. `PermissionDisplay.For` uses `DisplayText.Sanitize(permission.KeyPrefix)` / `DisplayText.Sanitize(permission.RangeEnd)`. `PermissionDisplayTests` expectations unchanged.

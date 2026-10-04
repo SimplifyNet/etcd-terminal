@@ -60,7 +60,7 @@ public sealed class SettingsScreenTests
 		public readonly FakeSelectionPrompt Answers = new();
 		public readonly FakeScreenCanvas Canvas = new();
 		public readonly RecordingSettingsRepository Repository = new();
-		public readonly AppSettingsStore Settings = new();
+		public readonly AppSettingsStore Settings;
 		public readonly SettingsScreen Screen;
 
 		public Harness()
@@ -72,17 +72,18 @@ public sealed class SettingsScreenTests
 			var message = new Message(screen, new FakeKeyReader(), localization);
 			var menu = new Menu(screen, Answers);
 
-			Screen = new SettingsScreen(Repository, menu, prompt, message, localization, Settings);
+			Settings = new AppSettingsStore(Repository);
+			Screen = new SettingsScreen(menu, prompt, message, localization, Settings);
 		}
 	}
 
 	private sealed class RecordingSettingsRepository : IAppSettingsRepository
 	{
-		public IAppSettings? Saved { get; private set; }
+		public AppSettings? Saved { get; private set; }
 
-		public IAppSettings Load() => Saved ?? new AppSettings();
+		public AppSettings Load() => Saved ?? new AppSettings();
 
-		public void Save(IAppSettings settings) => Saved = settings;
+		public void Save(AppSettings settings) => Saved = settings;
 	}
 
 	private sealed class StubTextInput : ITextInput

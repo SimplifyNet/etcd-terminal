@@ -114,8 +114,8 @@ public sealed class ConnectionWorkflowTests
 			var message = new Message(screen, Keys, Localization);
 			var prompt = new Prompt(new StubTextInput());
 			var spinner = new Spinner(Keys, new FakeStatusIndicator());
-			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore());
-			var settings = new SettingsScreen(new StubSettingsRepo(), Menu, prompt, message, Localization, new AppSettingsStore());
+			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore(new FakeSettingsRepository()));
+			var settings = new SettingsScreen(Menu, prompt, message, Localization, new AppSettingsStore(new FakeSettingsRepository()));
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
 
 			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), workflow, settings, Menu, message, spinner, manage, Localization);
@@ -166,13 +166,6 @@ public sealed class ConnectionWorkflowTests
 	private sealed class StubDecryptSource : IDecryptFailureSource
 	{
 		public IReadOnlyList<string> TakeDecryptFailures() => [];
-	}
-
-	private sealed class StubSettingsRepo : IAppSettingsRepository
-	{
-		public IAppSettings Load() => throw new NotSupportedException();
-
-		public void Save(IAppSettings settings) => throw new NotSupportedException();
 	}
 
 	private sealed class StubTextInput : ITextInput

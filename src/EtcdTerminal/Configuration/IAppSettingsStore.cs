@@ -2,7 +2,9 @@ namespace EtcdTerminal.Configuration;
 
 public interface IAppSettingsStore
 {
-	IAppSettings Current { get; }
+	AppSettings Current { get; }
 
-	void Update(IAppSettings settings);
+	void Reload();
+
+	void Save(AppSettings settings);
 }

@@ -120,7 +120,7 @@ public sealed class KeyBrowseScreenTests
 		{
 			var localization = new EnglishLocalization();
 			var session = new ConnectionSession();
-			var settings = new AppSettingsStore();
+			var settings = new AppSettingsStore(new FakeSettingsRepository());
 
 			session.Start(new EtcdConnectionConfig { Name = "prod", ConnectionString = "http://localhost:2379" }, UserCapabilities.Unrestricted);
 

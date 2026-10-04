@@ -9,7 +9,7 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 	private const string PageSizeProperty = "PageSize";
 	private const string TrimInputValuesProperty = "TrimInputValues";
 
-	public IAppSettings Load()
+	public AppSettings Load()
 	{
 		if (_configFile.TryReadRoot() is not JsonObject jsonRoot)
 			return new AppSettings();
@@ -28,7 +28,7 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 		return appSettings;
 	}
 
-	public void Save(IAppSettings appSettings)
+	public void Save(AppSettings appSettings)
 	{
 		var root = _configFile.ReadRootOrThrow();
 
