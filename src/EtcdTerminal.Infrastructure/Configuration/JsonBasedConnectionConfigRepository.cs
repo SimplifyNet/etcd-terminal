@@ -28,6 +28,9 @@ public sealed class JsonBasedConnectionConfigRepository(JsonConfigFile _configFi
 		}
 	}
 
+	public bool IsNameTaken(string name, string? exceptName) =>
+		LoadInstances().Any(i => i.Name == name && i.Name != exceptName);
+
 	public void AddInstance(EtcdConnectionConfig config)
 	{
 		var root = _configFile.ReadRootOrThrow();

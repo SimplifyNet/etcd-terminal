@@ -555,8 +555,10 @@ Verified: build 0/0, 205 unit + 17 integration green; existing `PermissionDispla
 Verified: build 0/0, 205 unit + 17 integration green. All 9 `EtcdOperationResult`-based `ShowResult` sites (Role/UserManagement) now lead with the localized `Failed*` headline and append the raw etcd message; `RpcFail` derives `Kind` from the same `Translate` mapping (`InvalidArgument`+auth detail → `AccessDenied`); `CreateUser_InvalidAuthentication_ReturnsFailure` asserts `Kind == AccessDenied` and its message assertion is unchanged. Bool-based KeyBrowse/KeyCreate `ShowResult` sites have no error message and stay as-is.
 
 ### T5.5 Unique-name rule
-- [ ] Add `bool IsNameTaken(string name, string? exceptName)` to `IConnectionConfigRepository` (implemented in `JsonBasedConnectionConfigRepository`, forwarded by `ProtectedConfigRepository`). `ManageConnectionsScreen.SaveInstanceInteractive` checks it and shows a localized error (`ILocalization.InstanceNameTaken`, add to `EnglishLocalization`). The repository keeps throwing `InvalidOperationException` as a programmer-error guard.
-- [ ] Build, test, commit.
+- [x] Add `bool IsNameTaken(string name, string? exceptName)` to `IConnectionConfigRepository` (implemented in `JsonBasedConnectionConfigRepository`, forwarded by `ProtectedConfigRepository`). `ManageConnectionsScreen.SaveInstanceInteractive` checks it and shows a localized error (`ILocalization.InstanceNameTaken`, add to `EnglishLocalization`). The repository keeps throwing `InvalidOperationException` as a programmer-error guard.
+- [x] Build, test, commit.
+
+Verified: build 0/0, 206 unit + 17 integration green (`AddInstance_DuplicateName_ShowsErrorWithoutSaving` drives Add with an existing name and asserts the localized error, a single selection prompt and no save). `IsNameTaken` compares ordinal (`==`) over `LoadInstances()` — the same set the screens and editors see — and excludes `exceptName` so Edit keeps its own name; `UpdateInstance`'s rename-collision `InvalidOperationException` guard is untouched.
 
 ---
 

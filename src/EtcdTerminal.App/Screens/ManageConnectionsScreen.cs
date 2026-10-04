@@ -71,6 +71,13 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		if (name is null)
 			return;
 
+		if (_configRepo.IsNameTaken(name, existing?.Name))
+		{
+			_message.ShowError(_localization.InstanceNameTaken);
+
+			return;
+		}
+
 		var connectionString = _prompt.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr, trim: trim);
 
 		if (connectionString is null)

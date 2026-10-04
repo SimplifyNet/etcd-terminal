@@ -74,6 +74,24 @@ public sealed class ManageConnectionsScreenTests
 		});
 	}
 
+	[Test]
+	public void AddInstance_DuplicateName_ShowsErrorWithoutSaving()
+	{
+		var harness = new Harness(Config("prod"), Config("staging"));
+
+		harness.Answers.Answer(ManageConnectionsAction.AddInstance);
+		harness.TextInput.Enqueue("staging");
+		harness.Keys.Press(ConsoleKey.Enter);
+
+		harness.Screen.Show(harness.Instances);
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(harness.Answers.Prompts, Has.Count.EqualTo(1), "the action menu is the only selection");
+			Assert.That(CanvasText(harness), Does.Contain("An instance with this name already exists."));
+		});
+	}
+
 	private static string CanvasText(Harness harness) =>
 		string.Join('\n', harness.Canvas.Blocks.OfType<TextBlock>().SelectMany(block => block.Lines.Select(LineText.Of)));
 
@@ -87,6 +105,7 @@ public sealed class ManageConnectionsScreenTests
 	{
 		public readonly FakeKeyReader Keys = new();
 		public readonly FakeSelectionPrompt Answers = new();
+		public readonly StubTextInput TextInput = new();
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly RecordingConfigRepository Repository;
 		public readonly FakeScreenCanvas Canvas = new();
@@ -100,7 +119,7 @@ public sealed class ManageConnectionsScreenTests
 			var keys = Keys;
 			var localization = new EnglishLocalization();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
-			var prompt = new Prompt(new StubTextInput());
+			var prompt = new Prompt(TextInput);
 			var screen = new Screen(Canvas, new Header(), statusBar);
 			var message = new Message(screen, keys, localization);
 			var menu = new Menu(screen, Answers);
@@ -115,6 +134,9 @@ public sealed class ManageConnectionsScreenTests
 
 		public IReadOnlyList<EtcdConnectionConfig> LoadInstances() => instances;
 
+		public bool IsNameTaken(string name, string? exceptName) =>
+			instances.Any(i => i.Name == name && i.Name != exceptName);
+
 		public void AddInstance(EtcdConnectionConfig config) => throw new NotSupportedException();
 
 		public void UpdateInstance(string originalName, EtcdConnectionConfig config) => throw new NotSupportedException();
@@ -128,7 +150,12 @@ public sealed class ManageConnectionsScreenTests
 
 	private sealed class StubTextInput : ITextInput
 	{
-		public string? ReadLine(string prompt, string? defaultValue = null) => defaultValue;
+		private readonly Queue<string?> _lines = new();
+
+		public void Enqueue(string line) => _lines.Enqueue(line);
+
+		public string? ReadLine(string prompt, string? defaultValue = null) =>
+			_lines.Count > 0 ? _lines.Dequeue() : defaultValue;
 
 		public string? ReadSecret(string prompt) => null;
 	}
