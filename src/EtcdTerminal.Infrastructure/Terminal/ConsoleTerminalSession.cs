@@ -14,7 +14,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 {
 	private const int FooterRows = 1;
 
-	// The four sequences Spectre cannot emit (REFACTORING.md D1, D2).
+	// The four sequences Spectre cannot emit.
 	private const string ResetScrollRegionSequence = "\u001b[r";
 	private const string ResetBackgroundSequence = "\u001b]111\u0007";
 

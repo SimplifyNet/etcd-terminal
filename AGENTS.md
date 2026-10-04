@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The following rules describe the target architecture. Existing violations are refactoring debt, not examples to copy. The current cleanup plan, its decisions and its phase order are in `REFACTORING.md`.
+The following rules describe the architecture.
 
 **Responsibilities:**
 - **Domain:** business entities, value objects, business rules and domain contracts only. UI components, terminal geometry, themes and localization are not domain concepts merely because they are interfaces or have no package dependencies.
@@ -22,20 +22,19 @@ The following rules describe the target architecture. Existing violations are re
 
 **Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` to `ReddyTheme`, `ILocalization` to `EnglishLocalization`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
 
-## UI Rendering And Migration
+## UI Rendering
 
 - Maximize reuse of Spectre `Panel`, `Table`, `Grid`, `Layout`, `SelectionPrompt`, `TextPrompt`, `Status` and `Live` where their behavior fits. Do not recreate library widgets behind a new interface.
 - UI models contain literal text, semantic spans, selected/disabled state and logical regions. No Spectre types, markup strings, ANSI, RGB escape strings, cursor positions, terminal dimensions, measured widths or strings padded to screen size. Renderer interfaces may expose operations and results; models must not carry renderer callbacks.
 - For example, a menu component accepts items with stable IDs, decides which actions are available and handles the result. It does not calculate line widths, place the cursor, draw borders or fill backgrounds.
 - Map models and semantic roles to Spectre renderables in one cohesive Infrastructure rendering module. Share role/style conversion between renderers; do not duplicate it per screen. This does not require one giant class or a general-purpose UI framework.
-- Let Spectre measure, wrap, align, pad, crop and draw. Infrastructure may configure widget padding, region sizes, overflow and capability policy, but must not implement another geometry engine. Moving manual cursor/ANSI/width code into Infrastructure is not completion.
+- Let Spectre measure, wrap, align, pad, crop and draw. Infrastructure may configure widget padding, region sizes, overflow and capability policy, but must not implement another geometry engine.
 - Target zero application-owned ANSI generation, cursor-based drawing, display-width calculation and space-based background filling. Before adding a small adapter for a proven library gap, inspect the pinned library and document the gap. Any exception to this target or visual parity needs explicit approval; do not silently weaken either requirement.
 - Literal user data must remain literal, including brackets, Unicode and connection strings. Preserve control-character sanitization and secret handling; these are application safety requirements, not redundant geometry code.
 - A screen has exactly one composition/output owner. Header, body, action panels and footer are composed once; child components must not independently append or reposition a shared footer. Repeated updates replace the current state rather than duplicating panels.
 - The footer must remain at the bottom of the visible interactive viewport, including input states unless an explicit exception is approved. An ordinary `Write(Panel)` is streaming output, not a pinned footer. `Layout`/`Live` are implementation candidates, not proof of parity.
 - Check Spectre interactive lifecycle constraints before combining widgets. Do not nest `TextPrompt` or `Status` inside an active `Live` on the same console. Do not assume `SelectionPrompt` can be embedded in a `Layout` region.
 - Preserve behavior and the established visual language: semantic colors, content/background distinction, spacing, selection, action availability, keyboard/cancellation behavior and session information. Exact byte-for-byte output is unnecessary; missing colors, inline/duplicated footers, inaccessible actions or lost input behavior are unacceptable.
-- Migrate complete vertical slices: model producer, mapper, composition, DI, callers and tests. Do not leave incompatible model versions or keep obsolete rendering as an undocumented fallback.
 
 ## UI Verification
 
