@@ -173,6 +173,20 @@ public sealed class PermissionDisplayTests
 		Assert.That(open, Is.EqualTo("Read [Range]: [a, \u221E)"));
 	}
 
+	[Test]
+	public void For_SanitizesControlCharactersInBounds()
+	{
+		var permission = new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "\0a/b", RangeEnd = "\0c" };
+		var line = PermissionDisplay.For(permission, new EnglishLocalization());
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(line, Is.EqualTo("Read [Range]: [\uFFFDa/b, \uFFFDc)"));
+			Assert.That(permission.KeyPrefix, Is.EqualTo("\0a/b"));
+			Assert.That(permission.RangeEnd, Is.EqualTo("\0c"));
+		});
+	}
+
 	private static IReadOnlyList<IReadOnlyList<string>> Cells(TableBlock table) =>
 	[
 		table.Header.Select(span => span.Text).ToList(),

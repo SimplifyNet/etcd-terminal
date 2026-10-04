@@ -84,13 +84,4 @@ public sealed class PermissionBoundsTests
 		Assert.That(permission.Covers("\uE000"), Is.False);
 		Assert.That(permission.Covers("\U00010001"), Is.True);
 	}
-
-	[Test]
-	public void DisplayKey_ReplacesControlCharacters()
-	{
-		var permission = new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "\0a/b", RangeEnd = "\0" };
-
-		Assert.That(permission.DisplayKey, Is.EqualTo("\uFFFDa/b"));
-		Assert.That(permission.KeyPrefix, Is.EqualTo("\0a/b"));
-	}
 }

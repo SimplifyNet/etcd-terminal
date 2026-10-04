@@ -542,8 +542,10 @@ Verified: build 0/0, 205 unit (3 connect/rollback tests moved, none removed) + 1
 Verified: build 0/0, 205 unit + 17 integration green. `IAppSettingsRepository` now speaks `AppSettings` (interface + `JsonBasedSettingsRepository`); stores in test harnesses get the shared `Fakes/FakeSettingsRepository`, and the duplicated `StubSettingsRepo` copies in `SessionFlowTests`/`ConnectionWorkflowTests` are gone.
 
 ### T5.3 Display concerns out of the domain
-- [ ] Remove `DisplayKey`, `DisplayRangeEnd`, `DisplayText` from `EtcdPermission`. `PermissionDisplay.For` uses `DisplayText.Sanitize(permission.KeyPrefix)` / `DisplayText.Sanitize(permission.RangeEnd)`. `PermissionDisplayTests` expectations unchanged.
-- [ ] Build, test, commit.
+- [x] Remove `DisplayKey`, `DisplayRangeEnd`, `DisplayText` from `EtcdPermission`. `PermissionDisplay.For` uses `DisplayText.Sanitize(permission.KeyPrefix)` / `DisplayText.Sanitize(permission.RangeEnd)`. `PermissionDisplayTests` expectations unchanged.
+- [x] Build, test, commit.
+
+Verified: build 0/0, 205 unit + 17 integration green; existing `PermissionDisplayTests` expectations untouched (the `∞` open-range line is byte-identical), the domain-only `DisplayKey_ReplacesControlCharacters` moved to `PermissionDisplayTests.For_SanitizesControlCharactersInBounds` covering both bounds and asserting the raw domain values stay raw.
 
 ### T5.4 Failure kind in results
 - [ ] `EtcdOperationResult`: add `EtcdOperationFailureKind? Kind`; `Fail(string message, EtcdOperationFailureKind kind)`. `DotnetEtcdBasedClient.RpcFail` passes the kind from `Failure(ex)`.
