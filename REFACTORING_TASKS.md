@@ -525,11 +525,13 @@ Not verified: Windows Terminal (not available in this environment); the checks r
 ## Phase 5 — Application layer
 
 ### T5.1 ConnectionWorkflow
-- [ ] `src/EtcdTerminal/Session/IConnectionWorkflow.cs`: `Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct); Task DisconnectAsync();`
-- [ ] `ConnectionWorkflow(IEtcdConnection _connection, IUserCapabilitiesProvider _capabilities, IConnectionSession _session)`: `ConnectAsync` = connect → capabilities → `_session.Start`; on any exception after connect: `_session.End()`, try disconnect (ignore errors), rethrow. `DisconnectAsync` = `_session.End()` then `_connection.DisconnectAsync()`.
-- [ ] `InstanceSelectionScreen`: replace the nested try/catch with `await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct))`; remove `IEtcdConnection`, `IUserCapabilitiesProvider`, `IConnectionSession` dependencies. `MainScreen`: `DisconnectAsync` calls go through `_workflow`; keep the "ignore disconnect errors while another exception propagates" behavior with a `try/catch` around the single `_workflow.DisconnectAsync()` call in the error path only.
-- [ ] Register Transient. Move the connect/rollback tests from `SessionFlowTests` to `ConnectionWorkflowTests`.
-- [ ] Build, test, commit.
+- [x] `src/EtcdTerminal/Session/IConnectionWorkflow.cs`: `Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct); Task DisconnectAsync();`
+- [x] `ConnectionWorkflow(IEtcdConnection _connection, IUserCapabilitiesProvider _capabilities, IConnectionSession _session)`: `ConnectAsync` = connect → capabilities → `_session.Start`; on any exception after connect: `_session.End()`, try disconnect (ignore errors), rethrow. `DisconnectAsync` = `_session.End()` then `_connection.DisconnectAsync()`.
+- [x] `InstanceSelectionScreen`: replace the nested try/catch with `await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct))`; remove `IEtcdConnection`, `IUserCapabilitiesProvider`, `IConnectionSession` dependencies. `MainScreen`: `DisconnectAsync` calls go through `_workflow`; keep the "ignore disconnect errors while another exception propagates" behavior with a `try/catch` around the single `_workflow.DisconnectAsync()` call in the error path only.
+- [x] Register Transient. Move the connect/rollback tests from `SessionFlowTests` to `ConnectionWorkflowTests`.
+- [x] Build, test, commit.
+
+Verified: build 0/0, 205 unit (3 connect/rollback tests moved, none removed) + 17 integration green; PTY smoke boots through `RegisterAll().Verify()` to the instance menu and the connect attempt runs through `ConnectionWorkflow` (rollback + `Failed to connect` message live; a full connected-session smoke was blocked because the local etcd root/viewer passwords stopped validating after the server was restarted this morning — environment, not code).
 
 ### T5.2 Settings
 - [ ] Delete `IAppSettings.cs`; `AppSettings` stays a record.

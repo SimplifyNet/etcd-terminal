@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
@@ -8,7 +7,7 @@ using EtcdTerminal.Presentation;
 namespace EtcdTerminal.App.Screens;
 
 public sealed class MainScreen(
-	IEtcdConnection _connection,
+	IConnectionWorkflow _workflow,
 	IConnectionSession _session,
 	IEnumerable<IMainMenuEntry> _entries,
 	Menu _menu,
@@ -22,12 +21,18 @@ public sealed class MainScreen(
 		}
 		catch
 		{
-			await DisconnectIgnoringErrorsAsync();
+			try
+			{
+				await _workflow.DisconnectAsync();
+			}
+			catch
+			{
+			}
 
 			throw;
 		}
 
-		await DisconnectAsync();
+		await _workflow.DisconnectAsync();
 	}
 
 	private async Task RunMenuLoopAsync()
@@ -60,27 +65,5 @@ public sealed class MainScreen(
 		items.Add(new(MainMenuAction.Disconnect, _localization.Disconnect));
 
 		return items;
-	}
-
-	private async Task DisconnectAsync()
-	{
-		_session.End();
-
-		await _connection.DisconnectAsync();
-	}
-
-	private async Task DisconnectIgnoringErrorsAsync()
-	{
-		_session.End();
-
-		try
-		{
-			await _connection.DisconnectAsync();
-		}
-		catch
-		{
-			// The session is already cleared. A failed disconnect must not
-			// mask the menu error that is currently propagating.
-		}
 	}
 }

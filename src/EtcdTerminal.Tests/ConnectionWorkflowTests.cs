@@ -13,120 +13,72 @@ using NUnit.Framework;
 namespace EtcdTerminal.Tests;
 
 [TestFixture]
-public sealed class SessionFlowTests
+public sealed class ConnectionWorkflowTests
 {
 	[Test]
-	public async Task EscapeDuringMenu_ClearsSessionAndDisconnects()
+	public async Task SuccessfulConnect_StartsSessionOnce()
 	{
-		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
-
-		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Answers.Cancel();
-
-		await harness.Main.ShowAsync();
-
-		Assert.That(harness.Session.Active, Is.Null);
-		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
-	}
-
-	[Test]
-	public async Task DisconnectMenuItem_ClearsSessionAndDisconnects()
-	{
-		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted),
-		[
-			new StubEntry(MainMenuAction.BrowseKeys)
-		]);
-
-		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Answers.Answer(MainMenuAction.Disconnect);
-
-		await harness.Main.ShowAsync();
-
-		Assert.That(harness.Session.Active, Is.Null);
-		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
-	}
-
-	[Test]
-	public void ThrowingEntry_CleansUpAndPropagates()
-	{
-		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted),
-		[
-			new StubEntry(MainMenuAction.BrowseKeys, () => Task.FromException(new InvalidOperationException("boom")))
-		]);
-
-		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Answers.Answer(MainMenuAction.BrowseKeys);
-
-		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
-
-		Assert.That(ex!.Message, Is.EqualTo("boom"));
-		Assert.That(harness.Session.Active, Is.Null);
-		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
-	}
-
-	[Test]
-	public void ThrowingEntry_FailingDisconnect_OriginalErrorSurfaces()
-	{
-		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted),
-		[
-			new StubEntry(MainMenuAction.BrowseKeys, () => Task.FromException(new InvalidOperationException("boom")))
-		]);
-
-		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Connection.OnDisconnect = () => Task.FromException(new InvalidOperationException("disconnect boom"));
-		harness.Answers.Answer(MainMenuAction.BrowseKeys);
-
-		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
-
-		Assert.That(ex!.Message, Is.EqualTo("boom"));
-		Assert.That(harness.Session.Active, Is.Null);
-	}
-
-	[Test]
-	public void NormalExit_FailingDisconnect_SurfacesAndClearsSession()
-	{
-		var harness = new Harness([], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
-
-		harness.Session.Start(Config(), UserCapabilities.Unrestricted);
-		harness.Connection.OnDisconnect = () => Task.FromException(new InvalidOperationException("disconnect boom"));
-		harness.Answers.Cancel();
-
-		var ex = Assert.ThrowsAsync<InvalidOperationException>(() => harness.Main.ShowAsync());
-
-		Assert.That(ex!.Message, Is.EqualTo("disconnect boom"));
-		Assert.That(harness.Session.Active, Is.Null);
-	}
-
-	[Test]
-	public async Task ReopenedSelection_ShowsNoPreviousConnectionInFooter()
-	{
-		var harness = new Harness([Config()], (_, _) => Task.FromResult(UserCapabilities.Unrestricted), []);
+		var harness = new Harness([Config()], (_, _) => Task.FromResult(UserCapabilities.Unrestricted));
 
 		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
 
 		var selected = await harness.Selection.ShowAsync();
 
 		Assert.That(selected?.Name, Is.EqualTo("prod"));
-
-		harness.Answers.Cancel();
-
-		await harness.Main.ShowAsync();
-
-		Assert.That(harness.Session.Active, Is.Null);
-
-		harness.Answers.Cancel();
-
-		var second = await harness.Selection.ShowAsync();
-
-		Assert.That(second, Is.Null);
-
-		// The screen owns the footer, so the visible model comes from the canvas.
-		var footer = harness.Canvas.Footers[^1];
-
-		Assert.That(footer, Is.Not.Null);
-		Assert.That(footer!.Name, Is.Null);
-		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
+		Assert.That(harness.Session.Active?.Name, Is.EqualTo("prod"));
+		Assert.That(harness.Connection.ConnectCalls, Is.EqualTo(1));
+		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(0));
 	}
+
+	[Test]
+	public async Task DiscoveryFailure_DisconnectsClearsAndReturnsToSelection()
+	{
+		var harness = new Harness([Config()], (_, _) =>
+			Task.FromException<UserCapabilities>(new EtcdOperationException(EtcdOperationFailureKind.Unavailable, "unreachable")));
+
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
+		harness.Answers.Cancel();
+		harness.Keys.Press(ConsoleKey.Enter);
+
+		var selected = await harness.Selection.ShowAsync();
+
+		Assert.That(selected, Is.Null);
+		Assert.That(harness.Session.Active, Is.Null);
+		Assert.That(harness.Connection.ConnectCalls, Is.EqualTo(1));
+		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
+		Assert.That(ComposedText(harness), Does.Contain("Failed to connect"));
+	}
+
+	[Test]
+	public async Task DiscoveryCancellation_DisconnectsAndReportsCancelled()
+	{
+		var harness = new Harness([Config()], async (_, ct) =>
+		{
+			await Task.Delay(500, ct);
+
+			return UserCapabilities.Unrestricted;
+		});
+
+		harness.Answers.Answer(new InstanceMenuChoice(null, harness.Instances[0]));
+		harness.Answers.Cancel();
+		harness.Keys.Press(ConsoleKey.Escape, ConsoleKey.Enter);
+
+		var selected = await harness.Selection.ShowAsync();
+
+		Assert.That(selected, Is.Null);
+		Assert.That(harness.Session.Active, Is.Null);
+		Assert.That(harness.Connection.ConnectCalls, Is.EqualTo(1));
+		Assert.That(harness.Connection.DisconnectCalls, Is.EqualTo(1));
+		Assert.That(ComposedText(harness), Does.Contain("Operation cancelled."));
+	}
+
+	/// The text every screen streamed, in order. An outcome is written to the
+	/// canvas below the prompt it follows, so it is asserted there.
+	private static string ComposedText(Harness harness) =>
+		string.Join('\n', harness.Canvas.Blocks.SelectMany(BlockLines));
+
+	private static IEnumerable<string> BlockLines(Block block) =>
+		block is TextBlock text ? text.Lines.Select(LineText.Of) : [];
 
 	private static EtcdConnectionConfig Config() => new()
 	{
@@ -145,13 +97,11 @@ public sealed class SessionFlowTests
 		public readonly StatusBar StatusBar;
 		public readonly IReadOnlyList<EtcdConnectionConfig> Instances;
 		public readonly Menu Menu;
-		public readonly MainScreen Main;
 		public readonly InstanceSelectionScreen Selection;
 
 		public Harness(
 			IReadOnlyList<EtcdConnectionConfig> instances,
-			Func<string?, CancellationToken, Task<UserCapabilities>> discover,
-			IEnumerable<IMainMenuEntry> entries)
+			Func<string?, CancellationToken, Task<UserCapabilities>> discover)
 		{
 			Instances = instances;
 			StatusBar = new StatusBar(new StubAppInfo(), Session, Localization);
@@ -169,7 +119,6 @@ public sealed class SessionFlowTests
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
 
 			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), workflow, settings, Menu, message, spinner, manage, Localization);
-			Main = new MainScreen(workflow, Session, entries, Menu, Localization);
 		}
 	}
 
@@ -177,7 +126,6 @@ public sealed class SessionFlowTests
 	{
 		public int ConnectCalls;
 		public int DisconnectCalls;
-		public Func<Task>? OnDisconnect;
 
 		public Task ConnectAsync(EtcdConnectionConfig config, CancellationToken ct = default)
 		{
@@ -186,12 +134,11 @@ public sealed class SessionFlowTests
 			return Task.CompletedTask;
 		}
 
-		public async Task DisconnectAsync()
+		public Task DisconnectAsync()
 		{
 			DisconnectCalls++;
 
-			if (OnDisconnect is not null)
-				await OnDisconnect();
+			return Task.CompletedTask;
 		}
 	}
 
@@ -238,16 +185,5 @@ public sealed class SessionFlowTests
 	private sealed class StubAppInfo : IAppInfo
 	{
 		public string Version => "0.0";
-	}
-
-	private sealed class StubEntry(MainMenuAction action, Func<Task>? behavior = null) : IMainMenuEntry
-	{
-		public MainMenuAction Action => action;
-
-		public string Label => action.ToString();
-
-		public bool IsAvailable(UserCapabilities capabilities) => true;
-
-		public Task ShowAsync() => behavior?.Invoke() ?? Task.CompletedTask;
 	}
 }

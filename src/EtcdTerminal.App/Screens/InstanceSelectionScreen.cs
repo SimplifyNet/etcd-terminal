@@ -1,7 +1,6 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
-using EtcdTerminal.Security;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
@@ -11,9 +10,7 @@ namespace EtcdTerminal.App.Screens;
 public sealed class InstanceSelectionScreen(
 	IConnectionConfigRepository _configRepo,
 	IDecryptFailureSource _decryptFailures,
-	IEtcdConnection _connection,
-	IConnectionSession _session,
-	IUserCapabilitiesProvider _capabilities,
+	IConnectionWorkflow _workflow,
 	SettingsScreen _settings,
 	Menu _menu,
 	Message _message,
@@ -53,33 +50,10 @@ public sealed class InstanceSelectionScreen(
 				var selected = choice.Instance!;
 
 				bool connected;
-				UserCapabilities capabilities = new();
 
 				try
 				{
-					connected = await _spinner.RunAsync(_localization.Connecting, async ct =>
-					{
-						await _connection.ConnectAsync(selected, ct);
-
-						try
-						{
-							capabilities = await _capabilities.GetCapabilitiesAsync(selected.Username, ct);
-						}
-						catch
-						{
-							_session.End();
-
-							try
-							{
-								await _connection.DisconnectAsync();
-							}
-							catch
-							{
-							}
-
-							throw;
-						}
-					});
+					connected = await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct));
 				}
 				catch (Exception ex)
 				{
@@ -88,14 +62,10 @@ public sealed class InstanceSelectionScreen(
 					continue;
 				}
 
-				if (!connected)
-					_message.ShowWarning(_localization.OperationCancelled);
-				else
-				{
-					_session.Start(selected, capabilities);
-
+				if (connected)
 					return selected;
-				}
+
+				_message.ShowWarning(_localization.OperationCancelled);
 			}
 		}
 	}
