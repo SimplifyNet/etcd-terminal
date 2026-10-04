@@ -567,7 +567,7 @@ public sealed class DotnetEtcdBasedClient(Func<string, string?, string?, Action<
 		Client.MemberListAsync(new MemberListRequest(), cancellationToken: ct);
 
 	private static EtcdOperationResult RpcFail(RpcException ex) =>
-		EtcdOperationResult.Fail(DetailOrMessage(ex));
+		EtcdOperationResult.Fail(DetailOrMessage(ex), Translate(ex).Kind);
 
 	private static bool IsCancellation(RpcException ex) =>
 		ex.StatusCode == StatusCode.Cancelled;

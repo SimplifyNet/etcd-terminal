@@ -79,7 +79,7 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 
 		var result = await _roleAdmin.CreateRoleAsync(roleName);
 
-		_message.ShowResult(result.Success, _localization.RoleCreated, result.ErrorMessage ?? _localization.FailedCreateRole);
+		_message.ShowResult(result.Success, _localization.RoleCreated, _localization.FailedCreateRole + "\n" + result.ErrorMessage);
 	}
 
 	private async Task DeleteRoleAsync()
@@ -93,7 +93,7 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 
 		var result = await _roleAdmin.DeleteRoleAsync(roleName);
 
-		_message.ShowResult(result.Success, _localization.RoleDeleted, result.ErrorMessage ?? _localization.FailedDeleteRole);
+		_message.ShowResult(result.Success, _localization.RoleDeleted, _localization.FailedDeleteRole + "\n" + result.ErrorMessage);
 	}
 
 	private async Task GrantPermissionAsync()
@@ -110,7 +110,7 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 
 		var result = await _roleAdmin.GrantPermissionAsync(target.RoleName, permType.Value, target.Key, target.Scope);
 
-		_message.ShowResult(result.Success, _localization.PermissionGranted, result.ErrorMessage ?? _localization.FailedGrantPermission);
+		_message.ShowResult(result.Success, _localization.PermissionGranted, _localization.FailedGrantPermission + "\n" + result.ErrorMessage);
 	}
 
 	private async Task RevokePermissionAsync()
@@ -124,7 +124,7 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 		// so no permission type is requested here.
 		var result = await _roleAdmin.RevokePermissionAsync(target.RoleName, target.Key, target.Scope);
 
-		_message.ShowResult(result.Success, _localization.PermissionRevoked, result.ErrorMessage ?? _localization.FailedRevokePermission);
+		_message.ShowResult(result.Success, _localization.PermissionRevoked, _localization.FailedRevokePermission + "\n" + result.ErrorMessage);
 	}
 
 	private PermissionTarget? PromptTarget()

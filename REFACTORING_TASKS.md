@@ -548,9 +548,11 @@ Verified: build 0/0, 205 unit + 17 integration green. `IAppSettingsRepository` n
 Verified: build 0/0, 205 unit + 17 integration green; existing `PermissionDisplayTests` expectations untouched (the `∞` open-range line is byte-identical), the domain-only `DisplayKey_ReplacesControlCharacters` moved to `PermissionDisplayTests.For_SanitizesControlCharactersInBounds` covering both bounds and asserting the raw domain values stay raw.
 
 ### T5.4 Failure kind in results
-- [ ] `EtcdOperationResult`: add `EtcdOperationFailureKind? Kind`; `Fail(string message, EtcdOperationFailureKind kind)`. `DotnetEtcdBasedClient.RpcFail` passes the kind from `Failure(ex)`.
-- [ ] Screens: `_message.ShowResult(result.Success, successText, failureHeadline + "\n" + result.ErrorMessage)` where `failureHeadline` is the existing localized `Failed*` string. Update tests that assert the failure text.
-- [ ] Build, test, commit.
+- [x] `EtcdOperationResult`: add `EtcdOperationFailureKind? Kind`; `Fail(string message, EtcdOperationFailureKind kind)`. `DotnetEtcdBasedClient.RpcFail` passes the kind from `Failure(ex)`.
+- [x] Screens: `_message.ShowResult(result.Success, successText, failureHeadline + "\n" + result.ErrorMessage)` where `failureHeadline` is the existing localized `Failed*` string. Update tests that assert the failure text.
+- [x] Build, test, commit.
+
+Verified: build 0/0, 205 unit + 17 integration green. All 9 `EtcdOperationResult`-based `ShowResult` sites (Role/UserManagement) now lead with the localized `Failed*` headline and append the raw etcd message; `RpcFail` derives `Kind` from the same `Translate` mapping (`InvalidArgument`+auth detail → `AccessDenied`); `CreateUser_InvalidAuthentication_ReturnsFailure` asserts `Kind == AccessDenied` and its message assertion is unchanged. Bool-based KeyBrowse/KeyCreate `ShowResult` sites have no error message and stay as-is.
 
 ### T5.5 Unique-name rule
 - [ ] Add `bool IsNameTaken(string name, string? exceptName)` to `IConnectionConfigRepository` (implemented in `JsonBasedConnectionConfigRepository`, forwarded by `ProtectedConfigRepository`). `ManageConnectionsScreen.SaveInstanceInteractive` checks it and shows a localized error (`ILocalization.InstanceNameTaken`, add to `EnglishLocalization`). The repository keeps throwing `InvalidOperationException` as a programmer-error guard.

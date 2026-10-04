@@ -199,6 +199,7 @@ public sealed class EtcdOperationFailureTests
 
 		Assert.That(result.Success, Is.False);
 		Assert.That(result.ErrorMessage, Does.Contain("authentication failed"));
+		Assert.That(result.Kind, Is.EqualTo(EtcdOperationFailureKind.AccessDenied));
 	}
 
 	[Test]

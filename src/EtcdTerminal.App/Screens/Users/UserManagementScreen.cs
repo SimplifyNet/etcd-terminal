@@ -87,7 +87,7 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 		var result = await _userAdmin.CreateUserAsync(username, password);
 
-		_message.ShowResult(result.Success, _localization.UserCreated, result.ErrorMessage ?? _localization.FailedCreateUser);
+		_message.ShowResult(result.Success, _localization.UserCreated, _localization.FailedCreateUser + "\n" + result.ErrorMessage);
 	}
 
 	private async Task DeleteUserAsync()
@@ -101,7 +101,7 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 		var result = await _userAdmin.DeleteUserAsync(username);
 
-		_message.ShowResult(result.Success, _localization.UserDeleted, result.ErrorMessage ?? _localization.FailedDeleteUser);
+		_message.ShowResult(result.Success, _localization.UserDeleted, _localization.FailedDeleteUser + "\n" + result.ErrorMessage);
 	}
 
 	private async Task ChangePasswordAsync()
@@ -120,7 +120,7 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 		var result = await _userAdmin.ChangeUserPasswordAsync(username, newPassword);
 
-		_message.ShowResult(result.Success, _localization.PasswordChanged, result.ErrorMessage ?? _localization.FailedChangePassword);
+		_message.ShowResult(result.Success, _localization.PasswordChanged, _localization.FailedChangePassword + "\n" + result.ErrorMessage);
 	}
 
 	private async Task AssignRoleAsync()
@@ -139,7 +139,7 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 		var grantResult = await _userAdmin.GrantRoleToUserAsync(username, roleName);
 
-		_message.ShowResult(grantResult.Success, _localization.RoleAssigned, grantResult.ErrorMessage ?? _localization.FailedAssignRole);
+		_message.ShowResult(grantResult.Success, _localization.RoleAssigned, _localization.FailedAssignRole + "\n" + grantResult.ErrorMessage);
 	}
 
 	private async Task RevokeRoleAsync()
@@ -158,6 +158,6 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 		var revokeResult = await _userAdmin.RevokeRoleFromUserAsync(username, roleName);
 
-		_message.ShowResult(revokeResult.Success, _localization.RoleRemoved, revokeResult.ErrorMessage ?? _localization.FailedRemoveRole);
+		_message.ShowResult(revokeResult.Success, _localization.RoleRemoved, _localization.FailedRemoveRole + "\n" + revokeResult.ErrorMessage);
 	}
 }
