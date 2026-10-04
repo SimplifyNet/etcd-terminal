@@ -531,7 +531,7 @@ Not verified: Windows Terminal (not available in this environment); the checks r
 - [x] Register Transient. Move the connect/rollback tests from `SessionFlowTests` to `ConnectionWorkflowTests`.
 - [x] Build, test, commit.
 
-Verified: build 0/0, 205 unit (3 connect/rollback tests moved, none removed) + 17 integration green; PTY smoke boots through `RegisterAll().Verify()` to the instance menu and the connect attempt runs through `ConnectionWorkflow` (rollback + `Failed to connect` message live; a full connected-session smoke was blocked because the local etcd root/viewer passwords stopped validating after the server was restarted this morning — environment, not code).
+Verified: build 0/0, 205 unit (3 connect/rollback tests moved, none removed) + 17 integration green. Live PTY smoke completed 2026-10-04 after the local etcd was recreated: boot through `RegisterAll().Verify()` to the instance menu → connect `etcd-local` via `ConnectionWorkflow` (spinner, session start, server capabilities → full root main menu incl. Users/Roles/Permissions) → `Disconnect` returns to the instance menu with the footer intact → trailing Esc exits cleanly (`ESC[r`/`OSC111`/`ESC[?1049l` restore). The earlier failed smoke was an environment issue (etcd auth recreated), not code.
 
 ### T5.2 Settings
 - [x] Delete `IAppSettings.cs`; `AppSettings` stays a record.
