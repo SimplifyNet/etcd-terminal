@@ -566,6 +566,17 @@ Verified: build 0/0, 206 unit + 17 integration green (`AddInstance_DuplicateName
 
 Do this phase only if the user confirms. Steps are in `REFACTORING.md` Phase 6.
 
+### T6.1 Extract the split pieces
+- [x] Add to Infrastructure: `GrpcErrorTranslator` (static — `Translate`, `IsCancellation`, `Failure`, `RpcFail`, `IsMissingUser`, `IsMissingRole`), `EtcdProtoMapper` (static), `EtcdConnectionHandle` (owns transport, `ConnectAsync`/`DisconnectAsync`/`Disconnect`/`Dispose`, one `Guard(Func<Task<T>>, onError?)` used by every call), `DotnetEtcdKeyStore`, `DotnetEtcdUserAdmin`, `DotnetEtcdRoleAdmin`, `DotnetEtcdAuthAdmin` taking the handle. Bodies move unchanged; `GetUser`/`GetRole` keep their missing-entity filters as inner catches, `IsAuthenticationEnabled` keeps the `PermissionDenied` → `true` inner catch, argument validation stays outside `Guard`.
+- [x] Old `DotnetEtcdBasedClient` stays until T6.2 so both commits build.
+- [x] Build, test, commit. — Verified: `dotnet build src -warnaserror` 0/0; unit 206/206; integration 17/17. Guard call sites pass explicit type arguments so the moved lambda bodies keep their exact return types; `ConnectAsync` awaits `Guard(() => ProbeAsync(ct))` and wraps it in the original disconnect-and-rethrow path, which preserves all three original catch outcomes (cancel → raw, RPC → translated, other → raw).
+
+### T6.2 Rewire and delete the monolith
+- [ ] Delete `DotnetEtcdBasedClient.cs` and `IEtcdClient.cs`.
+- [ ] `IocRegistrations`: `RegisterClient` registers the handle concrete + `IEtcdConnection` forward; `RegisterKeys`/`RegisterUsers`/`RegisterRoles`/`RegisterSecurity` become `.Register<IEtcdKeyStore, DotnetEtcdKeyStore>` etc. (role interfaces registered directly, ctor-injected handle).
+- [ ] Behavior and integration test files stay byte-identical: each test project gets a local `DotnetEtcdBasedClient` composition double with the old constructor and full surface, delegating to the split pieces (one copy per test project; they do not reference each other). `ArchitectureTests` swaps its `typeof(IEtcdClient)` anchor for `EtcdOperationException` — it is an architecture test, not a behavior/integration test, and the type it anchored on is deleted.
+- [ ] Build, test, commit.
+
 ---
 
 ## Phase 7 — Closure
