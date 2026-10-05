@@ -1,4 +1,5 @@
-using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Screens.Connections;
+using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;

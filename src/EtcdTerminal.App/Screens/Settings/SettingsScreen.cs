@@ -3,7 +3,7 @@ using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation.Localization;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Settings;
 
 public sealed class SettingsScreen(Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {

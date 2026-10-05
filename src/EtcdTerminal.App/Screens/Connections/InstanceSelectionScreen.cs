@@ -1,11 +1,12 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
+using EtcdTerminal.App.Screens.Settings;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Connections;
 
 public sealed class InstanceSelectionScreen(
 	IConnectionConfigRepository _configRepo,

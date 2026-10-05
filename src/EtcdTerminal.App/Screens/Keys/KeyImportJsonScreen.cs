@@ -1,7 +1,7 @@
 using System.Text.Json;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;

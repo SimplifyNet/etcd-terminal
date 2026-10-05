@@ -4,7 +4,7 @@ using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Connections;
 
 public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
 {

@@ -1,6 +1,6 @@
 using EtcdTerminal.Security;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.MainMenu;
 
 public interface IMainMenuEntry
 {

@@ -1,4 +1,4 @@
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.Settings;
 
 public enum SettingsAction
 {

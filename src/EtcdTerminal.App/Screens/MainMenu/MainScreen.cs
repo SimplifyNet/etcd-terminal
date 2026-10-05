@@ -1,10 +1,9 @@
 using EtcdTerminal.App.Engine;
-using EtcdTerminal.App.Components;
 using EtcdTerminal.Session;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.MainMenu;
 
 public sealed class MainScreen(
 	IConnectionWorkflow _workflow,

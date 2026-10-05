@@ -1,6 +1,6 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
-using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Security;
 using EtcdTerminal.Session;

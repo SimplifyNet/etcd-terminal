@@ -1,4 +1,4 @@
-namespace EtcdTerminal.App.Screens;
+namespace EtcdTerminal.App.Screens.MainMenu;
 
 public enum MainMenuAction
 {
@@ -8,5 +8,5 @@ public enum MainMenuAction
 	ManageUsers,
 	ManageRoles,
 	ViewPermissions,
-	Disconnect,
+	Disconnect
 }

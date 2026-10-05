@@ -12,7 +12,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void AppTypesDoNotReferenceSpectre()
 	{
-		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+		var appAssembly = typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly;
 
 		var violations = new List<string>();
 
@@ -32,7 +32,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void ScreensDoNotReferenceInfrastructure()
 	{
-		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+		var appAssembly = typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly;
 
 		var violations = new List<string>();
 
@@ -52,7 +52,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void ComponentsAndEngineDoNotReferenceScreens()
 	{
-		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+		var appAssembly = typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly;
 
 		var violations = new List<string>();
 
@@ -77,7 +77,7 @@ public sealed class ArchitectureTests
 	[Test]
 	public void OnlySetupReferencesInfrastructure()
 	{
-		var appAssembly = typeof(App.Screens.InstanceSelectionScreen).Assembly;
+		var appAssembly = typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly;
 
 		var violations = new List<string>();
 
@@ -276,11 +276,11 @@ public sealed class ArchitectureTests
 	{
 		DIContainer.Current.RegisterAll();
 
-		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.IMainMenuEntry>>()
+		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.MainMenu.IMainMenuEntry>>()
 			.Select(e => e.GetType())
 			.ToList();
-		var declared = SafeGetTypes(typeof(App.Screens.InstanceSelectionScreen).Assembly)
-			.Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(App.Screens.IMainMenuEntry).IsAssignableFrom(t))
+		var declared = SafeGetTypes(typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly)
+			.Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(App.Screens.MainMenu.IMainMenuEntry).IsAssignableFrom(t))
 			.ToList();
 
 		Assert.That(resolved, Is.EquivalentTo(declared));

@@ -1,7 +1,9 @@
-using EtcdTerminal.App.Screens;
+using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.Keys;
+using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
+using EtcdTerminal.App.Screens.Settings;
 using EtcdTerminal.App.Screens.Users;
 using EtcdTerminal.Security;
 using EtcdTerminal.App.Localization;
