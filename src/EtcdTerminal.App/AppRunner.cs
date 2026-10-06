@@ -12,7 +12,7 @@ namespace EtcdTerminal.App;
 /// once, and every iteration of the loop gets its own scope. A failure is
 /// reported on the canvas and the loop continues.
 /// </summary>
-public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas, ILocalization _localization, IKeyReader _keys, IDIContainerProvider _container)
+public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas, ILocalization _localization, IKeyReader _keys)
 {
 	private int _stopped;
 
@@ -24,7 +24,6 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 			return;
 
 		_terminal.Stop();
-		_container.Dispose();
 	}
 
 	public async Task RunAsync()
@@ -33,7 +32,7 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 		{
 			try
 			{
-				using var scope = _container.BeginLifetimeScope();
+				using var scope = DIContainer.Current.BeginLifetimeScope();
 
 				var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
 

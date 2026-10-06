@@ -11,11 +11,22 @@ var runner = DIContainer.Current.Resolve<AppRunner>();
 
 runner.Start();
 
+var shutdown = 0;
+
+void Shutdown()
+{
+	if (Interlocked.Exchange(ref shutdown, 1) is not 0)
+		return;
+
+	runner.Stop();
+	DIContainer.Current.Dispose();
+}
+
 DIContainer.Current
 	.Resolve<ITerminalSession>()
 	.OnInterrupt(() =>
 	{
-		runner.Stop();
+		Shutdown();
 		Environment.Exit(0);
 	});
 
@@ -25,5 +36,5 @@ try
 }
 finally
 {
-	runner.Stop();
+	Shutdown();
 }

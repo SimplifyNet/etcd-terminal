@@ -11,6 +11,5 @@ public static class ApplicationRegistrations
 		.Register<IAppInfo, AppInfo>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterApplication(this IDIRegistrator registrator) => registrator
-		.Register(c => DIContainer.Current, LifetimeType.Singleton)
 		.Register<AppRunner>(LifetimeType.Singleton);
 }
