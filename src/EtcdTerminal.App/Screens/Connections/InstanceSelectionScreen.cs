@@ -48,27 +48,35 @@ public sealed class InstanceSelectionScreen(
 			}
 			else
 			{
-				var selected = choice.Instance!;
+				var connected = await ConnectAsync(choice.Instance!);
 
-				bool connected;
-
-				try
-				{
-					connected = await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct));
-				}
-				catch (Exception ex)
-				{
-					_message.ShowError(string.Format(_localization.FailedToConnect, ex.Message));
-
-					continue;
-				}
-
-				if (connected)
-					return selected;
-
-				_message.ShowWarning(_localization.OperationCancelled);
+				if (connected is not null)
+					return connected;
 			}
 		}
+	}
+
+	private async Task<EtcdConnectionConfig?> ConnectAsync(EtcdConnectionConfig selected)
+	{
+		bool connected;
+
+		try
+		{
+			connected = await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct));
+		}
+		catch (Exception ex)
+		{
+			_message.ShowError(string.Format(_localization.FailedToConnect, ex.Message));
+
+			return null;
+		}
+
+		if (connected)
+			return selected;
+
+		_message.ShowWarning(_localization.OperationCancelled);
+
+		return null;
 	}
 
 	private void ShowDecryptWarningIfNeeded()

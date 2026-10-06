@@ -27,33 +27,40 @@ public sealed class KeyBrowseControl(
 	{
 		var key = _keys.ReadKey();
 
-		if (ShowActions)
+		return ShowActions
+			? ReadActionCommand(key)
+			: ReadNavigationCommand(key, pageKeys, totalPages);
+	}
+
+	private KeyBrowseCommand ReadActionCommand(ConsoleKeyInfo key)
+	{
+		var canModify = CanModifySelectedKey;
+
+		switch (key.Key)
 		{
-			var canModify = CanModifySelectedKey;
+			case ConsoleKey.Escape:
+				ShowActions = false;
+				SelectedKey = null;
+				break;
+			case ConsoleKey.E when canModify:
+				var editKey = SelectedKey;
 
-			switch (key.Key)
-			{
-				case ConsoleKey.Escape:
-					ShowActions = false;
-					SelectedKey = null;
-					break;
-				case ConsoleKey.E when canModify:
-					var editKey = SelectedKey;
+				ShowActions = false;
+				SelectedKey = null;
+				return new KeyBrowseCommand(KeyBrowseAction.Edit, editKey);
+			case ConsoleKey.D when canModify:
+				var deleteKey = SelectedKey;
 
-					ShowActions = false;
-					SelectedKey = null;
-					return new KeyBrowseCommand(KeyBrowseAction.Edit, editKey);
-				case ConsoleKey.D when canModify:
-					var deleteKey = SelectedKey;
-
-					ShowActions = false;
-					SelectedKey = null;
-					return new KeyBrowseCommand(KeyBrowseAction.Delete, deleteKey);
-			}
-
-			return KeyBrowseCommand.None;
+				ShowActions = false;
+				SelectedKey = null;
+				return new KeyBrowseCommand(KeyBrowseAction.Delete, deleteKey);
 		}
 
+		return KeyBrowseCommand.None;
+	}
+
+	private KeyBrowseCommand ReadNavigationCommand(ConsoleKeyInfo key, IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
+	{
 		switch (key.Key)
 		{
 			case ConsoleKey.UpArrow:

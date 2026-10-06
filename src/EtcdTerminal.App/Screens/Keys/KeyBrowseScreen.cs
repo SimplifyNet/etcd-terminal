@@ -31,35 +31,46 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 		{
 			_screen.Reset();
 
-			var command = _live.Run(Frame(), LiveFrameEnd.Clear, updater =>
-			{
-				while (true)
-				{
-					var (page, totalPages) = CurrentPage();
-					var next = _control.ReadCommand(page, totalPages);
+			var command = RunLiveLoop();
 
-					if (next.Action is KeyBrowseAction.SearchChanged)
-						ApplyFilter();
-
-					if (next.Action is KeyBrowseAction.Edit or KeyBrowseAction.Delete or KeyBrowseAction.Exit)
-						return next;
-
-					updater.Update(Frame());
-				}
-			});
-
-			switch (command.Action)
-			{
-				case KeyBrowseAction.Edit:
-					await EditKeyAsync(command.SelectedKey!);
-					break;
-				case KeyBrowseAction.Delete:
-					await DeleteKeyAsync(command.SelectedKey!);
-					break;
-				case KeyBrowseAction.Exit:
-					return;
-			}
+			if (!await HandleCommandAsync(command))
+				return;
 		}
+	}
+
+	private KeyBrowseCommand RunLiveLoop() =>
+		_live.Run(Frame(), LiveFrameEnd.Clear, updater =>
+		{
+			while (true)
+			{
+				var (page, totalPages) = CurrentPage();
+				var next = _control.ReadCommand(page, totalPages);
+
+				if (next.Action is KeyBrowseAction.SearchChanged)
+					ApplyFilter();
+
+				if (next.Action is KeyBrowseAction.Edit or KeyBrowseAction.Delete or KeyBrowseAction.Exit)
+					return next;
+
+				updater.Update(Frame());
+			}
+		});
+
+	private async Task<bool> HandleCommandAsync(KeyBrowseCommand command)
+	{
+		switch (command.Action)
+		{
+			case KeyBrowseAction.Edit:
+				await EditKeyAsync(command.SelectedKey!);
+				break;
+			case KeyBrowseAction.Delete:
+				await DeleteKeyAsync(command.SelectedKey!);
+				break;
+			case KeyBrowseAction.Exit:
+				return false;
+		}
+
+		return true;
 	}
 
 	private async Task LoadKeysAsync() =>

@@ -51,7 +51,7 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 
 	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = _menu.Show(_localization.SelectInstanceToEdit, instances.Select(i => new Choice<string>(i.Name, i.Name)).ToList())?.Id;
+		var existingName = SelectInstanceName(_localization.SelectInstanceToEdit, instances);
 
 		if (existingName is null)
 			return;
@@ -97,24 +97,10 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		if (username is null)
 			return;
 
-		var password = string.Empty;
+		var password = AskPassword(existing, username, trim);
 
-		if (!string.IsNullOrEmpty(username))
-		{
-			password = existing?.Password ?? string.Empty;
-
-			var passwordPrompt = existing is null
-				? _localization.EnterPassword
-				: _localization.EnterPasswordKeepCurrent;
-
-			var entered = _prompt.Secret(passwordPrompt, trim: trim);
-
-			if (entered is null)
-				return;
-
-			if (existing is null || !string.IsNullOrEmpty(entered))
-				password = entered;
-		}
+		if (password is null)
+			return;
 
 		var config = new EtcdConnectionConfig
 		{
@@ -132,9 +118,35 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		_message.ShowSuccess(successMessage);
 	}
 
+	private string? AskPassword(EtcdConnectionConfig? existing, string username, bool trim)
+	{
+		if (string.IsNullOrEmpty(username))
+			return string.Empty;
+
+		var password = existing?.Password ?? string.Empty;
+
+		var passwordPrompt = existing is null
+			? _localization.EnterPassword
+			: _localization.EnterPasswordKeepCurrent;
+
+		var entered = _prompt.Secret(passwordPrompt, trim: trim);
+
+		if (entered is null)
+			return null;
+
+		if (existing is null || !string.IsNullOrEmpty(entered))
+			password = entered;
+
+		return password;
+	}
+
+	private string? SelectInstanceName(string title, IReadOnlyList<EtcdConnectionConfig> instances) =>
+		_menu.Show(title, instances.Select(i => new Choice<string>(i.Name, i.Name)).ToList())?.Id;
+
 	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var name = _menu.Show(direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown, instances.Select(i => new Choice<string>(i.Name, i.Name)).ToList())?.Id;
+		var title = direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown;
+		var name = SelectInstanceName(title, instances);
 
 		if (name is null)
 			return;
@@ -147,7 +159,7 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 
 	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = _menu.Show(_localization.SelectInstanceToRemove, instances.Select(i => new Choice<string>(i.Name, i.Name)).ToList())?.Id;
+		var nameToRemove = SelectInstanceName(_localization.SelectInstanceToRemove, instances);
 
 		if (nameToRemove is null)
 			return;

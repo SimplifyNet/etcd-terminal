@@ -44,27 +44,21 @@ public sealed class SettingsScreen(Menu _menu, Prompt _prompt, Message _message,
 		if (input is null)
 			return;
 
-		if (int.TryParse(input, out var pageSize) && pageSize is >= MinPageSize and <= MaxPageSize)
+		if (!int.TryParse(input, out var pageSize) || pageSize is not (>= MinPageSize and <= MaxPageSize))
 		{
-			var updated = new AppSettings
-			{
-				PageSize = pageSize,
-				TrimInputValues = _settings.Current.TrimInputValues
-			};
-
-			try
-			{
-				_settings.Save(updated);
-
-				_message.ShowSuccess(_localization.SettingsSaved);
-			}
-			catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-			{
-				_message.ShowError(_localization.FailedSaveSettings);
-			}
-		}
-		else
 			_message.ShowError(_localization.InvalidPageSize);
+
+			return;
+		}
+
+		var updated = new AppSettings
+		{
+			PageSize = pageSize,
+			TrimInputValues = _settings.Current.TrimInputValues
+		};
+
+		if (TrySave(updated))
+			_message.ShowSuccess(_localization.SettingsSaved);
 	}
 
 	private void ToggleTrimInputValues()
@@ -75,13 +69,22 @@ public sealed class SettingsScreen(Menu _menu, Prompt _prompt, Message _message,
 			TrimInputValues = !_settings.Current.TrimInputValues
 		};
 
+		TrySave(updated);
+	}
+
+	private bool TrySave(AppSettings updated)
+	{
 		try
 		{
 			_settings.Save(updated);
+
+			return true;
 		}
 		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{
 			_message.ShowError(_localization.FailedSaveSettings);
+
+			return false;
 		}
 	}
 }

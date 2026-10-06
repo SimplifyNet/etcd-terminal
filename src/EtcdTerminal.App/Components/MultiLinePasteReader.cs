@@ -17,47 +17,49 @@ public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Scr
 			TextBlock.Blank()
 		]);
 
-		var text = _live.Run<string?>(Status(0), LiveFrameEnd.Keep, updater =>
-		{
-			// Previously queued input (a paste or an Escape that cancels) is
-			// consumed below, never discarded here.
-			var buffer = new StringBuilder();
-			var lastKeyAt = Stopwatch.StartNew();
-
-			while (true)
-			{
-				var key = _keys.ReadKey();
-				var elapsed = lastKeyAt.ElapsedMilliseconds;
-
-				lastKeyAt.Restart();
-
-				if (key.Key == ConsoleKey.Escape)
-					return null;
-
-				if (key.Key == ConsoleKey.Enter)
-				{
-					if (buffer.Length > 0 && !IsPastedNewLine(elapsed))
-						break;
-
-					buffer.Append('\n');
-				}
-				else if (key.Key is ConsoleKey.Backspace or ConsoleKey.Delete)
-					buffer.Clear();
-				else if (key.KeyChar == '\t')
-					buffer.Append('\t');
-				else if (!char.IsControl(key.KeyChar))
-					buffer.Append(key.KeyChar);
-
-				if (!_keys.KeyAvailable)
-					updater.Update(Status(CountLines(buffer)));
-			}
-
-			var pasted = buffer.ToString();
-
-			return string.IsNullOrWhiteSpace(pasted) ? null : pasted;
-		});
+		var text = _live.Run<string?>(Status(0), LiveFrameEnd.Keep, ReadPaste);
 
 		return Task.FromResult(text);
+	}
+
+	private string? ReadPaste(ILiveFrameUpdater updater)
+	{
+		// Previously queued input (a paste or an Escape that cancels) is
+		// consumed below, never discarded here.
+		var buffer = new StringBuilder();
+		var lastKeyAt = Stopwatch.StartNew();
+
+		while (true)
+		{
+			var key = _keys.ReadKey();
+			var elapsed = lastKeyAt.ElapsedMilliseconds;
+
+			lastKeyAt.Restart();
+
+			if (key.Key == ConsoleKey.Escape)
+				return null;
+
+			if (key.Key == ConsoleKey.Enter)
+			{
+				if (buffer.Length > 0 && !IsPastedNewLine(elapsed))
+					break;
+
+				buffer.Append('\n');
+			}
+			else if (key.Key is ConsoleKey.Backspace or ConsoleKey.Delete)
+				buffer.Clear();
+			else if (key.KeyChar == '\t')
+				buffer.Append('\t');
+			else if (!char.IsControl(key.KeyChar))
+				buffer.Append(key.KeyChar);
+
+			if (!_keys.KeyAvailable)
+				updater.Update(Status(CountLines(buffer)));
+		}
+
+		var pasted = buffer.ToString();
+
+		return string.IsNullOrWhiteSpace(pasted) ? null : pasted;
 	}
 
 	internal static int CountLines(string text) => CountLines(new StringBuilder(text));

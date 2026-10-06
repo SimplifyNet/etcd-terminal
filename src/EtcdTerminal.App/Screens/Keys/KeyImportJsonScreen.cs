@@ -52,6 +52,23 @@ public sealed class KeyImportJsonScreen(
 		var pastedStatus = TextBlock.Line(
 			new StyledText(string.Format(_localization.PastedLines, MultiLinePasteReader.CountLines(json)), TextRole.Accent));
 
+		var entries = ParseEntries(json, prefix, separator);
+
+		if (entries is null)
+			return;
+
+		if (!ConfirmImport(entries, pastedStatus))
+		{
+			_message.ShowWarning(_localization.ImportCancelled);
+
+			return;
+		}
+
+		await ImportAsync(entries);
+	}
+
+	private IReadOnlyList<KeyValuePair<string, string>>? ParseEntries(string json, string prefix, string separator)
+	{
 		IReadOnlyList<KeyValuePair<string, string>> entries;
 
 		try
@@ -62,29 +79,27 @@ public sealed class KeyImportJsonScreen(
 		{
 			_message.ShowWarning(_localization.NoKeysInJson);
 
-			return;
+			return null;
 		}
 		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
 			_message.ShowError(string.Format(_localization.InvalidJson, ex.Message));
 
-			return;
+			return null;
 		}
 
 		if (entries.Count == 0)
 		{
 			_message.ShowWarning(_localization.NoKeysInJson);
 
-			return;
+			return null;
 		}
 
-		if (!ConfirmImport(entries, pastedStatus))
-		{
-			_message.ShowWarning(_localization.ImportCancelled);
+		return entries;
+	}
 
-			return;
-		}
-
+	private async Task ImportAsync(IReadOnlyList<KeyValuePair<string, string>> entries)
+	{
 		KeyImportResult confirmed = default;
 
 		bool completed;
@@ -110,6 +125,11 @@ public sealed class KeyImportJsonScreen(
 			return;
 		}
 
+		ShowImportSummary(confirmed);
+	}
+
+	private void ShowImportSummary(KeyImportResult confirmed)
+	{
 		var summary = string.Format(_localization.ImportResult, confirmed.Created + confirmed.Overwritten, confirmed.Overwritten, confirmed.Failed);
 
 		if (confirmed.Failed > 0)
@@ -147,6 +167,17 @@ public sealed class KeyImportJsonScreen(
 
 	private bool ConfirmImport(IReadOnlyList<KeyValuePair<string, string>> entries, Block pastedStatus)
 	{
+		IReadOnlyList<Choice<bool>> items =
+		[
+			new(true, _localization.Yes),
+			new(false, _localization.No)
+		];
+
+		return _menu.Show(null, items, BuildPreview(entries, pastedStatus))?.Id ?? false;
+	}
+
+	private List<Block> BuildPreview(IReadOnlyList<KeyValuePair<string, string>> entries, Block pastedStatus)
+	{
 		List<Block> preview =
 		[
 			pastedStatus,
@@ -170,12 +201,6 @@ public sealed class KeyImportJsonScreen(
 		preview.Add(TextBlock.Blank());
 		preview.Add(TextBlock.Line(new StyledText(_localization.ConfirmImport, TextRole.Primary)));
 
-		IReadOnlyList<Choice<bool>> items =
-		[
-			new(true, _localization.Yes),
-			new(false, _localization.No)
-		];
-
-		return _menu.Show(null, items, preview)?.Id ?? false;
+		return preview;
 	}
 }
