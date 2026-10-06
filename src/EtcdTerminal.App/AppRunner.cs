@@ -32,21 +32,8 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 		{
 			try
 			{
-				using var scope = DIContainer.Current.BeginLifetimeScope();
-
-				var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
-
-				settingsStore.Reload();
-
-				var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
-				var config = await instanceScreen.ShowAsync();
-
-				if (config is null)
+				if (!await RunIterationAsync())
 					return;
-
-				var mainScreen = scope.Resolver.Resolve<MainScreen>();
-
-				await mainScreen.ShowAsync();
 			}
 			catch (Exception ex)
 			{
@@ -56,5 +43,31 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 				_keys.ReadKey();
 			}
 		}
+	}
+
+	private async Task<bool> RunIterationAsync()
+	{
+		using var scope = DIContainer.Current.BeginLifetimeScope();
+
+		var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
+
+		settingsStore.Reload();
+
+		var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
+		var config = await instanceScreen.ShowAsync();
+
+		if (config is null)
+			return false;
+
+		await ShowMainScreenAsync(scope);
+
+		return true;
+	}
+
+	private static async Task ShowMainScreenAsync(ILifetimeScope scope)
+	{
+		var mainScreen = scope.Resolver.Resolve<MainScreen>();
+
+		await mainScreen.ShowAsync();
 	}
 }
