@@ -31,9 +31,6 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 
 	public void UpdateFooter(StatusBarModel footer)
 	{
-		if (!_console.Profile.Capabilities.Ansi)
-			return;
-
 		var renderable = _footer.Build(footer);
 
 		_console.WriteAnsi(writer => writer.SaveCursor(false).CursorPosition(_console.Profile.Height, 1));

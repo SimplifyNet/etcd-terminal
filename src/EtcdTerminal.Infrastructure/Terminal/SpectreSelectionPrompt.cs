@@ -10,6 +10,9 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 
 	public Choice<TId>? Select<TId>(ChoiceList<TId> list)
 	{
+		// Documented gap in Spectre.Console 0.57.2: a choice cannot be disabled.
+		// In Leaf mode the list prompt skips only group nodes, and a group indents
+		// every child row, so screens put a blank separator inside a label instead.
 		var cancel = new Choice<TId>(default!, string.Empty);
 
 		var prompt = new SelectionPrompt<Choice<TId>>()

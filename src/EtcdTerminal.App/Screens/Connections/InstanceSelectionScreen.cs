@@ -46,9 +46,9 @@ public sealed class InstanceSelectionScreen(
 						return null;
 				}
 			}
-			else
+			else if (choice.Instance is not null)
 			{
-				var connected = await ConnectAsync(choice.Instance!);
+				var connected = await ConnectAsync(choice.Instance);
 
 				if (connected is not null)
 					return connected;
@@ -91,9 +91,15 @@ public sealed class InstanceSelectionScreen(
 
 	private InstanceMenuChoice? PromptForChoice(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
+		// The selection prompt cannot render a non-selectable row without
+		// indenting everything offered after it, so the separator is the trailing
+		// newline of the last instance row: the same blank line and indentation,
+		// and the cursor never lands on it.
 		List<Choice<InstanceMenuChoice>> items =
 		[
-			.. instances.Select(i => new Choice<InstanceMenuChoice>(new(null, i), $"{i.Name}  ({i.ConnectionString})")),
+			.. instances.Select((instance, index) => new Choice<InstanceMenuChoice>(
+				new(null, instance),
+				$"{instance.Name}  ({instance.ConnectionString}){(index == instances.Count - 1 ? "\n" : string.Empty)}")),
 			new(new(InstanceFixedAction.ManageConnections, null), _localization.ManageConnections),
 			new(new(InstanceFixedAction.Settings, null), _localization.Settings),
 			new(new(InstanceFixedAction.Exit, null), _localization.Exit)

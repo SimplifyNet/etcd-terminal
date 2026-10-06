@@ -130,6 +130,32 @@ public sealed class SessionFlowTests
 		Assert.That(footer.Version.Text, Is.EqualTo("0.0"));
 	}
 
+	[Test]
+	public async Task InstanceMenu_SeparatesInstancesFromActionsWithABlankLine()
+	{
+		var harness = new Harness(
+			[Config(), new EtcdConnectionConfig { Name = "staging", ConnectionString = "http://10.0.0.5:2379" }],
+			(_, _) => Task.FromResult(UserCapabilities.Unrestricted),
+			[]);
+
+		harness.Answers.Cancel();
+
+		await harness.Selection.ShowAsync();
+
+		var items = harness.Answers.Prompt<InstanceMenuChoice>(0).Items;
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(items, Has.Count.EqualTo(5));
+			Assert.That(items[0].Label, Is.EqualTo("prod  (http://localhost:2379)"));
+			Assert.That(items[1].Label, Is.EqualTo("staging  (http://10.0.0.5:2379)\n"));
+			Assert.That(items[2].Label, Is.EqualTo(harness.Localization.ManageConnections));
+			Assert.That(items[3].Label, Is.EqualTo(harness.Localization.Settings));
+			Assert.That(items[4].Label, Is.EqualTo(harness.Localization.Exit));
+			Assert.That(items.Any(item => string.IsNullOrEmpty(item.Label)), Is.False);
+		});
+	}
+
 	private static EtcdConnectionConfig Config() => new()
 	{
 		Name = "prod",
