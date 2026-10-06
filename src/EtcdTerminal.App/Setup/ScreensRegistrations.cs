@@ -1,0 +1,38 @@
+using EtcdTerminal.App.Screens.Connections;
+using EtcdTerminal.App.Screens.Keys;
+using EtcdTerminal.App.Screens.MainMenu;
+using EtcdTerminal.App.Screens.Permissions;
+using EtcdTerminal.App.Screens.Roles;
+using EtcdTerminal.App.Screens.Settings;
+using EtcdTerminal.App.Screens.Users;
+using Simplify.DI;
+
+namespace EtcdTerminal.App.Setup;
+
+public static class ScreensRegistrations
+{
+	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
+		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
+		.Register<ManageConnectionsScreen>(LifetimeType.Transient)
+		.Register<MainScreen>(LifetimeType.Transient)
+		.Register<KeyBrowseScreen>(LifetimeType.Transient)
+		.Register<KeyCreateScreen>(LifetimeType.Transient)
+		.Register<KeyImportJsonScreen>(LifetimeType.Transient)
+		.Register<UserManagementScreen>(LifetimeType.Transient)
+		.Register<RoleManagementScreen>(LifetimeType.Transient)
+		.Register<PermissionViewScreen>(LifetimeType.Transient)
+		.Register<SettingsScreen>(LifetimeType.Transient)
+		.Register<PermissionTypeSelector>(LifetimeType.Transient)
+		.Register<PermissionScopeSelector>(LifetimeType.Transient)
+		.Register<KeyBrowseControl>(LifetimeType.Transient)
+		.Register<KeyBrowseLayout>(LifetimeType.Transient)
+		.Register<IEnumerable<IMainMenuEntry>>(c =>
+		[
+			c.Resolve<KeyBrowseScreen>(),
+			c.Resolve<KeyCreateScreen>(),
+			c.Resolve<KeyImportJsonScreen>(),
+			c.Resolve<UserManagementScreen>(),
+			c.Resolve<RoleManagementScreen>(),
+			c.Resolve<PermissionViewScreen>()
+		], LifetimeType.Transient);
+}
