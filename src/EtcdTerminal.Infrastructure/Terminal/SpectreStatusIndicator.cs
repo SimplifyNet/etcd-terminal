@@ -13,11 +13,22 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public sealed class SpectreStatusIndicator(IAnsiConsole _console, RoleStyleMapper _styles) : IStatusIndicator
 {
-	public Task RunAsync(StyledText message, Func<Task> action) =>
-		new Status(_console)
+	public async Task RunAsync(StyledText message, Func<Task> action)
+	{
+		try
 		{
-			Spinner = new IndentedSpinner(Spinner.Known.Dots),
-			SpinnerStyle = _styles.Resolve(message.Role)
+			await new Status(_console)
+			{
+				Spinner = new IndentedSpinner(Spinner.Known.Dots),
+				SpinnerStyle = _styles.Resolve(message.Role)
+			}
+			.StartAsync(Markup.Escape(message.Text), _ => action());
 		}
-		.StartAsync(Markup.Escape(message.Text), _ => action());
+		finally
+		{
+			// The status renderer reveals the cursor when it clears its line;
+			// the session keeps it hidden so nothing blinks after the message.
+			_console.Cursor.Show(false);
+		}
+	}
 }

@@ -26,35 +26,44 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 		var pageSize = Math.Max(3, _console.Profile.Height - ReservedRows);
 		var index = 0;
 
-		return _console.Live(Render(list, index, pageSize))
-			.AutoClear(true)
-			.Overflow(VerticalOverflow.Crop)
-			.Start(ctx =>
-			{
-				ctx.Refresh();
-
-				while (true)
+		try
+		{
+			return _console.Live(Render(list, index, pageSize))
+				.AutoClear(true)
+				.Overflow(VerticalOverflow.Crop)
+				.Start(ctx =>
 				{
-					var key = _console.Input.ReadKey(true);
+					ctx.Refresh();
 
-					if (key is null)
-						continue;
-
-					if (key.Value.Key is ConsoleKey.Escape)
-						return null;
-
-					if (key.Value.Key is ConsoleKey.Enter or ConsoleKey.Packet or ConsoleKey.Spacebar)
-						return list.Items[index];
-
-					var next = Step(key.Value.Key, index, list.Items.Count, pageSize);
-
-					if (next != index)
+					while (true)
 					{
-						index = next;
-						ctx.UpdateTarget(Render(list, index, pageSize));
+						var key = _console.Input.ReadKey(true);
+
+						if (key is null)
+							continue;
+
+						if (key.Value.Key is ConsoleKey.Escape)
+							return null;
+
+						if (key.Value.Key is ConsoleKey.Enter or ConsoleKey.Packet or ConsoleKey.Spacebar)
+							return list.Items[index];
+
+						var next = Step(key.Value.Key, index, list.Items.Count, pageSize);
+
+						if (next != index)
+						{
+							index = next;
+							ctx.UpdateTarget(Render(list, index, pageSize));
+						}
 					}
-				}
-			});
+				});
+		}
+		finally
+		{
+			// The live renderer reveals the cursor when it closes its region;
+			// the session keeps it hidden so nothing blinks after the menu.
+			_console.Cursor.Show(false);
+		}
 	}
 
 	/// <summary>
