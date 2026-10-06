@@ -53,6 +53,28 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_StartsEveryLineOnTheFourthColumn()
+	{
+		var console = new TestConsole();
+
+		Render(console, TextBlock.Line(new StyledText("value", TextRole.Primary)));
+
+		Assert.That(console.Lines[0], Does.StartWith(ContentIndent.Text));
+	}
+
+	[Test]
+	public void TextInput_MarginsThePromptOnTheFourthColumn()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		new SpectreTextInput(new EscapableConsole(console)).ReadLine("Value:");
+
+		Assert.That(console.Output, Does.Contain(ContentIndent.Text + "Value:"));
+	}
+
+	[Test]
 	public void BlockRenderer_TableBlock_KeepsColumnContentLiteral()
 	{
 		var console = new TestConsole();

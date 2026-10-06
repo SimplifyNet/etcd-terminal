@@ -16,7 +16,7 @@ public sealed class SpectreStatusIndicator(IAnsiConsole _console, RoleStyleMappe
 	public Task RunAsync(StyledText message, Func<Task> action) =>
 		new Status(_console)
 		{
-			Spinner = Spinner.Known.Dots,
+			Spinner = new IndentedSpinner(Spinner.Known.Dots),
 			SpinnerStyle = _styles.Resolve(message.Role)
 		}
 		.StartAsync(Markup.Escape(message.Text), _ => action());

@@ -51,6 +51,37 @@ public sealed class SpectreSelectionPromptTests
 		});
 	}
 
+	[Test]
+	public void Select_PointsAtTheCurrentRowAndMarginsEveryRow()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		Prompt(console).Select(new ChoiceList<int>("pick", [new(1, "first"), new(2, "second")]));
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(console.Output, Does.Contain("  ❯ first"));
+			Assert.That(console.Output, Does.Contain("    second"));
+			Assert.That(console.Output, Does.Contain("    pick"));
+		});
+	}
+
+	[Test]
+	public void Select_ScrollHintAppearsWhenTheWindowIsSmallerThanTheList()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		var items = Enumerable.Range(0, 40).Select(id => new Choice<int>(id, $"item {id}")).ToArray();
+
+		Prompt(console).Select(new ChoiceList<int>(null, items));
+
+		Assert.That(console.Output, Does.Contain(ContentIndent.Text + new EnglishLocalization().MoreChoices));
+	}
+
 	private static SpectreSelectionPrompt Prompt(TestConsole console) =>
 		new(console, new RoleStyleMapper(new ReddyTheme()), new EnglishLocalization());
 }

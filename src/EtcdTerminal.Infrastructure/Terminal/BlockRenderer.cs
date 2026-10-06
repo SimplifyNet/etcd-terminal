@@ -18,7 +18,14 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	private const int TitleSpacingAbove = 1;
 	private const int TitleSpacingBelow = 1;
 
+	/// The banner is centered across the whole width and is not content, so
+	/// it keeps no left margin; everything else starts on the fourth column.
 	public IRenderable Render(Block block) =>
+		block is BannerBlock
+			? Content(block)
+			: new Padder(Content(block), new Padding(ContentIndent.Columns, 0, 0, 0));
+
+	private IRenderable Content(Block block) =>
 		block switch
 		{
 			TextBlock text => new Rows(text.Lines.Select(_styles.Build)),
