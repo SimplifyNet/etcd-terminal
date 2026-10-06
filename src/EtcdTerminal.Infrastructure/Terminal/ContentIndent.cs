@@ -12,5 +12,9 @@ public static class ContentIndent
 
 	public const string Text = "    ";
 
+	// A marker (the selection pointer, a spinner glyph) hangs on the second
+	// column so the text after it starts on the fourth, like any other row.
+	public const string Marker = "  ";
+
 	public const string SelectionPointer = "  ❯ ";
 }

@@ -19,7 +19,7 @@ public sealed class SpectreStatusIndicator(IAnsiConsole _console, RoleStyleMappe
 		{
 			await new Status(_console)
 			{
-				Spinner = new IndentedSpinner(Spinner.Known.Dots),
+				Spinner = new CustomSpinner(),
 				SpinnerStyle = _styles.Resolve(message.Role)
 			}
 			.StartAsync(Markup.Escape(message.Text), _ => action());
