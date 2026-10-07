@@ -86,6 +86,7 @@ public sealed class LayoutModelTests
 		var model = (TableBlock)Layout().KeyList(keys, selectedIndex: 1);
 
 		Assert.That(model.Header, Is.Empty);
+		Assert.That(model.IsFramed, Is.False);
 		Assert.That(model.Rows, Has.Count.EqualTo(2));
 		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary }));
 		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent }));

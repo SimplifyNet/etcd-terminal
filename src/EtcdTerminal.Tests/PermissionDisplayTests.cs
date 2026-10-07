@@ -38,6 +38,7 @@ public sealed class PermissionDisplayTests
 		Assert.That(body[0], Is.InstanceOf<TitleBlock>());
 		Assert.That(((TitleBlock)body[0]).Title.Text, Is.EqualTo("Role: dev"));
 		Assert.That(body[1], Is.InstanceOf<TableBlock>());
+		Assert.That(((TableBlock)body[1]).IsFramed, Is.True);
 
 		IReadOnlyList<IReadOnlyList<string>> expected =
 		[
@@ -86,6 +87,7 @@ public sealed class PermissionDisplayTests
 		Assert.That(body[0], Is.InstanceOf<TitleBlock>());
 		Assert.That(((TitleBlock)body[0]).Title.Text, Is.EqualTo("User: bob"));
 		Assert.That(body[1], Is.InstanceOf<TableBlock>());
+		Assert.That(((TableBlock)body[1]).IsFramed, Is.True);
 
 		IReadOnlyList<IReadOnlyList<string>> expected =
 		[
@@ -113,6 +115,7 @@ public sealed class PermissionDisplayTests
 		var body = new UserListLayout(localization).Body([new EtcdUser { Username = "alice", Roles = ["dev", "ops"] }]);
 
 		Assert.That(body.Single(), Is.InstanceOf<TableBlock>());
+		Assert.That(((TableBlock)body.Single()).IsFramed, Is.True);
 
 		IReadOnlyList<IReadOnlyList<string>> expected =
 		[

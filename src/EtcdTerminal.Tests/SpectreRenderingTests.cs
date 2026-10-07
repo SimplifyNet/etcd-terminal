@@ -106,6 +106,25 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_TableBlock_FramesOnlyTablesMarkedFramed()
+	{
+		var framed = new TestConsole();
+
+		Render(framed, new TableBlock(
+		[new StyledText("scope", TextRole.Muted)],
+		[[new StyledText("/a", TextRole.Primary)]]) { IsFramed = true });
+
+		var plain = new TestConsole();
+
+		Render(plain, new TableBlock(
+		[new StyledText("scope", TextRole.Muted)],
+		[[new StyledText("/a", TextRole.Primary)]]));
+
+		Assert.That(framed.Output, Does.Contain("┌"));
+		Assert.That(plain.Output, Does.Not.Contain("┌"));
+	}
+
+	[Test]
 	public void StatusBarRenderer_WritesSessionDetailsAndVersion()
 	{
 		var console = new TestConsole();

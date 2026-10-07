@@ -30,7 +30,7 @@ public sealed class UserListLayout(ILocalization _localization)
 			]);
 		}
 
-		return [new TableBlock(ColumnHeaders(), rows)];
+		return [new TableBlock(ColumnHeaders(), rows) { IsFramed = true }];
 	}
 
 	private IReadOnlyList<StyledText> ColumnHeaders() =>

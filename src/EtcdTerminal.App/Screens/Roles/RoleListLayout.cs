@@ -44,6 +44,6 @@ public sealed class RoleListLayout(ILocalization _localization)
 			foreach (var permission in role.Permissions)
 				rows.Add([new StyledText(PermissionDisplay.For(permission, _localization), TextRole.Primary)]);
 
-		return new TableBlock([new StyledText(_localization.Permissions, TextRole.Muted)], rows);
+		return new TableBlock([new StyledText(_localization.Permissions, TextRole.Muted)], rows) { IsFramed = true };
 	}
 }

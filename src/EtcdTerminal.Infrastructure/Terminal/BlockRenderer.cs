@@ -13,8 +13,8 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 {
 	/// A section title is separated from what surrounds it by a blank line on
-	/// each side. Borders are gone, so those lines are what keep one section
-	/// from running into the next.
+	/// each side. A title has no frame of its own, so those lines are what keep
+	/// one section from running into the next.
 	private const int TitleSpacingAbove = 1;
 	private const int TitleSpacingBelow = 1;
 
@@ -49,11 +49,14 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// <summary>
 	/// Lets Spectre size the columns and crop every cell to the available
 	/// width. The application never measures the text it put in the model.
+	/// A framed table keeps Spectre's default border at its natural content
+	/// width — the style the old terminal's WriteTable drew; every other
+	/// table stays borderless and fills the region.
 	/// </summary>
 	private IRenderable RenderTable(TableBlock block)
 	{
 		var columns = Math.Max(block.Header.Count, ColumnCount(block));
-		var table = new Table().NoBorder().Expand();
+		var table = block.IsFramed ? new Table() : new Table().NoBorder().Expand();
 
 		table.ShowHeaders = block.Header.Count > 0;
 

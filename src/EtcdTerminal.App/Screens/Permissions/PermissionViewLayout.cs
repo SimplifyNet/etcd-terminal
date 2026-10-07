@@ -48,7 +48,7 @@ public sealed class PermissionViewLayout(ILocalization _localization)
 				new StyledText("-", TextRole.Muted)
 			]);
 
-			return new TableBlock(ColumnHeaders(), rows);
+			return new TableBlock(ColumnHeaders(), rows) { IsFramed = true };
 		}
 
 		foreach (var roleName in user.Roles)
@@ -65,7 +65,7 @@ public sealed class PermissionViewLayout(ILocalization _localization)
 			]);
 		}
 
-		return new TableBlock(ColumnHeaders(), rows);
+		return new TableBlock(ColumnHeaders(), rows) { IsFramed = true };
 	}
 
 	private IReadOnlyList<StyledText> ColumnHeaders() =>
