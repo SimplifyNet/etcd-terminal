@@ -14,9 +14,13 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 {
 	private const int FooterRows = 1;
 
-	// The four sequences Spectre cannot emit.
+	// The six sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
+	// makes the terminal report the mouse wheel as arrow keys inside the
+	// alternate buffer, which is how a page gets scrolled by the wheel.
 	private const string ResetScrollRegionSequence = "\u001b[r";
 	private const string ResetBackgroundSequence = "\u001b]111\u0007";
+	private const string AlternateScrollOnSequence = "\u001b[?1007h";
+	private const string AlternateScrollOffSequence = "\u001b[?1007l";
 
 	public void Start()
 	{
@@ -30,6 +34,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 			if (_console.Profile.Capabilities.AlternateBuffer)
 				writer.EnterAltScreen();
 
+			writer.Write(AlternateScrollOnSequence);
 			writer.Write(BackgroundSequence(_theme.WindowBackground));
 			writer.HideCursor();
 			writer.Write(ScrollRegionSequence(_console.Profile.Height - FooterRows));
@@ -46,6 +51,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 		_console.WriteAnsi(writer =>
 		{
 			writer.Write(ResetScrollRegionSequence);
+			writer.Write(AlternateScrollOffSequence);
 			writer.Write(ResetBackgroundSequence);
 			writer.EraseInDisplay(2);
 			writer.CursorHome();

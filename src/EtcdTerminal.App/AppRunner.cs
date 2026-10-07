@@ -40,7 +40,10 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 				_canvas.WriteException(ex);
 				_canvas.Write(TextBlock.Line(new StyledText(_localization.PressAnyKeyRestart, TextRole.Muted)));
 
-				_keys.ReadKey();
+				while (ScrollKeys.Step(_keys.ReadKey()) is not null)
+				{
+					// A wheel that arrives as arrow keys must not restart the app.
+				}
 			}
 		}
 	}

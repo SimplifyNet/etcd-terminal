@@ -4,22 +4,30 @@ using EtcdTerminal.Presentation;
 namespace EtcdTerminal.App.Components;
 
 /// <summary>
-/// Presents content as one complete screen: the banner, the body the caller
-/// composed, the hint that a key continues, and the session footer. The screen
-/// stays on while waiting, so the hint sits above the footer and a single
-/// component owns every row of the viewport.
+/// Presents content as one complete screen: the banner and the body the
+/// caller composed are pinned, the hint that a key continues sits above the
+/// footer, and the body scrolls between them when it does not fit. A scroll
+/// key — which is what a mouse wheel becomes in alternate scroll mode — moves
+/// the body; only any other key continues the screen.
 /// </summary>
 public sealed class PressAnyKeyPrompt(Screen _screen, IKeyReader _keys, ILocalization _localization)
 {
 	public void Show(IReadOnlyList<Block> body)
 	{
-		_screen.Open(
+		_screen.OpenPage(body,
 		[
-			.. body,
 			TextBlock.Blank(),
 			TextBlock.Line(new StyledText(_localization.PressAnyKey, TextRole.Muted))
 		]);
 
-		_keys.ReadKey();
+		while (true)
+		{
+			var step = ScrollKeys.Step(_keys.ReadKey());
+
+			if (step is null)
+				return;
+
+			_screen.Scroll(step.Value);
+		}
 	}
 }

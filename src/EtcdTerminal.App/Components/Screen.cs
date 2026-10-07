@@ -18,7 +18,15 @@ public sealed class Screen(IScreenCanvas _canvas, Header _header, StatusBar _sta
 			_canvas.Write(body);
 	}
 
+	/// Opens the screen as a page: the banner and the pinned blocks stay
+	/// fixed and the body is clipped to the rows between them, reachable by
+	/// scrolling.
+	public void OpenPage(IReadOnlyList<Block> body, IReadOnlyList<Block> pinned) =>
+		_canvas.OpenPage(_statusBar.BuildModel(), [_header.BuildModel()], body, pinned);
+
 	public void Reset() => _canvas.NewScreen(_statusBar.BuildModel());
+
+	public bool Scroll(ScrollStep step) => _canvas.Scroll(step);
 
 	public void Write(Block block) => _canvas.Write(block);
 

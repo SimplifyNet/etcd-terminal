@@ -4,8 +4,8 @@ namespace EtcdTerminal.Tests.Fakes;
 
 /// <summary>
 /// Records what a screen asked the canvas to do instead of drawing it. Lets a
-/// test assert the footer model and the blocks a component streamed without
-/// depending on terminal geometry.
+/// test assert the footer model, the blocks a component opened and the scroll
+/// steps it forwarded without depending on terminal geometry.
 /// </summary>
 public sealed class FakeScreenCanvas : IScreenCanvas
 {
@@ -13,12 +13,30 @@ public sealed class FakeScreenCanvas : IScreenCanvas
 
 	public List<Block> Blocks { get; } = [];
 
+	public List<ScrollStep> Scrolls { get; } = [];
+
+	public bool ScrollResult { get; set; }
+
 	public int NewScreenCount { get; private set; }
 
 	public void NewScreen(StatusBarModel footer)
 	{
 		Footers.Add(footer);
 		NewScreenCount++;
+	}
+
+	public void OpenPage(StatusBarModel footer, IReadOnlyList<Block> header, IReadOnlyList<Block> body, IReadOnlyList<Block> pinned)
+	{
+		Footers.Add(footer);
+		Write(header);
+		Write(body);
+		Write(pinned);
+	}
+
+	public bool Scroll(ScrollStep step)
+	{
+		Scrolls.Add(step);
+		return ScrollResult;
 	}
 
 	public void Write(Block block) => Blocks.Add(block);
