@@ -6,6 +6,7 @@
 
 		<Version>0.9</Version>
 
+		<ApplicationIcon>..\..\images\icon.ico</ApplicationIcon>
 		<AssemblyName>etcd-terminal</AssemblyName>
 		<RootNamespace>EtcdTerminal.App</RootNamespace>
 		<OutputType>Exe</OutputType>
