@@ -12,11 +12,10 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 {
-	/// A section title is separated from what surrounds it by a blank line on
-	/// each side. A title has no frame of its own, so those lines are what keep
-	/// one section from running into the next.
+	/// A section title hugs the table it introduces; a title has no frame of
+	/// its own, so the single blank line above it is what separates it from
+	/// the previous section.
 	private const int TitleSpacingAbove = 1;
-	private const int TitleSpacingBelow = 1;
 
 	/// The banner is centered across the whole width and is not content, so
 	/// it keeps no left margin; everything else starts on the fourth column.
@@ -29,7 +28,7 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		block switch
 		{
 			TextBlock text => new Rows(text.Lines.Select(_styles.Build)),
-			TitleBlock title => new Padder(_styles.Build([title.Title]), new Padding(0, TitleSpacingAbove, 0, TitleSpacingBelow)),
+			TitleBlock title => new Padder(_styles.Build([title.Title]), new Padding(0, TitleSpacingAbove, 0, 0)),
 			BannerBlock banner => Banner(banner),
 			TableBlock table => RenderTable(table),
 			_ => new Rows()
