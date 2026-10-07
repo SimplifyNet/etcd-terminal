@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10] - Unreleased
+
+### Added
+
+- Content scrolling
+- Interface values word wrap
+
+### Changed
+
+- Interface elements location according to windows size
+- Elements (tables, titles) alignment
+
+### Fixed
+
+- Interface refresh in keys windows on all actions
+
 ## [0.9] - 2026-09-27
 
 ### Changed
