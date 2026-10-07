@@ -32,23 +32,23 @@
 
 ### Instance selection
 
-![Instance selection](screenshots/instance-selection.png)
+![Instance selection](images/screenshots/instance-selection.png)
 
 ### Main menu
 
-![Main menu](screenshots/main-menu.png)
+![Main menu](images/screenshots/main-menu.png)
 
 ### Key browse
 
-![Key browse](screenshots/key-browse.png)
+![Key browse](images/screenshots/key-browse.png)
 
 ### Users
 
-![Users](screenshots/users.png)
+![Users](images/screenshots/users.png)
 
 ### Roles
 
-![Roles](screenshots/roles.png)
+![Roles](images/screenshots/roles.png)
 
 ## Configuration
 
