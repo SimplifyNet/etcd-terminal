@@ -6,14 +6,13 @@ using Spectre.Console.Rendering;
 namespace EtcdTerminal.Infrastructure.Terminal;
 
 /// <summary>
-/// Builds the footer renderable: keyboard hints on the left, session details on
-/// the right, on a row of the status bar background with one row of the same
-/// background above and below it. The screen host reserves three rows for it.
-/// The text stays on one row: a second text line would land on the last
-/// terminal row, where a line break scrolls the whole screen. Which fields
-/// survive a narrow terminal is decided by asking Spectre to render each
-/// candidate and count its lines, in the priority order the footer had before
-/// the migration.
+/// Builds the footer renderable: keyboard hints on the left, session details
+/// on the right, painted as a three-row band (see <see cref="BackgroundBand"/>)
+/// with the band background edge to edge. The text stays on one row: a second
+/// text line would land on the last terminal row, where a line break scrolls
+/// the whole screen. Which fields survive a narrow terminal is decided by
+/// asking Spectre to render each candidate and count its lines, in the
+/// priority order the footer had before the migration.
 /// </summary>
 public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme)
 {
@@ -30,9 +29,9 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 
 	public IRenderable Build(StatusBarModel model)
 	{
-		var background = new Color(_theme.StatusBarBackground.R, _theme.StatusBarBackground.G, _theme.StatusBarBackground.B);
+		var background = new Color(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
 
-		return new Padded(Bar(Fit(model)), background);
+		return new BackgroundBand(Bar(Fit(model)), background, _trailingBreak: false);
 	}
 
 	/// <summary>
@@ -66,8 +65,8 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 	{
 		var grid = new Grid { Expand = true };
 
-		grid.AddColumn(new GridColumn { NoWrap = true, Padding = new Padding(2, 0, 0, 0) });
-		grid.AddColumn(new GridColumn { NoWrap = true, Alignment = Justify.Right, Padding = new Padding(0, 0, 2, 0) });
+		grid.AddColumn(new GridColumn { NoWrap = true, Padding = new Padding(ContentIndent.BandColumns, 0, 0, 0) });
+		grid.AddColumn(new GridColumn { NoWrap = true, Alignment = Justify.Right, Padding = new Padding(0, 0, ContentIndent.BandColumns, 0) });
 
 		var left = _styles.Build(model.Hints);
 		var right = _styles.Build(Right(model));
@@ -157,47 +156,4 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 
 	private static StyledText Spaced(StyledText span, TextRole role) =>
 		new(" " + span.Text, role);
-
-	/// <summary>
-	/// The footer's three rows: a row of the status bar background, the bar on
-	/// the next one and the same background below it, each spanning the full
-	/// width so the color runs edge to edge. The bar's trailing line break is
-	/// dropped and the last row ends without one: written on the last row of
-	/// the terminal a break scrolls the whole screen by one. Spectre's Padder
-	/// cannot do this job — Segment.Padding builds an unstyled space, so its
-	/// fill carries no background, and it emits a line break after the bottom
-	/// padding, so it cannot close without scrolling either.
-	/// </summary>
-	private sealed class Padded(IRenderable _target, Color _background) : Renderable
-	{
-		protected override Measurement Measure(RenderOptions options, int maxWidth) =>
-			_target.Measure(options, maxWidth);
-
-		protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
-		{
-			var bar = new List<Segment>(_target.Render(options, maxWidth));
-
-			while (bar.Count > 0 && bar[^1].IsLineBreak)
-				bar.RemoveAt(bar.Count - 1);
-
-			var fill = maxWidth - bar.Sum(segment => segment.CellCount());
-
-			if (fill > 0)
-				bar.Add(new Segment(new string(' ', fill), new Style(background: _background)));
-
-			var styled = bar
-				.Select(segment => new Segment(segment.Text, new Style(segment.Style.Foreground, _background, segment.Style.Decoration), segment.Link))
-				.ToList();
-			var pad = new Segment(new string(' ', maxWidth), new Style(background: _background));
-
-			return
-			[
-				pad,
-				Segment.LineBreak,
-				.. styled,
-				Segment.LineBreak,
-				pad
-			];
-		}
-	}
 }

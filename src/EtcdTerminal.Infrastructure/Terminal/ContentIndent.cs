@@ -12,6 +12,10 @@ public static class ContentIndent
 
 	public const string Text = "    ";
 
+	// A band panel — the status bar, the key filter, the pagination — hangs on
+	// the second column: the margin the status bar has always had.
+	public const int BandColumns = 2;
+
 	// A marker (the selection pointer, a spinner glyph) hangs on the second
 	// column so the text after it starts on the fourth, like any other row.
 	public const string Marker = "  ";

@@ -7,7 +7,7 @@ public class ReddyTheme : ITheme
 	public string Name => "Reddy";
 
 	public RgbColor WindowBackground { get; } = new(10, 10, 10);
-	public RgbColor StatusBarBackground { get; } = new(27, 28, 30);
+	public RgbColor BandBackground { get; } = new(27, 28, 30);
 	public RgbColor Primary { get; } = new(255, 255, 255);
 	public RgbColor Secondary { get; } = new(0, 180, 180);
 	public RgbColor Success { get; } = new(0, 200, 0);

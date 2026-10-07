@@ -68,7 +68,7 @@ public class EnglishLocalization : ILocalization
 	public string Edit => "Edit";
 	public string Delete => "Delete";
 	public string Cancel => "Cancel";
-	public string TypeToSearch => "  \U0001f50d  Type to search...";
+	public string TypeToSearch => "\U0001f50d  Type to search...";
 
 	public string EnterKey => "Enter key:";
 	public string EnterValue => "Enter value:";

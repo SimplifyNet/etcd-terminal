@@ -7,6 +7,13 @@ namespace EtcdTerminal.Presentation;
 public sealed record TextBlock(IReadOnlyList<IReadOnlyList<StyledText>> Lines) : Block
 {
 	/// <summary>
+	/// Marks the line for the band treatment: the band background runs edge
+	/// to edge behind it with one background row above and below, the way
+	/// the status bar, the key filter line and the pagination line are drawn.
+	/// </summary>
+	public bool Band { get; init; }
+
+	/// <summary>
 	/// A single line built from the given runs.
 	/// </summary>
 	public static TextBlock Line(params IReadOnlyList<StyledText> spans) => new([spans]);

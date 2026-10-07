@@ -145,7 +145,7 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
-	public void StatusBarRenderer_PaintsThreeRowsInTheStatusBarBackground()
+	public void StatusBarRenderer_PaintsThreeRowsInTheBandBackground()
 	{
 		var console = new TestConsole { EmitAnsiSequences = true };
 
@@ -155,6 +155,37 @@ public sealed class SpectreRenderingTests
 		{
 			Assert.That(console.Output, Does.Contain("48;2;27;28;30"), console.Output);
 			Assert.That(console.Lines.Count, Is.EqualTo(3), console.Output);
+		});
+	}
+
+	[Test]
+	public void BlockRenderer_Band_PaintsThreeRowsInTheBandBackground()
+	{
+		var console = new TestConsole { EmitAnsiSequences = true };
+
+		Render(console, TextBlock.Line(new StyledText("keep me", TextRole.Primary)) with { Band = true });
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(console.Lines.Count, Is.EqualTo(3), console.Output);
+			Assert.That(console.Output, Does.Contain("48;2;27;28;30"), console.Output);
+			Assert.That(console.Output, Does.Contain("keep me"));
+		});
+	}
+
+	[Test]
+	public void BlockRenderer_Band_KeepsTheSecondColumnOnTheContentRow()
+	{
+		var console = new TestConsole();
+
+		Render(console, TextBlock.Line(new StyledText("Type to search", TextRole.Muted)) with { Band = true });
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(console.Lines, Has.Count.EqualTo(3), console.Output);
+			Assert.That(console.Lines[0].Trim(), Is.Empty);
+			Assert.That(console.Lines[1], Does.StartWith("  Type to search"));
+			Assert.That(console.Lines[2].Trim(), Is.Empty);
 		});
 	}
 

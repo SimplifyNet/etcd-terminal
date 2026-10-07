@@ -82,10 +82,14 @@ public sealed class KeyBrowseScreenTests
 		var frame = harness.Live.Frames[0];
 
 		Assert.That(frame.Body[0], Is.InstanceOf<BannerBlock>());
-		Assert.That(frame.Body, Has.Count.EqualTo(4));
+		Assert.That(frame.Body, Has.Count.EqualTo(6));
 		Assert.That(LineText.Of(((TextBlock)frame.Body[1]).Lines.Single()), Does.Contain("Type to search"));
-		Assert.That(((TableBlock)frame.Body[2]).Rows[0][0].Text, Does.Contain("/a/1"));
-		Assert.That(LineText.Of(((TextBlock)frame.Body[3]).Lines.Single()), Does.Contain("1/1"));
+		Assert.That(((TextBlock)frame.Body[1]).Band, Is.True, "the filter line is a band");
+		Assert.That(((TextBlock)frame.Body[2]).Lines.Single(), Is.Empty, "one blank row between the filter and the table");
+		Assert.That(((TableBlock)frame.Body[3]).Rows[0][0].Text, Does.Contain("/a/1"));
+		Assert.That(((TextBlock)frame.Body[4]).Lines.Single(), Is.Empty, "one blank row between the table and the pagination");
+		Assert.That(LineText.Of(((TextBlock)frame.Body[5]).Lines.Single()), Does.Contain("1/1"));
+		Assert.That(((TextBlock)frame.Body[5]).Band, Is.True, "the pagination line is a band");
 		Assert.That(harness.Live.Ends, Is.EqualTo(new[] { LiveFrameEnd.Clear }), "the released frame clears its viewport");
 		Assert.That(harness.Canvas.Footers, Has.Count.EqualTo(1), "the footer is pinned once per frame");
 	}
@@ -99,11 +103,11 @@ public sealed class KeyBrowseScreenTests
 
 		await harness.Screen.ShowAsync();
 
-		var withActions = harness.Live.Frames.Last(frame => frame.Body.Count == 6);
+		var withActions = harness.Live.Frames.Last(frame => frame.Body.Count == 8);
 
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[4]).Lines.Single()), Does.Contain("Selected: /a/1"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[5]).Lines.Single()), Does.Contain("E Edit"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[5]).Lines.Single()), Does.Contain("D Delete"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[6]).Lines.Single()), Does.Contain("Selected: /a/1"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[7]).Lines.Single()), Does.Contain("E Edit"));
+		Assert.That(LineText.Of(((TextBlock)withActions.Body[7]).Lines.Single()), Does.Contain("D Delete"));
 	}
 
 	private sealed class Harness

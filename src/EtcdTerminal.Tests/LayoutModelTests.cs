@@ -30,6 +30,7 @@ public sealed class LayoutModelTests
 			TextRole.Primary,
 			TextRole.Muted
 		}));
+		Assert.That(model.Band, Is.True);
 	}
 
 	[Test]
@@ -112,6 +113,8 @@ public sealed class LayoutModelTests
 
 		Assert.That(text, Does.Contain("Type to search"));
 		Assert.That(text, Does.EndWith("\u2588"));
+		Assert.That(text, Does.StartWith("\U0001f50d"), "no leading spaces before the magnifier");
+		Assert.That(model.Band, Is.True);
 	}
 
 	[Test]
@@ -122,6 +125,8 @@ public sealed class LayoutModelTests
 
 		Assert.That(LineText.Of(line), Does.Contain("service/[a:b]"));
 		Assert.That(line[1].Role, Is.EqualTo(TextRole.Primary));
+		Assert.That(line[0].Text, Does.StartWith("\U0001f50d"), "no leading spaces before the magnifier");
+		Assert.That(model.Band, Is.True);
 	}
 
 	[Test]

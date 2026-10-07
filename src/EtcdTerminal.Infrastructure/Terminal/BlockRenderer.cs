@@ -17,12 +17,24 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// the previous section.
 	private const int TitleSpacingAbove = 1;
 
+	private Color BandColor => new(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
+
 	/// The banner is centered across the whole width and is not content, so
 	/// it keeps no left margin; everything else starts on the fourth column.
+	/// A banded line keeps the band's own second column inside its content
+	/// row while the background runs edge to edge with a background row above
+	/// and below — the status bar's treatment, shared by the filter and
+	/// pagination.
 	public IRenderable Render(Block block) =>
-		block is BannerBlock
-			? Content(block)
-			: new Padder(Content(block), new Padding(ContentIndent.Columns, 0, 0, 0));
+		block switch
+		{
+			BannerBlock => Content(block),
+			TextBlock { Band: true } => new BackgroundBand(Indented(block, ContentIndent.BandColumns), BandColor, _trailingBreak: true),
+			_ => Indented(block, ContentIndent.Columns)
+		};
+
+	private IRenderable Indented(Block block, int columns) =>
+		new Padder(Content(block), new Padding(columns, 0, 0, 0));
 
 	private IRenderable Content(Block block) =>
 		block switch

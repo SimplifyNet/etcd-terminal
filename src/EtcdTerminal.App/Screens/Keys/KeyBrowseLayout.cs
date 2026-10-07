@@ -13,17 +13,17 @@ namespace EtcdTerminal.App.Screens.Keys;
 /// </summary>
 public sealed class KeyBrowseLayout(ILocalization _localization)
 {
-	private const string SearchPrefix = "  \U0001f50d ";
+	private const string SearchPrefix = "\U0001f50d ";
 	private const string Caret = "\u2588";
 	private const string PageSeparator = "  \u2022  ";
 
 	public Block Search(string searchQuery) =>
-		searchQuery.Length == 0
+		(searchQuery.Length == 0
 			? TextBlock.Line(new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary))
 			: TextBlock.Line(
 				new StyledText(SearchPrefix, TextRole.Muted),
 				new StyledText(DisplayText.Sanitize(searchQuery), TextRole.Primary),
-				new StyledText(Caret, TextRole.Primary));
+				new StyledText(Caret, TextRole.Primary))) with { Band = true };
 
 	public Block KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
@@ -53,7 +53,7 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 			new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
 			new StyledText(PageSeparator, TextRole.Muted),
 			new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
-			new StyledText($" {_localization.TotalKeys}", TextRole.Muted));
+			new StyledText($" {_localization.TotalKeys}", TextRole.Muted)) with { Band = true };
 
 	public Block Detail(string label, string value, TextRole valueRole) =>
 		TextBlock.Line(new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole));

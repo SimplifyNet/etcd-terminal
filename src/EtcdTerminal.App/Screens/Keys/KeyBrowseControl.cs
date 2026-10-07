@@ -135,7 +135,9 @@ public sealed class KeyBrowseControl(
 	private IEnumerable<Block> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
 		yield return _layout.Search(SearchQuery);
+		yield return TextBlock.Blank();
 		yield return _layout.KeyList(pageKeys, SelectedIndex);
+		yield return TextBlock.Blank();
 		yield return _layout.Pagination(CurrentPage, totalPages, totalKeys);
 
 		if (!ShowActions || SelectedKey is null)
