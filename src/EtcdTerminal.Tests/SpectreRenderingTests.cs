@@ -125,6 +125,20 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_TableBlock_SplitsTheRegionInHalfForBothColumns()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[],
+		[[new StyledText("/alpha", TextRole.Primary), new StyledText("one", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("one"));
+
+		Assert.That(row.IndexOf("one", StringComparison.Ordinal), Is.EqualTo(42), row);
+	}
+
+	[Test]
 	public void StatusBarRenderer_WritesSessionDetailsAndVersion()
 	{
 		var console = new TestConsole();
