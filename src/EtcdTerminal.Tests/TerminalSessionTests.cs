@@ -17,7 +17,7 @@ public sealed class TerminalSessionTests
 
 		session.Start();
 
-		Assert.That(console.Output, Does.Contain("\u001b[1;23r"));
+		Assert.That(console.Output, Does.Contain("\u001b[1;21r"));
 	}
 
 	[Test]

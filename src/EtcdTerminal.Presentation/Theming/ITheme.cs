@@ -5,6 +5,7 @@ public interface ITheme
 	string Name { get; }
 
 	RgbColor WindowBackground { get; }
+	RgbColor StatusBarBackground { get; }
 	RgbColor Primary { get; }
 	RgbColor Secondary { get; }
 	RgbColor Success { get; }

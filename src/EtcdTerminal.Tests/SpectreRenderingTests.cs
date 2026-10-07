@@ -145,6 +145,20 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void StatusBarRenderer_PaintsThreeRowsInTheStatusBarBackground()
+	{
+		var console = new TestConsole { EmitAnsiSequences = true };
+
+		RenderStatusBar(console, new StatusBarModel { Version = new StyledText("0.4", TextRole.Primary) });
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(console.Output, Does.Contain("48;2;27;28;30"), console.Output);
+			Assert.That(console.Lines.Count, Is.EqualTo(3), console.Output);
+		});
+	}
+
+	[Test]
 	public void StatusBarRenderer_WithoutSession_WritesVersionOnly()
 	{
 		var console = new TestConsole();
@@ -201,7 +215,7 @@ public sealed class SpectreRenderingTests
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(console.Lines.Count, Is.EqualTo(1), console.Output);
+			Assert.That(console.Lines.Count, Is.EqualTo(3), console.Output);
 			Assert.That(console.Output, Does.Contain("Esc back"));
 			Assert.That(console.Output, Does.Contain("etcd-local"));
 			Assert.That(console.Output, Does.Contain("v0.9"));
@@ -211,7 +225,7 @@ public sealed class SpectreRenderingTests
 
 	private static BlockRenderer BlockRenderer() => new(new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
 
-	private static StatusBarRenderer StatusBarRenderer(TestConsole console) => new(console, new RoleStyleMapper(new ReddyTheme()));
+	private static StatusBarRenderer StatusBarRenderer(TestConsole console) => new(console, new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
 
 	private static void Render(TestConsole console, Block block) =>
 		console.Write(BlockRenderer().Render(block));

@@ -6,7 +6,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 
 public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _blocks) : ILiveFrame
 {
-	private const int FooterRows = 1;
+	private const int FooterRows = 3;
 
 	public T Run<T>(FrameModel initial, LiveFrameEnd end, Func<ILiveFrameUpdater, T> interaction)
 	{

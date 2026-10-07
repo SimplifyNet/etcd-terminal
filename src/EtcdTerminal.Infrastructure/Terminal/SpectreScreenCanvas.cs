@@ -6,9 +6,9 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 
 /// <summary>
 /// The one writer of a screen while a session runs. The scroll region and the
-/// footer row were reserved by <see cref="ConsoleTerminalSession"/>, so a
+/// footer rows were reserved by <see cref="ConsoleTerminalSession"/>, so a
 /// screen is opened by erasing the viewport, blocks stream through it and the
-/// footer is redrawn in place on the row the scroll region never touches.
+/// footer is redrawn in place on the rows the scroll region never touches.
 /// A page additionally pins the header and the hint and clips the body to the
 /// rows between them: Spectre's Live only crops a renderable to the screen,
 /// it cannot show a taller body at another offset, and that gap is what the
@@ -16,11 +16,11 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _blocks, StatusBarRenderer _footer) : IScreenCanvas
 {
-	/// The footer owns the last row. The row above it is a guard: every part
-	/// of a page is written with a trailing line break, and a break issued on
-	/// the last row of the scroll region would scroll the region — taking the
-	/// header with it. The guard row absorbs that break.
-	private const int FooterRows = 1;
+	/// The footer owns the last three rows. The row above them is a guard:
+	/// every part of a page is written with a trailing line break, and a
+	/// break issued on the last row of the scroll region would scroll the
+	/// region — taking the header with it. The guard row absorbs that break.
+	private const int FooterRows = 3;
 	private const int GuardRows = 1;
 
 	private IRenderable? _pageHeader;
@@ -119,7 +119,7 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 	{
 		var renderable = _footer.Build(footer);
 
-		_console.WriteAnsi(writer => writer.SaveCursor(false).CursorPosition(_console.Profile.Height, 1));
+		_console.WriteAnsi(writer => writer.SaveCursor(false).CursorPosition(_console.Profile.Height - FooterRows + 1, 1));
 		_console.Write(renderable);
 		_console.WriteAnsi(writer => writer.RestoreCursor(false));
 	}

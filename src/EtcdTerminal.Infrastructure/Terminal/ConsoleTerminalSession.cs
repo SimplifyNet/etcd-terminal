@@ -7,12 +7,12 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// <summary>
 /// The only class in the application allowed to talk to <c>System.Console</c>
 /// and to raw escape sequences. It splits the terminal once per session into a
-/// scrolling viewport above the footer row and the footer row itself, so that
-/// everything Spectre writes afterwards streams inside the viewport.
+/// scrolling viewport above the footer rows and the footer rows themselves, so
+/// that everything Spectre writes afterwards streams inside the viewport.
 /// </summary>
 public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme) : ITerminalSession
 {
-	private const int FooterRows = 1;
+	private const int FooterRows = 3;
 
 	// The six sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
 	// makes the terminal report the mouse wheel as arrow keys inside the

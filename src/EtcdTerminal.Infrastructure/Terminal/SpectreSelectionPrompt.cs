@@ -16,7 +16,7 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 {
 	/// The menu, its title and its hint have to leave the rows of the screen
 	/// to the header and the footer of the screen that owns the prompt.
-	private const int ReservedRows = 12;
+	private const int ReservedRows = 14;
 
 	public Choice<TId>? Select<TId>(ChoiceList<TId> list)
 	{
