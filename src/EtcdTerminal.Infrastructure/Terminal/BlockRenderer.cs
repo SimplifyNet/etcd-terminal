@@ -24,12 +24,15 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// A banded line keeps the band's own second column inside its content
 	/// row while the background runs edge to edge with a background row above
 	/// and below — the status bar's treatment, shared by the filter and
-	/// pagination.
+	/// pagination. A row that carries the selection pointer starts on the
+	/// second column instead: the pointer takes the margin and the cell after
+	/// it lands on the fourth, where every other row's text sits.
 	public IRenderable Render(Block block) =>
 		block switch
 		{
 			BannerBlock => Content(block),
 			TextBlock { Band: true } => new BackgroundBand(Indented(block, ContentIndent.BandColumns), BandColor, _trailingBreak: true),
+			TableBlock { Pointer: true } => Indented(block, ContentIndent.MarkerColumns),
 			_ => Indented(block, ContentIndent.Columns)
 		};
 
@@ -80,7 +83,7 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 			{
 				NoWrap = true,
 				Padding = block.IsFramed ? null : new Padding(0, 0, 0, 0),
-				Width = column switch { 0 => keyWidth, 1 => valueWidth, _ => null }
+				Width = ColumnWidth(block, column, keyWidth, valueWidth)
 			});
 
 		foreach (var row in block.Rows)
@@ -88,6 +91,20 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 
 		return table;
 	}
+
+	/// The halved widths belong to the content columns; a pointer table keeps
+	/// its first column on the margin's width so the split still lands on the
+	/// center line.
+	private static int? ColumnWidth(TableBlock block, int column, int? keyWidth, int? valueWidth) =>
+		(block.Pointer, column) switch
+		{
+			(true, 0) => ContentIndent.MarkerColumns,
+			(true, 1) => keyWidth,
+			(true, 2) => valueWidth,
+			(false, 0) => keyWidth,
+			(false, 1) => valueWidth,
+			_ => null
+		};
 
 	private IRenderable[] Cells(IReadOnlyList<StyledText> row, int columns)
 	{
@@ -126,9 +143,18 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	private sealed class Halved(BlockRenderer _owner, TableBlock _block) : Renderable
 	{
 		protected override Measurement Measure(RenderOptions options, int maxWidth) =>
-			_owner.BuildTable(_block, maxWidth / 2, maxWidth - maxWidth / 2).Measure(options, maxWidth);
+			Table(maxWidth).Measure(options, maxWidth);
 
 		protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth) =>
-			_owner.BuildTable(_block, maxWidth / 2, maxWidth - maxWidth / 2).Render(options, maxWidth);
+			Table(maxWidth).Render(options, maxWidth);
+
+		/// A pointer column keeps its margin width out of the split, so the
+		/// remaining two columns still meet on the center line of the region.
+		private IRenderable Table(int maxWidth)
+		{
+			var content = maxWidth - (_block.Pointer ? ContentIndent.MarkerColumns : 0);
+
+			return _owner.BuildTable(_block, content / 2, content - content / 2);
+		}
 	}
 }

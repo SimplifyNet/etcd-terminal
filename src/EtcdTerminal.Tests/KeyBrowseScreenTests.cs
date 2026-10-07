@@ -86,7 +86,8 @@ public sealed class KeyBrowseScreenTests
 		Assert.That(LineText.Of(((TextBlock)frame.Body[1]).Lines.Single()), Does.Contain("Type to search"));
 		Assert.That(((TextBlock)frame.Body[1]).Band, Is.True, "the filter line is a band");
 		Assert.That(((TextBlock)frame.Body[2]).Lines.Single(), Is.Empty, "one blank row between the filter and the table");
-		Assert.That(((TableBlock)frame.Body[3]).Rows[0][0].Text, Does.Contain("/a/1"));
+		Assert.That(((TableBlock)frame.Body[3]).Rows[0][0].Text, Is.EqualTo("\u276f "), "the pointer on the selected row");
+		Assert.That(((TableBlock)frame.Body[3]).Rows[0][1].Text, Does.Contain("/a/1"));
 		Assert.That(((TextBlock)frame.Body[4]).Lines.Single(), Is.Empty, "one blank row between the table and the pagination");
 		Assert.That(LineText.Of(((TextBlock)frame.Body[5]).Lines.Single()), Does.Contain("1/1"));
 		Assert.That(((TextBlock)frame.Body[5]).Band, Is.True, "the pagination line is a band");

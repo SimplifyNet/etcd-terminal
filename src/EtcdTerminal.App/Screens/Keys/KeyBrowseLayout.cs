@@ -17,6 +17,12 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 	private const string Caret = "\u2588";
 	private const string PageSeparator = "  \u2022  ";
 
+	// The pointer of the selected row hangs on the margin column and the key
+	// after it starts on the text column, the menu's layout; the other rows
+	// fill the margin with spaces so every key stays on the same column.
+	private const string Pointer = "\u276f ";
+	private const string Marker = "  ";
+
 	public Block Search(string searchQuery) =>
 		(searchQuery.Length == 0
 			? TextBlock.Line(new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary))
@@ -35,16 +41,18 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 		for (var i = 0; i < pageKeys.Count; i++)
 		{
 			var kv = pageKeys[i];
-			var role = i == selectedIndex ? TextRole.Accent : TextRole.Primary;
+			var selected = i == selectedIndex;
+			var role = selected ? TextRole.Accent : TextRole.Primary;
 
 			rows.Add(
 			[
+				new StyledText(selected ? Pointer : Marker, role),
 				new StyledText(DisplayText.Sanitize(kv.Key), role),
 				new StyledText(DisplayText.Sanitize(kv.Value), role)
 			]);
 		}
 
-		return new TableBlock([], rows);
+		return new TableBlock([], rows) { Pointer = true };
 	}
 
 	public Block Pagination(int currentPage, int totalPages, int totalKeys) =>

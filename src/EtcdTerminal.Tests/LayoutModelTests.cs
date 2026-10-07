@@ -88,12 +88,15 @@ public sealed class LayoutModelTests
 
 		Assert.That(model.Header, Is.Empty);
 		Assert.That(model.IsFramed, Is.False);
+		Assert.That(model.Pointer, Is.True, "the table carries the selection pointer column");
 		Assert.That(model.Rows, Has.Count.EqualTo(2));
-		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary }));
-		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent }));
-		Assert.That(model.Rows[0][0].Text, Is.EqualTo("/a"));
-		Assert.That(model.Rows[1][0].Text, Is.EqualTo("/b"));
-		Assert.That(model.Rows[1][1].Text, Is.EqualTo("two"));
+		Assert.That(model.Rows[0].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Primary, TextRole.Primary, TextRole.Primary }));
+		Assert.That(model.Rows[1].Select(span => span.Role), Is.EqualTo(new[] { TextRole.Accent, TextRole.Accent, TextRole.Accent }));
+		Assert.That(model.Rows[0][0].Text, Is.EqualTo("  "));
+		Assert.That(model.Rows[1][0].Text, Is.EqualTo("\u276f "));
+		Assert.That(model.Rows[0][1].Text, Is.EqualTo("/a"));
+		Assert.That(model.Rows[1][1].Text, Is.EqualTo("/b"));
+		Assert.That(model.Rows[1][2].Text, Is.EqualTo("two"));
 	}
 
 	[Test]

@@ -139,6 +139,26 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_PointerTable_HangsThePointerOnTheMarginColumn()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[],
+		[
+			[new StyledText("\u276f ", TextRole.Accent), new StyledText("/alpha", TextRole.Accent), new StyledText("one", TextRole.Accent)],
+			[new StyledText("  ", TextRole.Primary), new StyledText("/beta", TextRole.Primary), new StyledText("two", TextRole.Primary)]
+		]) { Pointer = true });
+
+		var selected = console.Lines.First(line => line.Contains("/alpha"));
+		var plain = console.Lines.First(line => line.Contains("/beta"));
+
+		Assert.That(selected, Does.StartWith("  \u276f /alpha"), selected);
+		Assert.That(selected.IndexOf("one", StringComparison.Ordinal), Is.EqualTo(42), selected);
+		Assert.That(plain.IndexOf("/beta", StringComparison.Ordinal), Is.EqualTo(4), plain);
+	}
+
+	[Test]
 	public void StatusBarRenderer_WritesSessionDetailsAndVersion()
 	{
 		var console = new TestConsole();
