@@ -9,6 +9,7 @@
 - Users list with filter and pagination
 - Roles list with filter and pagination
 - Permissions list with filter and pagination
+- Window redraw on windows size change
 
 ### Changed
 
