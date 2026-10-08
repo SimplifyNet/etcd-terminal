@@ -7,13 +7,27 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Permissions;
 
-public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdmin _roleAdmin, Screen _screen, PermissionViewLayout _layout, PressAnyKeyPrompt _pressAnyKey, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
+/// <summary>
+/// The permission page: every permission of every role of every user as one
+/// filterable, paginated list between the banner and the footer. View-only by
+/// design — it holds no cursor and offers no actions.
+/// </summary>
+public sealed class PermissionListScreen(
+	IEtcdUserAdmin _userAdmin,
+	IEtcdRoleAdmin _roleAdmin,
+	PermissionListLayout _layout,
+	ListBrowser _browser,
+	Screen _screen,
+	Spinner _spinner,
+	Message _message,
+	ILocalization _localization) : IMainMenuEntry
 {
-	public MainMenuAction Action => MainMenuAction.ViewPermissions;
+	public MainMenuAction Action => MainMenuAction.ListPermissions;
 
-	public string Label => _localization.ViewPermissions;
+	public string Label => _localization.ListPermissions;
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
+
 	public async Task ShowAsync()
 	{
 		_screen.Open();
@@ -34,6 +48,10 @@ public sealed class PermissionViewScreen(IEtcdUserAdmin _userAdmin, IEtcdRoleAdm
 			return;
 		}
 
-		_pressAnyKey.Show(_layout.Body(users, roles));
+		_browser.Show(
+			_layout.Headers(),
+			_layout.Rows(users, roles),
+			_localization.NoPermissionsFound,
+			_localization.TotalPermissions);
 	}
 }

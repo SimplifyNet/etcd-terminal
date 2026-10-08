@@ -7,6 +7,6 @@ public enum MainMenuAction
 	ImportJson,
 	ManageUsers,
 	ManageRoles,
-	ViewPermissions,
+	ListPermissions,
 	Disconnect
 }

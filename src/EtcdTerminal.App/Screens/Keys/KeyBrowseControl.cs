@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation;
+using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Session;
 
 namespace EtcdTerminal.App.Screens.Keys;
@@ -8,8 +9,10 @@ namespace EtcdTerminal.App.Screens.Keys;
 public sealed class KeyBrowseControl(
 	IKeyReader _keys,
 	KeyBrowseLayout _layout,
+	BrowseLayout _browse,
 	Header _header,
-	IConnectionSession _session)
+	IConnectionSession _session,
+	ILocalization _localization)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
@@ -134,11 +137,11 @@ public sealed class KeyBrowseControl(
 
 	private IEnumerable<Block> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
 	{
-		yield return _layout.Search(SearchQuery);
+		yield return _browse.Search(SearchQuery);
 		yield return TextBlock.Blank();
 		yield return _layout.KeyList(pageKeys, SelectedIndex);
 		yield return TextBlock.Blank();
-		yield return _layout.Pagination(CurrentPage, totalPages, totalKeys);
+		yield return _browse.Pagination(CurrentPage, totalPages, totalKeys, _localization.TotalKeys);
 
 		if (!ShowActions || SelectedKey is null)
 			yield break;

@@ -8,7 +8,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, PressAnyKeyPrompt _pressAnyKey, UserListLayout _layout, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, UserListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
@@ -52,6 +52,8 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 		}
 	}
 
+	/// The view-only page: the list, filterable and paginated like the key
+	/// browser instead of a single framed screen.
 	private async Task ListUsersAsync()
 	{
 		IReadOnlyList<EtcdUser> users = [];
@@ -68,7 +70,11 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 			return;
 		}
 
-		_pressAnyKey.Show(_layout.Body(users));
+		_browser.Show(
+			_layout.Headers(),
+			_layout.Rows(users),
+			_localization.NoUsersFound,
+			_localization.TotalUsers);
 	}
 
 	private async Task CreateUserAsync()

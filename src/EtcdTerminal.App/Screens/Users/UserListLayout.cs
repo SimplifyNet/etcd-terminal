@@ -5,40 +5,30 @@ using EtcdTerminal.Users;
 namespace EtcdTerminal.App.Screens.Users;
 
 /// <summary>
-/// Builds the body of the user list. Literal text and semantic roles only;
-/// column widths and the table geometry belong to Infrastructure.
+/// Builds the headers and rows of the user page. Literal text and semantic
+/// roles only; column widths and the table geometry belong to Infrastructure.
 /// </summary>
 public sealed class UserListLayout(ILocalization _localization)
 {
-	public IReadOnlyList<Block> Body(IReadOnlyList<EtcdUser> users)
-	{
-		if (users.Count == 0)
-			return [Notice(_localization.NoUsersFound)];
+	public IReadOnlyList<StyledText> Headers() =>
+	[
+		new StyledText(_localization.Username, TextRole.Accent),
+		new StyledText(_localization.Roles, TextRole.Accent)
+	];
 
+	public IReadOnlyList<IReadOnlyList<StyledText>> Rows(IReadOnlyList<EtcdUser> users)
+	{
 		List<IReadOnlyList<StyledText>> rows = [];
 
 		foreach (var user in users)
-		{
-			var roles = user.Roles.Count > 0
-				? string.Join(", ", user.Roles)
-				: _localization.None;
+			rows.Add(Row(user));
 
-			rows.Add(
-			[
-				new StyledText(user.Username, TextRole.Primary),
-				new StyledText(roles, TextRole.Primary)
-			]);
-		}
-
-		return [new TableBlock(ColumnHeaders(), rows) { IsFramed = true }];
+		return rows;
 	}
 
-	private IReadOnlyList<StyledText> ColumnHeaders() =>
+	private IReadOnlyList<StyledText> Row(EtcdUser user) =>
 	[
-		new StyledText(_localization.Username, TextRole.Muted),
-		new StyledText(_localization.Roles, TextRole.Muted)
+		new StyledText(user.Username, TextRole.Primary),
+		new StyledText(user.Roles.Count > 0 ? string.Join(", ", user.Roles) : _localization.None, TextRole.Primary)
 	];
-
-	private static TextBlock Notice(string text) =>
-		TextBlock.Line(new StyledText(text, TextRole.Warning));
 }

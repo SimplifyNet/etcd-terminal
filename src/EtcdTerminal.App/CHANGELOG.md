@@ -6,6 +6,9 @@
 
 - Content scrolling
 - Interface values word wrap
+- Users list with filter and pagination
+- Roles list with filter and pagination
+- Permissions list with filter and pagination
 
 ### Changed
 
@@ -15,6 +18,12 @@
 ### Fixed
 
 - Interface refresh in keys windows on all actions
+
+### Removed
+
+- List all users
+- List all permissions
+- List all roles
 
 ## [0.9] - 2026-09-27
 

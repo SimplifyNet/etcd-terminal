@@ -36,7 +36,7 @@ public interface ILocalization
 	string CreateKey { get; }
 	string ManageUsers { get; }
 	string ManageRoles { get; }
-	string ViewPermissions { get; }
+	string ListPermissions { get; }
 	string Disconnect { get; }
 
 	string SettingsTitle { get; }
@@ -62,6 +62,8 @@ public interface ILocalization
 	string NoKeysFound { get; }
 	string Page { get; }
 	string TotalKeys { get; }
+	string TotalUsers { get; }
+	string TotalPermissions { get; }
 	string Selected { get; }
 	string Edit { get; }
 	string Delete { get; }
@@ -126,15 +128,15 @@ public interface ILocalization
 	string LoadingPermissions { get; }
 	string LoadingUsers { get; }
 	string LoadingRoles { get; }
-	string NoUsersOrRoles { get; }
 	string NoRolesFound { get; }
 	string NoUsersFound { get; }
+	string NoPermissionsFound { get; }
 	string Username { get; }
 	string Roles { get; }
 	string Role { get; }
 	string User { get; }
 	string AllKeys { get; }
-	string Permissions { get; }
+	string Permission { get; }
 	string PermissionType { get; }
 	string KeyPrefix { get; }
 	string PermissionScope { get; }

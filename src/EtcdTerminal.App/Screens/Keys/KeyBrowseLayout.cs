@@ -1,4 +1,3 @@
-using System.Globalization;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;
@@ -9,27 +8,17 @@ namespace EtcdTerminal.App.Screens.Keys;
 /// <summary>
 /// Builds the body models of the key browse frame. It holds no cursor, no
 /// window width and no colors: every line is literal text with semantic roles,
-/// and Infrastructure decides how much of it fits.
+/// and Infrastructure decides how much of it fits. The filter and pagination
+/// bands are shared with every other browsable list and live in
+/// <see cref="BrowseLayout"/>.
 /// </summary>
 public sealed class KeyBrowseLayout(ILocalization _localization)
 {
-	private const string SearchPrefix = "\U0001f50d ";
-	private const string Caret = "\u2588";
-	private const string PageSeparator = "  \u2022  ";
-
 	// The pointer of the selected row hangs on the margin column and the key
 	// after it starts on the text column, the menu's layout; the other rows
 	// fill the margin with spaces so every key stays on the same column.
 	private const string Pointer = "\u276f ";
 	private const string Marker = "  ";
-
-	public Block Search(string searchQuery) =>
-		(searchQuery.Length == 0
-			? TextBlock.Line(new StyledText(_localization.TypeToSearch, TextRole.Muted), new StyledText(Caret, TextRole.Primary))
-			: TextBlock.Line(
-				new StyledText(SearchPrefix, TextRole.Muted),
-				new StyledText(DisplayText.Sanitize(searchQuery), TextRole.Primary),
-				new StyledText(Caret, TextRole.Primary))) with { Band = true };
 
 	public Block KeyList(IReadOnlyList<EtcdKeyValue> pageKeys, int selectedIndex)
 	{
@@ -54,14 +43,6 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 
 		return new TableBlock([], rows) { Pointer = true };
 	}
-
-	public Block Pagination(int currentPage, int totalPages, int totalKeys) =>
-		TextBlock.Line(
-			new StyledText($"{_localization.Page} ", TextRole.Muted),
-			new StyledText($"{currentPage + 1}/{totalPages}", TextRole.Primary),
-			new StyledText(PageSeparator, TextRole.Muted),
-			new StyledText(totalKeys.ToString(CultureInfo.InvariantCulture), TextRole.Primary),
-			new StyledText($" {_localization.TotalKeys}", TextRole.Muted)) with { Band = true };
 
 	public Block Detail(string label, string value, TextRole valueRole) =>
 		TextBlock.Line(new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole));

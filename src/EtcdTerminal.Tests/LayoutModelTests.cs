@@ -18,7 +18,7 @@ public sealed class LayoutModelTests
 	[Test]
 	public void Pagination_EmitsPageAndTotalsAsSeparateRoles()
 	{
-		var model = (TextBlock)Layout().Pagination(0, 5, 42);
+		var model = (TextBlock)Browse().Pagination(0, 5, 42, "total keys");
 		var spans = model.Lines.Single();
 
 		Assert.That(spans.Select(span => span.Text), Is.EqualTo(new[] { "Page ", "1/5", "  \u2022  ", "42", " total keys" }));
@@ -111,7 +111,7 @@ public sealed class LayoutModelTests
 	[Test]
 	public void Search_WithoutQuery_ShowsPlaceholderAndCaret()
 	{
-		var model = (TextBlock)Layout().Search(string.Empty);
+		var model = (TextBlock)Browse().Search(string.Empty);
 		var text = LineText.Of(model.Lines.Single());
 
 		Assert.That(text, Does.Contain("Type to search"));
@@ -123,7 +123,7 @@ public sealed class LayoutModelTests
 	[Test]
 	public void Search_WithQuery_KeepsTheQueryLiteral()
 	{
-		var model = (TextBlock)Layout().Search("service/[a:b]");
+		var model = (TextBlock)Browse().Search("service/[a:b]");
 		var line = model.Lines.Single();
 
 		Assert.That(LineText.Of(line), Does.Contain("service/[a:b]"));
@@ -211,6 +211,9 @@ public sealed class LayoutModelTests
 	}
 
 	private static KeyBrowseLayout Layout() =>
+		new(new EnglishLocalization());
+
+	private static BrowseLayout Browse() =>
 		new(new EnglishLocalization());
 
 	private static StatusBar StatusBar(ConnectionSession session) =>

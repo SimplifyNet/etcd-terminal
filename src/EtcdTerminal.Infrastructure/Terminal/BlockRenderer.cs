@@ -17,6 +17,17 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// the previous section.
 	private const int TitleSpacingAbove = 1;
 
+	/// Every column but the last of a headered list measures this many
+	/// columns, so the columns stand close together instead of spreading
+	/// across the region with canyons of empty space between them. It is a
+	/// layout preference, not a measurement, so the model stays width-free.
+	private const int ListColumnWidth = 50;
+
+	/// The last column of a hugged list keeps at least this many columns,
+	/// otherwise the fixed widths would crush it and the region falls back
+	/// to equal shares.
+	private const int MinHuggedLastColumn = 10;
+
 	private Color BandColor => new(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
 
 	/// The banner is centered across the whole width and is not content, so
@@ -65,13 +76,15 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// width. The application never measures the text it put in the model.
 	/// A framed table keeps Spectre's default border at its natural content
 	/// width — the style the old terminal's WriteTable drew; every other
-	/// table stays borderless, fills the region and hands its two columns to
-	/// <see cref="Halved"/>, which cuts the region in half.
+	/// table stays borderless, fills the region and hands its columns to
+	/// <see cref="Halved"/>, which decides the column widths. A table with a
+	/// header gets one blank row under it so the accent heading does not
+	/// merge into the first line of data.
 	/// </summary>
 	private IRenderable RenderTable(TableBlock block) =>
-		block.IsFramed ? BuildTable(block, null, null) : new Halved(this, block);
+		block.IsFramed ? BuildTable(block, []) : new Halved(this, block);
 
-	private IRenderable BuildTable(TableBlock block, int? keyWidth, int? valueWidth)
+	private IRenderable BuildTable(TableBlock block, int?[] widths)
 	{
 		var columns = Math.Max(block.Header.Count, ColumnCount(block));
 		var table = block.IsFramed ? new Table() : new Table().NoBorder().Expand();
@@ -79,12 +92,15 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		table.ShowHeaders = block.Header.Count > 0;
 
 		for (var column = 0; column < columns; column++)
-			table.AddColumn(new TableColumn(column < block.Header.Count ? Markup.Escape(block.Header[column].Text) : string.Empty)
+			table.AddColumn(new TableColumn(Header(block, column))
 			{
 				NoWrap = true,
 				Padding = block.IsFramed ? null : new Padding(0, 0, 0, 0),
-				Width = ColumnWidth(block, column, keyWidth, valueWidth)
+				Width = ColumnWidth(block, column, widths)
 			});
+
+		if (block.Header.Count > 0)
+			table.AddRow(Cells([], columns));
 
 		foreach (var row in block.Rows)
 			table.AddRow(Cells(row, columns));
@@ -92,19 +108,29 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		return table;
 	}
 
-	/// The halved widths belong to the content columns; a pointer table keeps
+	/// The split widths belong to the content columns; a pointer table keeps
 	/// its first column on the margin's width so the split still lands on the
-	/// center line.
-	private static int? ColumnWidth(TableBlock block, int column, int? keyWidth, int? valueWidth) =>
+	/// center line. A framed table passes no widths and lets Spectre measure.
+	private static int? ColumnWidth(TableBlock block, int column, int?[] widths) =>
 		(block.Pointer, column) switch
 		{
 			(true, 0) => ContentIndent.MarkerColumns,
-			(true, 1) => keyWidth,
-			(true, 2) => valueWidth,
-			(false, 0) => keyWidth,
-			(false, 1) => valueWidth,
+			_ when column < widths.Length => widths[column],
 			_ => null
 		};
+
+	/// The header goes through the same role mapping as the cells: built
+	/// from a bare string, Spectre would draw it in the default color and
+	/// drop the role the model gave it.
+	private Paragraph Header(TableBlock block, int column)
+	{
+		IReadOnlyList<StyledText> spans = column < block.Header.Count ? [block.Header[column]] : [];
+		var paragraph = _styles.Build(spans);
+
+		paragraph.Overflow = Overflow.Ellipsis;
+
+		return paragraph;
+	}
 
 	private IRenderable[] Cells(IReadOnlyList<StyledText> row, int columns)
 	{
@@ -126,19 +152,25 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		block.Rows.Count == 0 ? 0 : block.Rows.Max(row => row.Count);
 
 	/// <summary>
-	/// The borderless table's two columns split the region in half. Spectre
-	/// hands its spare width to the wider column (Ratio.Distribute follows
-	/// the measured widths), so a long key column keeps growing and the
-	/// values start right of the center; the terminal before the migration
-	/// cut every line in two halves instead (key column = width / 2), and
-	/// this keeps that balance. The split happens at render time from the
-	/// width the parent hands in, so it follows a terminal resize and the
-	/// model never measures anything. A cell wider than its half is cropped
-	/// by the column's ellipsis, the way the old TruncateText did. The
-	/// borderless columns carry a zero padding on purpose: BoxBorder.None
-	/// still reports UsePadding, so the measurer would budget pad cells the
-	/// renderer never draws and Ratio.Reduce would shrink the key column
-	/// off the center.
+	/// The borderless table's columns split the region instead of handing the
+	/// spare width to the column Spectre measured wider. A table with a header
+	/// is a list page and its columns stand close together: every column but
+	/// the last measures <see cref="ListColumnWidth"/> columns and the last
+	/// takes the rest, so short cells leave no canyon between them. When that
+	/// would leave the last column under <see cref="MinHuggedLastColumn"/>
+	/// columns, and for a headerless table (the key browser's pointer table,
+	/// the import preview), the region is split into equal shares — halves
+	/// for two columns, thirds for three — the way the terminal before the
+	/// migration cut every line in two halves did. The split happens at
+	/// render time from the width the parent hands in, so it follows a
+	/// terminal resize and the model never measures anything. A cell wider
+	/// than its share is cropped by the column's ellipsis, the way the old
+	/// TruncateText did. The last column takes the remainder so the widths
+	/// add up to the region exactly. The borderless columns carry a zero
+	/// padding on purpose:
+	/// BoxBorder.None still reports UsePadding, so the measurer would budget
+	/// pad cells the renderer never draws and Ratio.Reduce would shrink a
+	/// column off its share.
 	/// </summary>
 	private sealed class Halved(BlockRenderer _owner, TableBlock _block) : Renderable
 	{
@@ -149,12 +181,41 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 			Table(maxWidth).Render(options, maxWidth);
 
 		/// A pointer column keeps its margin width out of the split, so the
-		/// remaining two columns still meet on the center line of the region.
+		/// remaining columns share the region to the right of it and still
+		/// meet on the center line.
 		private IRenderable Table(int maxWidth)
 		{
-			var content = maxWidth - (_block.Pointer ? ContentIndent.MarkerColumns : 0);
+			var columns = Math.Max(_block.Header.Count, ColumnCount(_block));
+			var start = _block.Pointer ? 1 : 0;
+			var share = columns - start;
 
-			return _owner.BuildTable(_block, content / 2, content - content / 2);
+			if (share <= 0)
+				return _owner.BuildTable(_block, []);
+
+			var content = Math.Max(0, maxWidth - (_block.Pointer ? ContentIndent.MarkerColumns : 0));
+			int?[] widths = new int?[columns];
+
+			if (HugsColumns(content, share))
+			{
+				for (var column = 0; column < columns - 1; column++)
+					widths[column] = ListColumnWidth;
+
+				widths[columns - 1] = content - ListColumnWidth * (share - 1);
+			}
+			else
+			{
+				var width = content / share;
+
+				for (var column = start; column < columns; column++)
+					widths[column] = column == columns - 1 ? content - width * (share - 1) : width;
+			}
+
+			return _owner.BuildTable(_block, widths);
 		}
+
+		private bool HugsColumns(int content, int share) =>
+			!_block.Pointer
+			&& _block.Header.Count > 0
+			&& content - ListColumnWidth * (share - 1) >= MinHuggedLastColumn;
 	}
 }

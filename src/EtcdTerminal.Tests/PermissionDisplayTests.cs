@@ -16,7 +16,7 @@ namespace EtcdTerminal.Tests;
 public sealed class PermissionDisplayTests
 {
 	[Test]
-	public void RoleList_BuildsTitledTableWithDistinctScopes()
+	public void RoleList_BuildsOneRowPerPermissionWithDistinctScopes()
 	{
 		var roles = new[]
 		{
@@ -33,23 +33,19 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var body = new RoleListLayout(new EnglishLocalization()).Body(roles);
-
-		Assert.That(body[0], Is.InstanceOf<TitleBlock>());
-		Assert.That(((TitleBlock)body[0]).Title.Text, Is.EqualTo("Role: dev"));
-		Assert.That(body[1], Is.InstanceOf<TableBlock>());
-		Assert.That(((TableBlock)body[1]).IsFramed, Is.True);
+		var layout = new RoleListLayout(new EnglishLocalization());
 
 		IReadOnlyList<IReadOnlyList<string>> expected =
 		[
-			["Permissions"],
-			["Read [Exact key]: /a"],
-			["Write [Prefix]: /p"],
-			["ReadWrite [Range]: [x, z)"],
-			["Read [Range]: [m, \u221E)"]
+			["dev", "Read [Exact key]: /a"],
+			["dev", "Write [Prefix]: /p"],
+			["dev", "ReadWrite [Range]: [x, z)"],
+			["dev", "Read [Range]: [m, \u221E)"]
 		];
 
-		Assert.That(Cells((TableBlock)body[1]), Is.EqualTo(expected));
+		Assert.That(Texts(layout.Headers()), Is.EqualTo(new[] { "Role", "Permission" }));
+		Assert.That(layout.Headers().Select(span => span.Role), Is.All.EqualTo(TextRole.Accent));
+		Assert.That(Texts(layout.Rows(roles)), Is.EqualTo(expected));
 	}
 
 	[Test]
@@ -64,13 +60,13 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var body = new RoleListLayout(new EnglishLocalization()).Body(roles);
+		var rows = new RoleListLayout(new EnglishLocalization()).Rows(roles);
 
-		Assert.That(LineText.Of(((TableBlock)body[1]).Rows[0]), Is.EqualTo("ReadWrite [Prefix]: All keys"));
+		Assert.That(LineText.Of(rows[0]), Does.EndWith("ReadWrite [Prefix]: All keys"));
 	}
 
 	[Test]
-	public void PermissionView_BuildsLocalizedUserTitleAndSharedFormat()
+	public void PermissionList_BuildsLocalizedColumnsAndSharedFormat()
 	{
 		var users = new[] { new EtcdUser { Username = "bob", Roles = ["dev"] } };
 		var roles = new[]
@@ -82,49 +78,27 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var body = new PermissionViewLayout(new EnglishLocalization()).Body(users, roles);
+		var layout = new PermissionListLayout(new EnglishLocalization());
 
-		Assert.That(body[0], Is.InstanceOf<TitleBlock>());
-		Assert.That(((TitleBlock)body[0]).Title.Text, Is.EqualTo("User: bob"));
-		Assert.That(body[1], Is.InstanceOf<TableBlock>());
-		Assert.That(((TableBlock)body[1]).IsFramed, Is.True);
+		IReadOnlyList<IReadOnlyList<string>> expected = [["bob", "dev", "Read [Exact key]: /a"]];
 
-		IReadOnlyList<IReadOnlyList<string>> expected =
-		[
-			["Role", "Permissions"],
-			["dev", "Read [Exact key]: /a"]
-		];
-
-		Assert.That(Cells((TableBlock)body[1]), Is.EqualTo(expected));
+		Assert.That(Texts(layout.Headers()), Is.EqualTo(new[] { "User", "Role", "Permission" }));
+		Assert.That(layout.Headers().Select(span => span.Role), Is.All.EqualTo(TextRole.Accent));
+		Assert.That(Texts(layout.Rows(users, roles)), Is.EqualTo(expected));
+		Assert.That(layout.Rows([], []), Is.Empty);
 	}
 
 	[Test]
-	public void PermissionView_EmptyDirectoryBuildsOneLocalizedNotice()
+	public void UserList_BuildsLocalizedColumns()
 	{
-		var body = new PermissionViewLayout(new EnglishLocalization()).Body([], []);
+		var layout = new UserListLayout(new EnglishLocalization());
 
-		Assert.That(body, Has.Count.EqualTo(1));
-		Assert.That(body[0], Is.InstanceOf<TextBlock>());
-		Assert.That(LineText.Of(((TextBlock)body[0]).Lines.Single()), Is.EqualTo("No users or roles found."));
-	}
+		IReadOnlyList<IReadOnlyList<string>> expected = [["alice", "dev, ops"]];
 
-	[Test]
-	public void UserList_BuildsLocalizedColumnsAndEmptyState()
-	{
-		var localization = new EnglishLocalization();
-		var body = new UserListLayout(localization).Body([new EtcdUser { Username = "alice", Roles = ["dev", "ops"] }]);
-
-		Assert.That(body.Single(), Is.InstanceOf<TableBlock>());
-		Assert.That(((TableBlock)body.Single()).IsFramed, Is.True);
-
-		IReadOnlyList<IReadOnlyList<string>> expected =
-		[
-			["Username", "Roles"],
-			["alice", "dev, ops"]
-		];
-
-		Assert.That(Cells((TableBlock)body.Single()), Is.EqualTo(expected));
-		Assert.That(LineText.Of(((TextBlock)new UserListLayout(localization).Body([]).Single()).Lines.Single()), Is.EqualTo("No users found."));
+		Assert.That(Texts(layout.Headers()), Is.EqualTo(new[] { "Username", "Roles" }));
+		Assert.That(layout.Headers().Select(span => span.Role), Is.All.EqualTo(TextRole.Accent));
+		Assert.That(Texts(layout.Rows([new EtcdUser { Username = "alice", Roles = ["dev", "ops"] }])), Is.EqualTo(expected));
+		Assert.That(layout.Rows([]), Is.Empty);
 	}
 
 	[Test]
@@ -145,19 +119,17 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		List<Block> body = [.. new PermissionViewLayout(localization).Body(users, roles)];
-		body.AddRange(new RoleListLayout(localization).Body(roles));
+		var permissions = new PermissionListLayout(localization);
+		var roleList = new RoleListLayout(localization);
 
-		var output = Joined([.. body.OfType<TableBlock>()]);
-		var titles = Joined([.. body.OfType<TitleBlock>()]);
+		var headers = string.Join("\n", Texts(permissions.Headers()).Concat(Texts(roleList.Headers())));
+		var output = string.Join("\n", permissions.Rows(users, roles).Concat(roleList.Rows(roles)).Select(LineText.Of));
 
+		Assert.That(headers, Does.Contain("MK_USER"));
+		Assert.That(headers, Does.Contain("MK_ROLE"));
 		Assert.That(output, Does.Contain("MK_READ [MK_KEY]: /a"));
 		Assert.That(output, Does.Contain("MK_WRITE [MK_PREFIX]: MK_ALL"));
-		Assert.That(titles, Does.Contain("MK_USER: bob"));
-		Assert.That(titles, Does.Contain("MK_ROLE: dev"));
 		Assert.That(output, Does.Not.Contain("Exact key"));
-		Assert.That(output, Does.Not.Contain("User:"));
-		Assert.That(output, Does.Not.Contain("Role:"));
 		Assert.That(output, Does.Not.Contain("Read ["));
 		Assert.That(output, Does.Not.Contain('\0'));
 	}
@@ -190,23 +162,11 @@ public sealed class PermissionDisplayTests
 		});
 	}
 
-	private static IReadOnlyList<IReadOnlyList<string>> Cells(TableBlock table) =>
-	[
-		table.Header.Select(span => span.Text).ToList(),
-		.. table.Rows.Select(row => row.Select(span => span.Text).ToList())
-	];
+	private static IReadOnlyList<string> Texts(IEnumerable<StyledText> spans) =>
+		[.. spans.Select(span => span.Text)];
 
-	private static string Joined(IEnumerable<Block> blocks) =>
-		string.Join("\n", blocks.SelectMany(Runs).Select(LineText.Of));
-
-	private static IEnumerable<IReadOnlyList<StyledText>> Runs(Block block) =>
-		block switch
-		{
-			TitleBlock title => [[title.Title]],
-			TextBlock text => text.Lines,
-			TableBlock table => [table.Header, .. table.Rows],
-			_ => []
-		};
+	private static IReadOnlyList<IReadOnlyList<string>> Texts(IEnumerable<IReadOnlyList<StyledText>> rows) =>
+		[.. rows.Select(Texts)];
 
 	private class MarkingLocalization : DispatchProxy
 	{

@@ -138,7 +138,7 @@ public sealed class KeyBrowseScreenTests
 			var message = new Message(screen, keys, localization);
 			var browseLayout = new KeyBrowseLayout(localization);
 
-			Control = new KeyBrowseControl(keys, browseLayout, new Header(), session);
+			Control = new KeyBrowseControl(keys, browseLayout, new BrowseLayout(localization), new Header(), session, localization);
 
 			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings, screen, Live);
 		}

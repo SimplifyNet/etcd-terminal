@@ -9,7 +9,7 @@ using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, PressAnyKeyPrompt _pressAnyKey, RoleListLayout _layout, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, RoleListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageRoles;
 
@@ -49,6 +49,8 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 		}
 	}
 
+	/// The view-only page: one row per permission, filterable and paginated
+	/// like the key browser instead of a sectioned framed screen.
 	private async Task ListRolesAsync()
 	{
 		IReadOnlyList<EtcdRole> roles = [];
@@ -65,7 +67,14 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 			return;
 		}
 
-		_pressAnyKey.Show(_layout.Body(roles));
+		// A row of this page is one permission of a role, so the pagination
+		// counts the permission rows it filters; "total roles" would promise
+		// a count the rows do not hold.
+		_browser.Show(
+			_layout.Headers(),
+			_layout.Rows(roles),
+			_localization.NoRolesFound,
+			_localization.TotalPermissions);
 	}
 
 	private async Task CreateRoleAsync()

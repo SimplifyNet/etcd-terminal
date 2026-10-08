@@ -139,6 +139,112 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_TableBlock_SplitsTheRegionInThirdsForThreeColumns()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[],
+		[[new StyledText("user01", TextRole.Primary), new StyledText("role01", TextRole.Primary), new StyledText("perm01", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("perm01"));
+
+		Assert.That(row.IndexOf("user01", StringComparison.Ordinal), Is.EqualTo(4), row);
+		Assert.That(row.IndexOf("role01", StringComparison.Ordinal), Is.EqualTo(29), row);
+		Assert.That(row.IndexOf("perm01", StringComparison.Ordinal), Is.EqualTo(54), row);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_KeepsTwoColumnsFiftyWide()
+	{
+		var console = new TestConsole().Width(120);
+
+		Render(console, new TableBlock(
+		[new StyledText("Username", TextRole.Accent), new StyledText("Roles", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary), new StyledText("dev", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("dev"));
+
+		Assert.That(row.IndexOf("alice", StringComparison.Ordinal), Is.EqualTo(4), row);
+		Assert.That(row.IndexOf("dev", StringComparison.Ordinal), Is.EqualTo(54), row);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_KeepsThreeColumnsFiftyWide()
+	{
+		var console = new TestConsole().Width(120);
+
+		Render(console, new TableBlock(
+		[new StyledText("User", TextRole.Accent), new StyledText("Role", TextRole.Accent), new StyledText("Permission", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary), new StyledText("dev", TextRole.Primary), new StyledText("Read", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("Read"));
+
+		Assert.That(row.IndexOf("alice", StringComparison.Ordinal), Is.EqualTo(4), row);
+		Assert.That(row.IndexOf("dev", StringComparison.Ordinal), Is.EqualTo(54), row);
+		Assert.That(row.IndexOf("Read", StringComparison.Ordinal), Is.EqualTo(104), row);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_FallsBackToEqualSharesWhenFiftyDoesNotFit()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[new StyledText("User", TextRole.Accent), new StyledText("Role", TextRole.Accent), new StyledText("Permission", TextRole.Accent)],
+		[[new StyledText("user01", TextRole.Primary), new StyledText("role01", TextRole.Primary), new StyledText("perm01", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("perm01"));
+
+		Assert.That(row.IndexOf("role01", StringComparison.Ordinal), Is.EqualTo(29), row);
+		Assert.That(row.IndexOf("perm01", StringComparison.Ordinal), Is.EqualTo(54), row);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_LeavesABlankLineUnderTheHeader()
+	{
+		var console = new TestConsole();
+
+		Render(console, new TableBlock(
+		[new StyledText("Username", TextRole.Accent), new StyledText("Roles", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary), new StyledText("dev", TextRole.Primary)]]));
+
+		var header = console.Lines.ToList().FindIndex(line => line.Contains("Username"));
+		var data = console.Lines.ToList().FindIndex(line => line.Contains("alice"));
+
+		Assert.That(data - header, Is.EqualTo(2), console.Output);
+		Assert.That(console.Lines[header + 1].Trim(), Is.Empty, console.Output);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_DrawsTheHeaderInItsRoleColor()
+	{
+		var console = new TestConsole { EmitAnsiSequences = true };
+		var accent = new ReddyTheme().Accent;
+
+		Render(console, new TableBlock(
+		[new StyledText("Username", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary)]]));
+
+		Assert.That(console.Output, Does.Contain($"38;2;{accent.R};{accent.G};{accent.B}m"), console.Output);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderlessTable_HasNoBlankRowAndSplitsEqually()
+	{
+		var console = new TestConsole().Width(120);
+
+		Render(console, new TableBlock(
+		[],
+		[[new StyledText("a", TextRole.Primary), new StyledText("b", TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains('b'));
+
+		Assert.That(console.Lines.Count(line => line.Trim().Length > 0), Is.EqualTo(1), console.Output);
+		Assert.That(row.IndexOf('b'), Is.EqualTo(62), row);
+	}
+
+	[Test]
 	public void BlockRenderer_PointerTable_HangsThePointerOnTheMarginColumn()
 	{
 		var console = new TestConsole();

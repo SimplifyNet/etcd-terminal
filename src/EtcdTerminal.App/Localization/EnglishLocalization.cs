@@ -38,7 +38,7 @@ public class EnglishLocalization : ILocalization
 	public string CreateKey => "Create Key";
 	public string ManageUsers => "Manage Users";
 	public string ManageRoles => "Manage Roles";
-	public string ViewPermissions => "View Permissions";
+	public string ListPermissions => "List Permissions";
 	public string Disconnect => "Disconnect";
 
 	public string SettingsTitle => "Settings";
@@ -64,6 +64,8 @@ public class EnglishLocalization : ILocalization
 	public string NoKeysFound => "  No keys found.";
 	public string Page => "Page";
 	public string TotalKeys => "total keys";
+	public string TotalUsers => "total users";
+	public string TotalPermissions => "total permissions";
 	public string Selected => "Selected:";
 	public string Edit => "Edit";
 	public string Delete => "Delete";
@@ -128,15 +130,15 @@ public class EnglishLocalization : ILocalization
 	public string LoadingPermissions => "Loading permissions...";
 	public string LoadingUsers => "Loading users...";
 	public string LoadingRoles => "Loading roles...";
-	public string NoUsersOrRoles => "No users or roles found.";
 	public string NoRolesFound => "No roles found.";
 	public string NoUsersFound => "No users found.";
+	public string NoPermissionsFound => "No permissions found.";
 	public string Username => "Username";
 	public string Roles => "Roles";
 	public string Role => "Role";
 	public string User => "User";
 	public string AllKeys => "All keys";
-	public string Permissions => "Permissions";
+	public string Permission => "Permission";
 	public string PermissionType => "Permission Type";
 	public string KeyPrefix => "Key / Prefix";
 	public string PermissionScope => "Scope";
