@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.Keys;
+using EtcdTerminal.App.Screens.Keys.Import;
 using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
@@ -37,6 +38,12 @@ public static class ScreensRegistrations
 		.Register<KeyBrowseList>(LifetimeType.Transient)
 		.Register<KeyEditPrompt>(LifetimeType.Transient)
 		.Register<KeyChanges>(LifetimeType.Transient)
+		.Register<KeyCreateForm>(LifetimeType.Transient)
+		.Register<ImportSourceReader>(LifetimeType.Transient)
+		.Register<ImportEntriesParser>(LifetimeType.Transient)
+		.Register<ImportPreview>(LifetimeType.Transient)
+		.Register<ImportReport>(LifetimeType.Transient)
+		.Register<ImportRunner>(LifetimeType.Transient)
 		.Register<ListRolesCommand>(LifetimeType.Transient)
 		.Register<CreateRoleCommand>(LifetimeType.Transient)
 		.Register<DeleteRoleCommand>(LifetimeType.Transient)
