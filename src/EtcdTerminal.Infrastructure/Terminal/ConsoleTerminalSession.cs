@@ -16,7 +16,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, ITheme _theme)
 {
 	private const int FooterRows = 3;
 
-	private static readonly TimeSpan SizePollInterval = TimeSpan.FromMilliseconds(100);
+	private static readonly TimeSpan SizePollInterval = TimeSpan.FromMilliseconds(200);
 
 	private readonly List<Action> _resizeHandlers = [];
 
