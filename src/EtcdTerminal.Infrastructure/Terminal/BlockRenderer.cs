@@ -17,16 +17,11 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// the previous section.
 	private const int TitleSpacingAbove = 1;
 
-	/// Every column but the last of a headered list measures this many
-	/// columns, so the columns stand close together instead of spreading
-	/// across the region with canyons of empty space between them. It is a
-	/// layout preference, not a measurement, so the model stays width-free.
+	/// No column of a headered list is wider than this, so the columns stand
+	/// close together instead of spreading across the region with canyons of
+	/// empty space between them. It is a layout preference, not a
+	/// measurement, so the model stays width-free.
 	private const int ListColumnWidth = 50;
-
-	/// The last column of a hugged list keeps at least this many columns,
-	/// otherwise the fixed widths would crush it and the region falls back
-	/// to equal shares.
-	private const int MinHuggedLastColumn = 10;
 
 	private Color BandColor => new(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
 
@@ -152,22 +147,19 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		block.Rows.Count == 0 ? 0 : block.Rows.Max(row => row.Count);
 
 	/// <summary>
-	/// The borderless table's columns split the region instead of handing the
-	/// spare width to the column Spectre measured wider. A table with a header
-	/// is a list page and its columns stand close together: every column but
-	/// the last measures <see cref="ListColumnWidth"/> columns and the last
-	/// takes the rest, so short cells leave no canyon between them. When that
-	/// would leave the last column under <see cref="MinHuggedLastColumn"/>
-	/// columns, and for a headerless table (the key browser's pointer table,
-	/// the import preview), the region is split into equal shares — halves
-	/// for two columns, thirds for three — the way the terminal before the
-	/// migration cut every line in two halves did. The split happens at
-	/// render time from the width the parent hands in, so it follows a
-	/// terminal resize and the model never measures anything. A cell wider
-	/// than its share is cropped by the column's ellipsis, the way the old
-	/// TruncateText did. The last column takes the remainder so the widths
-	/// add up to the region exactly. The borderless columns carry a zero
-	/// padding on purpose:
+	/// The borderless table's columns split the region into equal shares —
+	/// halves for two columns, thirds for three — instead of handing the
+	/// spare width to the column Spectre measured wider, so a list stays
+	/// balanced the way the terminal before the migration cut every line in
+	/// two halves did. A table with a header is a list page and its columns
+	/// stand close together: no column grows past <see cref="ListColumnWidth"/>
+	/// columns, and when the region is too narrow for that every column
+	/// shrinks by the same share. The split happens at render time from the
+	/// width the parent hands in, so it follows a terminal resize and the
+	/// model never measures anything. A cell wider than its column is cropped
+	/// by the ellipsis, the way the old TruncateText did. The last column
+	/// takes the rounding remainder so the shares add up to the region
+	/// exactly. The borderless columns carry a zero padding on purpose:
 	/// BoxBorder.None still reports UsePadding, so the measurer would budget
 	/// pad cells the renderer never draws and Ratio.Reduce would shrink a
 	/// column off its share.
@@ -193,29 +185,19 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 				return _owner.BuildTable(_block, []);
 
 			var content = Math.Max(0, maxWidth - (_block.Pointer ? ContentIndent.MarkerColumns : 0));
+			var width = content / share;
 			int?[] widths = new int?[columns];
 
-			if (HugsColumns(content, share))
+			for (var column = start; column < columns; column++)
 			{
-				for (var column = 0; column < columns - 1; column++)
-					widths[column] = ListColumnWidth;
+				var columnWidth = column == columns - 1 ? content - width * (share - 1) : width;
 
-				widths[columns - 1] = content - ListColumnWidth * (share - 1);
-			}
-			else
-			{
-				var width = content / share;
-
-				for (var column = start; column < columns; column++)
-					widths[column] = column == columns - 1 ? content - width * (share - 1) : width;
+				widths[column] = CapsColumns ? Math.Min(columnWidth, ListColumnWidth) : columnWidth;
 			}
 
 			return _owner.BuildTable(_block, widths);
 		}
 
-		private bool HugsColumns(int content, int share) =>
-			!_block.Pointer
-			&& _block.Header.Count > 0
-			&& content - ListColumnWidth * (share - 1) >= MinHuggedLastColumn;
+		private bool CapsColumns => !_block.Pointer && _block.Header.Count > 0;
 	}
 }

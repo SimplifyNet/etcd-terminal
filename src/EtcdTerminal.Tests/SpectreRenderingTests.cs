@@ -170,7 +170,7 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
-	public void BlockRenderer_HeaderedTable_KeepsThreeColumnsFiftyWide()
+	public void BlockRenderer_HeaderedTable_ShrinksThreeColumnsEquallyWhenFiftyDoesNotFit()
 	{
 		var console = new TestConsole().Width(120);
 
@@ -181,12 +181,27 @@ public sealed class SpectreRenderingTests
 		var row = console.Lines.Single(line => line.Contains("Read"));
 
 		Assert.That(row.IndexOf("alice", StringComparison.Ordinal), Is.EqualTo(4), row);
-		Assert.That(row.IndexOf("dev", StringComparison.Ordinal), Is.EqualTo(54), row);
-		Assert.That(row.IndexOf("Read", StringComparison.Ordinal), Is.EqualTo(104), row);
+		Assert.That(row.IndexOf("dev", StringComparison.Ordinal), Is.EqualTo(42), row);
+		Assert.That(row.IndexOf("Read", StringComparison.Ordinal), Is.EqualTo(80), row);
 	}
 
 	[Test]
-	public void BlockRenderer_HeaderedTable_FallsBackToEqualSharesWhenFiftyDoesNotFit()
+	public void BlockRenderer_HeaderedTable_NeverWidensAColumnPastFifty()
+	{
+		var console = new TestConsole().Width(200);
+
+		Render(console, new TableBlock(
+		[new StyledText("Username", TextRole.Accent), new StyledText("Roles", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary), new StyledText(new string('x', 80), TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("alice"));
+
+		Assert.That(row.IndexOf('x'), Is.EqualTo(54), row);
+		Assert.That(row.Count(character => character == 'x'), Is.LessThanOrEqualTo(50), row);
+	}
+
+	[Test]
+	public void BlockRenderer_HeaderedTable_ShrinksEveryColumnEquallyOnANarrowRegion()
 	{
 		var console = new TestConsole();
 

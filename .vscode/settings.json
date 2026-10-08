@@ -13,6 +13,7 @@
 		"etcd",
 		"Etcdserverpb",
 		"grpc",
+		"headered",
 		"Mvccpb",
 		"neighbouring",
 		"Padder",
