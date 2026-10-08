@@ -73,7 +73,10 @@ public sealed class SettingsScreenTests
 			var menu = new Menu(screen, Answers);
 
 			Settings = new AppSettingsStore(Repository);
-			Screen = new SettingsScreen(menu, prompt, message, localization, Settings);
+
+			var writer = new SettingsWriter(Settings, message, localization);
+
+			Screen = new SettingsScreen(menu, new PageSizeEditor(new UserInput(prompt, Settings), writer, message, localization), writer, localization);
 		}
 	}
 

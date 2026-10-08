@@ -17,7 +17,13 @@ public static class ScreensRegistrations
 {
 	public static IDIRegistrator RegisterScreens(this IDIRegistrator registrator) => registrator
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
+		.Register<InstanceMenu>(LifetimeType.Transient)
+		.Register<InstanceConnector>(LifetimeType.Transient)
+		.Register<InstanceToolActions>(LifetimeType.Transient)
+		.Register<DecryptFailureNotice>(LifetimeType.Transient)
 		.Register<ManageConnectionsScreen>(LifetimeType.Transient)
+		.Register<ConnectionEditor>(LifetimeType.Transient)
+		.Register<ConnectionOrganizer>(LifetimeType.Transient)
 		.Register<MainScreen>(LifetimeType.Transient)
 		.Register<MainMenuLabels>(LifetimeType.Transient)
 		.Register<MainMenuItems>(LifetimeType.Transient)
@@ -29,6 +35,8 @@ public static class ScreensRegistrations
 		.Register<PermissionListScreen>(LifetimeType.Transient)
 		.Register<PermissionSourcesLoader>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
+		.Register<SettingsWriter>(LifetimeType.Transient)
+		.Register<PageSizeEditor>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
 		.Register<PermissionTargetPrompt>(LifetimeType.Transient)

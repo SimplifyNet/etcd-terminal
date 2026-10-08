@@ -123,8 +123,9 @@ public sealed class ManageConnectionsScreenTests
 			var screen = new Screen(Canvas, new Header(), statusBar);
 			var message = new Message(screen, keys, localization);
 			var menu = new Menu(screen, Answers);
+			var userInput = new UserInput(prompt, new AppSettingsStore(new FakeSettingsRepository()));
 
-			Screen = new ManageConnectionsScreen(Repository, menu, new UserInput(prompt, new AppSettingsStore(new FakeSettingsRepository())), message, localization);
+			Screen = new ManageConnectionsScreen(menu, new ConnectionEditor(Repository, userInput, message, localization), new ConnectionOrganizer(Repository, menu, message, localization), localization);
 		}
 	}
 

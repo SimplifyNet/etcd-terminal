@@ -192,11 +192,16 @@ public sealed class SessionFlowTests
 			var message = new Message(screen, Keys, Localization);
 			var prompt = new Prompt(new StubTextInput());
 			var spinner = new Spinner(Keys, new FakeStatusIndicator());
-			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, new UserInput(prompt, new AppSettingsStore(new FakeSettingsRepository())), message, Localization);
-			var settings = new SettingsScreen(Menu, prompt, message, Localization, new AppSettingsStore(new FakeSettingsRepository()));
+			var repo = new StubConfigRepo(instances);
+			var settingsStore = new AppSettingsStore(new FakeSettingsRepository());
+			var userInput = new UserInput(prompt, settingsStore);
+			var settingsWriter = new SettingsWriter(settingsStore, message, Localization);
+			var settings = new SettingsScreen(Menu, new PageSizeEditor(userInput, settingsWriter, message, Localization), settingsWriter, Localization);
+			var manage = new ManageConnectionsScreen(Menu, new ConnectionEditor(repo, userInput, message, Localization), new ConnectionOrganizer(repo, Menu, message, Localization), Localization);
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
+			var notice = new DecryptFailureNotice(new StubDecryptSource(), message, Localization);
 
-			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), workflow, settings, Menu, message, spinner, manage, Localization);
+			Selection = new InstanceSelectionScreen(new InstanceMenu(repo, notice, Menu, Localization), new InstanceConnector(workflow, spinner, message, Localization), new InstanceToolActions(manage, settings));
 			Main = new MainScreen(workflow, new MainMenuItems(entries, Session, new MainMenuLabels(Localization)), Menu);
 		}
 	}

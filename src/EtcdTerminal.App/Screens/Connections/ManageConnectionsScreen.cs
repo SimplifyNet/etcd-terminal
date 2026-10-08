@@ -1,4 +1,3 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation.Localization;
@@ -6,7 +5,7 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configRepo, Menu _menu, UserInput _input, Message _message, ILocalization _localization)
+public sealed class ManageConnectionsScreen(Menu _menu, ConnectionEditor _editor, ConnectionOrganizer _organizer, ILocalization _localization)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
@@ -32,139 +31,30 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		switch (action)
 		{
 			case ManageConnectionsAction.AddInstance:
-				SaveInstanceInteractive(null, _localization.InstanceAdded);
+				_editor.Add();
 				break;
 			case ManageConnectionsAction.EditInstance:
-				EditInstanceInteractive(instances);
+				EditInstance(instances);
 				break;
 			case ManageConnectionsAction.MoveUpInstance:
-				MoveInstanceInteractive(instances, -1);
+				_organizer.Move(instances, -1);
 				break;
 			case ManageConnectionsAction.MoveDownInstance:
-				MoveInstanceInteractive(instances, 1);
+				_organizer.Move(instances, 1);
 				break;
 			case ManageConnectionsAction.RemoveInstance:
-				RemoveInstanceInteractive(instances);
+				_organizer.Remove(instances);
 				break;
 		}
 	}
 
-	private void EditInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
+	private void EditInstance(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = SelectInstanceName(_localization.SelectInstanceToEdit, instances);
-
-		if (existingName is null)
-			return;
-
-		var existing = instances.First(i => i.Name == existingName);
-
-		SaveInstanceInteractive(existing, _localization.InstanceUpdated);
-	}
-
-	private void SaveInstanceInteractive(EtcdConnectionConfig? existing, string successMessage)
-	{
-		var name = existing is null
-			? _input.Ask(_localization.EnterInstanceName)
-			: _input.Ask(_localization.EnterInstanceName, existing.Name);
-
-		if (name is null)
-			return;
-
-		if (_configRepo.IsNameTaken(name, existing?.Name))
-		{
-			_message.ShowError(_localization.InstanceNameTaken);
-
-			return;
-		}
-
-		var connectionString = _input.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr);
-
-		if (connectionString is null)
-			return;
-
-		if (!new EtcdConnectionConfig { ConnectionString = connectionString }.IsConnectionStringValid)
-		{
-			_message.ShowError(_localization.InvalidConnStr);
-
-			return;
-		}
-
-		var username = existing is null
-			? _input.Ask(_localization.EnterUsername, allowEmpty: true)
-			: _input.Ask(_localization.EnterUsername, existing.Username ?? string.Empty);
-
-		if (username is null)
-			return;
-
-		var password = AskPassword(existing, username);
-
-		if (password is null)
-			return;
-
-		var config = new EtcdConnectionConfig
-		{
-			Name = name,
-			ConnectionString = connectionString,
-			Username = string.IsNullOrEmpty(username) ? null : username,
-			Password = string.IsNullOrEmpty(password) ? null : password
-		};
+		var existing = _organizer.PickForEdit(instances);
 
 		if (existing is null)
-			_configRepo.AddInstance(config);
-		else
-			_configRepo.UpdateInstance(existing.Name, config);
-
-		_message.ShowSuccess(successMessage);
-	}
-
-	private string? AskPassword(EtcdConnectionConfig? existing, string username)
-	{
-		if (string.IsNullOrEmpty(username))
-			return string.Empty;
-
-		var password = existing?.Password ?? string.Empty;
-
-		var passwordPrompt = existing is null
-			? _localization.EnterPassword
-			: _localization.EnterPasswordKeepCurrent;
-
-		var entered = _input.Secret(passwordPrompt);
-
-		if (entered is null)
-			return null;
-
-		if (existing is null || !string.IsNullOrEmpty(entered))
-			password = entered;
-
-		return password;
-	}
-
-	private string? SelectInstanceName(string title, IReadOnlyList<EtcdConnectionConfig> instances) =>
-		_menu.Show(title, instances.Select(i => new Choice<string>(i.Name, i.Name)).ToList())?.Id;
-
-	private void MoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
-	{
-		var title = direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown;
-		var name = SelectInstanceName(title, instances);
-
-		if (name is null)
 			return;
 
-		if (direction < 0)
-			_configRepo.MoveUp(name);
-		else
-			_configRepo.MoveDown(name);
-	}
-
-	private void RemoveInstanceInteractive(IReadOnlyList<EtcdConnectionConfig> instances)
-	{
-		var nameToRemove = SelectInstanceName(_localization.SelectInstanceToRemove, instances);
-
-		if (nameToRemove is null)
-			return;
-
-		_configRepo.RemoveInstance(nameToRemove);
-
-		_message.ShowSuccess(_localization.InstanceRemoved);
+		_editor.Edit(existing);
 	}
 }
