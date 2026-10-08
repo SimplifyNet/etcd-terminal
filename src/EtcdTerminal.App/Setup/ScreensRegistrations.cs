@@ -1,8 +1,10 @@
+using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.App.Screens.Permissions;
 using EtcdTerminal.App.Screens.Roles;
+using EtcdTerminal.App.Screens.Roles.Commands;
 using EtcdTerminal.App.Screens.Settings;
 using EtcdTerminal.App.Screens.Users;
 using Simplify.DI;
@@ -26,8 +28,14 @@ public static class ScreensRegistrations
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
+		.Register<PermissionTargetPrompt>(LifetimeType.Transient)
 		.Register<KeyBrowseControl>(LifetimeType.Transient)
 		.Register<KeyBrowseLayout>(LifetimeType.Transient)
+		.Register<ListRolesCommand>(LifetimeType.Transient)
+		.Register<CreateRoleCommand>(LifetimeType.Transient)
+		.Register<DeleteRoleCommand>(LifetimeType.Transient)
+		.Register<GrantRolePermissionCommand>(LifetimeType.Transient)
+		.Register<RevokeRolePermissionCommand>(LifetimeType.Transient)
 		.Register<IEnumerable<IMainMenuEntry>>(c =>
 		[
 			c.Resolve<KeyBrowseScreen>(),
@@ -36,5 +44,13 @@ public static class ScreensRegistrations
 			c.Resolve<UsersManagementScreen>(),
 			c.Resolve<RolesManagementScreen>(),
 			c.Resolve<PermissionListScreen>()
+		], LifetimeType.Transient)
+		.Register<IEnumerable<IMenuCommand<RoleMenuAction>>>(c =>
+		[
+			c.Resolve<ListRolesCommand>(),
+			c.Resolve<CreateRoleCommand>(),
+			c.Resolve<DeleteRoleCommand>(),
+			c.Resolve<GrantRolePermissionCommand>(),
+			c.Resolve<RevokeRolePermissionCommand>()
 		], LifetimeType.Transient);
 }

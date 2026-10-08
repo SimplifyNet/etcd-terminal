@@ -12,6 +12,12 @@ namespace EtcdTerminal.App.Screens.Roles;
 /// </summary>
 public sealed class RoleListLayout(ILocalization _localization)
 {
+	public string Loading => _localization.LoadingRoles;
+
+	public string Empty => _localization.NoRolesFound;
+
+	public string Total => _localization.TotalPermissions;
+
 	public IReadOnlyList<StyledText> Headers() =>
 	[
 		new StyledText(_localization.Role, TextRole.Accent),

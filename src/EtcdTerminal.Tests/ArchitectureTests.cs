@@ -9,6 +9,9 @@ namespace EtcdTerminal.Tests;
 [TestFixture]
 public sealed class ArchitectureTests
 {
+	[OneTimeSetUp]
+	public void RegisterApplication() => DIContainer.Current.RegisterAll();
+
 	[Test]
 	public void AppTypesDoNotReferenceSpectre()
 	{
@@ -274,8 +277,6 @@ public sealed class ArchitectureTests
 	[Test]
 	public void EveryMainMenuEntryIsRegistered()
 	{
-		DIContainer.Current.RegisterAll();
-
 		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.MainMenu.IMainMenuEntry>>()
 			.Select(e => e.GetType())
 			.ToList();
@@ -284,6 +285,22 @@ public sealed class ArchitectureTests
 			.ToList();
 
 		Assert.That(resolved, Is.EquivalentTo(declared));
+	}
+
+	[Test]
+	public void EveryRoleCommandIsRegistered()
+	{
+		var commands = DIContainer.Current.Resolve<IEnumerable<App.Components.IMenuCommand<App.Screens.Roles.RoleMenuAction>>>()
+			.ToList();
+		var declared = SafeGetTypes(typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly)
+			.Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(App.Components.IMenuCommand<App.Screens.Roles.RoleMenuAction>).IsAssignableFrom(t))
+			.ToList();
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(commands.Select(c => c.GetType()), Is.EquivalentTo(declared));
+			Assert.That(commands.Select(c => c.Action), Is.EquivalentTo(Enum.GetValues<App.Screens.Roles.RoleMenuAction>()));
+		});
 	}
 
 	/// <summary>

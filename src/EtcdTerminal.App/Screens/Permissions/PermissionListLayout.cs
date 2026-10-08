@@ -15,6 +15,10 @@ namespace EtcdTerminal.App.Screens.Permissions;
 /// </summary>
 public sealed class PermissionListLayout(ILocalization _localization)
 {
+	public string Empty => _localization.NoPermissionsFound;
+
+	public string Total => _localization.TotalPermissions;
+
 	public IReadOnlyList<StyledText> Headers() =>
 	[
 		new StyledText(_localization.User, TextRole.Accent),

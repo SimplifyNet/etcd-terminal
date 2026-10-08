@@ -10,6 +10,12 @@ namespace EtcdTerminal.App.Screens.Users;
 /// </summary>
 public sealed class UserListLayout(ILocalization _localization)
 {
+	public string Loading => _localization.LoadingUsers;
+
+	public string Empty => _localization.NoUsersFound;
+
+	public string Total => _localization.TotalUsers;
+
 	public IReadOnlyList<StyledText> Headers() =>
 	[
 		new StyledText(_localization.Username, TextRole.Accent),
