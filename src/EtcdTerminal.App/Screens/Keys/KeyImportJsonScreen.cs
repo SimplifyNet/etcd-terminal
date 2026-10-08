@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Screens.Keys.Import;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;

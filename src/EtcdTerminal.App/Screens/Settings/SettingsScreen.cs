@@ -1,4 +1,3 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Presentation.Localization;
 

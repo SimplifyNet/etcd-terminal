@@ -1,4 +1,3 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation;

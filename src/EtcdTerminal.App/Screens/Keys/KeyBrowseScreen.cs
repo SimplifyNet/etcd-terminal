@@ -1,6 +1,5 @@
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Security;
 

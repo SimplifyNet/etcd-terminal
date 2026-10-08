@@ -1,4 +1,3 @@
-using EtcdTerminal.Permissions;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Roles;
