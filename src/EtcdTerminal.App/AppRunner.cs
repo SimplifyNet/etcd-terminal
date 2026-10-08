@@ -16,7 +16,11 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 {
 	private int _stopped;
 
-	public void Start() => _terminal.Start();
+	public void Start()
+	{
+		_terminal.OnResize(_canvas.Redraw);
+		_terminal.Start();
+	}
 
 	public void Stop()
 	{

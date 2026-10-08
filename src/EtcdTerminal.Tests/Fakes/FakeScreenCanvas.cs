@@ -51,4 +51,8 @@ public sealed class FakeScreenCanvas : IScreenCanvas
 
 	public void WriteException(Exception exception) =>
 		Write(TextBlock.Line(new StyledText(exception.Message, TextRole.Danger)));
+
+	public void Redraw()
+	{
+	}
 }

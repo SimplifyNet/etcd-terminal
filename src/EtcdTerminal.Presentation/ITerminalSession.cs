@@ -11,4 +11,8 @@ public interface ITerminalSession
 	void Stop();
 
 	void OnInterrupt(Action handler);
+
+	/// Runs the handler after the window size changed and the viewport was
+	/// reserved again for the new size; the screen is expected to redraw.
+	void OnResize(Action handler);
 }

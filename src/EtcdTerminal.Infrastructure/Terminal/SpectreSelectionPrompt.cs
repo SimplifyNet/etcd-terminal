@@ -10,7 +10,9 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// hardcoded ">" and its rows cannot be indented (documented in 0.57.2), so
 /// the rows are composed here. The region, the cursor and the erasing of the
 /// menu when it closes stay with the library's live renderer, which is what
-/// the prompt used before, so the rest of the console is untouched.
+/// the prompt used before, so the rest of the console is untouched. The rows are
+/// composed when the region is rendered, so a redraw of the screen after the
+/// window was resized shows them for the new height.
 /// </summary>
 public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMapper _styles, ILocalization _localization) : ISelectionPrompt
 {
@@ -23,12 +25,11 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 		if (list.Items.Count is 0)
 			return null;
 
-		var pageSize = Math.Max(3, _console.Profile.Height - ReservedRows);
 		var index = 0;
 
 		try
 		{
-			return _console.Live(Render(list, index, pageSize))
+			return _console.Live(new Target<TId>(this, list, () => index))
 				.AutoClear(true)
 				.Overflow(VerticalOverflow.Crop)
 				.Start(ctx =>
@@ -48,12 +49,13 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 						if (key.Value.Key is ConsoleKey.Enter or ConsoleKey.Packet or ConsoleKey.Spacebar)
 							return list.Items[index];
 
-						var next = Step(key.Value.Key, index, list.Items.Count, pageSize);
+						var next = Step(key.Value.Key, index, list.Items.Count, PageSize(_console.Profile.Height));
 
 						if (next != index)
 						{
 							index = next;
-							ctx.UpdateTarget(Render(list, index, pageSize));
+
+							ctx.Refresh();
 						}
 					}
 				});
@@ -135,6 +137,8 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 		return (count + (next % count)) % count;
 	}
 
+	private static int PageSize(int height) => Math.Max(3, height - ReservedRows);
+
 	private static Paragraph Row(string text, Style style)
 	{
 		var paragraph = new Paragraph();
@@ -143,5 +147,14 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 		paragraph.Overflow = Overflow.Ellipsis;
 
 		return paragraph;
+	}
+
+	/// The live region's target: composes the rows for the current index and
+	/// the height at the time of rendering, so every refresh — including the
+	/// one a screen redraw triggers — fits the current window.
+	private sealed class Target<TId>(SpectreSelectionPrompt _owner, ChoiceList<TId> _list, Func<int> _index) : Renderable
+	{
+		protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth) =>
+			_owner.Render(_list, _index(), PageSize(options.ConsoleSize.Height)).Render(options, maxWidth);
 	}
 }

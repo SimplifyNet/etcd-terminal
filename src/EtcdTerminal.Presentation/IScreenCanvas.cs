@@ -24,4 +24,7 @@ public interface IScreenCanvas
 	void UpdateFooter(StatusBarModel footer);
 
 	void WriteException(Exception exception);
+
+	/// Draws the current screen again for the current terminal size.
+	void Redraw();
 }

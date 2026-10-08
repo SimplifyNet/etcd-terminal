@@ -29,7 +29,7 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 	}
 
 	private IRenderable Render(FrameModel model) =>
-		new ClampedRows(new Rows(model.Body.Select(_blocks.Render)), _console.Profile.Height - FooterRows);
+		new ClampedRows(new Rows(model.Body.Select(_blocks.Render)));
 
 	private sealed class Updater(LiveDisplayContext _ctx, SpectreLiveFrame _owner) : ILiveFrameUpdater
 	{
@@ -40,8 +40,10 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 		}
 	}
 
-	/// Crops to the viewport above the footer; Live itself crops only at full console height.
-	private sealed class ClampedRows(IRenderable _inner, int _maxLines) : Renderable
+	/// Crops to the viewport above the footer; Live itself crops only at full
+	/// console height. The height is read when rendering, so a redraw after
+	/// the window was resized fits the new viewport.
+	private sealed class ClampedRows(IRenderable _inner) : Renderable
 	{
 		protected override Measurement Measure(RenderOptions options, int maxWidth) => _inner.Measure(options, maxWidth);
 
@@ -50,7 +52,7 @@ public sealed class SpectreLiveFrame(IAnsiConsole _console, BlockRenderer _block
 			var lines = Segment.SplitLines(_inner.Render(options, maxWidth));
 			var result = new List<Segment>();
 
-			foreach (var line in lines.Take(Math.Max(1, _maxLines)))
+			foreach (var line in lines.Take(Math.Max(1, options.ConsoleSize.Height - FooterRows)))
 			{
 				result.AddRange(line);
 				result.Add(Segment.LineBreak);
