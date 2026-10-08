@@ -24,8 +24,6 @@ public sealed class PermissionListScreen(
 {
 	public MainMenuAction Action => MainMenuAction.ListPermissions;
 
-	public string Label => _localization.ListPermissions;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 
 	public async Task ShowAsync()

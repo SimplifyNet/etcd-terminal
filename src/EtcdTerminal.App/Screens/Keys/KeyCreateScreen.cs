@@ -10,8 +10,6 @@ public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, Screen _screen, Use
 {
 	public MainMenuAction Action => MainMenuAction.CreateKey;
 
-	public string Label => _localization.CreateKey;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanWriteKeys;
 	public async Task ShowAsync()
 	{

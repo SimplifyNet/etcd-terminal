@@ -23,8 +23,6 @@ public sealed class KeyImportJsonScreen(
 
 	public MainMenuAction Action => MainMenuAction.ImportJson;
 
-	public string Label => _localization.ImportJson;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanWriteKeys;
 
 	public async Task ShowAsync()

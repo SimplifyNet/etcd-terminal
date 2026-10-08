@@ -10,8 +10,6 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
-	public string Label => _localization.ManageUsers;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<UserMenuAction>(_localization.UsersManagement,

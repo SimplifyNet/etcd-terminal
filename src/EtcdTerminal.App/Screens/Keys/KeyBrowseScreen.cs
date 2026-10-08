@@ -14,8 +14,6 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 {
 	public MainMenuAction Action => MainMenuAction.BrowseKeys;
 
-	public string Label => _localization.BrowseKeys;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanReadKeys;
 
 	private readonly KeyPager _pager = new();

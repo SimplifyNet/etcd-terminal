@@ -15,6 +15,8 @@ public static class ScreensRegistrations
 		.Register<InstanceSelectionScreen>(LifetimeType.Transient)
 		.Register<ManageConnectionsScreen>(LifetimeType.Transient)
 		.Register<MainScreen>(LifetimeType.Transient)
+		.Register<MainMenuLabels>(LifetimeType.Transient)
+		.Register<MainMenuItems>(LifetimeType.Transient)
 		.Register<KeyBrowseScreen>(LifetimeType.Transient)
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
 		.Register<KeyImportJsonScreen>(LifetimeType.Transient)

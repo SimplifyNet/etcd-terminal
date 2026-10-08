@@ -197,7 +197,7 @@ public sealed class SessionFlowTests
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
 
 			Selection = new InstanceSelectionScreen(new StubConfigRepo(instances), new StubDecryptSource(), workflow, settings, Menu, message, spinner, manage, Localization);
-			Main = new MainScreen(workflow, Session, entries, Menu, Localization);
+			Main = new MainScreen(workflow, new MainMenuItems(entries, Session, new MainMenuLabels(Localization)), Menu);
 		}
 	}
 
@@ -266,8 +266,6 @@ public sealed class SessionFlowTests
 	private sealed class StubEntry(MainMenuAction action, Func<Task>? behavior = null) : IMainMenuEntry
 	{
 		public MainMenuAction Action => action;
-
-		public string Label => action.ToString();
 
 		public bool IsAvailable(UserCapabilities capabilities) => true;
 

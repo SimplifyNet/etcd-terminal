@@ -11,8 +11,6 @@ public sealed class RolesManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen 
 {
 	public MainMenuAction Action => MainMenuAction.ManageRoles;
 
-	public string Label => _localization.ManageRoles;
-
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
 		await _menuScreen.RunAsync<RoleMenuAction>(_localization.RolesManagement,

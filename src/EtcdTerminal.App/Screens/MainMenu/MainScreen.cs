@@ -1,16 +1,12 @@
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.Session;
-using EtcdTerminal.Presentation.Localization;
-using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.MainMenu;
 
 public sealed class MainScreen(
 	IConnectionWorkflow _workflow,
-	IConnectionSession _session,
-	IEnumerable<IMainMenuEntry> _entries,
-	Menu _menu,
-	ILocalization _localization)
+	MainMenuItems _items,
+	Menu _menu)
 {
 	public async Task ShowAsync()
 	{
@@ -38,31 +34,17 @@ public sealed class MainScreen(
 	{
 		while (true)
 		{
-			MainMenuAction? action = _menu.Show(string.Empty, BuildMenuItems())?.Id;
+			MainMenuAction? action = _menu.Show(string.Empty, _items.Build())?.Id;
 
 			if (action is null)
 				return;
 
-			var entry = _entries.FirstOrDefault(e => e.Action == action);
+			var entry = _items.Find(action.Value);
 
 			if (entry is null)
 				return;
 
 			await entry.ShowAsync();
 		}
-	}
-
-	/// <summary>
-	/// Only shows the actions the connected account is actually permitted to perform.
-	/// </summary>
-	private List<Choice<MainMenuAction>> BuildMenuItems()
-	{
-		List<Choice<MainMenuAction>> items = [.. _entries
-			.Where(e => e.IsAvailable(_session.Capabilities))
-			.Select(e => new Choice<MainMenuAction>(e.Action, e.Label))];
-
-		items.Add(new(MainMenuAction.Disconnect, _localization.Disconnect));
-
-		return items;
 	}
 }
