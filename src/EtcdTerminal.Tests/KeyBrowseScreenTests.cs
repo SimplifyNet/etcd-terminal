@@ -116,6 +116,24 @@ public sealed class KeyBrowseScreenTests
 		Assert.That(LineText.Of(panel.Actions), Does.Contain("D Delete"));
 	}
 
+	[Test]
+	public async Task ActionPanel_HidesTheSearchCaretAndBringsItBackOnEscape()
+	{
+		var harness = new Harness(new() { ["/a/1"] = "x" });
+
+		harness.Keys.Press(ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Escape);
+
+		await harness.Screen.ShowAsync();
+
+		var idle = (TextBlock)harness.Live.Frames[0].Body[1];
+		var panel = (TextBlock)harness.Live.Frames[1].Body[1];
+		var restored = (TextBlock)harness.Live.Frames[2].Body[1];
+
+		Assert.That(LineText.Of(idle.Lines.Single()), Does.EndWith("\u2588"));
+		Assert.That(LineText.Of(panel.Lines.Single()), Does.Not.EndWith("\u2588"), "the open panel takes the typing, so the search line loses its caret");
+		Assert.That(LineText.Of(restored.Lines.Single()), Does.EndWith("\u2588"), "leaving the panel returns the caret to the search line");
+	}
+
 	private sealed class Harness
 	{
 		public readonly FakeKeyReader Keys = new();
