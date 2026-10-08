@@ -31,7 +31,7 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 	{
 		var background = new Color(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
 
-		return new BackgroundBand(Bar(Fit(model)), background, _trailingBreak: false);
+		return new BackgroundBand(Bar(Fit(model)), new BandStyle(background, TrailingBreak: false));
 	}
 
 	/// <summary>

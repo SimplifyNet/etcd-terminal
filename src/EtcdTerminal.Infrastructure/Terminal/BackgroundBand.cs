@@ -15,47 +15,38 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// background, and it emits a line break after the bottom padding, so it
 /// cannot close without scrolling either.
 /// </summary>
-public sealed class BackgroundBand(
-	IRenderable _target,
-	Color _background,
-	bool _trailingBreak,
-	Style? _stripeStyle = null,
-	int _stripeOffset = 0,
-	int _contentIndent = 0,
-	IReadOnlyList<Color>? _lineBackgrounds = null,
-	Color? _topPaddingBackground = null,
-	bool _verticalPadding = true) : Renderable
+public sealed class BackgroundBand(IRenderable _target, BandStyle _style) : Renderable
 {
 	protected override Measurement Measure(RenderOptions options, int maxWidth) =>
 		_target.Measure(options, maxWidth);
 
 	protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
 	{
-		var stripeWidth = _stripeStyle is null ? 0 : 1;
-		var targetWidth = Math.Max(0, maxWidth - _stripeOffset - stripeWidth - _contentIndent);
+		var stripeWidth = _style.StripeStyle is null ? 0 : 1;
+		var targetWidth = Math.Max(0, maxWidth - _style.StripeOffset - stripeWidth - _style.ContentIndent);
 		var lines = Segment.SplitLines(_target.Render(options, targetWidth));
 		List<Segment> result = [];
 
-		if (_verticalPadding)
+		if (_style.VerticalPadding)
 		{
-			AddBandRow(result, [], maxWidth, _topPaddingBackground);
+			AddBandRow(result, [], maxWidth, _style.TopPaddingBackground);
 			result.Add(Segment.LineBreak);
 		}
 
 		for (var index = 0; index < lines.Count; index++)
 		{
-			var lineBackground = _lineBackgrounds is not null && index < _lineBackgrounds.Count
-				? _lineBackgrounds[index]
-				: _background;
+			var lineBackground = _style.LineBackgrounds is not null && index < _style.LineBackgrounds.Count
+				? _style.LineBackgrounds[index]
+				: _style.Background;
 
 			AddBandRow(result, lines[index], maxWidth, lineBackground);
 			result.Add(Segment.LineBreak);
 		}
 
-		if (_verticalPadding)
-			AddBandRow(result, [], maxWidth, _background);
+		if (_style.VerticalPadding)
+			AddBandRow(result, [], maxWidth, _style.Background);
 
-		if (_trailingBreak)
+		if (_style.TrailingBreak)
 			result.Add(Segment.LineBreak);
 
 		return result;
@@ -63,18 +54,18 @@ public sealed class BackgroundBand(
 
 	private void AddBandRow(List<Segment> result, IReadOnlyList<Segment> line, int maxWidth, Color? rowBackground = null)
 	{
-		var background = rowBackground ?? _background;
+		var background = rowBackground ?? _style.Background;
 		var backgroundStyle = new Style(background: background);
-		var prefixWidth = _stripeOffset + (_stripeStyle is null ? 0 : 1) + _contentIndent;
+		var prefixWidth = _style.StripeOffset + (_style.StripeStyle is null ? 0 : 1) + _style.ContentIndent;
 
-		if (_stripeOffset > 0)
-			result.Add(new Segment(new string(' ', _stripeOffset), backgroundStyle));
+		if (_style.StripeOffset > 0)
+			result.Add(new Segment(new string(' ', _style.StripeOffset), backgroundStyle));
 
-		if (_stripeStyle is { } stripeStyle)
+		if (_style.StripeStyle is { } stripeStyle)
 			result.Add(new Segment("\u2503", new Style(stripeStyle.Foreground, background, stripeStyle.Decoration)));
 
-		if (_contentIndent > 0)
-			result.Add(new Segment(new string(' ', _contentIndent), backgroundStyle));
+		if (_style.ContentIndent > 0)
+			result.Add(new Segment(new string(' ', _style.ContentIndent), backgroundStyle));
 
 		foreach (var segment in line)
 			result.Add(new Segment(segment.Text, new Style(segment.Style.Foreground, background, segment.Style.Decoration), segment.Link));

@@ -39,14 +39,15 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 			BannerBlock => Content(block),
 			ActionPanelBlock => new BackgroundBand(
 				Content(block),
-				BandColor,
-				_trailingBreak: true,
-				_stripeStyle: _styles.Resolve(TextRole.Accent),
-				_stripeOffset: 0,
-				_contentIndent: 2,
-				_lineBackgrounds: ActionPanelBackgrounds(),
-				_verticalPadding: false),
-			TextBlock { Band: true } => new BackgroundBand(Indented(block, ContentIndent.BandColumns), BandColor, _trailingBreak: true),
+				new BandStyle(BandColor, TrailingBreak: true)
+				{
+					StripeStyle = _styles.Resolve(TextRole.Accent),
+					StripeOffset = 0,
+					ContentIndent = 2,
+					LineBackgrounds = ActionPanelBackgrounds(),
+					VerticalPadding = false
+				}),
+			TextBlock { Band: true } => new BackgroundBand(Indented(block, ContentIndent.BandColumns), new BandStyle(BandColor, TrailingBreak: true)),
 			TableBlock { Pointer: true } => Indented(block, ContentIndent.MarkerColumns),
 			_ => Indented(block, ContentIndent.Columns)
 		};
