@@ -11,9 +11,7 @@ namespace EtcdTerminal.App.Components;
 /// actions; one component owns every row of the viewport.
 /// </summary>
 public sealed class ListBrowser(
-	Screen _screen,
-	Header _header,
-	BrowseLayout _layout,
+	ListView _view,
 	ILiveFrame _live,
 	IKeyReader _keys,
 	IAppSettingsStore _settings)
@@ -34,20 +32,10 @@ public sealed class ListBrowser(
 			var totalPages = pager.GetTotalPages(pageSize);
 			var pageRows = pager.GetPage(page, pageSize);
 
-			return new(
-			[
-				_header.BuildModel(),
-				_layout.Search(query),
-				TextBlock.Blank(),
-				pageRows.Count == 0
-					? TextBlock.Line(new StyledText(emptyText, TextRole.Muted))
-					: new TableBlock(headers, pageRows),
-				TextBlock.Blank(),
-				_layout.Pagination(page, totalPages, pager.FilteredCount, totalLabel)
-			]);
+			return _view.Frame(headers, pageRows, query, page, totalPages, pager.FilteredCount, emptyText, totalLabel);
 		}
 
-		_screen.Reset();
+		_view.Reset();
 
 		_live.Run(Frame(), LiveFrameEnd.Clear, updater =>
 		{

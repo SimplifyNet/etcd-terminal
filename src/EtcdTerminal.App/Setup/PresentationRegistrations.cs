@@ -22,6 +22,7 @@ public static class PresentationRegistrations
 		.Register<RoleListLayout>(LifetimeType.Transient)
 		.Register<PermissionListLayout>(LifetimeType.Transient)
 		.Register<BrowseLayout>(LifetimeType.Transient)
+		.Register<ListView>(LifetimeType.Transient)
 		.Register<ListBrowser>(LifetimeType.Transient)
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
 		.Register<Message>(LifetimeType.Transient)

@@ -156,9 +156,10 @@ public sealed class ListBrowserTests
 			var localization = new EnglishLocalization();
 			var settings = new AppSettingsStore(new FakeSettingsRepository());
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
+			var screen = new Screen(Canvas, new Header(), statusBar);
 
 			Rows = [.. Enumerable.Range(0, rowCount).Select(IndexedRow)];
-			Browser = new ListBrowser(new Screen(Canvas, new Header(), statusBar), new Header(), new BrowseLayout(localization), Live, Keys, settings);
+			Browser = new ListBrowser(new ListView(screen, new BrowseLayout(localization)), Live, Keys, settings);
 		}
 
 		public void Show() => Browser.Show(Headers, Rows, "No users found.", "total users");

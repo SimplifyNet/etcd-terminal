@@ -49,7 +49,7 @@ public sealed class ListRolesCommandTests
 			var screen = new Screen(Canvas, new Header(), statusBar);
 			var spinner = new Spinner(Keys, new FakeStatusIndicator());
 			var load = new CancellableLoad(spinner, new Message(screen, Keys, localization), localization);
-			var browser = new ListBrowser(screen, new Header(), new BrowseLayout(localization), Live, Keys, settings);
+			var browser = new ListBrowser(new ListView(screen, new BrowseLayout(localization)), Live, Keys, settings);
 
 			Command = new ListRolesCommand(Admin, load, new RoleListLayout(localization), browser);
 		}

@@ -24,6 +24,8 @@ public sealed class Screen(IScreenCanvas _canvas, Header _header, StatusBar _sta
 	public void OpenPage(IReadOnlyList<Block> body, IReadOnlyList<Block> pinned) =>
 		_canvas.OpenPage(_statusBar.BuildModel(), [_header.BuildModel()], body, pinned);
 
+	public BannerBlock Banner() => _header.BuildModel();
+
 	public void Reset() => _canvas.NewScreen(_statusBar.BuildModel());
 
 	public bool Scroll(ScrollStep step) => _canvas.Scroll(step);
