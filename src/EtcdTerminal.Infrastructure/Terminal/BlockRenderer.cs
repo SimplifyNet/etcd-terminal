@@ -37,6 +37,15 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 		block switch
 		{
 			BannerBlock => Content(block),
+			ActionPanelBlock => new BackgroundBand(
+				Content(block),
+				BandColor,
+				_trailingBreak: true,
+				_stripeStyle: _styles.Resolve(TextRole.Accent),
+				_stripeOffset: 0,
+				_contentIndent: 2,
+				_lineBackgrounds: ActionPanelBackgrounds(),
+				_verticalPadding: false),
 			TextBlock { Band: true } => new BackgroundBand(Indented(block, ContentIndent.BandColumns), BandColor, _trailingBreak: true),
 			TableBlock { Pointer: true } => Indented(block, ContentIndent.MarkerColumns),
 			_ => Indented(block, ContentIndent.Columns)
@@ -48,12 +57,32 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	private IRenderable Content(Block block) =>
 		block switch
 		{
+			ActionPanelBlock panel => new Rows(
+			[
+				_styles.Build([]),
+				_styles.Build(panel.Title),
+				_styles.Build([]),
+				_styles.Build([]),
+				_styles.Build(panel.Actions),
+				_styles.Build([])
+			]),
 			TextBlock text => new Rows(text.Lines.Select(_styles.Build)),
 			TitleBlock title => new Padder(_styles.Build([title.Title]), new Padding(0, TitleSpacingAbove, 0, 0)),
 			BannerBlock banner => Banner(banner),
 			TableBlock table => RenderTable(table),
 			_ => new Rows()
 		};
+
+	private Color SelectionBackground => new(_theme.ActionPanelTitleBackground.R, _theme.ActionPanelTitleBackground.G, _theme.ActionPanelTitleBackground.B);
+
+	private IReadOnlyList<Color> ActionPanelBackgrounds() =>
+		[
+			SelectionBackground,
+			SelectionBackground,
+			SelectionBackground,
+			BandColor,
+			BandColor
+		];
 
 	/// <summary>
 	/// Renders a title banner. The model carries the text; the widget, its

@@ -34,46 +34,41 @@ public sealed class LayoutModelTests
 	}
 
 	[Test]
-	public void Actions_WithModify_OffersEditDeleteAndCancel()
+	public void ActionPanel_WithModify_OffersSelectedKeyAndEveryAction()
 	{
 		var layout = Layout();
 
-		Assert.That(layout.Selected("mykey"), Is.InstanceOf<TextBlock>());
+		var panel = (ActionPanelBlock)layout.ActionPanel("mykey", canModify: true);
+		var selected = LineText.Of(panel.Title);
+		var hints = LineText.Of(panel.Actions);
 
-		var actions = (TextBlock)layout.Actions(canModify: true);
-		var hints = LineText.Of(actions.Lines.Single());
-
+		Assert.That(selected, Is.EqualTo("Selected: mykey"));
 		Assert.That(hints, Does.Contain("E Edit"));
 		Assert.That(hints, Does.Contain("D Delete"));
 		Assert.That(hints, Does.Contain("Esc Cancel"));
 	}
 
 	[Test]
-	public void Actions_WithoutModify_OffersOnlyCancel()
+	public void ActionPanel_WithoutModify_OffersOnlyCancel()
 	{
-		var hints = LineText.Of(((TextBlock)Layout().Actions(canModify: false)).Lines.Single());
+		var panel = (ActionPanelBlock)Layout().ActionPanel("mykey", canModify: false);
+		var hints = LineText.Of(panel.Actions);
 
 		Assert.That(hints, Does.Contain("Esc Cancel"));
 		Assert.That(hints, Does.Not.Contain("Edit"));
 		Assert.That(hints, Does.Not.Contain("Delete"));
+		Assert.That(panel.Title[1].Role, Is.EqualTo(TextRole.Accent));
 	}
 
 	[Test]
-	public void Selected_KeepsSelectedKeyLiteral()
+	public void ActionPanel_KeepsSelectedKeyLiteralAndNormalizesControls()
 	{
-		var selection = (TextBlock)Layout().Selected("service/[a:b]/\u043a\u043b\u044e\u0447");
-		var line = selection.Lines.Single();
+		var literalPanel = (ActionPanelBlock)Layout().ActionPanel("service/[a:b]/\u043a\u043b\u044e\u0447", canModify: true);
+		var sanitizedPanel = (ActionPanelBlock)Layout().ActionPanel("a\nb", canModify: true);
 
-		Assert.That(LineText.Of(line), Is.EqualTo("Selected: service/[a:b]/\u043a\u043b\u044e\u0447"));
-		Assert.That(line[1].Role, Is.EqualTo(TextRole.Accent));
-	}
-
-	[Test]
-	public void Selected_NormalizesControlCharactersInSelectedKey()
-	{
-		var model = (TextBlock)Layout().Selected("a\nb");
-
-		Assert.That(LineText.Of(model.Lines.Single()), Is.EqualTo("Selected: a\u23CEb"));
+		Assert.That(LineText.Of(literalPanel.Title), Is.EqualTo("Selected: service/[a:b]/\u043a\u043b\u044e\u0447"));
+		Assert.That(literalPanel.Title[1].Role, Is.EqualTo(TextRole.Accent));
+		Assert.That(LineText.Of(sanitizedPanel.Title), Is.EqualTo("Selected: a\u23CEb"));
 	}
 
 	[Test]

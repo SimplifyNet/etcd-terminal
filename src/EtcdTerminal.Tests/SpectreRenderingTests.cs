@@ -5,6 +5,7 @@ using EtcdTerminal.Infrastructure.Terminal;
 using NUnit.Framework;
 using Spectre.Console;
 using Spectre.Console.Testing;
+using Spectre.Console.Rendering;
 
 namespace EtcdTerminal.Tests;
 
@@ -112,7 +113,8 @@ public sealed class SpectreRenderingTests
 
 		Render(framed, new TableBlock(
 		[new StyledText("scope", TextRole.Muted)],
-		[[new StyledText("/a", TextRole.Primary)]]) { IsFramed = true });
+		[[new StyledText("/a", TextRole.Primary)]])
+		{ IsFramed = true });
 
 		var plain = new TestConsole();
 
@@ -269,7 +271,8 @@ public sealed class SpectreRenderingTests
 		[
 			[new StyledText("\u276f ", TextRole.Accent), new StyledText("/alpha", TextRole.Accent), new StyledText("one", TextRole.Accent)],
 			[new StyledText("  ", TextRole.Primary), new StyledText("/beta", TextRole.Primary), new StyledText("two", TextRole.Primary)]
-		]) { Pointer = true });
+		])
+		{ Pointer = true });
 
 		var selected = console.Lines.First(line => line.Contains("/alpha"));
 		var plain = console.Lines.First(line => line.Contains("/beta"));
@@ -341,6 +344,42 @@ public sealed class SpectreRenderingTests
 			Assert.That(console.Lines[0].Trim(), Is.Empty);
 			Assert.That(console.Lines[1], Does.StartWith("  Type to search"));
 			Assert.That(console.Lines[2].Trim(), Is.Empty);
+		});
+	}
+
+	[Test]
+	public void BlockRenderer_ActionPanel_UsesBandBackgroundAndAccentStripe()
+	{
+		var console = new TestConsole { EmitAnsiSequences = true };
+		var plainConsole = new TestConsole();
+		var theme = new ReddyTheme();
+		var selectedBackground = new Color(theme.ActionPanelTitleBackground.R, theme.ActionPanelTitleBackground.G, theme.ActionPanelTitleBackground.B);
+		var panel = new ActionPanelBlock(
+			[new StyledText("Selected: ", TextRole.Muted), new StyledText("/a", TextRole.Accent)],
+			[new StyledText("E Edit", TextRole.Primary)]);
+
+		Render(console, panel);
+		Render(plainConsole, panel);
+		var panelLines = Segment.SplitLines(BlockRenderer().Render(panel).Render(RenderOptions.Create(plainConsole), plainConsole.Profile.Width));
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(console.Output, Does.Contain($"48;2;{theme.BandBackground.R};{theme.BandBackground.G};{theme.BandBackground.B}"), console.Output);
+			Assert.That(console.Output, Does.Contain($"48;2;{theme.ActionPanelTitleBackground.R};{theme.ActionPanelTitleBackground.G};{theme.ActionPanelTitleBackground.B}"), console.Output);
+			Assert.That(console.Output, Does.Contain($"38;2;{theme.Accent.R};{theme.Accent.G};{theme.Accent.B}"), console.Output);
+			Assert.That(console.Output, Does.Contain("\u2503"), console.Output);
+			Assert.That(console.Output, Does.Contain("Selected:"), console.Output);
+			Assert.That(console.Output, Does.Contain("/a"), console.Output);
+			var titleLine = plainConsole.Lines.Single(line => line.Contains("Selected:", StringComparison.Ordinal));
+			var stripeColumn = titleLine.IndexOf('\u2503');
+
+			Assert.That(plainConsole.Lines.Any(line => line.Contains("E Edit", StringComparison.Ordinal)), Is.True, plainConsole.Output);
+			Assert.That(plainConsole.Lines, Has.Count.EqualTo(6), plainConsole.Output);
+			Assert.That(stripeColumn, Is.EqualTo(0), plainConsole.Output);
+			Assert.That(titleLine.IndexOf("Selected:", StringComparison.Ordinal) - stripeColumn, Is.EqualTo(3), plainConsole.Output);
+			Assert.That(panelLines[0].Concat(panelLines[1]).Concat(panelLines[2]).All(segment => segment.Style.Background == selectedBackground), Is.True, plainConsole.Output);
+			Assert.That(panelLines[3].Concat(panelLines[4]).Concat(panelLines[5]).All(segment => segment.Style.Background == new Style(background: new Color(theme.BandBackground.R, theme.BandBackground.G, theme.BandBackground.B)).Background), Is.True, plainConsole.Output);
+			Assert.That(panelLines[3].All(segment => segment.Style.Background == new Style(background: new Color(theme.BandBackground.R, theme.BandBackground.G, theme.BandBackground.B)).Background), Is.True, plainConsole.Output);
 		});
 	}
 

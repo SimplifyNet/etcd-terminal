@@ -47,12 +47,7 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 	public Block Detail(string label, string value, TextRole valueRole) =>
 		TextBlock.Line(new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole));
 
-	public Block Selected(string selectedKey) =>
-		TextBlock.Line(
-			new StyledText($"{_localization.Selected} ", TextRole.Muted),
-			new StyledText(DisplayText.Sanitize(selectedKey), TextRole.Accent));
-
-	public Block Actions(bool canModify)
+	public Block ActionPanel(string selectedKey, bool canModify)
 	{
 		List<StyledText> hints = [];
 
@@ -69,6 +64,8 @@ public sealed class KeyBrowseLayout(ILocalization _localization)
 		hints.Add(new StyledText("Esc", TextRole.Primary));
 		hints.Add(new StyledText($" {_localization.Cancel}", TextRole.Muted));
 
-		return TextBlock.Line([.. hints]);
+		return new ActionPanelBlock(
+			[new StyledText($"{_localization.Selected} ", TextRole.Muted), new StyledText(DisplayText.Sanitize(selectedKey), TextRole.Accent)],
+			hints);
 	}
 }

@@ -6,6 +6,7 @@ public interface ITheme
 
 	RgbColor WindowBackground { get; }
 	RgbColor BandBackground { get; }
+	RgbColor ActionPanelTitleBackground { get; }
 	RgbColor Primary { get; }
 	RgbColor Secondary { get; }
 	RgbColor Success { get; }

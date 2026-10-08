@@ -106,9 +106,14 @@ public sealed class KeyBrowseScreenTests
 
 		var withActions = harness.Live.Frames.Last(frame => frame.Body.Count == 8);
 
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[6]).Lines.Single()), Does.Contain("Selected: /a/1"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[7]).Lines.Single()), Does.Contain("E Edit"));
-		Assert.That(LineText.Of(((TextBlock)withActions.Body[7]).Lines.Single()), Does.Contain("D Delete"));
+		var panel = (ActionPanelBlock)withActions.Body[7];
+
+		Assert.That(withActions.Body[5], Is.InstanceOf<TextBlock>());
+		Assert.That(((TextBlock)withActions.Body[5]).Band, Is.True, "the panel follows the pagination band");
+		Assert.That(((TextBlock)withActions.Body[6]).Lines.Single(), Is.Empty, "a blank row separates the panel from pagination");
+		Assert.That(LineText.Of(panel.Title), Does.Contain("Selected: /a/1"));
+		Assert.That(LineText.Of(panel.Actions), Does.Contain("E Edit"));
+		Assert.That(LineText.Of(panel.Actions), Does.Contain("D Delete"));
 	}
 
 	private sealed class Harness

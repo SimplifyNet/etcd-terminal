@@ -146,7 +146,7 @@ public sealed class KeyBrowseControl(
 		if (!ShowActions || SelectedKey is null)
 			yield break;
 
-		yield return _layout.Selected(SelectedKey.Key);
-		yield return _layout.Actions(CanModifySelectedKey);
+		yield return TextBlock.Blank();
+		yield return _layout.ActionPanel(SelectedKey.Key, CanModifySelectedKey);
 	}
 }
