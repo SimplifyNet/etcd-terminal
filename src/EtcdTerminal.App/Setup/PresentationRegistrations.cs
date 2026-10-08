@@ -27,5 +27,6 @@ public static class PresentationRegistrations
 		.Register<Message>(LifetimeType.Transient)
 		.Register<MultiLinePasteReader>(LifetimeType.Transient)
 		.Register<UserInput>(LifetimeType.Transient)
+		.Register<CancellableLoad>(LifetimeType.Transient)
 		.Register<Spinner>(LifetimeType.Transient);
 }

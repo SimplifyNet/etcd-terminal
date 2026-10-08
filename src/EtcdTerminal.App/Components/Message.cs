@@ -27,6 +27,9 @@ namespace EtcdTerminal.App.Components;
 			ShowError(failure);
 	}
 
+	public void ShowResult(EtcdOperationResult result, string success, string failure) =>
+		ShowResult(result.Success, success, failure + "\n" + result.ErrorMessage);
+
 	private void Show(string text, TextRole role)
 	{
 		var lines = text.Split('\n');
