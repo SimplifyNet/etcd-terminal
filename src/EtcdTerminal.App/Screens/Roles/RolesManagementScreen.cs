@@ -9,7 +9,7 @@ using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, RoleListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class RolesManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _menuScreen, PermissionTypeSelector _permissionTypeSelector, PermissionScopeSelector _permissionScopeSelector, RoleListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageRoles;
 
@@ -17,7 +17,7 @@ public sealed class RoleManagementScreen(IEtcdRoleAdmin _roleAdmin, MenuScreen _
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
-		await _menuScreen.RunAsync<RoleMenuAction>(_localization.RoleManagement,
+		await _menuScreen.RunAsync<RoleMenuAction>(_localization.RolesManagement,
 		[
 			new(RoleMenuAction.ListRoles, _localization.ListRoles),
 			new(RoleMenuAction.CreateRole, _localization.CreateRole),

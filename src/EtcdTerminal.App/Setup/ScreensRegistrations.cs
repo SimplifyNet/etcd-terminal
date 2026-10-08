@@ -18,8 +18,8 @@ public static class ScreensRegistrations
 		.Register<KeyBrowseScreen>(LifetimeType.Transient)
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
 		.Register<KeyImportJsonScreen>(LifetimeType.Transient)
-		.Register<UserManagementScreen>(LifetimeType.Transient)
-		.Register<RoleManagementScreen>(LifetimeType.Transient)
+		.Register<UsersManagementScreen>(LifetimeType.Transient)
+		.Register<RolesManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionListScreen>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
@@ -31,8 +31,8 @@ public static class ScreensRegistrations
 			c.Resolve<KeyBrowseScreen>(),
 			c.Resolve<KeyCreateScreen>(),
 			c.Resolve<KeyImportJsonScreen>(),
-			c.Resolve<UserManagementScreen>(),
-			c.Resolve<RoleManagementScreen>(),
+			c.Resolve<UsersManagementScreen>(),
+			c.Resolve<RolesManagementScreen>(),
 			c.Resolve<PermissionListScreen>()
 		], LifetimeType.Transient);
 }

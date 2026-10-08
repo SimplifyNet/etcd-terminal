@@ -77,7 +77,7 @@ public class EnglishLocalization : ILocalization
 	public string KeyCreated => "Key created successfully!";
 	public string KeyCreateFailed => "Key already exists or could not be created.";
 
-	public string UserManagement => "User Management";
+	public string UsersManagement => "Users Management";
 	public string ListUsers => "List Users";
 	public string CreateUser => "Create User";
 	public string DeleteUser => "Delete User";
@@ -100,7 +100,7 @@ public class EnglishLocalization : ILocalization
 	public string RoleRemoved => "Role removed successfully!";
 	public string FailedRemoveRole => "Failed to remove role.";
 
-	public string RoleManagement => "Role Management";
+	public string RolesManagement => "Roles Management";
 	public string ListRoles => "List Roles";
 	public string CreateRole => "Create Role";
 	public string DeleteRole => "Delete Role";

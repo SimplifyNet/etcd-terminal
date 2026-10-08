@@ -75,7 +75,7 @@ public interface ILocalization
 	string KeyCreated { get; }
 	string KeyCreateFailed { get; }
 
-	string UserManagement { get; }
+	string UsersManagement { get; }
 	string ListUsers { get; }
 	string CreateUser { get; }
 	string DeleteUser { get; }
@@ -98,7 +98,7 @@ public interface ILocalization
 	string RoleRemoved { get; }
 	string FailedRemoveRole { get; }
 
-	string RoleManagement { get; }
+	string RolesManagement { get; }
 	string ListRoles { get; }
 	string CreateRole { get; }
 	string DeleteRole { get; }

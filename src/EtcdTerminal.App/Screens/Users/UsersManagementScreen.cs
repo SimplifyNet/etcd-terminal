@@ -8,7 +8,7 @@ using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, UserListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, UserListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
@@ -16,7 +16,7 @@ public sealed class UserManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _
 
 	public bool IsAvailable(UserCapabilities capabilities) => capabilities.CanManageAuth;
 	public async Task ShowAsync() =>
-		await _menuScreen.RunAsync<UserMenuAction>(_localization.UserManagement,
+		await _menuScreen.RunAsync<UserMenuAction>(_localization.UsersManagement,
 		[
 			new(UserMenuAction.ListUsers, _localization.ListUsers),
 			new(UserMenuAction.CreateUser, _localization.CreateUser),
