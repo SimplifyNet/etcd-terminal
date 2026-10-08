@@ -303,6 +303,22 @@ public sealed class ArchitectureTests
 		});
 	}
 
+	[Test]
+	public void EveryUserCommandIsRegistered()
+	{
+		var commands = DIContainer.Current.Resolve<IEnumerable<App.Components.IMenuCommand<App.Screens.Users.UserMenuAction>>>()
+			.ToList();
+		var declared = SafeGetTypes(typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly)
+			.Where(t => t is { IsAbstract: false, IsInterface: false } && typeof(App.Components.IMenuCommand<App.Screens.Users.UserMenuAction>).IsAssignableFrom(t))
+			.ToList();
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(commands.Select(c => c.GetType()), Is.EquivalentTo(declared));
+			Assert.That(commands.Select(c => c.Action), Is.EquivalentTo(Enum.GetValues<App.Screens.Users.UserMenuAction>()));
+		});
+	}
+
 	/// <summary>
 	/// Source files outside <c>Setup</c>. The composition root is the one App
 	/// file allowed to name Infrastructure and Spectre types while wiring them.
