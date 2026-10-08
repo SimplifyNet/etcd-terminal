@@ -2,7 +2,6 @@ using System.Text.Json;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
@@ -13,13 +12,12 @@ namespace EtcdTerminal.App.Screens.Keys;
 public sealed class KeyImportJsonScreen(
 	IKeyImporter _importer,
 	Screen _screen,
-	Prompt _prompt,
+	UserInput _input,
 	MultiLinePasteReader _pasteReader,
 	Menu _menu,
 	Spinner _spinner,
 	Message _message,
-	ILocalization _localization,
-	IAppSettingsStore _settings) : IMainMenuEntry
+	ILocalization _localization) : IMainMenuEntry
 {
 	private const int _previewLimit = 15;
 
@@ -33,13 +31,12 @@ public sealed class KeyImportJsonScreen(
 	{
 		_screen.Open();
 
-		var trim = _settings.Current.TrimInputValues;
-		var separator = _prompt.Ask(_localization.EnterSeparator, ":", trim: trim);
+		var separator = _input.Ask(_localization.EnterSeparator, ":");
 
 		if (separator is null)
 			return;
 
-		var prefix = _prompt.Ask(_localization.EnterPrefix, allowEmpty: true, trim: trim);
+		var prefix = _input.Ask(_localization.EnterPrefix, allowEmpty: true);
 
 		if (prefix is null)
 			return;

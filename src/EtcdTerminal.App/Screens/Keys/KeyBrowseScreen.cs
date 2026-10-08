@@ -10,7 +10,7 @@ using EtcdTerminal.Keys;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, KeyBrowseControl _control, KeyBrowseLayout _layout, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings, Screen _screen, ILiveFrame _live) : IMainMenuEntry
+public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvider _readableKeys, IConnectionSession _session, KeyBrowseControl _control, KeyBrowseLayout _layout, UserInput _input, Message _message, ILocalization _localization, IAppSettingsStore _settings, Screen _screen, ILiveFrame _live) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.BrowseKeys;
 
@@ -84,7 +84,7 @@ public sealed class KeyBrowseScreen(IEtcdKeyStore _keyStore, IReadableKeysProvid
 			_layout.Detail(_localization.CurrentValue, DisplayText.Sanitize(key.Value), TextRole.Success)
 		]);
 
-		var newValue = _prompt.Ask(_localization.EnterNewValue, key.Value, trim: _settings.Current.TrimInputValues);
+		var newValue = _input.Ask(_localization.EnterNewValue, key.Value);
 
 		if (newValue is null)
 			return;

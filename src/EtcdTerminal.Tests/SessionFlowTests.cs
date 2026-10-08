@@ -192,7 +192,7 @@ public sealed class SessionFlowTests
 			var message = new Message(screen, Keys, Localization);
 			var prompt = new Prompt(new StubTextInput());
 			var spinner = new Spinner(Keys, new FakeStatusIndicator());
-			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, prompt, message, Localization, new AppSettingsStore(new FakeSettingsRepository()));
+			var manage = new ManageConnectionsScreen(new StubConfigRepo(instances), Menu, new UserInput(prompt, new AppSettingsStore(new FakeSettingsRepository())), message, Localization);
 			var settings = new SettingsScreen(Menu, prompt, message, Localization, new AppSettingsStore(new FakeSettingsRepository()));
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
 

@@ -1,14 +1,12 @@
-using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Security;
 using EtcdTerminal.Users;
 
 namespace EtcdTerminal.App.Screens.Users;
 
-public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, UserListLayout _layout, ListBrowser _browser, Prompt _prompt, Spinner _spinner, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen _menuScreen, UserListLayout _layout, ListBrowser _browser, UserInput _input, Spinner _spinner, Message _message, ILocalization _localization) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ManageUsers;
 
@@ -79,14 +77,12 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 
 	private async Task CreateUserAsync()
 	{
-		var trim = _settings.Current.TrimInputValues;
-
-		var username = _prompt.Ask(_localization.EnterUsernamePrompt, trim: trim);
+		var username = _input.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var password = _prompt.Secret(_localization.EnterPasswordPrompt, trim: trim);
+		var password = _input.Secret(_localization.EnterPasswordPrompt);
 
 		if (password is null)
 			return;
@@ -98,9 +94,7 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 
 	private async Task DeleteUserAsync()
 	{
-		var trim = _settings.Current.TrimInputValues;
-
-		var username = _prompt.Ask(_localization.EnterUsernameToDelete, trim: trim);
+		var username = _input.Ask(_localization.EnterUsernameToDelete);
 
 		if (username is null)
 			return;
@@ -112,14 +106,12 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 
 	private async Task ChangePasswordAsync()
 	{
-		var trim = _settings.Current.TrimInputValues;
-
-		var username = _prompt.Ask(_localization.EnterUsernamePrompt, trim: trim);
+		var username = _input.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var newPassword = _prompt.Secret(_localization.EnterNewPassword, trim: trim);
+		var newPassword = _input.Secret(_localization.EnterNewPassword);
 
 		if (newPassword is null)
 			return;
@@ -131,14 +123,12 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 
 	private async Task AssignRoleAsync()
 	{
-		var trim = _settings.Current.TrimInputValues;
-
-		var username = _prompt.Ask(_localization.EnterUsernamePrompt, trim: trim);
+		var username = _input.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = _prompt.Ask(_localization.EnterRoleName, trim: trim);
+		var roleName = _input.Ask(_localization.EnterRoleName);
 
 		if (roleName is null)
 			return;
@@ -150,14 +140,12 @@ public sealed class UsersManagementScreen(IEtcdUserAdmin _userAdmin, MenuScreen 
 
 	private async Task RevokeRoleAsync()
 	{
-		var trim = _settings.Current.TrimInputValues;
-
-		var username = _prompt.Ask(_localization.EnterUsernamePrompt, trim: trim);
+		var username = _input.Ask(_localization.EnterUsernamePrompt);
 
 		if (username is null)
 			return;
 
-		var roleName = _prompt.Ask(_localization.EnterRoleNameToRemove, trim: trim);
+		var roleName = _input.Ask(_localization.EnterRoleNameToRemove);
 
 		if (roleName is null)
 			return;

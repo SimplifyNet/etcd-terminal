@@ -163,7 +163,7 @@ public sealed class KeyBrowseScreenTests
 
 			Control = new KeyBrowseControl(keys, browseLayout, new BrowseLayout(localization), new Header(), session, localization);
 
-			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, prompt, message, localization, settings, screen, Live);
+			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, new UserInput(prompt, settings), message, localization, settings, screen, Live);
 		}
 	}
 

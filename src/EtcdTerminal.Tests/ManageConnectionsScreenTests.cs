@@ -124,7 +124,7 @@ public sealed class ManageConnectionsScreenTests
 			var message = new Message(screen, keys, localization);
 			var menu = new Menu(screen, Answers);
 
-			Screen = new ManageConnectionsScreen(Repository, menu, prompt, message, localization, new AppSettingsStore(new FakeSettingsRepository()));
+			Screen = new ManageConnectionsScreen(Repository, menu, new UserInput(prompt, new AppSettingsStore(new FakeSettingsRepository())), message, localization);
 		}
 	}
 

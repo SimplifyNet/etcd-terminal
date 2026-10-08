@@ -6,7 +6,7 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configRepo, Menu _menu, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings)
+public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configRepo, Menu _menu, UserInput _input, Message _message, ILocalization _localization)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
@@ -63,10 +63,9 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 
 	private void SaveInstanceInteractive(EtcdConnectionConfig? existing, string successMessage)
 	{
-		var trim = _settings.Current.TrimInputValues;
 		var name = existing is null
-			? _prompt.Ask(_localization.EnterInstanceName, trim: trim)
-			: _prompt.Ask(_localization.EnterInstanceName, existing.Name, trim: trim);
+			? _input.Ask(_localization.EnterInstanceName)
+			: _input.Ask(_localization.EnterInstanceName, existing.Name);
 
 		if (name is null)
 			return;
@@ -78,7 +77,7 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 			return;
 		}
 
-		var connectionString = _prompt.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr, trim: trim);
+		var connectionString = _input.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr);
 
 		if (connectionString is null)
 			return;
@@ -91,13 +90,13 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		}
 
 		var username = existing is null
-			? _prompt.Ask(_localization.EnterUsername, allowEmpty: true, trim: trim)
-			: _prompt.Ask(_localization.EnterUsername, existing.Username ?? string.Empty, trim: trim);
+			? _input.Ask(_localization.EnterUsername, allowEmpty: true)
+			: _input.Ask(_localization.EnterUsername, existing.Username ?? string.Empty);
 
 		if (username is null)
 			return;
 
-		var password = AskPassword(existing, username, trim);
+		var password = AskPassword(existing, username);
 
 		if (password is null)
 			return;
@@ -118,7 +117,7 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 		_message.ShowSuccess(successMessage);
 	}
 
-	private string? AskPassword(EtcdConnectionConfig? existing, string username, bool trim)
+	private string? AskPassword(EtcdConnectionConfig? existing, string username)
 	{
 		if (string.IsNullOrEmpty(username))
 			return string.Empty;
@@ -129,7 +128,7 @@ public sealed class ManageConnectionsScreen(IConnectionConfigRepository _configR
 			? _localization.EnterPassword
 			: _localization.EnterPasswordKeepCurrent;
 
-		var entered = _prompt.Secret(passwordPrompt, trim: trim);
+		var entered = _input.Secret(passwordPrompt);
 
 		if (entered is null)
 			return null;

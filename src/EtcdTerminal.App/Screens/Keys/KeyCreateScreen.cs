@@ -1,14 +1,12 @@
-using EtcdTerminal.App.Engine;
 using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, Screen _screen, Prompt _prompt, Message _message, ILocalization _localization, IAppSettingsStore _settings) : IMainMenuEntry
+public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, Screen _screen, UserInput _input, Message _message, ILocalization _localization) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.CreateKey;
 
@@ -19,13 +17,12 @@ public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, Screen _screen, Pro
 	{
 		_screen.Open();
 
-		var trim = _settings.Current.TrimInputValues;
-		var key = _prompt.Ask(_localization.EnterKey, trim: trim);
+		var key = _input.Ask(_localization.EnterKey);
 
 		if (key is null)
 			return;
 
-		var value = _prompt.Ask(_localization.EnterValue, allowEmpty: true, trim: trim);
+		var value = _input.Ask(_localization.EnterValue, allowEmpty: true);
 
 		if (value is null)
 			return;

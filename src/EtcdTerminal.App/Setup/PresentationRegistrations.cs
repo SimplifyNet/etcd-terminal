@@ -26,5 +26,6 @@ public static class PresentationRegistrations
 		.Register<PressAnyKeyPrompt>(LifetimeType.Transient)
 		.Register<Message>(LifetimeType.Transient)
 		.Register<MultiLinePasteReader>(LifetimeType.Transient)
+		.Register<UserInput>(LifetimeType.Transient)
 		.Register<Spinner>(LifetimeType.Transient);
 }
