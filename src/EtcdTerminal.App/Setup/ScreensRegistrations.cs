@@ -26,6 +26,7 @@ public static class ScreensRegistrations
 		.Register<UsersManagementScreen>(LifetimeType.Transient)
 		.Register<RolesManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionListScreen>(LifetimeType.Transient)
+		.Register<PermissionSourcesLoader>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
