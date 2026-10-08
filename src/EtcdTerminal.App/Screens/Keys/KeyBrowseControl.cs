@@ -1,30 +1,26 @@
-using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
 using EtcdTerminal.Presentation;
-using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Session;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
 public sealed class KeyBrowseControl(
 	IKeyReader _keys,
-	KeyBrowseLayout _layout,
-	BrowseLayout _browse,
-	Header _header,
 	IConnectionSession _session,
-	ILocalization _localization)
+	KeyBrowseView _view)
 {
 	public string SearchQuery { get; private set; } = "";
 	public int CurrentPage { get; private set; }
 	public int SelectedIndex { get; private set; }
-	private bool ShowActions { get; set; }
 	public EtcdKeyValue? SelectedKey { get; private set; }
+
+	private bool ShowActions { get; set; }
 
 	/// Edit and delete are offered only when the account may write the selected key.
 	private bool CanModifySelectedKey => SelectedKey is not null && _session.Capabilities.CanWriteKey(SelectedKey.Key);
 
 	public FrameModel Frame(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys) =>
-		new([_header.BuildModel(), .. Body(pageKeys, totalPages, totalKeys)]);
+		_view.Frame(new(SearchQuery, CurrentPage, SelectedIndex, SelectedKey, ShowActions, CanModifySelectedKey), pageKeys, totalPages, totalKeys);
 
 	public KeyBrowseCommand ReadCommand(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages)
 	{
@@ -33,6 +29,25 @@ public sealed class KeyBrowseControl(
 		return ShowActions
 			? ReadActionCommand(key)
 			: ReadNavigationCommand(key, pageKeys, totalPages);
+	}
+
+	public void ResetNavigation()
+	{
+		CurrentPage = 0;
+		SelectedIndex = 0;
+	}
+
+	public void ClearSearch()
+	{
+		SearchQuery = "";
+		ShowActions = false;
+		SelectedKey = null;
+	}
+
+	public void ClampPage(int totalPages)
+	{
+		CurrentPage = Math.Clamp(CurrentPage, 0, Math.Max(0, totalPages - 1));
+		SelectedIndex = 0;
 	}
 
 	private KeyBrowseCommand ReadActionCommand(ConsoleKeyInfo key)
@@ -114,39 +129,5 @@ public sealed class KeyBrowseControl(
 		}
 
 		return KeyBrowseCommand.None;
-	}
-
-	public void ResetNavigation()
-	{
-		CurrentPage = 0;
-		SelectedIndex = 0;
-	}
-
-	public void ClearSearch()
-	{
-		SearchQuery = "";
-		ShowActions = false;
-		SelectedKey = null;
-	}
-
-	public void ClampPage(int totalPages)
-	{
-		CurrentPage = Math.Clamp(CurrentPage, 0, Math.Max(0, totalPages - 1));
-		SelectedIndex = 0;
-	}
-
-	private IEnumerable<Block> Body(IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys)
-	{
-		yield return _browse.Search(SearchQuery, showCaret: !ShowActions);
-		yield return TextBlock.Blank();
-		yield return _layout.KeyList(pageKeys, SelectedIndex);
-		yield return TextBlock.Blank();
-		yield return _browse.Pagination(CurrentPage, totalPages, totalKeys, _localization.TotalKeys);
-
-		if (!ShowActions || SelectedKey is null)
-			yield break;
-
-		yield return TextBlock.Blank();
-		yield return _layout.ActionPanel(SelectedKey.Key, CanModifySelectedKey);
 	}
 }

@@ -160,10 +160,15 @@ public sealed class KeyBrowseScreenTests
 			var screen = new Screen(Canvas, new Header(), statusBar);
 			var message = new Message(screen, keys, localization);
 			var browseLayout = new KeyBrowseLayout(localization);
+			var view = new KeyBrowseView(browseLayout, new BrowseLayout(localization), new Header(), localization);
 
-			Control = new KeyBrowseControl(keys, browseLayout, new BrowseLayout(localization), new Header(), session, localization);
+			Control = new KeyBrowseControl(keys, session, view);
 
-			Screen = new KeyBrowseScreen(Store, new ReadableKeysProvider(Store), session, Control, browseLayout, new UserInput(prompt, settings), message, localization, settings, screen, Live);
+			Screen = new KeyBrowseScreen(
+				new KeyBrowseList(new ReadableKeysProvider(Store), session, settings, Control),
+				new KeyChanges(Store, new KeyEditPrompt(screen, browseLayout, new UserInput(prompt, settings), localization), message, localization),
+				screen,
+				Live);
 		}
 	}
 
