@@ -22,6 +22,8 @@ The following rules describe the architecture.
 
 **Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` to `ReddyTheme`, `ILocalization` to `EnglishLocalization`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
 
+**Constructor size:** a class takes at most 4 constructor parameters (`ILocalization` included). When a class needs more, split it by responsibility: menu commands (`IMenuCommand<TAction>`), focused components, prompts/forms, loaders. Never introduce a container type that only forwards dependencies.
+
 ## UI Rendering
 
 - Maximize reuse of Spectre `Panel`, `Table`, `Grid`, `Layout`, `SelectionPrompt`, `TextPrompt`, `Status` and `Live` where their behavior fits. Do not recreate library widgets behind a new interface.

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using EtcdTerminal.App.Setup;
 using NUnit.Framework;
@@ -317,6 +318,43 @@ public sealed class ArchitectureTests
 			Assert.That(commands.Select(c => c.GetType()), Is.EquivalentTo(declared));
 			Assert.That(commands.Select(c => c.Action), Is.EquivalentTo(Enum.GetValues<App.Screens.Users.UserMenuAction>()));
 		});
+	}
+
+	[Test]
+	public void ConstructorsTakeAtMostFourParameters()
+	{
+		var assemblies = new[]
+		{
+			typeof(App.Screens.Connections.InstanceSelectionScreen).Assembly,
+			typeof(Infrastructure.Terminal.BackgroundBand).Assembly
+		};
+
+		var violations = new List<string>();
+
+		foreach (var type in assemblies.SelectMany(SafeGetTypes))
+		{
+			if (!type.IsClass || type.IsAbstract)
+				continue;
+
+			if (type.IsDefined(typeof(CompilerGeneratedAttribute)) || type.Name.Contains('<'))
+				continue;
+
+			if (type.GetMethod("<Clone>$") is not null)
+				continue;
+
+			if (type.Namespace?.StartsWith("EtcdTerminal.App.Setup", StringComparison.Ordinal) is true)
+				continue;
+
+			foreach (var ctor in type.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
+			{
+				var count = ctor.GetParameters().Length;
+
+				if (count > 4)
+					violations.Add($"{type.FullName}: {count}");
+			}
+		}
+
+		Assert.That(violations, Is.Empty);
 	}
 
 	/// <summary>
