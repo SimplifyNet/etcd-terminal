@@ -30,7 +30,7 @@ public sealed class SettingsScreenTests
 			Assert.That(offered.Title, Is.EqualTo("Settings"));
 			Assert.That(offered.Items.Select(i => i.Label), Is.EqualTo(new[]
 			{
-				"Keys per page (30)",
+				"Items per page (30)",
 				"Trim input values (On)"
 			}));
 			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));

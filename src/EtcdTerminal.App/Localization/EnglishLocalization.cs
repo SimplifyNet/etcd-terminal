@@ -44,9 +44,9 @@ public class EnglishLocalization : ILocalization
 	public string SettingsTitle => "Settings";
 	public string PageSizeItem => "PageSize";
 	public string TrimInputValuesItem => "TrimInputValues";
-	public string PageSizeLabel => "Keys per page";
+	public string PageSizeLabel => "Items per page";
 	public string TrimInputValuesLabel => "Trim input values";
-	public string EnterPageSize => "Enter keys per page (1-500):";
+	public string EnterPageSize => "Enter items per page (1-500):";
 	public string InvalidPageSize => "Invalid page size. Must be a number from 1 to 500.";
 	public string SettingsSaved => "Settings saved!";
 	public string FailedSaveSettings => "Failed to save settings.";
