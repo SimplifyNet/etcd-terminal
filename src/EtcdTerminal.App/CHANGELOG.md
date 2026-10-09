@@ -4,16 +4,18 @@
 
 ### Added
 
-- Language switch functionality
-- Russian language
-- Theme switch functionality
-- Etcd Blue theme
 - Content scrolling
 - Interface values word wrap
 - Users list with filter and pagination
 - Roles list with filter and pagination
 - Permissions list with filter and pagination
 - Window redraw on windows size change
+- Language switch functionality
+- Russian language
+- Theme switch functionality
+- Etcd Blue theme
+- Etcd Dark theme
+- Light Reddy theme
 
 ### Changed
 
