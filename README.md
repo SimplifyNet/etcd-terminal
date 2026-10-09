@@ -2,7 +2,7 @@
 
 ![etcd-terminal](https://raw.githubusercontent.com/SimplifyNet/etcd-terminal/master/images/icon128x85.png)
 
-**etcd-terminal** — a console client for etcd v3+ with a convenient TUI based on Spectre.Console.
+**etcd-terminal** is an interactive terminal client for managing etcd v3+ clusters. It uses a text UI built with Spectre.Console.
 
 [![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
 [![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
@@ -12,25 +12,30 @@
 ## Features
 
 ### Connection management
-- Support for multiple etcd instances with switching on startup
-- SSL/TLS and non-secure (HTTP) connections
-- Login/password authentication for secured instances
-- Configuration from `~/.config/etcd-terminal/config.json`
+- Save multiple named instances and select one when the app starts
+- Add, edit, remove, and reorder saved instances
+- Connect over HTTP or HTTPS, with optional username/password authentication
+- Saved passwords are encrypted in the configuration file
 
-### Key operations (CRUD)
-- **Browse** — key overview with prefix-based navigation (Tree view)
-- **Search** — global search across keys and their values (text is searched in both key names and values)
-- **Create** — add new keys
-- **Edit** — modify existing key values
-- **Delete** — delete keys with confirmation
+### Key and value management
+- **Browse** — view readable keys in a paginated list; available keys respect the connected account's permissions
+- **Search** — filter the loaded list locally by key or value, without case sensitivity
+- **Create** — add a key and value
+- **Edit / delete** — change or remove a selected key when the account has write access to it
+- **Import JSON** — paste a JSON object or array, choose a key separator and optional prefix, preview the resulting keys, then confirm import; nested objects and arrays are flattened into keys
 
 ### User and role management (RBAC)
-- **Users** — list, create, delete, change password
-- **Roles** — list, create, delete
-- **Role assignment** — grant/revoke roles to/from users
-- **Permissions** — view permissions bound to roles (read, write, readwrite)
-- **Access grants** — assign/revoke key permissions for roles
-- **Info** — view the full picture: which users have which roles and their permissions
+- **Users** — list, create, delete, change passwords, and assign or remove roles
+- **Roles** — list, create, and delete roles
+- **Permissions** — grant or revoke read, write, or read/write access to a key or key prefix
+- **Permission overview** — browse the effective user-to-role-to-permission assignments
+- Authentication management is available when authentication is disabled or the connected account has the etcd root role; key actions are limited to the permissions of the connected account
+
+### Preferences
+- Choose the interface language: English, Russian, or Chinese
+- Choose from the built-in color themes
+- Set the page size (1-500 items) and whether input values are trimmed
+- Preferences are saved alongside connection configuration
 
 ## Screenshots
 
@@ -52,8 +57,8 @@
 
 ## Configuration
 
-Configuration is stored in `~/.config/etcd-terminal/config.json`
-(`%USERPROFILE%\.config\etcd-terminal\config.json` on Windows).
+Configuration and preferences are stored in `~/.config/etcd-terminal/config.json`
+under the current user's home directory (for example, `%USERPROFILE%\.config\etcd-terminal\config.json` on Windows).
 
 Example configuration:
 
@@ -65,28 +70,33 @@ Example configuration:
       "ConnectionString": "http://localhost:2379"
     },
     {
-      "Name": "Production cluster",
+      "Name": "Secured cluster",
       "ConnectionString": "https://etcd.example.com:2379",
-      "Username": "admin",
-      "Password": "secret"
+      "Username": "admin"
     }
   ]
 }
 ```
 
-> **Note:** saved passwords are encrypted, but the key is stored next to them
-> (`.key` in the same directory), so this only keeps them from other users on the
-> machine - not from anyone who can read your home directory.
+Add or edit connections in the app to save a password. Passwords are encrypted,
+but the encryption key is stored next to the configuration (`.key` in the same
+directory). This helps protect against other local users, but not anyone who can
+read your home directory.
 
 ## Performance notes
 
-- Listing users or roles takes one round-trip per entry (list, then one fetch each).
-- Key browsing loads the whole keyspace and searches it locally, so it gets slow
-  on clusters with a very large number of keys.
+- Key browsing loads all keys readable by the connected account before filtering and pagination. On large keyspaces, loading and local search may be slow.
+- User and role listings make one etcd request per listed entry in addition to the initial list request.
+- Import writes keys individually. If it is cancelled or an entry fails, earlier successful writes are not rolled back.
+
+## Requirements
+
+- etcd v3+
+- .NET 10.0 Runtime (or the .NET 10.0 SDK to run from source)
 
 ## Building
 
-Requires [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
+Requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
 dotnet build src/EtcdTerminal.slnx
@@ -102,7 +112,7 @@ dotnet run --project src/EtcdTerminal.App/EtcdTerminal.App.csproj
 
 ### Release build
 
-Requires [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
+Requires the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0), unless publishing as a self-contained application.
 
 ```bash
 dotnet publish src/EtcdTerminal.App/EtcdTerminal.App.csproj -c Release -o out
