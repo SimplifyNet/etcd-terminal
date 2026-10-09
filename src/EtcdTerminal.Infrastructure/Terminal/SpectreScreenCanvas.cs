@@ -29,9 +29,12 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 	/// A resize redraws from the session's timer thread while a screen may be
 	/// writing from its own; both go through here one at a time.
 	private readonly Lock _gate = new();
-	private readonly List<IRenderable> _written = [];
+	private readonly List<Func<IRenderable>> _written = [];
 
 	private StatusBarModel? _footerModel;
+	private IReadOnlyList<Block> _pageHeaderBlocks = [];
+	private IReadOnlyList<Block> _pageBodyBlocks = [];
+	private IReadOnlyList<Block> _pagePinnedBlocks = [];
 	private IRenderable? _pageHeader;
 	private IRenderable? _pageBody;
 	private IRenderable? _pagePinned;
@@ -63,9 +66,9 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 	{
 		lock (_gate)
 		{
-			_pageHeader = new Rows(header.Select(_blocks.Render));
-			_pagePinned = new Rows(pinned.Select(_blocks.Render));
-			_pageBody = new Rows(body.Select(_blocks.Render));
+			_pageHeaderBlocks = header;
+			_pagePinnedBlocks = pinned;
+			_pageBodyBlocks = body;
 			_footerModel = footer;
 			_pageOffset = 0;
 
@@ -110,7 +113,7 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 	public void Write(Block block)
 	{
 		lock (_gate)
-			Write(_blocks.Render(block));
+			Write(() => _blocks.Render(block));
 	}
 
 	public void Write(IReadOnlyList<Block> blocks)
@@ -135,7 +138,11 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 	public void WriteException(Exception exception)
 	{
 		lock (_gate)
-			Write(exception.GetRenderable());
+		{
+			var renderable = exception.GetRenderable();
+
+			Write(() => renderable);
+		}
 	}
 
 	/// The current screen again, laid out for the new window size: a page
@@ -164,14 +171,20 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 		}
 	}
 
-	private void Write(IRenderable renderable)
+	/// What a screen wrote is kept as the way to build it, not as the built
+	/// widget, so a redraw after a theme switch picks up the new colors.
+	private void Write(Func<IRenderable> build)
 	{
-		_written.Add(renderable);
-		_console.Write(renderable);
+		_written.Add(build);
+		_console.Write(build());
 	}
 
 	private void DrawPageOrStream()
 	{
+		_pageHeader = new Rows(_pageHeaderBlocks.Select(_blocks.Render));
+		_pagePinned = new Rows(_pagePinnedBlocks.Select(_blocks.Render));
+		_pageBody = new Rows(_pageBodyBlocks.Select(_blocks.Render));
+
 		if (_console.Profile.Capabilities.Ansi)
 		{
 			_pageTotal = Lines(_pageBody!);
@@ -192,9 +205,13 @@ public sealed class SpectreScreenCanvas(IAnsiConsole _console, BlockRenderer _bl
 		// No ANSI or a terminal too small for a window: stream as a plain
 		// screen does, losing only the scrollability.
 		NewScreen(_footerModel!);
-		Write(_pageHeader!);
-		Write(_pageBody!);
-		Write(_pagePinned!);
+		var header = _pageHeaderBlocks;
+		var body = _pageBodyBlocks;
+		var pinned = _pagePinnedBlocks;
+
+		Write(() => new Rows(header.Select(_blocks.Render)));
+		Write(() => new Rows(body.Select(_blocks.Render)));
+		Write(() => new Rows(pinned.Select(_blocks.Render)));
 		_pageOpen = true;
 	}
 
