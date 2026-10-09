@@ -6,7 +6,7 @@ public sealed class EtcdBlueTheme : ITheme
 {
 	public string Id => "EtcdBlue";
 	public string Name => "Etcd Blue";
-	public string Variant => "Black";
+	public string Variant => "Dark";
 
 	public RgbColor WindowBackground { get; } = new(5, 18, 35);
 	public RgbColor BandBackground { get; } = new(13, 35, 59);

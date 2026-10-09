@@ -16,6 +16,14 @@
 - Etcd Blue theme
 - Etcd Dark theme
 - Light Reddy theme
+- Ubuntu theme
+- Manjaro theme
+- Pop! OS theme
+- Solarized Dark theme
+- Dark Violet theme
+- Matrix theme
+- VS Code Light theme
+- Solarized Light theme
 
 ### Changed
 

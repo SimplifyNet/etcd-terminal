@@ -42,6 +42,19 @@ public sealed class SpectreRenderingTests
 				Assert.That(Contrast(foreground, background), Is.GreaterThanOrEqualTo(4.5), $"{foreground} on {background}");
 	}
 
+	[TestCase("VsCodeLight")]
+	[TestCase("SolarizedLight")]
+	public void NewLightThemes_HaveReadableTextContrastForStandardRolesOnEveryLightBackground(string themeId)
+	{
+		var theme = Themes().Themes.Single(item => item.Id == themeId);
+		RgbColor[] backgrounds = [theme.WindowBackground, theme.BandBackground, theme.ActionPanelTitleBackground];
+		RgbColor[] foregrounds = [theme.Primary, theme.Secondary, theme.Success, theme.Danger, theme.Warning, theme.Muted, theme.Subtle];
+
+		foreach (var foreground in foregrounds)
+			foreach (var background in backgrounds)
+				Assert.That(Contrast(foreground, background), Is.GreaterThanOrEqualTo(4.5), $"{themeId}: {foreground} on {background}");
+	}
+
 	[Test]
 	public void BlockRenderer_WritesLiteralTextWithoutTreatingBracketsAsMarkup()
 	{

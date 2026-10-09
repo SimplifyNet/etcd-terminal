@@ -75,7 +75,21 @@ public sealed class SettingsScreenTests
 			Assert.That(harness.Settings.Current.ThemeId, Is.EqualTo("EtcdBlue"));
 			Assert.That(harness.Repository.Saved?.ThemeId, Is.EqualTo("EtcdBlue"));
 			Assert.That(harness.Themes.Current.Id, Is.EqualTo("EtcdBlue"));
-			Assert.That(harness.Answers.Prompt<string>(1).Items.Select(item => item.Label), Is.EqualTo(["Reddy (Black)", "Etcd Blue (Black)"]));
+			Assert.That(harness.Answers.Prompt<string>(1).Items.Select(item => item.Label), Is.EqualTo(
+			[
+				"Reddy (Dark)",
+				"Etcd Dark (Dark)",
+				"Etcd Blue (Dark)",
+				"Ubuntu (Dark)",
+				"Manjaro (Dark)",
+				"Pop! OS (Dark)",
+				"Solarized (Dark)",
+				"Dark Violet (Dark)",
+				"Matrix (Dark)",
+				"Light Reddy (Light)",
+				"VS Code (Light)",
+				"Solarized (Light)"
+			]));
 			Assert.That(harness.Answers.Prompt<SettingsAction>(2).Items[1].Label, Is.EqualTo("Theme (Etcd Blue (Black))"));
 		});
 	}

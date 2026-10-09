@@ -10,7 +10,15 @@ public sealed class ThemeCatalog : IThemeCatalog
 		new ReddyTheme(),
 		new EtcdDarkTheme(),
 		new EtcdBlueTheme(),
-		new LightReddyTheme()
+		new UbuntuTheme(),
+		new ManjaroTheme(),
+		new PopTheme(),
+		new SolarizedDarkTheme(),
+		new DarkVioletTheme(),
+		new MatrixTheme(),
+		new LightReddyTheme(),
+		new VsCodeLightTheme(),
+		new SolarizedLightTheme()
 	];
 
 	private ITheme _current;
