@@ -16,9 +16,13 @@ public sealed class ThemeCatalog : IThemeCatalog
 		new SolarizedDarkTheme(),
 		new DarkVioletTheme(),
 		new MatrixTheme(),
-		new LightReddyTheme(),
+		new ReddyLightTheme(),
 		new VsCodeLightTheme(),
-		new SolarizedLightTheme()
+		new SolarizedLightTheme(),
+		new GitHubLightTheme(),
+		new CatppuccinLatteTheme(),
+		new RosePineDawnTheme(),
+		new PopLightTheme()
 	];
 
 	private ITheme _current;

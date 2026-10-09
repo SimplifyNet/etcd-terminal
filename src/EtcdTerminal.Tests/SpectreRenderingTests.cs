@@ -31,9 +31,9 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
-	public void LightReddyTheme_HasReadableTextContrastForStandardRolesOnEveryLightBackground()
+	public void ReddyLightTheme_HasReadableTextContrastForStandardRolesOnEveryLightBackground()
 	{
-		var theme = new LightReddyTheme();
+		var theme = new ReddyLightTheme();
 		RgbColor[] backgrounds = [theme.WindowBackground, theme.BandBackground, theme.ActionPanelTitleBackground];
 		RgbColor[] foregrounds = [theme.Primary, theme.Secondary, theme.Success, theme.Danger, theme.Warning, theme.Muted, theme.Subtle];
 
@@ -44,6 +44,10 @@ public sealed class SpectreRenderingTests
 
 	[TestCase("VsCodeLight")]
 	[TestCase("SolarizedLight")]
+	[TestCase("GitHubLight")]
+	[TestCase("CatppuccinLatte")]
+	[TestCase("RosePineDawn")]
+	[TestCase("PopLight")]
 	public void NewLightThemes_HaveReadableTextContrastForStandardRolesOnEveryLightBackground(string themeId)
 	{
 		var theme = Themes().Themes.Single(item => item.Id == themeId);
@@ -108,7 +112,7 @@ public sealed class SpectreRenderingTests
 	{
 		var console = new TestConsole { EmitAnsiSequences = true }.Interactive();
 		var themes = new ThemeCatalog();
-		themes.Set("LightReddy");
+		themes.Set("ReddyLight");
 		console.Input.PushKey(ConsoleKey.Enter);
 
 		var input = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(themes));

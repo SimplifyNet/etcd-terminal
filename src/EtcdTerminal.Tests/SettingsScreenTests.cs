@@ -33,7 +33,7 @@ public sealed class SettingsScreenTests
 			Assert.That(offered.Items.Select(i => i.Label), Is.EqualTo(new[]
 			{
 				"Language (English)",
-				"Theme (Reddy (Black))",
+				"Theme (Reddy (Dark))",
 				"Items per page (30)",
 				"Trim input values (On)"
 			}));
@@ -86,11 +86,17 @@ public sealed class SettingsScreenTests
 				"Solarized (Dark)",
 				"Dark Violet (Dark)",
 				"Matrix (Dark)",
-				"Light Reddy (Light)",
+				"Reddy (Light)",
 				"VS Code (Light)",
-				"Solarized (Light)"
+				"Solarized (Light)",
+				"GitHub (Light)",
+				"Catppuccin (Light)",
+				"Ubuntu (Light)",
+				"Atom One (Light)",
+				"Rosé Pine (Light)",
+				"Pop! OS (Light)"
 			]));
-			Assert.That(harness.Answers.Prompt<SettingsAction>(2).Items[1].Label, Is.EqualTo("Theme (Etcd Blue (Black))"));
+			Assert.That(harness.Answers.Prompt<SettingsAction>(2).Items[1].Label, Is.EqualTo("Theme (Etcd Blue (Dark))"));
 		});
 	}
 

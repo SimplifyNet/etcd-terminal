@@ -87,7 +87,7 @@ public sealed class SpectreSelectionPromptTests
 	{
 		var console = new TestConsole { EmitAnsiSequences = true }.Interactive();
 		var themes = new ThemeCatalog();
-		themes.Set("LightReddy");
+		themes.Set("ReddyLight");
 
 		console.Input.PushKey(ConsoleKey.Enter);
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.10] - Unreleased
+## [1.0] - Unreleased
 
 ### Added
 
@@ -15,7 +15,7 @@
 - Theme switch functionality
 - Etcd Blue theme
 - Etcd Dark theme
-- Light Reddy theme
+- Reddy Light theme
 - Ubuntu theme
 - Manjaro theme
 - Pop! OS theme
@@ -24,6 +24,10 @@
 - Matrix theme
 - VS Code Light theme
 - Solarized Light theme
+- GitHub Light theme
+- Catppuccin Latte theme
+- Rosé Pine Dawn theme
+- Pop! OS Light theme
 
 ### Changed
 

@@ -2,10 +2,10 @@ using EtcdTerminal.Presentation.Theming;
 
 namespace EtcdTerminal.App.Theming.Themes;
 
-public sealed class LightReddyTheme : ITheme
+public sealed class ReddyLightTheme : ITheme
 {
-	public string Id => "LightReddy";
-	public string Name => "Light Reddy";
+	public string Id => "ReddyLight";
+	public string Name => "Reddy";
 	public string Variant => "Light";
 
 	public RgbColor WindowBackground { get; } = new(240, 240, 240);
