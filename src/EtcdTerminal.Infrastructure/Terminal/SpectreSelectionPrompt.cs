@@ -83,7 +83,7 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 
 		if (!string.IsNullOrEmpty(list.Title))
 		{
-			rows.Add(Row(ContentIndent.Text + list.Title, Style.Plain));
+			rows.Add(Row(ContentIndent.Text + list.Title, _styles.Resolve(TextRole.Primary)));
 			rows.Add(_styles.Build([]));
 		}
 
@@ -94,13 +94,13 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 			var current = position == index;
 			var prefix = current ? ContentIndent.SelectionPointer : ContentIndent.Text;
 
-			rows.Add(Row(prefix + list.Items[position].Label, current ? _styles.Resolve(TextRole.Accent) : Style.Plain));
+			rows.Add(Row(prefix + list.Items[position].Label, current ? _styles.Resolve(TextRole.Accent) : _styles.Resolve(TextRole.Primary)));
 		}
 
 		if (list.Items.Count > pageSize)
 		{
 			rows.Add(_styles.Build([]));
-			rows.Add(Row(ContentIndent.Text + _languages.Current.MoreChoices, Style.Plain));
+			rows.Add(Row(ContentIndent.Text + _languages.Current.MoreChoices, _styles.Resolve(TextRole.Muted)));
 		}
 
 		return new Rows(rows);

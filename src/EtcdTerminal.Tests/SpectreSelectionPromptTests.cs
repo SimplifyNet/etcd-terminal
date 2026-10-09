@@ -83,6 +83,23 @@ public sealed class SpectreSelectionPromptTests
 	}
 
 	[Test]
+	public void Select_UsesTheThemePrimaryColorForUnselectedItems()
+	{
+		var console = new TestConsole { EmitAnsiSequences = true }.Interactive();
+		var themes = new ThemeCatalog();
+		themes.Set("LightReddy");
+
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		new SpectreSelectionPrompt(console, new RoleStyleMapper(themes), new LocalizationCatalog())
+			.Select(new ChoiceList<int>(null, [new(1, "selected"), new(2, "unselected")]));
+
+		var primary = themes.Current.Primary;
+
+		Assert.That(console.Output, Does.Contain($"38;2;{primary.R};{primary.G};{primary.B}m"), console.Output);
+	}
+
+	[Test]
 	public void Select_ScrollHintAppearsWhenTheWindowIsSmallerThanTheList()
 	{
 		var console = new TestConsole().Interactive();
