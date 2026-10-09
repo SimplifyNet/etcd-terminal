@@ -4,6 +4,10 @@
 
 ### Added
 
+- Language switch functionality
+- Russian language
+- Theme switch functionality
+- Etcd Blue theme
 - Content scrolling
 - Interface values word wrap
 - Users list with filter and pagination
