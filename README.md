@@ -7,6 +7,8 @@
 [![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
 [![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
 
+![Key browse](images/screenshots/key-browse.png)
+
 ## Features
 
 ### Connection management
@@ -39,10 +41,6 @@
 ### Main menu
 
 ![Main menu](images/screenshots/main-menu.png)
-
-### Key browse
-
-![Key browse](images/screenshots/key-browse.png)
 
 ### Users
 
