@@ -69,8 +69,6 @@ public sealed class DecryptFailureTests
 	{
 		public IReadOnlyList<EtcdConnectionConfig> LoadInstances() => instances;
 
-		public bool IsNameTaken(string name, string? exceptName) => throw new NotSupportedException();
-
 		public void AddInstance(EtcdConnectionConfig config) => throw new NotSupportedException();
 
 		public void UpdateInstance(string originalName, EtcdConnectionConfig config) => throw new NotSupportedException();

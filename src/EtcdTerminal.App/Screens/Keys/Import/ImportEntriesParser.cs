@@ -1,17 +1,15 @@
 using System.Text.Json;
-using EtcdTerminal.App.Components;
 using EtcdTerminal.Keys;
-using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Keys.Import;
 
 /// <summary>
-/// Flattens the pasted JSON into key/value entries, reporting an unparsable or
-/// an empty document instead of throwing it at the caller.
+/// Flattens the pasted JSON into key/value entries. Reports an unparsable or an
+/// empty document as a data-only failure; showing it belongs to the caller.
 /// </summary>
-public sealed class ImportEntriesParser(Message _message, ILocalizationCatalog _localizations)
+public static class ImportEntriesParser
 {
-	public IReadOnlyList<KeyValuePair<string, string>>? Parse(ImportSource source)
+	public static ImportParseResult Parse(ImportSource source)
 	{
 		IReadOnlyList<KeyValuePair<string, string>> entries;
 
@@ -21,24 +19,19 @@ public sealed class ImportEntriesParser(Message _message, ILocalizationCatalog _
 		}
 		catch (ArgumentException)
 		{
-			_message.ShowWarning(_localizations.Current.NoKeysInJson);
-
-			return null;
+			return Failure(ImportParseFailureKind.NoKeys, null);
 		}
 		catch (Exception ex) when (ex is JsonException or InvalidOperationException)
 		{
-			_message.ShowError(string.Format(_localizations.Current.InvalidJson, ex.Message));
-
-			return null;
+			return Failure(ImportParseFailureKind.InvalidJson, ex.Message);
 		}
 
 		if (entries.Count == 0)
-		{
-			_message.ShowWarning(_localizations.Current.NoKeysInJson);
+			return Failure(ImportParseFailureKind.NoKeys, null);
 
-			return null;
-		}
-
-		return entries;
+		return new(entries, null);
 	}
+
+	private static ImportParseResult Failure(ImportParseFailureKind kind, string? detail) =>
+		new([], new(kind, detail));
 }

@@ -51,7 +51,7 @@ public static class ScreensRegistrations
 		.Register<KeyChanges>(LifetimeType.Transient)
 		.Register<KeyCreateForm>(LifetimeType.Transient)
 		.Register<ImportSourceReader>(LifetimeType.Transient)
-		.Register<ImportEntriesParser>(LifetimeType.Transient)
+		.Register<ImportParseFailureNotice>(LifetimeType.Transient)
 		.Register<ImportPreview>(LifetimeType.Transient)
 		.Register<ImportReport>(LifetimeType.Transient)
 		.Register<ImportRunner>(LifetimeType.Transient)

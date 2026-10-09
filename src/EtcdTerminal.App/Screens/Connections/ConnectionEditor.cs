@@ -19,7 +19,7 @@ public sealed class ConnectionEditor(IConnectionConfigRepository _configRepo, Us
 		if (name is null)
 			return;
 
-		if (_configRepo.IsNameTaken(name, existing?.Name))
+		if (ConnectionNames.IsTaken(_configRepo.LoadInstances(), name, existing?.Name))
 		{
 			_message.ShowError(_localizations.Current.InstanceNameTaken);
 

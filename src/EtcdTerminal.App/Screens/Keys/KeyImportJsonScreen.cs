@@ -4,7 +4,7 @@ using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyImportJsonScreen(ImportSourceReader _reader, ImportEntriesParser _parser, ImportPreview _preview, ImportRunner _runner) : IMainMenuEntry
+public sealed class KeyImportJsonScreen(ImportSourceReader _reader, ImportPreview _preview, ImportRunner _runner, ImportParseFailureNotice _failureNotice) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.ImportJson;
 
@@ -17,14 +17,18 @@ public sealed class KeyImportJsonScreen(ImportSourceReader _reader, ImportEntrie
 		if (source is null)
 			return;
 
-		var entries = _parser.Parse(source);
+		var parsed = ImportEntriesParser.Parse(source);
 
-		if (entries is null)
+		if (parsed.Failure is { } failure)
+		{
+			_failureNotice.Show(failure);
+
+			return;
+		}
+
+		if (!_preview.Confirm(parsed.Entries, source.Json))
 			return;
 
-		if (!_preview.Confirm(entries, source.Json))
-			return;
-
-		await _runner.ImportAsync(entries);
+		await _runner.ImportAsync(parsed.Entries);
 	}
 }

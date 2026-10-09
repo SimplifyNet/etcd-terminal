@@ -20,8 +20,6 @@ public sealed class ProtectedConfigRepository(IConnectionConfigRepository _repos
 		return instances;
 	}
 
-	public bool IsNameTaken(string name, string? exceptName) => _repository.IsNameTaken(name, exceptName);
-
 	public IReadOnlyList<string> TakeDecryptFailures()
 	{
 		var failures = _decryptFailures;

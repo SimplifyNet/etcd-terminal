@@ -10,7 +10,7 @@ namespace EtcdTerminal.App.Components;
 /// The session footer's model: the localized keyboard hints on the left and the
 /// connection details on the right. This component owns the literal text and
 /// the role of every field; it does not know the available width and does not
-/// decide what to drop.
+/// decide what to drop — <c>StatusBarFallbacks</c> owns that priority order.
 /// </summary>
 public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, ILocalizationCatalog _localizations)
 {

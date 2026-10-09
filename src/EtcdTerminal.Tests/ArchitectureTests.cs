@@ -276,6 +276,22 @@ public sealed class ArchitectureTests
 	}
 
 	[Test]
+	public void InfrastructureSpaceFillLivesOnlyInBackgroundBand()
+	{
+		var hits = SourceFiles("EtcdTerminal.Infrastructure")
+			.Where(f =>
+			{
+				var text = File.ReadAllText(f);
+
+				return text.Contains("Segment.CellCount") || text.Contains("new string(' '");
+			})
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.EquivalentTo(new[] { "BackgroundBand.cs" }));
+	}
+
+	[Test]
 	public void EveryMainMenuEntryIsRegistered()
 	{
 		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.MainMenu.IMainMenuEntry>>()

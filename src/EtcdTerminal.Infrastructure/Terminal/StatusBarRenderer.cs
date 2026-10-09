@@ -11,22 +11,11 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// with the band background edge to edge. The text stays on one row: a second
 /// text line would land on the last terminal row, where a line break scrolls
 /// the whole screen. Which fields survive a narrow terminal is decided by
-/// asking Spectre to render each candidate and count its lines, in the
-/// priority order the footer had before the migration.
+/// asking Spectre to render each candidate from <see cref="StatusBarFallbacks"/>
+/// and count its lines.
 /// </summary>
 public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _styles, IThemeCatalog _themes)
 {
-	/// <summary>
-	/// An endpoint shorter than this is not worth a place in the footer: it is
-	/// dropped instead of being whittled down to a fragment.
-	/// </summary>
-	private const int EndpointTruncationWidth = 20;
-
-	/// <summary>
-	/// Appended to an endpoint that is being shortened field by field.
-	/// </summary>
-	private const string TruncationMark = "\u2026";
-
 	public IRenderable Build(StatusBarModel model)
 	{
 		var background = new Color(_themes.Current.BandBackground.R, _themes.Current.BandBackground.G, _themes.Current.BandBackground.B);
@@ -35,13 +24,12 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 	}
 
 	/// <summary>
-	/// The first candidate Spectre can put on a single row. Candidates are tried
-	/// in the order the footer used to drop them: shorten the endpoint, then the
-	/// user, then the endpoint itself, then the hints, then the connection name.
+	/// The first candidate Spectre can put on a single row, in the drop order
+	/// the presentation chose.
 	/// </summary>
 	private StatusBarModel Fit(StatusBarModel model)
 	{
-		var candidates = Candidates(model).ToList();
+		var candidates = StatusBarFallbacks.InPriorityOrder(model).ToList();
 
 		foreach (var candidate in candidates)
 			if (Fits(candidate))
@@ -77,48 +65,6 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 		grid.AddRow(left, right);
 
 		return grid;
-	}
-
-	private static IEnumerable<StatusBarModel> Candidates(StatusBarModel model)
-	{
-		yield return model;
-
-		foreach (var shortened in Shorter(model.Connection))
-			yield return model with { Connection = shortened };
-
-		yield return model with { Username = null };
-
-		foreach (var shortened in Shorter(model.Connection))
-			yield return model with { Connection = shortened, Username = null };
-
-		yield return model with { Connection = null, Username = null };
-		yield return model with { Connection = null, Username = null, Hints = [] };
-		yield return model with { Connection = null, Username = null, Hints = [], Name = null };
-	}
-
-	private static IEnumerable<StyledText> Shorter(StyledText? connection)
-	{
-		if (connection is null)
-			yield break;
-
-		var text = connection.Text;
-		var cut = text.Length;
-
-		while (cut > 0)
-		{
-			cut--;
-
-			if (cut > 0 && char.IsLowSurrogate(text[cut]))
-				cut--;
-
-			var shortened = cut + TruncationMark.Length;
-
-			if (shortened < EndpointTruncationWidth)
-				yield break;
-
-			if (shortened < text.Length)
-				yield return connection with { Text = string.Concat(text.AsSpan(0, cut), TruncationMark) };
-		}
 	}
 
 	private static List<StyledText> Right(StatusBarModel model)

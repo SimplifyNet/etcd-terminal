@@ -1,10 +1,4 @@
-using EtcdTerminal.App.Components;
-using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens.Keys.Import;
-using EtcdTerminal.Environment;
-using EtcdTerminal.Presentation;
-using EtcdTerminal.Session;
-using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;
@@ -13,58 +7,54 @@ namespace EtcdTerminal.Tests;
 public sealed class ImportEntriesParserTests
 {
 	[Test]
-	public void Parse_InvalidJson_ReportsTheInvalidJsonError()
+	public void Parse_InvalidJson_ReportsTheInvalidJsonFailure()
 	{
-		var harness = new Harness();
-
-		harness.Keys.Press(ConsoleKey.Enter);
-
-		var entries = harness.Parser.Parse(new ImportSource(":", "", "{bad"));
+		var result = ImportEntriesParser.Parse(new ImportSource(":", "", "{bad"));
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(entries, Is.Null);
-			Assert.That(CanvasText(harness), Does.Contain("Invalid JSON:"));
+			Assert.That(result.Entries, Is.Empty);
+			Assert.That(result.Failure, Is.Not.Null);
+			Assert.That(result.Failure!.Kind, Is.EqualTo(ImportParseFailureKind.InvalidJson));
+			Assert.That(result.Failure.Detail, Is.Not.Null.And.Not.Empty);
 		});
 	}
 
 	[Test]
 	public void Parse_EmptyDocument_ReportsThatThereAreNoKeys()
 	{
-		var harness = new Harness();
-
-		harness.Keys.Press(ConsoleKey.Enter);
-
-		var entries = harness.Parser.Parse(new ImportSource(":", "", "{}"));
+		var result = ImportEntriesParser.Parse(new ImportSource(":", "", "{}"));
 
 		Assert.Multiple(() =>
 		{
-			Assert.That(entries, Is.Null);
-			Assert.That(CanvasText(harness), Does.Contain("No keys found in JSON."));
+			Assert.That(result.Entries, Is.Empty);
+			Assert.That(result.Failure, Is.Not.Null);
+			Assert.That(result.Failure!.Kind, Is.EqualTo(ImportParseFailureKind.NoKeys));
 		});
 	}
 
-	private static string CanvasText(Harness harness) =>
-		string.Join('\n', harness.Canvas.Blocks.OfType<TextBlock>().SelectMany(block => block.Lines.Select(LineText.Of)));
-
-	private sealed class Harness
+	[Test]
+	public void Parse_ArrayWithoutPrefix_ReportsThatThereAreNoKeys()
 	{
-		public readonly FakeScreenCanvas Canvas = new();
-		public readonly FakeKeyReader Keys = new();
-		public readonly ImportEntriesParser Parser;
+		var result = ImportEntriesParser.Parse(new ImportSource(":", "", "[1,2]"));
 
-		public Harness()
+		Assert.Multiple(() =>
 		{
-			LocalizationCatalog localization = new();
-			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
-			var screen = new Screen(Canvas, new Header(), statusBar);
-
-			Parser = new ImportEntriesParser(new Message(screen, Keys, localization), localization);
-		}
+			Assert.That(result.Entries, Is.Empty);
+			Assert.That(result.Failure, Is.Not.Null);
+			Assert.That(result.Failure!.Kind, Is.EqualTo(ImportParseFailureKind.NoKeys));
+		});
 	}
 
-	private sealed class StubAppInfo : IAppInfo
+	[Test]
+	public void Parse_ValidDocument_ReturnsTheFlattenedEntries()
 	{
-		public string Version => "0.0";
+		var result = ImportEntriesParser.Parse(new ImportSource(":", "", """{"a":{"b":"1"}}"""));
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(result.Failure, Is.Null);
+			Assert.That(result.Entries, Is.EqualTo(new[] { new KeyValuePair<string, string>("a:b", "1") }));
+		});
 	}
 }
