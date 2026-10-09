@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0] - Unreleased
+## [1.0] - 2026-10-09
 
 ### Added
 
@@ -37,6 +37,7 @@
 
 ### Fixed
 
+- Non-English text on Windows display error; the console output encoding is switched to UTF-8 before the console writer is captured, so the interface is written in the encoding the console reads
 - Interface refresh in keys windows on all actions
 
 ### Removed

@@ -9,5 +9,9 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// </summary>
 public static class SpectreConsoleHost
 {
+	/// The console is captured on first access, so the encoding must be right
+	/// before that happens; <see cref="AnsiConsole.Console"/> never changes it.
+	static SpectreConsoleHost() => ConsoleTerminalSession.ConfigureOutputEncoding();
+
 	public static IAnsiConsole Default => AnsiConsole.Console;
 }

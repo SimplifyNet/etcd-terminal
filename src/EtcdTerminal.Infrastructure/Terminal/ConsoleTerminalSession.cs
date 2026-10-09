@@ -32,11 +32,17 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	private const string AlternateScrollOnSequence = "\u001b[?1007h";
 	private const string AlternateScrollOffSequence = "\u001b[?1007l";
 
+	/// The writer Spectre captures keeps its encoding forever, so UTF-8 has to
+	/// be configured before the first Spectre console exists; otherwise Windows
+	/// writes the OEM code page while the console reads UTF-8 and every non
+	/// ASCII character becomes garbage.
+	public static void ConfigureOutputEncoding() => Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 	public void Start()
 	{
 		_themes.Changed += UpdateBackground;
 
-		Console.OutputEncoding = System.Text.Encoding.UTF8;
+		ConfigureOutputEncoding();
 
 		if (!_console.Profile.Capabilities.Ansi)
 			return;
