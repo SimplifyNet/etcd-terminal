@@ -31,6 +31,18 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void LightReddyTheme_HasReadableTextContrastForStandardRolesOnEveryLightBackground()
+	{
+		var theme = new LightReddyTheme();
+		RgbColor[] backgrounds = [theme.WindowBackground, theme.BandBackground, theme.ActionPanelTitleBackground];
+		RgbColor[] foregrounds = [theme.Primary, theme.Secondary, theme.Success, theme.Danger, theme.Warning, theme.Muted, theme.Subtle];
+
+		foreach (var foreground in foregrounds)
+			foreach (var background in backgrounds)
+				Assert.That(Contrast(foreground, background), Is.GreaterThanOrEqualTo(4.5), $"{foreground} on {background}");
+	}
+
+	[Test]
 	public void BlockRenderer_WritesLiteralTextWithoutTreatingBracketsAsMarkup()
 	{
 		var console = new TestConsole();
@@ -474,4 +486,24 @@ public sealed class SpectreRenderingTests
 
 	private static bool Mapper(RoleStyleMapper mapper, TextRole role, RgbColor expected) =>
 		mapper.Resolve(role) == new Style(foreground: new Color(expected.R, expected.G, expected.B));
+
+	private static double Contrast(RgbColor foreground, RgbColor background)
+	{
+		var foregroundLuminance = Luminance(foreground);
+		var backgroundLuminance = Luminance(background);
+
+		return (Math.Max(foregroundLuminance, backgroundLuminance) + 0.05) / (Math.Min(foregroundLuminance, backgroundLuminance) + 0.05);
+	}
+
+	private static double Luminance(RgbColor color)
+	{
+		var red = Linear(color.R / 255d);
+		var green = Linear(color.G / 255d);
+		var blue = Linear(color.B / 255d);
+
+		return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+	}
+
+	private static double Linear(double channel) =>
+		channel <= 0.04045 ? channel / 12.92 : Math.Pow((channel + 0.055) / 1.055, 2.4);
 }
