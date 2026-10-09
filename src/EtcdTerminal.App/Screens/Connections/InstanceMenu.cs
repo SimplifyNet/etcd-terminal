@@ -33,7 +33,10 @@ public sealed class InstanceMenu(IConnectionConfigRepository _configRepo, Decryp
 		];
 
 		List<Block>? preamble = instances.Count is 0
-			? [TextBlock.Line(new StyledText(_localizations.Current.NoConnectionsMessage, TextRole.Warning))]
+			? [
+				TextBlock.Line(new StyledText(_localizations.Current.NoConnectionsMessage, TextRole.Warning)),
+				TextBlock.Blank()
+			]
 			: null;
 
 		return _menu.Show(string.Empty, items, preamble)?.Id;
