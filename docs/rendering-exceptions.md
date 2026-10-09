@@ -70,7 +70,7 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 
 **What it does:** the only class allowed to talk to `System.Console` and to raw sequences. It enters the alternate buffer, sets the scroll region to the rows above the footer, paints the window background, turns alternate scroll on and mirrors every theme change to the terminal background.
 
-**Sequences Spectre cannot emit in 0.57.2** (the six listed in the class):
+**Sequences Spectre cannot emit in 0.57.2** (the eight listed in the class):
 
 | Sequence | Purpose |
 | --- | --- |
@@ -78,6 +78,8 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 | `CSI r` | reset the scroll region |
 | `OSC 11;#RRGGBB BEL` | set the terminal window background |
 | `OSC 111 BEL` | reset the terminal window background |
+| `OSC 12;#RRGGBB BEL` | set the text cursor color to the theme's primary text color, so the caret is visible on a light background |
+| `OSC 112 BEL` | reset the cursor color |
 | `DECSET 1007` on | alternate scroll: the mouse wheel is reported as arrow keys inside the alternate buffer, which is how a page scrolls |
 | `DECSET 1007` off | restore normal wheel behavior |
 

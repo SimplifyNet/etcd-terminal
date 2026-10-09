@@ -23,11 +23,12 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	private Timer? _sizeWatch;
 	private (int Width, int Height) _size;
 
-	// The six sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
+	// The eight sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
 	// makes the terminal report the mouse wheel as arrow keys inside the
 	// alternate buffer, which is how a page gets scrolled by the wheel.
 	private const string ResetScrollRegionSequence = "\u001b[r";
 	private const string ResetBackgroundSequence = "\u001b]111\u0007";
+	private const string ResetCursorColorSequence = "\u001b]112\u0007";
 	private const string AlternateScrollOnSequence = "\u001b[?1007h";
 	private const string AlternateScrollOffSequence = "\u001b[?1007l";
 
@@ -74,6 +75,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 
 		writer.Write(AlternateScrollOnSequence);
 		writer.Write(BackgroundSequence(_themes.Current.WindowBackground));
+		writer.Write(CursorColorSequence(_themes.Current.Primary));
 		writer.HideCursor();
 		writer.Write(ScrollRegionSequence(_console.Profile.Height - FooterRows));
 		writer.EraseInDisplay(2);
@@ -85,6 +87,7 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 		writer.Write(ResetScrollRegionSequence);
 		writer.Write(AlternateScrollOffSequence);
 		writer.Write(ResetBackgroundSequence);
+		writer.Write(ResetCursorColorSequence);
 		writer.EraseInDisplay(2);
 		writer.CursorHome();
 		writer.ShowCursor();
@@ -96,7 +99,11 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	private void UpdateBackground()
 	{
 		if (_console.Profile.Capabilities.Ansi)
-			_console.WriteAnsi(writer => writer.Write(BackgroundSequence(_themes.Current.WindowBackground)));
+			_console.WriteAnsi(writer =>
+			{
+				writer.Write(BackgroundSequence(_themes.Current.WindowBackground));
+				writer.Write(CursorColorSequence(_themes.Current.Primary));
+			});
 
 		NotifyResizeHandlers();
 	}
@@ -131,6 +138,8 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	}
 
 	private static string ScrollRegionSequence(int lastRow) => $"\u001b[1;{lastRow}r";
+
+	private static string CursorColorSequence(RgbColor c) => $"\u001b]12;#{c.R:X2}{c.G:X2}{c.B:X2}\u0007";
 
 	private static string BackgroundSequence(RgbColor c) => $"\u001b]11;#{c.R:X2}{c.G:X2}{c.B:X2}\u0007";
 }
