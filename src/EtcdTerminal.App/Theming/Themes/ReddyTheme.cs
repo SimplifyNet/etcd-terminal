@@ -1,6 +1,6 @@
 using EtcdTerminal.Presentation.Theming;
 
-namespace EtcdTerminal.App.Theming;
+namespace EtcdTerminal.App.Theming.Themes;
 
 public sealed class ReddyTheme : ITheme
 {

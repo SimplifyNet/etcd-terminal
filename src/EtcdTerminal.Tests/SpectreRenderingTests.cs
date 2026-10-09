@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Spectre.Console;
 using Spectre.Console.Testing;
 using Spectre.Console.Rendering;
+using EtcdTerminal.App.Theming.Themes;
 
 namespace EtcdTerminal.Tests;
 

@@ -1,3 +1,4 @@
+using EtcdTerminal.App.Theming.Themes;
 using EtcdTerminal.Presentation.Theming;
 
 namespace EtcdTerminal.App.Theming;
@@ -7,7 +8,9 @@ public sealed class ThemeCatalog : IThemeCatalog
 	private readonly IReadOnlyList<ITheme> _themes =
 	[
 		new ReddyTheme(),
-		new EtcdBlueTheme()
+		new EtcdDarkTheme(),
+		new EtcdBlueTheme(),
+		new LightReddyTheme()
 	];
 
 	private ITheme _current;
