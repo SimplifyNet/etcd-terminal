@@ -7,7 +7,8 @@ public sealed class LocalizationCatalog : ILocalizationCatalog
 	private readonly IReadOnlyList<ILocalization> _localizations =
 	[
 		new EnglishLocalization(),
-		new RussianLocalization()
+		new RussianLocalization(),
+		new ChineseLocalization()
 	];
 
 	private ILocalization _current;

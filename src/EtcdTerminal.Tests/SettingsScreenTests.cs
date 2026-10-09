@@ -91,8 +91,6 @@ public sealed class SettingsScreenTests
 				"Solarized (Light)",
 				"GitHub (Light)",
 				"Catppuccin (Light)",
-				"Ubuntu (Light)",
-				"Atom One (Light)",
 				"Rosé Pine (Light)",
 				"Pop! OS (Light)"
 			]));

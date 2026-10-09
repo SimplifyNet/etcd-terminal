@@ -12,6 +12,7 @@
 - Window redraw on windows size change
 - Language switch functionality
 - Russian language
+- Chinese language
 - Theme switch functionality
 - Etcd Blue theme
 - Etcd Dark theme
