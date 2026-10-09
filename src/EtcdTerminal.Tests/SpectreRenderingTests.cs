@@ -84,9 +84,30 @@ public sealed class SpectreRenderingTests
 
 		console.Input.PushKey(ConsoleKey.Enter);
 
-		new SpectreTextInput(new EscapableConsole(console)).ReadLine("Value:");
+		new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(Themes())).ReadLine("Value:");
 
 		Assert.That(console.Output, Does.Contain(ContentIndent.Text + "Value:"));
+	}
+
+	[TestCase(false)]
+	[TestCase(true)]
+	public void TextInput_UsesTheCurrentPrimaryThemeColorForPrompt(bool secret)
+	{
+		var console = new TestConsole { EmitAnsiSequences = true }.Interactive();
+		var themes = new ThemeCatalog();
+		themes.Set("LightReddy");
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		var input = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(themes));
+
+		if (secret)
+			input.ReadSecret("Enter new password:");
+		else
+			input.ReadLine("Enter username:");
+
+		var primary = themes.Current.Primary;
+
+		Assert.That(console.Output, Does.Contain($"38;2;{primary.R};{primary.G};{primary.B}"), console.Output);
 	}
 
 	[Test]

@@ -3,9 +3,9 @@ using Spectre.Console;
 
 namespace EtcdTerminal.Infrastructure.Terminal;
 
-public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
+public sealed class SpectreTextInput(EscapableConsole _console, RoleStyleMapper _styles) : ITextInput
 {
-	private static readonly Style _promptStyle = new(decoration: Decoration.Bold);
+	private Style PromptStyle => _styles.Resolve(TextRole.Primary).Decoration(Decoration.Bold);
 
 	public string? ReadLine(string prompt, string? defaultValue = null)
 	{
@@ -15,8 +15,8 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 		{
 			Margin();
 
-			var textPrompt = new TextPrompt<string>(Markup.Escape(prompt))
-				.PromptStyle(_promptStyle)
+			var textPrompt = new TextPrompt<string>(StyledPrompt(prompt))
+				.PromptStyle(PromptStyle)
 				.AllowEmpty();
 
 			if (defaultValue is not null)
@@ -45,8 +45,8 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 		{
 			Margin();
 
-			return _console.Prompt(new TextPrompt<string>(Markup.Escape(prompt))
-				.PromptStyle(_promptStyle)
+			return _console.Prompt(new TextPrompt<string>(StyledPrompt(prompt))
+				.PromptStyle(PromptStyle)
 				.Secret()
 				.AllowEmpty());
 		}
@@ -67,4 +67,6 @@ public sealed class SpectreTextInput(EscapableConsole _console) : ITextInput
 	/// that whole line when the answer is accepted.
 	/// </summary>
 	private void Margin() => _console.Write(new Text(ContentIndent.Text));
+
+	private string StyledPrompt(string prompt) => $"[{PromptStyle.ToMarkup()}]{Markup.Escape(prompt)}[/]";
 }
