@@ -5,25 +5,25 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class ManageConnectionsScreen(Menu _menu, ConnectionEditor _editor, ConnectionOrganizer _organizer, ILocalization _localization)
+public sealed class ManageConnectionsScreen(Menu _menu, ConnectionEditor _editor, ConnectionOrganizer _organizer, ILocalizationCatalog _localizations)
 {
 	public void Show(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		List<Choice<ManageConnectionsAction>> actions = [new(ManageConnectionsAction.AddInstance, _localization.AddInstance)];
+		List<Choice<ManageConnectionsAction>> actions = [new(ManageConnectionsAction.AddInstance, _localizations.Current.AddInstance)];
 
 		if (instances.Count > 0)
 		{
-			actions.Add(new(ManageConnectionsAction.EditInstance, _localization.EditInstance));
-			actions.Add(new(ManageConnectionsAction.RemoveInstance, _localization.RemoveInstance));
+			actions.Add(new(ManageConnectionsAction.EditInstance, _localizations.Current.EditInstance));
+			actions.Add(new(ManageConnectionsAction.RemoveInstance, _localizations.Current.RemoveInstance));
 		}
 
 		if (instances.Count > 1)
 		{
-			actions.Add(new(ManageConnectionsAction.MoveUpInstance, _localization.MoveUpInstance));
-			actions.Add(new(ManageConnectionsAction.MoveDownInstance, _localization.MoveDownInstance));
+			actions.Add(new(ManageConnectionsAction.MoveUpInstance, _localizations.Current.MoveUpInstance));
+			actions.Add(new(ManageConnectionsAction.MoveDownInstance, _localizations.Current.MoveDownInstance));
 		}
 
-		ManageConnectionsAction? action = _menu.Show(_localization.ManageConnections, actions)?.Id;
+		ManageConnectionsAction? action = _menu.Show(_localizations.Current.ManageConnections, actions)?.Id;
 
 		if (action is null)
 			return;

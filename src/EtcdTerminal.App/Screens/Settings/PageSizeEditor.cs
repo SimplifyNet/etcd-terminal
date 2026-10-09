@@ -1,35 +1,34 @@
 using EtcdTerminal.App.Components;
-using EtcdTerminal.Configuration;
 using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Settings;
 
-public sealed class PageSizeEditor(UserInput _input, SettingsWriter _writer, Message _message, ILocalization _localization)
+public sealed class PageSizeEditor(UserInput _input, SettingsWriter _writer, Message _message, ILocalizationCatalog _localizations) : ISettingsEntry
 {
 	private const int MinPageSize = 1;
 	private const int MaxPageSize = 500;
 
-	public void Edit()
+	public SettingsAction Action => SettingsAction.EditPageSize;
+
+	public string Label => $"{_localizations.Current.PageSizeLabel} ({_writer.Current.PageSize})";
+
+	public bool Edit()
 	{
-		var input = _input.Ask(_localization.EnterPageSize);
+		var input = _input.Ask(_localizations.Current.EnterPageSize);
 
 		if (input is null)
-			return;
+			return false;
 
 		if (!int.TryParse(input, out var pageSize) || pageSize is not (>= MinPageSize and <= MaxPageSize))
 		{
-			_message.ShowError(_localization.InvalidPageSize);
+			_message.ShowError(_localizations.Current.InvalidPageSize);
 
-			return;
+			return false;
 		}
 
-		var updated = new AppSettings
-		{
-			PageSize = pageSize,
-			TrimInputValues = _writer.Current.TrimInputValues
-		};
+		if (_writer.TrySave(_writer.Current with { PageSize = pageSize }))
+			_message.ShowSuccess(_localizations.Current.SettingsSaved);
 
-		if (_writer.TrySave(updated))
-			_message.ShowSuccess(_localization.SettingsSaved);
+		return false;
 	}
 }

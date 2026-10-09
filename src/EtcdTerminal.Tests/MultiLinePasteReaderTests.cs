@@ -72,7 +72,7 @@ public sealed class MultiLinePasteReaderTests
 
 	private static Harness Create(FakeKeyReader reader, bool oneUpdatePerKey = false)
 	{
-		var localization = new EnglishLocalization();
+		LocalizationCatalog localization = new();
 		var live = new RecordingLiveFrame();
 		var canvas = new FakeScreenCanvas();
 		var screen = new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), new ConnectionSession(), localization));

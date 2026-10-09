@@ -8,6 +8,8 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 	private const string SettingsSection = "Settings";
 	private const string PageSizeProperty = "PageSize";
 	private const string TrimInputValuesProperty = "TrimInputValues";
+	private const string LanguageCodeProperty = "LanguageCode";
+	private const string ThemeIdProperty = "ThemeId";
 
 	public AppSettings Load()
 	{
@@ -25,6 +27,12 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 		if (settings[TrimInputValuesProperty] is JsonValue trimValue && trimValue.TryGetValue<bool>(out var trim))
 			appSettings = appSettings with { TrimInputValues = trim };
 
+		if (settings[LanguageCodeProperty] is JsonValue languageValue && languageValue.TryGetValue<string>(out var languageCode))
+			appSettings = appSettings with { LanguageCode = languageCode };
+
+		if (settings[ThemeIdProperty] is JsonValue themeValue && themeValue.TryGetValue<string>(out var themeId))
+			appSettings = appSettings with { ThemeId = themeId };
+
 		return appSettings;
 	}
 
@@ -35,7 +43,9 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 		root[SettingsSection] = new JsonObject
 		{
 			[PageSizeProperty] = appSettings.PageSize,
-			[TrimInputValuesProperty] = appSettings.TrimInputValues
+			[TrimInputValuesProperty] = appSettings.TrimInputValues,
+			[LanguageCodeProperty] = appSettings.LanguageCode,
+			[ThemeIdProperty] = appSettings.ThemeId
 		};
 
 		_configFile.WriteRoot(root);

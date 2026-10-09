@@ -4,6 +4,7 @@ namespace EtcdTerminal.App.Localization;
 
 public class EnglishLocalization : ILocalization
 {
+	public string LanguageCode => "en";
 	public string Name => "English";
 
 	public string InstanceAdded => "Instance added successfully!";
@@ -50,6 +51,10 @@ public class EnglishLocalization : ILocalization
 	public string InvalidPageSize => "Invalid page size. Must be a number from 1 to 500.";
 	public string SettingsSaved => "Settings saved!";
 	public string FailedSaveSettings => "Failed to save settings.";
+	public string LanguageLabel => "Language";
+	public string ThemeLabel => "Theme";
+	public string SelectLanguagePrompt => "Choose a language:";
+	public string SelectThemePrompt => "Choose a theme:";
 	public string On => "On";
 	public string Off => "Off";
 

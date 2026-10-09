@@ -68,7 +68,7 @@ public sealed class CancellableLoadTests
 
 		public Harness()
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var screen = new Screen(Canvas, new Header(), new StatusBar(new StubAppInfo(), ConnectedSession(), localization));
 			var spinner = new Spinner(Keys, new FakeStatusIndicator());
 

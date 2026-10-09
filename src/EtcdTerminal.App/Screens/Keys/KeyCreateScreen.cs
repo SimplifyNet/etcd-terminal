@@ -6,7 +6,7 @@ using EtcdTerminal.Security;
 
 namespace EtcdTerminal.App.Screens.Keys;
 
-public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, KeyCreateForm _form, Message _message, ILocalization _localization) : IMainMenuEntry
+public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, KeyCreateForm _form, Message _message, ILocalizationCatalog _localizations) : IMainMenuEntry
 {
 	public MainMenuAction Action => MainMenuAction.CreateKey;
 
@@ -19,6 +19,6 @@ public sealed class KeyCreateScreen(IEtcdKeyStore _keyStore, KeyCreateForm _form
 
 		var result = await _keyStore.CreateKeyAsync(created.Key, created.Value);
 
-		_message.ShowResult(result, _localization.KeyCreated, _localization.KeyCreateFailed);
+		_message.ShowResult(result, _localizations.Current.KeyCreated, _localizations.Current.KeyCreateFailed);
 	}
 }

@@ -6,7 +6,7 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class InstanceConnector(IConnectionWorkflow _workflow, Spinner _spinner, Message _message, ILocalization _localization)
+public sealed class InstanceConnector(IConnectionWorkflow _workflow, Spinner _spinner, Message _message, ILocalizationCatalog _localizations)
 {
 	public async Task<EtcdConnectionConfig?> ConnectAsync(EtcdConnectionConfig selected)
 	{
@@ -14,11 +14,11 @@ public sealed class InstanceConnector(IConnectionWorkflow _workflow, Spinner _sp
 
 		try
 		{
-			connected = await _spinner.RunAsync(_localization.Connecting, ct => _workflow.ConnectAsync(selected, ct));
+			connected = await _spinner.RunAsync(_localizations.Current.Connecting, ct => _workflow.ConnectAsync(selected, ct));
 		}
 		catch (Exception ex)
 		{
-			_message.ShowError(string.Format(_localization.FailedToConnect, ex.Message));
+			_message.ShowError(string.Format(_localizations.Current.FailedToConnect, ex.Message));
 
 			return null;
 		}
@@ -26,7 +26,7 @@ public sealed class InstanceConnector(IConnectionWorkflow _workflow, Spinner _sp
 		if (connected)
 			return selected;
 
-		_message.ShowWarning(_localization.OperationCancelled);
+		_message.ShowWarning(_localizations.Current.OperationCancelled);
 
 		return null;
 	}

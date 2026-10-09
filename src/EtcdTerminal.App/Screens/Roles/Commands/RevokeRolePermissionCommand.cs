@@ -4,7 +4,7 @@ using EtcdTerminal.Roles;
 
 namespace EtcdTerminal.App.Screens.Roles.Commands;
 
-public sealed class RevokeRolePermissionCommand(IEtcdRoleAdmin _roleAdmin, PermissionTargetPrompt _targets, Message _message, ILocalization _localization) : IMenuCommand<RoleMenuAction>
+public sealed class RevokeRolePermissionCommand(IEtcdRoleAdmin _roleAdmin, PermissionTargetPrompt _targets, Message _message, ILocalizationCatalog _localizations) : IMenuCommand<RoleMenuAction>
 {
 	public RoleMenuAction Action => RoleMenuAction.RevokePermission;
 
@@ -19,6 +19,6 @@ public sealed class RevokeRolePermissionCommand(IEtcdRoleAdmin _roleAdmin, Permi
 		// so no permission type is requested here.
 		var result = await _roleAdmin.RevokePermissionAsync(target.RoleName, target.Key, target.Scope);
 
-		_message.ShowResult(result, _localization.PermissionRevoked, _localization.FailedRevokePermission);
+		_message.ShowResult(result, _localizations.Current.PermissionRevoked, _localizations.Current.FailedRevokePermission);
 	}
 }

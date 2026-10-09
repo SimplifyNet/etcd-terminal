@@ -55,7 +55,7 @@ public sealed class LayoutTests
 
 		public Harness()
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 
 			StatusBar = new StatusBar(new StubAppInfo(), Session, localization);
 			Screen = new Screen(Canvas, new Header(), StatusBar);

@@ -5,7 +5,7 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Components;
 
-public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Screen _screen, ILocalization _localization)
+public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Screen _screen, ILocalizationCatalog _localizations)
 {
 	private const int _pasteBurstThresholdMs = 40;
 
@@ -101,8 +101,8 @@ public sealed class MultiLinePasteReader(IKeyReader _keys, ILiveFrame _live, Scr
 	private FrameModel Status(int lines)
 	{
 		var text = lines == 0
-			? _localization.WaitingForPaste
-			: string.Format(_localization.PastedLines, lines);
+			? _localizations.Current.WaitingForPaste
+			: string.Format(_localizations.Current.PastedLines, lines);
 
 		return new([TextBlock.Line(new StyledText(text, lines == 0 ? TextRole.Subtle : TextRole.Accent))]);
 	}

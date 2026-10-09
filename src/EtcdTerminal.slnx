@@ -1,10 +1,10 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="EtcdTerminal.App/EtcdTerminal.App.csproj" />
-    <Project Path="EtcdTerminal.Infrastructure/EtcdTerminal.Infrastructure.csproj" />
-    <Project Path="EtcdTerminal/EtcdTerminal.csproj" />
-    <Project Path="EtcdTerminal.Presentation/EtcdTerminal.Presentation.csproj" />
-    <Project Path="EtcdTerminal.Tests/EtcdTerminal.Tests.csproj" />
-    <Project Path="EtcdTerminal.IntegrationTests/EtcdTerminal.IntegrationTests.csproj" />
-  </Folder>
+	<Folder Name="/src/">
+		<Project Path="EtcdTerminal.App/EtcdTerminal.App.csproj" />
+		<Project Path="EtcdTerminal.Infrastructure/EtcdTerminal.Infrastructure.csproj" />
+		<Project Path="EtcdTerminal/EtcdTerminal.csproj" />
+		<Project Path="EtcdTerminal.Presentation/EtcdTerminal.Presentation.csproj" />
+		<Project Path="EtcdTerminal.Tests/EtcdTerminal.Tests.csproj" />
+		<Project Path="EtcdTerminal.IntegrationTests/EtcdTerminal.IntegrationTests.csproj" />
+	</Folder>
 </Solution>

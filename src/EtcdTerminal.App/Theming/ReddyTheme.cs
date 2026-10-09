@@ -2,9 +2,11 @@ using EtcdTerminal.Presentation.Theming;
 
 namespace EtcdTerminal.App.Theming;
 
-public class ReddyTheme : ITheme
+public sealed class ReddyTheme : ITheme
 {
+	public string Id => "Reddy";
 	public string Name => "Reddy";
+	public string Variant => "Black";
 
 	public RgbColor WindowBackground { get; } = new(10, 10, 10);
 	public RgbColor BandBackground { get; } = new(27, 28, 30);

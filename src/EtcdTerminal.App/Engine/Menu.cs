@@ -9,14 +9,14 @@ namespace EtcdTerminal.App.Engine;
 /// </summary>
 public sealed class Menu(Screen _screen, ISelectionPrompt _selection)
 {
-	public Choice<TId>? Show<TId>(string? title, IReadOnlyList<Choice<TId>> items, IReadOnlyList<Block>? preamble = null)
+	public Choice<TId>? Show<TId>(string? title, IReadOnlyList<Choice<TId>> items, IReadOnlyList<Block>? preamble = null, Action<Choice<TId>>? onHighlight = null, TId? selectedId = default)
 	{
 		if (items.Count is 0)
 			return null;
 
 		_screen.Open(preamble);
 
-		return _selection.Select(new ChoiceList<TId>(title, items));
+		return _selection.Select(new ChoiceList<TId>(title, items, selectedId), onHighlight);
 	}
 
 	/// <summary>

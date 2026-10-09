@@ -63,7 +63,7 @@ public sealed class ImportReportTests
 
 		public Harness()
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var screen = new Screen(Canvas, new Header(), statusBar);
 

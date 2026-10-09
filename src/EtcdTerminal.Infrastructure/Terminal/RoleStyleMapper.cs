@@ -8,18 +8,18 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// The single place where a semantic role and the theme palette become a
 /// Spectre style. Renderers must not resolve colors on their own.
 /// </summary>
-public sealed class RoleStyleMapper(ITheme _theme)
+public sealed class RoleStyleMapper(IThemeCatalog _themes)
 {
 	public Style Resolve(TextRole role) => role switch
 	{
-		TextRole.Primary => Foreground(_theme.Primary),
-		TextRole.Secondary => Foreground(_theme.Secondary),
-		TextRole.Success => Foreground(_theme.Success),
-		TextRole.Danger => Foreground(_theme.Danger),
-		TextRole.Warning => Foreground(_theme.Warning),
-		TextRole.Muted => Foreground(_theme.Muted),
-		TextRole.Subtle => Foreground(_theme.Subtle),
-		TextRole.Accent => Foreground(_theme.Accent),
+		TextRole.Primary => Foreground(_themes.Current.Primary),
+		TextRole.Secondary => Foreground(_themes.Current.Secondary),
+		TextRole.Success => Foreground(_themes.Current.Success),
+		TextRole.Danger => Foreground(_themes.Current.Danger),
+		TextRole.Warning => Foreground(_themes.Current.Warning),
+		TextRole.Muted => Foreground(_themes.Current.Muted),
+		TextRole.Subtle => Foreground(_themes.Current.Subtle),
+		TextRole.Accent => Foreground(_themes.Current.Accent),
 		_ => Style.Plain
 	};
 

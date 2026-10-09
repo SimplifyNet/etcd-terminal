@@ -15,7 +15,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void UserListLayout_Rows_JoinsRolesAndFallsBackToNone()
 	{
-		var rows = new UserListLayout(new EnglishLocalization()).Rows(
+		var rows = new UserListLayout(new LocalizationCatalog()).Rows(
 		[
 			new EtcdUser { Username = "alice", Roles = ["dev", "ops"] },
 			new EtcdUser { Username = "bob" }
@@ -29,7 +29,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void UserListLayout_Headers_AreTheFramedTablesColumns()
 	{
-		var headers = new UserListLayout(new EnglishLocalization()).Headers();
+		var headers = new UserListLayout(new LocalizationCatalog()).Headers();
 
 		Assert.That(headers.Select(cell => cell.Text), Is.EqualTo(new[] { "Username", "Roles" }));
 	}
@@ -37,7 +37,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void RoleListLayout_Rows_OneRowPerPermissionAndAPlaceholderForEmptyRoles()
 	{
-		var rows = new RoleListLayout(new EnglishLocalization()).Rows(
+		var rows = new RoleListLayout(new LocalizationCatalog()).Rows(
 		[
 			new EtcdRole { Name = "dev", Permissions = [Permission("/a")] },
 			new EtcdRole { Name = "empty" }
@@ -51,7 +51,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void RoleListLayout_Headers_NameTheRoleAndPermissionColumns()
 	{
-		var headers = new RoleListLayout(new EnglishLocalization()).Headers();
+		var headers = new RoleListLayout(new LocalizationCatalog()).Headers();
 
 		Assert.That(headers.Select(cell => cell.Text), Is.EqualTo(new[] { "Role", "Permission" }));
 	}
@@ -59,7 +59,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void PermissionListLayout_Rows_ExpandsEveryRoleOfEveryUser()
 	{
-		var rows = new PermissionListLayout(new EnglishLocalization()).Rows(
+		var rows = new PermissionListLayout(new LocalizationCatalog()).Rows(
 		[
 			new EtcdUser { Username = "alice", Roles = ["dev"] },
 			new EtcdUser { Username = "bob" },
@@ -78,7 +78,7 @@ public sealed class ListLayoutTests
 	[Test]
 	public void PermissionListLayout_Headers_NameTheUserRolesAndPermissionColumns()
 	{
-		var headers = new PermissionListLayout(new EnglishLocalization()).Headers();
+		var headers = new PermissionListLayout(new LocalizationCatalog()).Headers();
 
 		Assert.That(headers.Select(cell => cell.Text), Is.EqualTo(new[] { "User", "Role", "Permission" }));
 	}

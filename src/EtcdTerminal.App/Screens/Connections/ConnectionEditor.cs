@@ -4,43 +4,43 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class ConnectionEditor(IConnectionConfigRepository _configRepo, UserInput _input, Message _message, ILocalization _localization)
+public sealed class ConnectionEditor(IConnectionConfigRepository _configRepo, UserInput _input, Message _message, ILocalizationCatalog _localizations)
 {
-	public void Add() => SaveInstanceInteractive(null, _localization.InstanceAdded);
+	public void Add() => SaveInstanceInteractive(null, _localizations.Current.InstanceAdded);
 
-	public void Edit(EtcdConnectionConfig existing) => SaveInstanceInteractive(existing, _localization.InstanceUpdated);
+	public void Edit(EtcdConnectionConfig existing) => SaveInstanceInteractive(existing, _localizations.Current.InstanceUpdated);
 
 	private void SaveInstanceInteractive(EtcdConnectionConfig? existing, string successMessage)
 	{
 		var name = existing is null
-			? _input.Ask(_localization.EnterInstanceName)
-			: _input.Ask(_localization.EnterInstanceName, existing.Name);
+			? _input.Ask(_localizations.Current.EnterInstanceName)
+			: _input.Ask(_localizations.Current.EnterInstanceName, existing.Name);
 
 		if (name is null)
 			return;
 
 		if (_configRepo.IsNameTaken(name, existing?.Name))
 		{
-			_message.ShowError(_localization.InstanceNameTaken);
+			_message.ShowError(_localizations.Current.InstanceNameTaken);
 
 			return;
 		}
 
-		var connectionString = _input.Ask(_localization.EnterConnStr, existing?.ConnectionString ?? _localization.DefaultConnStr);
+		var connectionString = _input.Ask(_localizations.Current.EnterConnStr, existing?.ConnectionString ?? _localizations.Current.DefaultConnStr);
 
 		if (connectionString is null)
 			return;
 
 		if (!new EtcdConnectionConfig { ConnectionString = connectionString }.IsConnectionStringValid)
 		{
-			_message.ShowError(_localization.InvalidConnStr);
+			_message.ShowError(_localizations.Current.InvalidConnStr);
 
 			return;
 		}
 
 		var username = existing is null
-			? _input.Ask(_localization.EnterUsername, allowEmpty: true)
-			: _input.Ask(_localization.EnterUsername, existing.Username ?? string.Empty);
+			? _input.Ask(_localizations.Current.EnterUsername, allowEmpty: true)
+			: _input.Ask(_localizations.Current.EnterUsername, existing.Username ?? string.Empty);
 
 		if (username is null)
 			return;
@@ -74,8 +74,8 @@ public sealed class ConnectionEditor(IConnectionConfigRepository _configRepo, Us
 		var password = existing?.Password ?? string.Empty;
 
 		var passwordPrompt = existing is null
-			? _localization.EnterPassword
-			: _localization.EnterPasswordKeepCurrent;
+			? _localizations.Current.EnterPassword
+			: _localizations.Current.EnterPasswordKeepCurrent;
 
 		var entered = _input.Secret(passwordPrompt);
 

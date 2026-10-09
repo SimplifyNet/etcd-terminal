@@ -22,7 +22,7 @@ public sealed class StatusBarPersistenceTests
 
 		var canvas = new FakeScreenCanvas();
 
-		new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), session, new EnglishLocalization())).Open();
+		new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), session, new LocalizationCatalog())).Open();
 
 		Assert.That(canvas.NewScreenCount, Is.EqualTo(1));
 		Assert.That(canvas.Footers, Is.Not.Empty);
@@ -34,7 +34,7 @@ public sealed class StatusBarPersistenceTests
 	public void PressAnyKey_ScreenCarriesStatusBarAndHintTogether()
 	{
 		var session = new ConnectionSession();
-		var localization = new EnglishLocalization();
+		LocalizationCatalog localization = new();
 		var canvas = new FakeScreenCanvas();
 		var keys = new FakeKeyReader();
 
@@ -45,7 +45,7 @@ public sealed class StatusBarPersistenceTests
 		new PressAnyKeyPrompt(new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), session, localization)), keys, localization).Show([]);
 
 		Assert.That(canvas.Footers[^1].Name?.Text, Is.EqualTo("prod"));
-		Assert.That(LineText.Of(((TextBlock)canvas.Blocks[^1]).Lines[^1]), Is.EqualTo(localization.PressAnyKey));
+		Assert.That(LineText.Of(((TextBlock)canvas.Blocks[^1]).Lines[^1]), Is.EqualTo(localization.Current.PressAnyKey));
 		Assert.That(keys.KeyAvailable, Is.False, "the prompt waits for exactly one key");
 	}
 

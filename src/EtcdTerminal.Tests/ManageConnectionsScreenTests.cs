@@ -117,7 +117,7 @@ public sealed class ManageConnectionsScreenTests
 			Repository = new RecordingConfigRepository(instances);
 
 			var keys = Keys;
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var prompt = new Prompt(TextInput);
 			var screen = new Screen(Canvas, new Header(), statusBar);

@@ -4,7 +4,7 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class DecryptFailureNotice(IDecryptFailureSource _source, Message _message, ILocalization _localization)
+public sealed class DecryptFailureNotice(IDecryptFailureSource _source, Message _message, ILocalizationCatalog _localizations)
 {
 	public void ShowIfAny()
 	{
@@ -13,6 +13,6 @@ public sealed class DecryptFailureNotice(IDecryptFailureSource _source, Message 
 		if (decryptFailures.Count is 0)
 			return;
 
-		_message.ShowWarning(string.Format(_localization.UndecryptablePasswords, string.Join(", ", decryptFailures)));
+		_message.ShowWarning(string.Format(_localizations.Current.UndecryptablePasswords, string.Join(", ", decryptFailures)));
 	}
 }

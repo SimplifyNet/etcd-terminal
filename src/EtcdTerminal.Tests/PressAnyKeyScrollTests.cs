@@ -21,7 +21,7 @@ public sealed class PressAnyKeyScrollTests
 
 		keys.Press(ConsoleKey.DownArrow, ConsoleKey.PageDown, ConsoleKey.UpArrow, ConsoleKey.Home, ConsoleKey.End, ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(Screen(canvas), keys, new EnglishLocalization()).Show([]);
+		new PressAnyKeyPrompt(Screen(canvas), keys, new LocalizationCatalog()).Show([]);
 
 		Assert.Multiple(() =>
 		{
@@ -45,7 +45,7 @@ public sealed class PressAnyKeyScrollTests
 
 		keys.Press(ConsoleKey.DownArrow, ConsoleKey.Enter);
 
-		new PressAnyKeyPrompt(Screen(canvas), keys, new EnglishLocalization()).Show([]);
+		new PressAnyKeyPrompt(Screen(canvas), keys, new LocalizationCatalog()).Show([]);
 
 		Assert.Multiple(() =>
 		{
@@ -65,7 +65,7 @@ public sealed class PressAnyKeyScrollTests
 
 		keys.Press(ConsoleKey.DownArrow, ConsoleKey.PageUp, ConsoleKey.Enter);
 
-		new Message(Screen(canvas, session), keys, new EnglishLocalization()).ShowSuccess("Done");
+		new Message(Screen(canvas, session), keys, new LocalizationCatalog()).ShowSuccess("Done");
 
 		Assert.Multiple(() =>
 		{
@@ -78,7 +78,7 @@ public sealed class PressAnyKeyScrollTests
 	{
 		session ??= ConnectedSession();
 
-		return new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), session, new EnglishLocalization()));
+		return new Screen(canvas, new Header(), new StatusBar(new StubAppInfo(), session, new LocalizationCatalog()));
 	}
 
 	private static ConnectionSession ConnectedSession()

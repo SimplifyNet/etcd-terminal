@@ -1,34 +1,26 @@
 using EtcdTerminal.App.Engine;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Settings;
 
-public sealed class SettingsScreen(Menu _menu, PageSizeEditor _pageSize, SettingsWriter _writer, ILocalization _localization)
+public sealed class SettingsScreen(Menu _menu, ICollection<ISettingsEntry> _entries, ILocalizationCatalog _localizations)
 {
-	public void Show()
+	/// <summary>
+	/// Returns whether the screens have to be rebuilt, which is the case
+	/// after a language change.
+	/// </summary>
+	public bool Show()
 	{
 		while (true)
 		{
-			SettingsAction? action = _menu.Show<SettingsAction>(_localization.SettingsTitle,
-			[
-				new(SettingsAction.EditPageSize, $"{_localization.PageSizeLabel} ({_writer.Current.PageSize})"),
-				new(SettingsAction.ToggleTrimInputValues, $"{_localization.TrimInputValuesLabel} ({OnOff(_writer.Current.TrimInputValues)})")
-			])?.Id;
+			var action = _menu.Show(_localizations.Current.SettingsTitle, _entries.Select(entry => new Choice<SettingsAction>(entry.Action, entry.Label)).ToArray())?.Id;
 
 			if (action is null)
-				return;
+				return false;
 
-			switch (action)
-			{
-				case SettingsAction.EditPageSize:
-					_pageSize.Edit();
-					break;
-				case SettingsAction.ToggleTrimInputValues:
-					_writer.ToggleTrimInputValues();
-					break;
-			}
+			if (_entries.Single(entry => entry.Action == action).Edit())
+				return true;
 		}
 	}
-
-	private string OnOff(bool value) => value ? _localization.On : _localization.Off;
 }

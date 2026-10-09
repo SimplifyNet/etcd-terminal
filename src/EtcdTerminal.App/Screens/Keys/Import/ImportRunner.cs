@@ -7,7 +7,7 @@ namespace EtcdTerminal.App.Screens.Keys.Import;
 /// <summary>
 /// Runs the import behind the spinner and hands the outcome to the report.
 /// </summary>
-public sealed class ImportRunner(IKeyImporter _importer, Spinner _spinner, ImportReport _report, ILocalization _localization)
+public sealed class ImportRunner(IKeyImporter _importer, Spinner _spinner, ImportReport _report, ILocalizationCatalog _localizations)
 {
 	public async Task ImportAsync(IReadOnlyList<KeyValuePair<string, string>> entries)
 	{
@@ -17,7 +17,7 @@ public sealed class ImportRunner(IKeyImporter _importer, Spinner _spinner, Impor
 
 		try
 		{
-			completed = await _spinner.RunAsync(string.Format(_localization.ImportingKeys, entries.Count), async ct =>
+			completed = await _spinner.RunAsync(string.Format(_localizations.Current.ImportingKeys, entries.Count), async ct =>
 			{
 				confirmed = await _importer.ImportAsync(entries, snapshot => confirmed = snapshot, ct);
 			});

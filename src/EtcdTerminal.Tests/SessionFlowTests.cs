@@ -4,6 +4,7 @@ using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.App.Screens.Settings;
+using EtcdTerminal.App.Theming;
 using EtcdTerminal.Configuration;
 using EtcdTerminal.Environment;
 using EtcdTerminal.Presentation;
@@ -149,9 +150,9 @@ public sealed class SessionFlowTests
 			Assert.That(items, Has.Count.EqualTo(5));
 			Assert.That(items[0].Label, Is.EqualTo("prod  (http://localhost:2379)"));
 			Assert.That(items[1].Label, Is.EqualTo("staging  (http://10.0.0.5:2379)\n"));
-			Assert.That(items[2].Label, Is.EqualTo(harness.Localization.ManageConnections));
-			Assert.That(items[3].Label, Is.EqualTo(harness.Localization.Settings));
-			Assert.That(items[4].Label, Is.EqualTo(harness.Localization.Exit));
+			Assert.That(items[2].Label, Is.EqualTo(harness.Localization.Current.ManageConnections));
+			Assert.That(items[3].Label, Is.EqualTo(harness.Localization.Current.Settings));
+			Assert.That(items[4].Label, Is.EqualTo(harness.Localization.Current.Exit));
 			Assert.That(items.Any(item => string.IsNullOrEmpty(item.Label)), Is.False);
 		});
 	}
@@ -166,7 +167,7 @@ public sealed class SessionFlowTests
 	{
 		public readonly ConnectionSession Session = new();
 		public readonly StubConnection Connection = new();
-		public readonly EnglishLocalization Localization = new();
+		public readonly LocalizationCatalog Localization = new();
 		public readonly FakeSelectionPrompt Answers = new();
 		public readonly FakeScreenCanvas Canvas = new();
 		public readonly FakeKeyReader Keys = new();
@@ -196,7 +197,10 @@ public sealed class SessionFlowTests
 			var settingsStore = new AppSettingsStore(new FakeSettingsRepository());
 			var userInput = new UserInput(prompt, settingsStore);
 			var settingsWriter = new SettingsWriter(settingsStore, message, Localization);
-			var settings = new SettingsScreen(Menu, new PageSizeEditor(userInput, settingsWriter, message, Localization), settingsWriter, Localization);
+			var languages = new LocalizationCatalog();
+			var language = new LanguagePreferenceEditor(Menu, settingsWriter, languages);
+			var theme = new ThemePreferenceEditor(Menu, settingsWriter, new ThemeCatalog(), languages);
+			var settings = new SettingsScreen(Menu, [language, theme, new PageSizeEditor(userInput, settingsWriter, message, Localization), new TrimInputValuesEditor(settingsWriter, Localization)], Localization);
 			var manage = new ManageConnectionsScreen(Menu, new ConnectionEditor(repo, userInput, message, Localization), new ConnectionOrganizer(repo, Menu, message, Localization), Localization);
 			var workflow = new ConnectionWorkflow(Connection, new StubCapabilities(discover), Session);
 			var notice = new DecryptFailureNotice(new StubDecryptSource(), message, Localization);

@@ -2,17 +2,17 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.MainMenu;
 
-public sealed class MainMenuLabels(ILocalization _localization)
+public sealed class MainMenuLabels(ILocalizationCatalog _localizations)
 {
 	public string For(MainMenuAction action) => action switch
 	{
-		MainMenuAction.BrowseKeys => _localization.BrowseKeys,
-		MainMenuAction.CreateKey => _localization.CreateKey,
-		MainMenuAction.ImportJson => _localization.ImportJson,
-		MainMenuAction.ManageUsers => _localization.ManageUsers,
-		MainMenuAction.ManageRoles => _localization.ManageRoles,
-		MainMenuAction.ListPermissions => _localization.ListPermissions,
-		MainMenuAction.Disconnect => _localization.Disconnect,
+		MainMenuAction.BrowseKeys => _localizations.Current.BrowseKeys,
+		MainMenuAction.CreateKey => _localizations.Current.CreateKey,
+		MainMenuAction.ImportJson => _localizations.Current.ImportJson,
+		MainMenuAction.ManageUsers => _localizations.Current.ManageUsers,
+		MainMenuAction.ManageRoles => _localizations.Current.ManageRoles,
+		MainMenuAction.ListPermissions => _localizations.Current.ListPermissions,
+		MainMenuAction.Disconnect => _localizations.Current.Disconnect,
 		_ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
 	};
 }

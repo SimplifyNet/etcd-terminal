@@ -8,7 +8,7 @@ namespace EtcdTerminal.App.Screens.Keys;
 /// Applies an edit or a delete and reports the outcome. The reload happens
 /// before the message, so the result the user reads shows the stored value.
 /// </summary>
-public sealed class KeyChanges(IEtcdKeyStore _keyStore, KeyEditPrompt _prompt, Message _message, ILocalization _localization)
+public sealed class KeyChanges(IEtcdKeyStore _keyStore, KeyEditPrompt _prompt, Message _message, ILocalizationCatalog _localizations)
 {
 	public async Task EditAsync(EtcdKeyValue key, Func<Task> reload)
 	{
@@ -22,7 +22,7 @@ public sealed class KeyChanges(IEtcdKeyStore _keyStore, KeyEditPrompt _prompt, M
 		if (result)
 			await reload();
 
-		_message.ShowResult(result, _localization.KeyUpdated, _localization.CouldNotUpdateKey);
+		_message.ShowResult(result, _localizations.Current.KeyUpdated, _localizations.Current.CouldNotUpdateKey);
 	}
 
 	public async Task DeleteAsync(EtcdKeyValue key, Func<Task> reload)
@@ -34,6 +34,6 @@ public sealed class KeyChanges(IEtcdKeyStore _keyStore, KeyEditPrompt _prompt, M
 		if (result)
 			await reload();
 
-		_message.ShowResult(result, _localization.KeyDeleted, _localization.KeyCouldNotBeDeleted);
+		_message.ShowResult(result, _localizations.Current.KeyDeleted, _localizations.Current.KeyCouldNotBeDeleted);
 	}
 }

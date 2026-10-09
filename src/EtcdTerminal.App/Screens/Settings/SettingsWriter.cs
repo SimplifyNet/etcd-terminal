@@ -4,7 +4,7 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Settings;
 
-public sealed class SettingsWriter(IAppSettingsStore _settings, Message _message, ILocalization _localization)
+public sealed class SettingsWriter(IAppSettingsStore _settings, Message _message, ILocalizationCatalog _localizations)
 {
 	public AppSettings Current => _settings.Current;
 
@@ -18,20 +18,13 @@ public sealed class SettingsWriter(IAppSettingsStore _settings, Message _message
 		}
 		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{
-			_message.ShowError(_localization.FailedSaveSettings);
+			_message.ShowError(_localizations.Current.FailedSaveSettings);
 
 			return false;
 		}
 	}
 
-	public void ToggleTrimInputValues()
-	{
-		var updated = new AppSettings
-		{
-			PageSize = _settings.Current.PageSize,
-			TrimInputValues = !_settings.Current.TrimInputValues
-		};
+	public bool SaveLanguage(string languageCode) => TrySave(_settings.Current with { LanguageCode = languageCode });
 
-		TrySave(updated);
-	}
+	public bool SaveTheme(string themeId) => TrySave(_settings.Current with { ThemeId = themeId });
 }

@@ -26,8 +26,8 @@ public static class TerminalRegistrations
 		.Register<IStatusIndicator, SpectreStatusIndicator>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterTheming(this IDIRegistrator registrator) => registrator
-		.Register<ITheme, ReddyTheme>(LifetimeType.Singleton);
+		.Register<IThemeCatalog, ThemeCatalog>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterLocalization(this IDIRegistrator registrator) => registrator
-		.Register<ILocalization, EnglishLocalization>(LifetimeType.Singleton);
+		.Register<ILocalizationCatalog, LocalizationCatalog>(LifetimeType.Singleton);
 }

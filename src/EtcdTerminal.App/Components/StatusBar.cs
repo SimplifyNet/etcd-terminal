@@ -12,7 +12,7 @@ namespace EtcdTerminal.App.Components;
 /// the role of every field; it does not know the available width and does not
 /// decide what to drop.
 /// </summary>
-public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, ILocalization _localization)
+public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, ILocalizationCatalog _localizations)
 {
 	public StatusBarModel BuildModel()
 	{
@@ -36,10 +36,10 @@ public sealed class StatusBar(IAppInfo _appInfo, IConnectionSession _session, IL
 	private IReadOnlyList<StyledText> BuildHints() =>
 	[
 		new StyledText("\u2191/\u2193", TextRole.Primary),
-		new StyledText($" {_localization.StatusNavigate} \u00b7 ", TextRole.Muted),
+		new StyledText($" {_localizations.Current.StatusNavigate} \u00b7 ", TextRole.Muted),
 		new StyledText("Enter", TextRole.Primary),
-		new StyledText($" {_localization.StatusConfirm} \u00b7 ", TextRole.Muted),
+		new StyledText($" {_localizations.Current.StatusConfirm} \u00b7 ", TextRole.Muted),
 		new StyledText("Esc", TextRole.Primary),
-		new StyledText($" {_localization.StatusBack}", TextRole.Muted)
+		new StyledText($" {_localizations.Current.StatusBack}", TextRole.Muted)
 	];
 }

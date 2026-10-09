@@ -6,11 +6,11 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class ConnectionOrganizer(IConnectionConfigRepository _configRepo, Menu _menu, Message _message, ILocalization _localization)
+public sealed class ConnectionOrganizer(IConnectionConfigRepository _configRepo, Menu _menu, Message _message, ILocalizationCatalog _localizations)
 {
 	public EtcdConnectionConfig? PickForEdit(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var existingName = SelectInstanceName(_localization.SelectInstanceToEdit, instances);
+		var existingName = SelectInstanceName(_localizations.Current.SelectInstanceToEdit, instances);
 
 		if (existingName is null)
 			return null;
@@ -20,7 +20,7 @@ public sealed class ConnectionOrganizer(IConnectionConfigRepository _configRepo,
 
 	public void Move(IReadOnlyList<EtcdConnectionConfig> instances, int direction)
 	{
-		var title = direction < 0 ? _localization.SelectInstanceToMoveUp : _localization.SelectInstanceToMoveDown;
+		var title = direction < 0 ? _localizations.Current.SelectInstanceToMoveUp : _localizations.Current.SelectInstanceToMoveDown;
 		var name = SelectInstanceName(title, instances);
 
 		if (name is null)
@@ -34,14 +34,14 @@ public sealed class ConnectionOrganizer(IConnectionConfigRepository _configRepo,
 
 	public void Remove(IReadOnlyList<EtcdConnectionConfig> instances)
 	{
-		var nameToRemove = SelectInstanceName(_localization.SelectInstanceToRemove, instances);
+		var nameToRemove = SelectInstanceName(_localizations.Current.SelectInstanceToRemove, instances);
 
 		if (nameToRemove is null)
 			return;
 
 		_configRepo.RemoveInstance(nameToRemove);
 
-		_message.ShowSuccess(_localization.InstanceRemoved);
+		_message.ShowSuccess(_localizations.Current.InstanceRemoved);
 	}
 
 	private string? SelectInstanceName(string title, IReadOnlyList<EtcdConnectionConfig> instances) =>

@@ -9,18 +9,18 @@ namespace EtcdTerminal.App.Screens.Roles;
 /// Literal text and semantic roles only; the geometry of the list belongs to
 /// Infrastructure.
 /// </summary>
-public sealed class RoleListLayout(ILocalization _localization)
+public sealed class RoleListLayout(ILocalizationCatalog _localizations)
 {
-	public string Loading => _localization.LoadingRoles;
+	public string Loading => _localizations.Current.LoadingRoles;
 
-	public string Empty => _localization.NoRolesFound;
+	public string Empty => _localizations.Current.NoRolesFound;
 
-	public string Total => _localization.TotalPermissions;
+	public string Total => _localizations.Current.TotalPermissions;
 
 	public IReadOnlyList<StyledText> Headers() =>
 	[
-		new StyledText(_localization.Role, TextRole.Accent),
-		new StyledText(_localization.Permission, TextRole.Accent)
+		new StyledText(_localizations.Current.Role, TextRole.Accent),
+		new StyledText(_localizations.Current.Permission, TextRole.Accent)
 	];
 
 	/// One row per permission, so the page can be filtered by role or by
@@ -33,10 +33,10 @@ public sealed class RoleListLayout(ILocalization _localization)
 		foreach (var role in roles)
 		{
 			if (role.Permissions.Count == 0)
-				rows.Add(Row(role.Name, _localization.NoPermissions));
+				rows.Add(Row(role.Name, _localizations.Current.NoPermissions));
 			else
 				foreach (var permission in role.Permissions)
-					rows.Add(Row(role.Name, PermissionDisplay.For(permission, _localization)));
+					rows.Add(Row(role.Name, PermissionDisplay.For(permission, _localizations.Current)));
 		}
 
 		return rows;

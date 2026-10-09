@@ -20,7 +20,7 @@ The following rules describe the architecture.
 - `ITheme`/`RgbColor` are presentation theme contracts; `ILocalization` is a presentation text contract. Keep contracts independent of Infrastructure. Components select semantic roles; only Infrastructure translates theme values into Spectre styles.
 - Feature-local controls have the same restrictions as shared components. Their location under `Screens/` is not an exception permitting cursor, ANSI, width calculation or raw color escapes.
 
-**Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `ITheme` to `ReddyTheme`, `ILocalization` to `EnglishLocalization`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
+**Shared services (Singleton, registered in `Setup/IocRegistrations.cs`):** `IThemeCatalog` to `ThemeCatalog`, `ILocalizationCatalog` to `LocalizationCatalog`, `IAppSettingsStore` to `AppSettingsStore`, `IConnectionSession` to `ConnectionSession`. `ILocalization` is not registered: every class that needs text injects `ILocalizationCatalog` and reads `Current` at the moment of use, so a language switch applies without recreating anything. `PreferencesLoader` puts the saved language and theme into the catalogs at the start of every iteration; the first-run prompts live in `LanguagePreferenceEditor.ShowIfMissing()`/`ThemePreferenceEditor.ShowIfMissing()`. Infrastructure renderers read colors from `IThemeCatalog.CurrentTheme` on every render so a theme switch applies without recreating them. Inject dependencies; no static service locator. A future screen host must have one owner per console and an explicit session lifecycle.
 
 **Constructor size:** a class takes at most 4 constructor parameters (`ILocalization` included). When a class needs more, split it by responsibility: menu commands (`IMenuCommand<TAction>`), focused components, prompts/forms, loaders. Never introduce a container type that only forwards dependencies.
 
@@ -46,7 +46,7 @@ The following rules describe the architecture.
 - `TestConsole` output is not a terminal screen emulator. Verify pinned footer, redraw, overflow, resize and interactive transitions in a real terminal or PTY; a text snapshot alone does not prove parity.
 - Keep architecture checks for dependency boundaries. A migration is accepted only with build/test results and explicit visual/behavioral verification; record unverified scenarios instead of claiming success.
 
-**Primary-constructor convention:** dependencies are declared as primary-constructor parameters with a leading underscore and used directly, e.g. `Menu(ITerminal _terminal, ...)`, then `_terminal.Write(...)` inside methods. Do not remove the underscore and do not redeclare separate backing fields for them.
+**Primary-constructor convention:** dependencies are declared as primary-constructor parameters with a leading underscore and used directly, e.g. `Menu(ITerminal _terminal, ILocalizationCatalog _localizations, ...)`, then `_terminal.Write(...)` inside methods. Do not remove the underscore and do not redeclare separate backing fields for them.
 
 ## File structure
 

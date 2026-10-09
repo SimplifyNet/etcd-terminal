@@ -1,6 +1,7 @@
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.MainMenu;
-using EtcdTerminal.Configuration;
+using EtcdTerminal.App.Screens.Settings;
+using EtcdTerminal.App.Setup;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;
 using Simplify.DI;
@@ -12,7 +13,7 @@ namespace EtcdTerminal.App;
 /// once, and every iteration of the loop gets its own scope. A failure is
 /// reported on the canvas and the loop continues.
 /// </summary>
-public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas, ILocalization _localization, IKeyReader _keys)
+public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas, ILocalizationCatalog _languages, IKeyReader _keys)
 {
 	private int _stopped;
 
@@ -42,7 +43,7 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 			catch (Exception ex)
 			{
 				_canvas.WriteException(ex);
-				_canvas.Write(TextBlock.Line(new StyledText(_localization.PressAnyKeyRestart, TextRole.Muted)));
+				_canvas.Write(TextBlock.Line(new StyledText(_languages.Current.PressAnyKeyRestart, TextRole.Muted)));
 
 				while (ScrollKeys.Step(_keys.ReadKey()) is not null)
 				{
@@ -56,12 +57,18 @@ public sealed class AppRunner(ITerminalSession _terminal, IScreenCanvas _canvas,
 	{
 		using var scope = DIContainer.Current.BeginLifetimeScope();
 
-		var settingsStore = scope.Resolver.Resolve<IAppSettingsStore>();
+		scope.Resolver.Resolve<PreferencesLoader>().Load();
+		scope.Resolver.Resolve<LanguagePreferenceEditor>().ShowIfMissing();
+		scope.Resolver.Resolve<ThemePreferenceEditor>().ShowIfMissing();
 
-		settingsStore.Reload();
-
+		var language = _languages.Current;
 		var instanceScreen = scope.Resolver.Resolve<InstanceSelectionScreen>();
 		var config = await instanceScreen.ShowAsync();
+
+		// The screens of this scope were built with the old text; a new
+		// iteration rebuilds them in the chosen language.
+		if (!ReferenceEquals(_languages.Current, language))
+			return true;
 
 		if (config is null)
 			return false;

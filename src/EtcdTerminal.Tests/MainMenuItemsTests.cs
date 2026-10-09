@@ -91,7 +91,7 @@ public sealed class MainMenuItemsTests
 			})
 				Entries.Add(new StubEntry(action, fullCapabilities));
 
-			Items = new MainMenuItems(Entries, session, new MainMenuLabels(new EnglishLocalization()));
+			Items = new MainMenuItems(Entries, session, new MainMenuLabels(new LocalizationCatalog()));
 		}
 	}
 

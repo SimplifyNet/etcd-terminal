@@ -153,7 +153,7 @@ public sealed class ListBrowserTests
 
 		public Harness(int rowCount)
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var settings = new AppSettingsStore(new FakeSettingsRepository());
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var screen = new Screen(Canvas, new Header(), statusBar);

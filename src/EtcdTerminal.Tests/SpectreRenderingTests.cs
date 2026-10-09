@@ -16,7 +16,8 @@ public sealed class SpectreRenderingTests
 	public void RoleStyleMapper_MapsEveryRoleToTheThemePalette()
 	{
 		var theme = new ReddyTheme();
-		var mapper = new RoleStyleMapper(theme);
+		var themes = Themes();
+		var mapper = new RoleStyleMapper(themes);
 
 		Assert.That(Mapper(mapper, TextRole.Primary, theme.Primary), Is.True);
 		Assert.That(Mapper(mapper, TextRole.Secondary, theme.Secondary), Is.True);
@@ -448,9 +449,21 @@ public sealed class SpectreRenderingTests
 		});
 	}
 
-	private static BlockRenderer BlockRenderer() => new(new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
+	private static BlockRenderer BlockRenderer()
+	{
+		var themes = Themes();
 
-	private static StatusBarRenderer StatusBarRenderer(TestConsole console) => new(console, new RoleStyleMapper(new ReddyTheme()), new ReddyTheme());
+		return new(new RoleStyleMapper(themes), themes);
+	}
+
+	private static StatusBarRenderer StatusBarRenderer(TestConsole console)
+	{
+		var themes = Themes();
+
+		return new(console, new RoleStyleMapper(themes), themes);
+	}
+
+	private static ThemeCatalog Themes() => new();
 
 	private static void Render(TestConsole console, Block block) =>
 		console.Write(BlockRenderer().Render(block));

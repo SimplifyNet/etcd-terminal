@@ -4,11 +4,11 @@ using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Roles;
 
-public sealed class PermissionTargetPrompt(UserInput _input, PermissionScopeSelector _scope, PermissionTypeSelector _type, ILocalization _localization)
+public sealed class PermissionTargetPrompt(UserInput _input, PermissionScopeSelector _scope, PermissionTypeSelector _type, ILocalizationCatalog _localizations)
 {
 	public PermissionTarget? AskTarget()
 	{
-		var roleName = _input.Ask(_localization.EnterRoleNamePrompt);
+		var roleName = _input.Ask(_localizations.Current.EnterRoleNamePrompt);
 
 		if (roleName is null)
 			return null;
@@ -19,8 +19,8 @@ public sealed class PermissionTargetPrompt(UserInput _input, PermissionScopeSele
 			return null;
 
 		var keyPromptText = scope is PermissionScope.Prefix
-			? _localization.EnterKeyPrefix
-			: _localization.EnterExactKey;
+			? _localizations.Current.EnterKeyPrefix
+			: _localizations.Current.EnterExactKey;
 
 		var key = _input.Ask(keyPromptText);
 

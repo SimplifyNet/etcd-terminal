@@ -14,18 +14,20 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// composed when the region is rendered, so a redraw of the screen after the
 /// window was resized shows them for the new height.
 /// </summary>
-public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMapper _styles, ILocalization _localization) : ISelectionPrompt
+public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMapper _styles, ILocalizationCatalog _languages) : ISelectionPrompt
 {
 	/// The menu, its title and its hint have to leave the rows of the screen
 	/// to the header and the footer of the screen that owns the prompt.
 	private const int ReservedRows = 14;
 
-	public Choice<TId>? Select<TId>(ChoiceList<TId> list)
+	public Choice<TId>? Select<TId>(ChoiceList<TId> list, Action<Choice<TId>>? onHighlight = null)
 	{
 		if (list.Items.Count is 0)
 			return null;
 
-		var index = 0;
+		var index = IndexOf(list.Items, list.SelectedId);
+
+		onHighlight?.Invoke(list.Items[index]);
 
 		try
 		{
@@ -54,6 +56,7 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 						if (next != index)
 						{
 							index = next;
+							onHighlight?.Invoke(list.Items[index]);
 
 							ctx.Refresh();
 						}
@@ -97,7 +100,7 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 		if (list.Items.Count > pageSize)
 		{
 			rows.Add(_styles.Build([]));
-			rows.Add(Row(ContentIndent.Text + _localization.MoreChoices, Style.Plain));
+			rows.Add(Row(ContentIndent.Text + _languages.Current.MoreChoices, Style.Plain));
 		}
 
 		return new Rows(rows);
@@ -138,6 +141,19 @@ public sealed class SpectreSelectionPrompt(IAnsiConsole _console, RoleStyleMappe
 	}
 
 	private static int PageSize(int height) => Math.Max(3, height - ReservedRows);
+
+	/// An unknown or missing id highlights the first row.
+	private static int IndexOf<TId>(IReadOnlyList<Choice<TId>> choices, TId? id)
+	{
+		if (id is null)
+			return 0;
+
+		for (var index = 0; index < choices.Count; index++)
+			if (EqualityComparer<TId>.Default.Equals(choices[index].Id, id))
+				return index;
+
+		return 0;
+	}
 
 	private static Paragraph Row(string text, Style style)
 	{

@@ -13,17 +13,17 @@ namespace EtcdTerminal.App.Screens.Permissions;
 /// their row so both stay visible and findable. Literal text and semantic
 /// roles only; column widths and the table geometry belong to Infrastructure.
 /// </summary>
-public sealed class PermissionListLayout(ILocalization _localization)
+public sealed class PermissionListLayout(ILocalizationCatalog _localizations)
 {
-	public string Empty => _localization.NoPermissionsFound;
+	public string Empty => _localizations.Current.NoPermissionsFound;
 
-	public string Total => _localization.TotalPermissions;
+	public string Total => _localizations.Current.TotalPermissions;
 
 	public IReadOnlyList<StyledText> Headers() =>
 	[
-		new StyledText(_localization.User, TextRole.Accent),
-		new StyledText(_localization.Role, TextRole.Accent),
-		new StyledText(_localization.Permission, TextRole.Accent)
+		new StyledText(_localizations.Current.User, TextRole.Accent),
+		new StyledText(_localizations.Current.Role, TextRole.Accent),
+		new StyledText(_localizations.Current.Permission, TextRole.Accent)
 	];
 
 	public IReadOnlyList<IReadOnlyList<StyledText>> Rows(IReadOnlyList<EtcdUser> users, IReadOnlyList<EtcdRole> roles)
@@ -40,7 +40,7 @@ public sealed class PermissionListLayout(ILocalization _localization)
 	{
 		if (user.Roles.Count == 0)
 		{
-			yield return Row(user.Username, _localization.NoRoles, "-");
+			yield return Row(user.Username, _localizations.Current.NoRoles, "-");
 
 			yield break;
 		}
@@ -50,10 +50,10 @@ public sealed class PermissionListLayout(ILocalization _localization)
 			var role = roles.FirstOrDefault(candidate => candidate.Name == roleName);
 
 			if (role is null || role.Permissions.Count == 0)
-				yield return Row(user.Username, roleName, _localization.NoPermissions);
+				yield return Row(user.Username, roleName, _localizations.Current.NoPermissions);
 			else
 				foreach (var permission in role.Permissions)
-					yield return Row(user.Username, roleName, PermissionDisplay.For(permission, _localization));
+					yield return Row(user.Username, roleName, PermissionDisplay.For(permission, _localizations.Current));
 		}
 	}
 

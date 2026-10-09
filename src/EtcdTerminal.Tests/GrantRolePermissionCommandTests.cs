@@ -122,7 +122,7 @@ public sealed class GrantRolePermissionCommandTests
 
 		public Harness()
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var screen = new Screen(new FakeScreenCanvas(), new Header(), statusBar);
 			var menu = new Menu(screen, Answers);

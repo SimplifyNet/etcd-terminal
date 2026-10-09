@@ -36,7 +36,10 @@ public static class ScreensRegistrations
 		.Register<PermissionSourcesLoader>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<SettingsWriter>(LifetimeType.Transient)
+		.Register<LanguagePreferenceEditor>(LifetimeType.Transient)
+		.Register<ThemePreferenceEditor>(LifetimeType.Transient)
 		.Register<PageSizeEditor>(LifetimeType.Transient)
+		.Register<TrimInputValuesEditor>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
 		.Register<PermissionTargetPrompt>(LifetimeType.Transient)
@@ -71,6 +74,13 @@ public static class ScreensRegistrations
 			c.Resolve<UsersManagementScreen>(),
 			c.Resolve<RolesManagementScreen>(),
 			c.Resolve<PermissionListScreen>()
+		], LifetimeType.Transient)
+		.Register<ICollection<ISettingsEntry>>(c =>
+		[
+			c.Resolve<LanguagePreferenceEditor>(),
+			c.Resolve<ThemePreferenceEditor>(),
+			c.Resolve<PageSizeEditor>(),
+			c.Resolve<TrimInputValuesEditor>()
 		], LifetimeType.Transient)
 		.Register<IEnumerable<IMenuCommand<RoleMenuAction>>>(c =>
 		[

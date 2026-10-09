@@ -206,13 +206,13 @@ public sealed class LayoutModelTests
 	}
 
 	private static KeyBrowseLayout Layout() =>
-		new(new EnglishLocalization());
+		new(new LocalizationCatalog());
 
 	private static BrowseLayout Browse() =>
-		new(new EnglishLocalization());
+		new(new LocalizationCatalog());
 
 	private static StatusBar StatusBar(ConnectionSession session) =>
-		new(new StubAppInfo(), session, new EnglishLocalization());
+		new(new StubAppInfo(), session, new LocalizationCatalog());
 
 	private sealed class StubAppInfo : IAppInfo
 	{

@@ -52,6 +52,22 @@ public sealed class ConfigurationRepositoryTests
 	}
 
 	[Test]
+	public void SettingsSave_RoundTripsLanguageAndThemeIds()
+	{
+		var (_, _, settings) = CreateRepositories();
+
+		settings.Save(new AppSettings { LanguageCode = "ru", ThemeId = "EtcdBlue" });
+
+		var loaded = settings.Load();
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(loaded.LanguageCode, Is.EqualTo("ru"));
+			Assert.That(loaded.ThemeId, Is.EqualTo("EtcdBlue"));
+		});
+	}
+
+	[Test]
 	public void SettingsSave_PreservesInstancesAndOtherSections()
 	{
 		var (configPath, connections, settings) = CreateRepositories();

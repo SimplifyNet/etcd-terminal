@@ -5,7 +5,7 @@ using EtcdTerminal.Presentation;
 
 namespace EtcdTerminal.App.Screens.Connections;
 
-public sealed class InstanceMenu(IConnectionConfigRepository _configRepo, DecryptFailureNotice _notice, Menu _menu, ILocalization _localization)
+public sealed class InstanceMenu(IConnectionConfigRepository _configRepo, DecryptFailureNotice _notice, Menu _menu, ILocalizationCatalog _localizations)
 {
 	public InstanceMenuResult Show()
 	{
@@ -27,13 +27,13 @@ public sealed class InstanceMenu(IConnectionConfigRepository _configRepo, Decryp
 			.. instances.Select((instance, index) => new Choice<InstanceMenuChoice>(
 				new(null, instance),
 				$"{instance.Name}  ({instance.ConnectionString}){(index == instances.Count - 1 ? "\n" : string.Empty)}")),
-			new(new(InstanceFixedAction.ManageConnections, null), _localization.ManageConnections),
-			new(new(InstanceFixedAction.Settings, null), _localization.Settings),
-			new(new(InstanceFixedAction.Exit, null), _localization.Exit)
+			new(new(InstanceFixedAction.ManageConnections, null), _localizations.Current.ManageConnections),
+			new(new(InstanceFixedAction.Settings, null), _localizations.Current.Settings),
+			new(new(InstanceFixedAction.Exit, null), _localizations.Current.Exit)
 		];
 
 		List<Block>? preamble = instances.Count is 0
-			? [TextBlock.Line(new StyledText(_localization.NoConnectionsMessage, TextRole.Warning))]
+			? [TextBlock.Line(new StyledText(_localizations.Current.NoConnectionsMessage, TextRole.Warning))]
 			: null;
 
 		return _menu.Show(string.Empty, items, preamble)?.Id;

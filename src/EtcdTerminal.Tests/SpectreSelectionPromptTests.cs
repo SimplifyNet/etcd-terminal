@@ -24,6 +24,20 @@ public sealed class SpectreSelectionPromptTests
 	}
 
 	[Test]
+	public void Select_NotifiesWhenTheHighlightedChoiceChanges()
+	{
+		var console = new TestConsole().Interactive();
+		var highlighted = new List<int>();
+
+		console.Input.PushKey(ConsoleKey.DownArrow);
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		Prompt(console).Select(new ChoiceList<int>(null, [new(1, "first"), new(2, "second")]), choice => highlighted.Add(choice.Id));
+
+		Assert.That(highlighted, Is.EqualTo([1, 2]));
+	}
+
+	[Test]
 	public void Select_OnEscape_ReturnsNull()
 	{
 		var console = new TestConsole().Interactive();
@@ -83,5 +97,5 @@ public sealed class SpectreSelectionPromptTests
 	}
 
 	private static SpectreSelectionPrompt Prompt(TestConsole console) =>
-		new(console, new RoleStyleMapper(new ReddyTheme()), new EnglishLocalization());
+		new(console, new RoleStyleMapper(new ThemeCatalog()), new LocalizationCatalog());
 }

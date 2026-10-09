@@ -19,9 +19,12 @@ public sealed class FakeSelectionPrompt : ISelectionPrompt
 
 	public void Cancel() => _answers.Enqueue(null);
 
-	public Choice<TId>? Select<TId>(ChoiceList<TId> list)
+	public Choice<TId>? Select<TId>(ChoiceList<TId> list, Action<Choice<TId>>? onHighlight = null)
 	{
+		var highlighted = list.Items.FirstOrDefault(item => Equals(item.Id, list.SelectedId)) ?? list.Items[0];
+
 		Prompts.Add(list);
+		onHighlight?.Invoke(highlighted);
 
 		if (_answers.Count is 0)
 			throw new InvalidOperationException("No answer was scripted for this selection prompt.");
@@ -31,8 +34,12 @@ public sealed class FakeSelectionPrompt : ISelectionPrompt
 		if (answer is null)
 			return null;
 
-		return list.Items.FirstOrDefault(item => Equals(item.Id, answer))
+		var choice = list.Items.FirstOrDefault(item => Equals(item.Id, answer))
 			?? throw new InvalidOperationException($"The prompt was never offered the id {answer}.");
+
+		onHighlight?.Invoke(choice);
+
+		return choice;
 	}
 
 	public ChoiceList<TId> Prompt<TId>(int call) => (ChoiceList<TId>)Prompts[call];

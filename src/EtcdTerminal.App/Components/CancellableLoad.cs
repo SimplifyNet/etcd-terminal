@@ -6,7 +6,7 @@ namespace EtcdTerminal.App.Components;
 /// Loads data behind the spinner. Escape cancels the load, warns that the
 /// operation was cancelled and returns null. Failures reach the caller unchanged.
 /// </summary>
-public sealed class CancellableLoad(Spinner _spinner, Message _message, ILocalization _localization)
+public sealed class CancellableLoad(Spinner _spinner, Message _message, ILocalizationCatalog _localizations)
 {
 	public async Task<T?> RunAsync<T>(string status, Func<CancellationToken, Task<T>> load) where T : class
 	{
@@ -17,7 +17,7 @@ public sealed class CancellableLoad(Spinner _spinner, Message _message, ILocaliz
 		if (loaded)
 			return value;
 
-		_message.ShowWarning(_localization.OperationCancelled);
+		_message.ShowWarning(_localizations.Current.OperationCancelled);
 
 		return null;
 	}

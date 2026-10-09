@@ -146,7 +146,7 @@ public sealed class KeyBrowseScreenTests
 
 		public Harness(Dictionary<string, string> initial)
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var session = new ConnectionSession();
 			var settings = new AppSettingsStore(new FakeSettingsRepository());
 

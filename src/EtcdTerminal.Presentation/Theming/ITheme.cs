@@ -2,7 +2,9 @@ namespace EtcdTerminal.Presentation.Theming;
 
 public interface ITheme
 {
+	string Id { get; }
 	string Name { get; }
+	string Variant { get; }
 
 	RgbColor WindowBackground { get; }
 	RgbColor BandBackground { get; }

@@ -2,6 +2,7 @@ namespace EtcdTerminal.Presentation.Localization;
 
 public interface ILocalization
 {
+	string LanguageCode { get; }
 	string Name { get; }
 
 	string InstanceAdded { get; }
@@ -48,6 +49,10 @@ public interface ILocalization
 	string InvalidPageSize { get; }
 	string SettingsSaved { get; }
 	string FailedSaveSettings { get; }
+	string LanguageLabel { get; }
+	string ThemeLabel { get; }
+	string SelectLanguagePrompt { get; }
+	string SelectThemePrompt { get; }
 	string On { get; }
 	string Off { get; }
 

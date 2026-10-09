@@ -14,7 +14,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// asking Spectre to render each candidate and count its lines, in the
 /// priority order the footer had before the migration.
 /// </summary>
-public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _styles, ITheme _theme)
+public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _styles, IThemeCatalog _themes)
 {
 	/// <summary>
 	/// An endpoint shorter than this is not worth a place in the footer: it is
@@ -29,7 +29,7 @@ public sealed class StatusBarRenderer(IAnsiConsole _console, RoleStyleMapper _st
 
 	public IRenderable Build(StatusBarModel model)
 	{
-		var background = new Color(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
+		var background = new Color(_themes.Current.BandBackground.R, _themes.Current.BandBackground.G, _themes.Current.BandBackground.B);
 
 		return new BackgroundBand(Bar(Fit(model)), new BandStyle(background, TrailingBreak: false));
 	}

@@ -10,7 +10,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// the measuring, wrapping, cropping and alignment; this class only picks the
 /// widget and hands it the literal text and the semantic styles.
 /// </summary>
-public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
+public sealed class BlockRenderer(RoleStyleMapper _styles, IThemeCatalog _themes)
 {
 	/// A section title hugs the table it introduces; a title has no frame of
 	/// its own, so the single blank line above it is what separates it from
@@ -23,7 +23,7 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// measurement, so the model stays width-free.
 	private const int ListColumnWidth = 50;
 
-	private Color BandColor => new(_theme.BandBackground.R, _theme.BandBackground.G, _theme.BandBackground.B);
+	private Color BandColor => new(_themes.Current.BandBackground.R, _themes.Current.BandBackground.G, _themes.Current.BandBackground.B);
 
 	/// The banner is centered across the whole width and is not content, so
 	/// it keeps no left margin; everything else starts on the fourth column.
@@ -74,7 +74,7 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 			_ => new Rows()
 		};
 
-	private Color SelectionBackground => new(_theme.ActionPanelTitleBackground.R, _theme.ActionPanelTitleBackground.G, _theme.ActionPanelTitleBackground.B);
+	private Color SelectionBackground => new(_themes.Current.ActionPanelTitleBackground.R, _themes.Current.ActionPanelTitleBackground.G, _themes.Current.ActionPanelTitleBackground.B);
 
 	private IReadOnlyList<Color> ActionPanelBackgrounds() =>
 		[
@@ -91,7 +91,7 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, ITheme _theme)
 	/// </summary>
 	private IRenderable Banner(BannerBlock block)
 	{
-		var color = _theme.Banner;
+		var color = _themes.Current.Banner;
 
 		return new FigletText(block.Text).Color(new Color(color.R, color.G, color.B)).Centered();
 	}

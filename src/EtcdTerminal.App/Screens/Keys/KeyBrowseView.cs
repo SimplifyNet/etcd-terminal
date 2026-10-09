@@ -9,7 +9,7 @@ namespace EtcdTerminal.App.Screens.Keys;
 /// Composes the frame of the key browser from the state the control holds.
 /// Literal text and semantic roles only; the geometry belongs to Infrastructure.
 /// </summary>
-public sealed class KeyBrowseView(KeyBrowseLayout _layout, BrowseLayout _browse, Header _header, ILocalization _localization)
+public sealed class KeyBrowseView(KeyBrowseLayout _layout, BrowseLayout _browse, Header _header, ILocalizationCatalog _localizations)
 {
 	public FrameModel Frame(KeyBrowseViewState state, IReadOnlyList<EtcdKeyValue> pageKeys, int totalPages, int totalKeys) =>
 		new([_header.BuildModel(), .. Body(state, pageKeys, totalPages, totalKeys)]);
@@ -20,7 +20,7 @@ public sealed class KeyBrowseView(KeyBrowseLayout _layout, BrowseLayout _browse,
 		yield return TextBlock.Blank();
 		yield return _layout.KeyList(pageKeys, state.SelectedIndex);
 		yield return TextBlock.Blank();
-		yield return _browse.Pagination(state.CurrentPage, totalPages, totalKeys, _localization.TotalKeys);
+		yield return _browse.Pagination(state.CurrentPage, totalPages, totalKeys, _localizations.Current.TotalKeys);
 
 		if (!state.ShowActions || state.SelectedKey is null)
 			yield break;

@@ -56,7 +56,7 @@ public sealed class ScreenFrameTests
 
 		public Harness()
 		{
-			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new EnglishLocalization());
+			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), new LocalizationCatalog());
 
 			Menu = new Menu(new Screen(Canvas, new Header(), statusBar), Answers);
 		}

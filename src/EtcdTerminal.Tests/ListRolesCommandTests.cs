@@ -43,7 +43,7 @@ public sealed class ListRolesCommandTests
 
 		public Harness()
 		{
-			var localization = new EnglishLocalization();
+			LocalizationCatalog localization = new();
 			var settings = new AppSettingsStore(new FakeSettingsRepository());
 			var statusBar = new StatusBar(new StubAppInfo(), new ConnectionSession(), localization);
 			var screen = new Screen(Canvas, new Header(), statusBar);

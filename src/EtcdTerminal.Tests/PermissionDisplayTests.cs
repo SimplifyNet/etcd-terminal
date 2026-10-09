@@ -8,6 +8,7 @@ using EtcdTerminal.Presentation.Localization;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Roles;
 using EtcdTerminal.Users;
+using EtcdTerminal.Tests.Fakes;
 using NUnit.Framework;
 
 namespace EtcdTerminal.Tests;
@@ -33,7 +34,7 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var layout = new RoleListLayout(new EnglishLocalization());
+		var layout = new RoleListLayout(new LocalizationCatalog());
 
 		IReadOnlyList<IReadOnlyList<string>> expected =
 		[
@@ -60,7 +61,7 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var rows = new RoleListLayout(new EnglishLocalization()).Rows(roles);
+		var rows = new RoleListLayout(new LocalizationCatalog()).Rows(roles);
 
 		Assert.That(LineText.Of(rows[0]), Does.EndWith("ReadWrite [Prefix]: All keys"));
 	}
@@ -78,7 +79,7 @@ public sealed class PermissionDisplayTests
 			}
 		};
 
-		var layout = new PermissionListLayout(new EnglishLocalization());
+		var layout = new PermissionListLayout(new LocalizationCatalog());
 
 		IReadOnlyList<IReadOnlyList<string>> expected = [["bob", "dev", "Read [Exact key]: /a"]];
 
@@ -91,7 +92,7 @@ public sealed class PermissionDisplayTests
 	[Test]
 	public void UserList_BuildsLocalizedColumns()
 	{
-		var layout = new UserListLayout(new EnglishLocalization());
+		var layout = new UserListLayout(new LocalizationCatalog());
 
 		IReadOnlyList<IReadOnlyList<string>> expected = [["alice", "dev, ops"]];
 
@@ -104,7 +105,7 @@ public sealed class PermissionDisplayTests
 	[Test]
 	public void MarkedLocalization_UsesLabelsNotHardcodedEnglish()
 	{
-		var localization = MarkingLocalization.Create();
+		var localization = new FixedLocalizationCatalog(MarkingLocalization.Create());
 		var users = new[] { new EtcdUser { Username = "bob", Roles = ["dev"] } };
 		var roles = new[]
 		{
@@ -137,10 +138,10 @@ public sealed class PermissionDisplayTests
 	[Test]
 	public void SameStartDifferentEnds_RenderDifferently()
 	{
-		var localization = new EnglishLocalization();
-		var first = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "c" }, localization);
-		var second = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "d" }, localization);
-		var open = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "\0" }, localization);
+		LocalizationCatalog localization = new();
+		var first = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "c" }, localization.Current);
+		var second = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "d" }, localization.Current);
+		var open = PermissionDisplay.For(new EtcdPermission { Type = PermissionType.Read, KeyPrefix = "a", RangeEnd = "\0" }, localization.Current);
 
 		Assert.That(first, Is.EqualTo("Read [Range]: [a, c)"));
 		Assert.That(second, Is.EqualTo("Read [Range]: [a, d)"));

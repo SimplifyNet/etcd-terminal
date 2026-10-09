@@ -36,7 +36,7 @@ public sealed class CursorVisibilityTests
 		var inner = new TestConsole().Interactive();
 		var cursor = new RecordingCursor();
 
-		var status = new SpectreStatusIndicator(new RecordingConsole(inner, cursor), new RoleStyleMapper(new ReddyTheme()));
+		var status = new SpectreStatusIndicator(new RecordingConsole(inner, cursor), new RoleStyleMapper(Themes()));
 
 		await status.RunAsync(new StyledText("Working", TextRole.Muted), () => Task.CompletedTask);
 
@@ -44,7 +44,9 @@ public sealed class CursorVisibilityTests
 	}
 
 	private static SpectreSelectionPrompt Prompt(IAnsiConsole console) =>
-		new(console, new RoleStyleMapper(new ReddyTheme()), new EnglishLocalization());
+		new(console, new RoleStyleMapper(Themes()), new LocalizationCatalog());
+
+	private static ThemeCatalog Themes() => new();
 
 	private sealed class RecordingConsole(TestConsole _inner, RecordingCursor _cursor) : IAnsiConsole
 	{
