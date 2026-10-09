@@ -45,7 +45,7 @@ public sealed class KeyBrowseLayout(ILocalizationCatalog _localizations)
 	}
 
 	public Block Detail(string label, string value, TextRole valueRole) =>
-		TextBlock.Line(new StyledText(label + " ", TextRole.Default), new StyledText(value, valueRole));
+		TextBlock.Line(new StyledText(label + " ", TextRole.Primary), new StyledText(value, valueRole));
 
 	public Block ActionPanel(string selectedKey, bool canModify)
 	{
