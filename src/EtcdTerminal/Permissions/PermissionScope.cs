@@ -5,7 +5,7 @@ namespace EtcdTerminal.Permissions;
 /// </summary>
 public enum PermissionScope
 {
-	Key,
 	Prefix,
+	Key,
 	Range
 }

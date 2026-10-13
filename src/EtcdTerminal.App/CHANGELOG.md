@@ -5,6 +5,7 @@
 ### Changed
 
 - Settings order
+- Set prefix as the default selection for permission assignment
 
 ### Fixed
 

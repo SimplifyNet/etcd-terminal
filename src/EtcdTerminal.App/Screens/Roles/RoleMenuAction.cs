@@ -6,5 +6,5 @@ public enum RoleMenuAction
 	CreateRole,
 	DeleteRole,
 	GrantPermission,
-	RevokePermission,
+	RevokePermission
 }
