@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-10-13
+
+### Fixed
+
+- Permissions list third column no longer stops at the fifty column cap while free space remains to the right; the cap now applies only to the first two columns and the third column uses the rest of the region up to its end
+
 ## [1.0] - 2026-10-09
 
 ### Added

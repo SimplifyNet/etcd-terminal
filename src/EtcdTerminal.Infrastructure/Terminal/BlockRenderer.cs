@@ -17,11 +17,16 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, IThemeCatalog _themes
 	/// the previous section.
 	private const int TitleSpacingAbove = 1;
 
-	/// No column of a headered list is wider than this, so the columns stand
-	/// close together instead of spreading across the region with canyons of
-	/// empty space between them. It is a layout preference, not a
-	/// measurement, so the model stays width-free.
+	/// No one of the first columns of a headered list is wider than this, so
+	/// the columns stand close together instead of spreading across the
+	/// region with canyons of empty space between them. It is a layout
+	/// preference, not a measurement, so the model stays width-free.
 	private const int ListColumnWidth = 50;
+
+	/// Only this many leading columns of a headered list take the width cap;
+	/// the columns after them take the rest of the region and reach its end,
+	/// so the long trailing text is not truncated while free space is left.
+	private const int ListCappedColumns = 2;
 
 	private Color BandColor => new(_themes.Current.BandBackground.R, _themes.Current.BandBackground.G, _themes.Current.BandBackground.B);
 
@@ -181,12 +186,16 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, IThemeCatalog _themes
 	/// halves for two columns, thirds for three — instead of handing the
 	/// spare width to the column Spectre measured wider, so a list stays
 	/// balanced the way the terminal before the migration cut every line in
-	/// two halves did. A table with a header is a list page and its columns
-	/// stand close together: no column grows past <see cref="ListColumnWidth"/>
-	/// columns, and when the region is too narrow for that every column
-	/// shrinks by the same share. The split happens at render time from the
-	/// width the parent hands in, so it follows a terminal resize and the
-	/// model never measures anything. A cell wider than its column is cropped
+	/// two halves did. A table with a header is a list page and its leading
+	/// columns stand close together: the first <see cref="ListCappedColumns"/>
+	/// columns never grow past <see cref="ListColumnWidth"/> columns, and
+	/// when the region is too narrow for that every column shrinks by the
+	/// same share. The columns after the capped ones take whatever the
+	/// capped widths and the shares left over, so the trailing column runs
+	/// to the end of the region instead of being truncated while free space
+	/// waits to its right. The split happens at render time from the width
+	/// the parent hands in, so it follows a terminal resize and the model
+	/// never measures anything. A cell wider than its column is cropped
 	/// by the ellipsis, the way the old TruncateText did. The last column
 	/// takes the rounding remainder so the shares add up to the region
 	/// exactly. The borderless columns carry a zero padding on purpose:
@@ -217,12 +226,17 @@ public sealed class BlockRenderer(RoleStyleMapper _styles, IThemeCatalog _themes
 			var content = Math.Max(0, maxWidth - (_block.Pointer ? ContentIndent.MarkerColumns : 0));
 			var width = content / share;
 			int?[] widths = new int?[columns];
+			var taken = 0;
 
 			for (var column = start; column < columns; column++)
 			{
-				var columnWidth = column == columns - 1 ? content - width * (share - 1) : width;
+				var columnWidth = column == columns - 1 ? content - taken : width;
 
-				widths[column] = CapsColumns ? Math.Min(columnWidth, ListColumnWidth) : columnWidth;
+				if (CapsColumns && column < ListCappedColumns)
+					columnWidth = Math.Min(columnWidth, ListColumnWidth);
+
+				widths[column] = columnWidth;
+				taken += columnWidth;
 			}
 
 			return _owner.BuildTable(_block, widths);

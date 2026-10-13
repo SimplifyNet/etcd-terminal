@@ -255,6 +255,23 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void BlockRenderer_HeaderedTable_GivesTheThirdColumnTheRestOfTheRegion()
+	{
+		var console = new TestConsole().Width(200);
+
+		Render(console, new TableBlock(
+		[new StyledText("User", TextRole.Accent), new StyledText("Role", TextRole.Accent), new StyledText("Permission", TextRole.Accent)],
+		[[new StyledText("alice", TextRole.Primary), new StyledText("dev", TextRole.Primary), new StyledText(new string('p', 80), TextRole.Primary)]]));
+
+		var row = console.Lines.Single(line => line.Contains("alice"));
+
+		Assert.That(row.IndexOf("alice", StringComparison.Ordinal), Is.EqualTo(4), row);
+		Assert.That(row.IndexOf("dev", StringComparison.Ordinal), Is.EqualTo(54), row);
+		Assert.That(row.IndexOf('p'), Is.EqualTo(104), row);
+		Assert.That(row.Count(character => character == 'p'), Is.EqualTo(80), row);
+	}
+
+	[Test]
 	public void BlockRenderer_HeaderedTable_ShrinksEveryColumnEquallyOnANarrowRegion()
 	{
 		var console = new TestConsole();
