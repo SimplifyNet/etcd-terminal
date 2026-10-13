@@ -1,10 +1,10 @@
-s# Approved Rendering Exceptions
+# Approved Rendering Exceptions
 
 `AGENTS.md` targets zero application-owned ANSI generation, cursor-based drawing, display-width calculation and space-based background filling, and requires explicit approval for any exception. This document is that approval: one section per mechanism, the Spectre API that was checked, why it exists, and the condition under which it can be deleted.
 
 **Spectre.Console version checked: 0.57.2** (pinned in `src/EtcdTerminal.Infrastructure/EtcdTerminal.Infrastructure.csproj`; there is no `Directory.Packages.props`). Every statement below refers to that version. When the pin moves, re-check each "checked" list and re-run `ArchitectureTests` before treating this register as still valid.
 
-Nothing outside this list may generate ANSI, place the cursor by absolute row, count display cells or fill a row with spaces. `ArchitectureTests` pins the two allow-lists (see [Enforcement](#enforcement)).
+Nothing outside this list may generate ANSI, place the cursor by absolute row, count display cells or fill a row with spaces. `ArchitectureTests` pins the allow-lists (see [Enforcement](#enforcement)).
 
 ---
 
@@ -91,6 +91,22 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 
 ---
 
+## 6. `SpectreTextInput` — line editing with a caret
+
+**File:** `src/EtcdTerminal.Infrastructure/Terminal/SpectreTextInput.cs` (buffer logic in `LineBuffer.cs`)
+
+**What it does:** reads a single-line answer with its own key loop. `LineBuffer` owns the text and the caret index (Left/Right, Ctrl+Left/Right, Home/End, Backspace, Delete, Ctrl+Backspace/Delete, insertion at the caret). After every key the row is rewritten from column 1 through `AnsiWriter`: `CursorHorizontalAbsolute(1)`, `EraseInLine(2)`, the styled label and the part of the answer that fits beside it (scrolled by `string.Length` so the caret stays on the row), then `CursorLeft(n)` to put the caret back inside the text. Secrets are shown as `*`. Escape still cancels through `EscapableConsole`. Consoles without ANSI fall back to the library `TextPrompt`.
+
+**Spectre API checked (0.57.2):** `TextPrompt<T>` handles only printable characters, `Backspace` and `Enter` (`TextPrompt.ReadLine`/`ConsoleExtensions.ReadLine`); it has no caret position and ignores the arrow, Home, End and Delete keys. `DefaultValue` + `EditableDefaultValue(true)` only pre-fills the buffer; it does not add movement. No public hook lets a caller customize the key handling.
+
+**Justification:** an answer (a key, an endpoint, a prefilled value) must be editable in the middle, not only by backspacing to the mistake.
+
+**Limitations:** the visible window is cut by `char` count, not display cells, so wide (CJK) characters shift the caret visually; this matches the library prompt, which also echoes without width logic.
+
+**Removal condition:** `TextPrompt` gains caret movement (arrow/Home/End/Delete support or a key-handling hook). Then `Edit` is deleted, `Fallback` becomes the only path and `LineBuffer` goes with it.
+
+---
+
 ## Enforcement
 
 `src/EtcdTerminal.Tests/ArchitectureTests.cs` pins the exceptions so a new one cannot appear silently:
@@ -98,6 +114,7 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 - `InfrastructureEscapeSequencesLiveOnlyInTerminalSession` — no `\x1b`/`\u001b` literal outside `ConsoleTerminalSession.cs`.
 - `SystemConsoleIsUsedOnlyByTerminalSession` — no `Console.` usage outside `ConsoleTerminalSession.cs`.
 - `InfrastructureSpaceFillLivesOnlyInBackgroundBand` — `Segment.CellCount` or `new string(' '` in Infrastructure occurs in exactly `BackgroundBand.cs`.
+- `InfrastructureCursorPlacementLivesOnlyInApprovedFiles` — `AnsiWriter` cursor placement/line erase calls in Infrastructure occur in exactly `SpectreScreenCanvas.cs` and `SpectreTextInput.cs`.
 - `AppAndPresentationSourcesContainNoGeometryApis` — no cursor/width/measurement APIs, and no `new string(' '`, in App and Presentation.
 
 When an exception is removed, its test entry and the section above must be updated in the same change; a test failure here means the register is out of date, not that the test should be loosened.

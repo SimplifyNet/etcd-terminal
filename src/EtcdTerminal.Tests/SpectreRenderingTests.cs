@@ -128,6 +128,68 @@ public sealed class SpectreRenderingTests
 	}
 
 	[Test]
+	public void TextInput_EditsInTheMiddleOfTheAnswer()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushText("ac");
+		console.Input.PushKey(ConsoleKey.LeftArrow);
+		console.Input.PushText("b");
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		var answer = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(Themes())).ReadLine("Value:");
+
+		Assert.That(answer, Is.EqualTo("abc"));
+	}
+
+	[Test]
+	public void TextInput_EditsThePrefilledDefaultValue()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushKey(ConsoleKey.Home);
+		console.Input.PushKey(ConsoleKey.Delete);
+		console.Input.PushKey(ConsoleKey.End);
+		console.Input.PushKey(ConsoleKey.Backspace);
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		var answer = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(Themes())).ReadLine("Value:", "[key]");
+
+		Assert.That(answer, Is.EqualTo("key"));
+	}
+
+	[Test]
+	public void TextInput_ReturnsNullWhenEscapePressed()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushText("abc");
+		console.Input.PushKey(ConsoleKey.Escape);
+
+		var answer = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(Themes())).ReadLine("Value:");
+
+		Assert.That(answer, Is.Null);
+	}
+
+	[Test]
+	public void TextInput_MasksTheSecretAnswer()
+	{
+		var console = new TestConsole().Interactive();
+
+		console.Input.PushText("hunter2");
+		console.Input.PushKey(ConsoleKey.Enter);
+
+		var answer = new SpectreTextInput(new EscapableConsole(console), new RoleStyleMapper(Themes())).ReadSecret("Password:");
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(answer, Is.EqualTo("hunter2"));
+			Assert.That(console.Output, Does.Not.Contain("hunter2"));
+			Assert.That(console.Output, Does.Contain("*******"));
+		});
+	}
+
+	[Test]
 	public void BlockRenderer_TableBlock_KeepsColumnContentLiteral()
 	{
 		var console = new TestConsole();

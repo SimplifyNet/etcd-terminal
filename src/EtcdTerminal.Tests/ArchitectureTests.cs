@@ -292,6 +292,18 @@ public sealed class ArchitectureTests
 	}
 
 	[Test]
+	public void InfrastructureCursorPlacementLivesOnlyInApprovedFiles()
+	{
+		var placement = new Regex(@"\.(CursorPosition|CursorHorizontalAbsolute|CursorLeft|CursorRight|CursorUp|CursorDown|SaveCursor|RestoreCursor|EraseInLine)\(");
+		var hits = SourceFiles("EtcdTerminal.Infrastructure")
+			.Where(f => placement.IsMatch(File.ReadAllText(f)))
+			.Select(Path.GetFileName)
+			.ToList();
+
+		Assert.That(hits, Is.EquivalentTo(new[] { "SpectreScreenCanvas.cs", "SpectreTextInput.cs" }));
+	}
+
+	[Test]
 	public void EveryMainMenuEntryIsRegistered()
 	{
 		var resolved = DIContainer.Current.Resolve<IEnumerable<App.Screens.MainMenu.IMainMenuEntry>>()
