@@ -5,6 +5,7 @@
 ### Added
 
 - Editable text prompts: Left/Right move the caret, Ctrl+Left/Right jump by word, Home/End go to the ends, Delete removes the character under the caret, Ctrl+Backspace/Ctrl+Delete remove a word; prefilled values are edited in place
+- Ruby theme
 
 ### Changed
 

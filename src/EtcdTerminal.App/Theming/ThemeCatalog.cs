@@ -16,6 +16,7 @@ public sealed class ThemeCatalog : IThemeCatalog
 		new SolarizedDarkTheme(),
 		new DarkVioletTheme(),
 		new MatrixTheme(),
+		new RubyTheme(),
 		new ReddyLightTheme(),
 		new VsCodeLightTheme(),
 		new SolarizedLightTheme(),
