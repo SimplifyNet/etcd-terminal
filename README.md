@@ -91,7 +91,12 @@ read your home directory.
 
 ## Installation
 
-Prebuilt binaries for Linux and Windows are available on the [Releases page](https://github.com/SimplifyNet/etcd-terminal/releases). Download the archive matching your platform and extract it. Self-contained archives (suffixed `-self-contained`) run without a .NET runtime; the other archives require the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). Then run `etcd-terminal` (on Linux) or `etcd-terminal.exe` (on Windows).
+Prebuilt binaries for Linux and Windows are available on the [Releases page](https://github.com/SimplifyNet/etcd-terminal/releases).
+
+- Download the archive matching your platform and extract it.
+- Run `etcd-terminal` (Linux) or `etcd-terminal.exe` (Windows).
+- **Self-contained** archives (suffixed `-self-contained`) include the .NET runtime and need no extra installation.
+- **Framework-dependent** archives (without the suffix) require the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 Help packaging the app for Linux package managers (deb/rpm/AppImage/etc.) is very welcome!
 
@@ -106,21 +111,4 @@ Requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
 dotnet build src/EtcdTerminal.slnx
-```
-
-## Running the App
-
-### From source
-
-```bash
-dotnet run --project src/EtcdTerminal.App/EtcdTerminal.App.csproj
-```
-
-### Release build
-
-Requires the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0), unless publishing as a self-contained application.
-
-```bash
-dotnet publish src/EtcdTerminal.App/EtcdTerminal.App.csproj -c Release -o out
-./out/etcd-terminal
 ```
