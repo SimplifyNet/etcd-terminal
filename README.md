@@ -89,6 +89,12 @@ read your home directory.
 - User and role listings make one etcd request per listed entry in addition to the initial list request.
 - Import writes keys individually. If it is cancelled or an entry fails, earlier successful writes are not rolled back.
 
+## Installation
+
+Prebuilt binaries for Linux and Windows are available on the [Releases page](https://github.com/SimplifyNet/etcd-terminal/releases). Download the archive matching your platform and extract it. Self-contained archives (suffixed `-self-contained`) run without a .NET runtime; the other archives require the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). Then run `etcd-terminal` (on Linux) or `etcd-terminal.exe` (on Windows).
+
+Help packaging the app for Linux package managers (deb/rpm/AppImage/etc.) is very welcome!
+
 ## Requirements
 
 - etcd v3+
