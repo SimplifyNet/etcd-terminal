@@ -102,8 +102,9 @@ Help packaging the app for Linux package managers (deb/rpm/AppImage/etc.) is ver
 
 ## Requirements
 
-- etcd v3+
-- .NET 10.0 Runtime (or the .NET 10.0 SDK to run from source)
+- etcd v3+ cluster
+- .NET 10.0 Runtime for framework-dependent builds (self-contained builds bundle it)
+- .NET 10.0 SDK to build or run from source
 
 ## Building
 
