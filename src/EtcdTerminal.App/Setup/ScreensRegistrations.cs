@@ -1,4 +1,5 @@
 using EtcdTerminal.App.Components;
+using EtcdTerminal.App.Screens.Cluster;
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.Keys;
 using EtcdTerminal.App.Screens.Keys.Import;
@@ -34,6 +35,8 @@ public static class ScreensRegistrations
 		.Register<RolesManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionListScreen>(LifetimeType.Transient)
 		.Register<PermissionSourcesLoader>(LifetimeType.Transient)
+		.Register<ClusterStatusScreen>(LifetimeType.Transient)
+		.Register<ClusterStatusLayout>(LifetimeType.Transient)
 		.Register<SettingsScreen>(LifetimeType.Transient)
 		.Register<SettingsWriter>(LifetimeType.Transient)
 		.Register<LanguagePreferenceEditor>(LifetimeType.Transient)
@@ -73,7 +76,8 @@ public static class ScreensRegistrations
 			c.Resolve<KeyImportJsonScreen>(),
 			c.Resolve<UsersManagementScreen>(),
 			c.Resolve<RolesManagementScreen>(),
-			c.Resolve<PermissionListScreen>()
+			c.Resolve<PermissionListScreen>(),
+			c.Resolve<ClusterStatusScreen>()
 		], LifetimeType.Transient)
 		.Register<ICollection<ISettingsEntry>>(c =>
 		[

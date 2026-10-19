@@ -15,6 +15,7 @@ public static class IocRegistrations
 				.RegisterKeys()
 				.RegisterUsers()
 				.RegisterRoles()
+				.RegisterCluster()
 				.RegisterSecurity()
 				.RegisterEnvironment()
 				.RegisterApplication()

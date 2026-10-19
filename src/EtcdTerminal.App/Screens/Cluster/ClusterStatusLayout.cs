@@ -68,9 +68,10 @@ public sealed class ClusterStatusLayout(ILocalizationCatalog _localizations)
 		if (!member.HasStatus || member.DbSize <= 0)
 			return _localizations.Current.None;
 
-		var percent = (member.DbSize - member.DbSizeInUse) * 100d / member.DbSize;
+		var percent = Math.Clamp((member.DbSize - member.DbSizeInUse) * 100d / member.DbSize, 0d, 100d);
+		var rounded = Math.Round(percent, 1, MidpointRounding.AwayFromZero);
 
-		return percent.ToString("0.0", CultureInfo.InvariantCulture) + "%";
+		return rounded.ToString("0.0", CultureInfo.InvariantCulture) + "%";
 	}
 
 	private string Errors(EtcdClusterMember member) =>
@@ -80,17 +81,17 @@ public sealed class ClusterStatusLayout(ILocalizationCatalog _localizations)
 
 	private static string FormatBytes(long bytes)
 	{
-		string[] units = ["B", "KiB", "MiB", "GiB", "TiB"];
+		string[] units = ["B", "KB", "MB", "GB", "TB"];
 		var value = (double)bytes;
 		var unit = 0;
 
-		while (value >= 1024 && unit < units.Length - 1)
+		while (value >= 1000 && unit < units.Length - 1)
 		{
-			value /= 1024;
+			value /= 1000;
 			unit++;
 		}
 
-		return $"{value.ToString("0.#", CultureInfo.InvariantCulture)} {units[unit]}";
+		return $"{Math.Round(value, MidpointRounding.AwayFromZero).ToString("0", CultureInfo.InvariantCulture)} {units[unit]}";
 	}
 
 	private static StyledText Cell(string text) => new(text, TextRole.Primary);

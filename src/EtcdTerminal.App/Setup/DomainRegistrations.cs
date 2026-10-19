@@ -1,3 +1,4 @@
+using EtcdTerminal.Cluster;
 using EtcdTerminal.Infrastructure;
 using EtcdTerminal.Infrastructure.Security;
 using EtcdTerminal.Keys;
@@ -20,6 +21,9 @@ public static class DomainRegistrations
 
 	public static IDIRegistrator RegisterRoles(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdRoleAdmin, DotnetEtcdRoleAdmin>(LifetimeType.Singleton);
+
+	public static IDIRegistrator RegisterCluster(this IDIRegistrator registrator) => registrator
+		.Register<IEtcdClusterStatusProvider, DotnetEtcdClusterStatusProvider>(LifetimeType.Singleton);
 
 	public static IDIRegistrator RegisterSecurity(this IDIRegistrator registrator) => registrator
 		.Register<IEtcdAuthAdmin, DotnetEtcdAuthAdmin>(LifetimeType.Singleton)

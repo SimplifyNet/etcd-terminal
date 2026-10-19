@@ -12,6 +12,7 @@ public sealed class MainMenuLabels(ILocalizationCatalog _localizations)
 		MainMenuAction.ManageUsers => _localizations.Current.ManageUsers,
 		MainMenuAction.ManageRoles => _localizations.Current.ManageRoles,
 		MainMenuAction.ListPermissions => _localizations.Current.ListPermissions,
+		MainMenuAction.ClusterStatus => _localizations.Current.ClusterStatus,
 		MainMenuAction.Disconnect => _localizations.Current.Disconnect,
 		_ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
 	};

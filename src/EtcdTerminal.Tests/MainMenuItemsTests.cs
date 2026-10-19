@@ -27,6 +27,7 @@ public sealed class MainMenuItemsTests
 				MainMenuAction.ManageUsers,
 				MainMenuAction.ManageRoles,
 				MainMenuAction.ListPermissions,
+				MainMenuAction.ClusterStatus,
 				MainMenuAction.Disconnect
 			}));
 			Assert.That(offered.Select(i => i.Label), Is.EqualTo(new[]
@@ -37,6 +38,7 @@ public sealed class MainMenuItemsTests
 				"Manage Users",
 				"Manage Roles",
 				"List Permissions",
+				"Cluster Status",
 				"Disconnect"
 			}));
 		});
@@ -87,7 +89,8 @@ public sealed class MainMenuItemsTests
 				MainMenuAction.ImportJson,
 				MainMenuAction.ManageUsers,
 				MainMenuAction.ManageRoles,
-				MainMenuAction.ListPermissions
+				MainMenuAction.ListPermissions,
+				MainMenuAction.ClusterStatus
 			})
 				Entries.Add(new StubEntry(action, fullCapabilities));
 

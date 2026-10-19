@@ -40,6 +40,7 @@ public class EnglishLocalization : ILocalization
 	public string ManageUsers => "Manage Users";
 	public string ManageRoles => "Manage Roles";
 	public string ListPermissions => "List Permissions";
+	public string ClusterStatus => "Cluster Status";
 	public string Disconnect => "Disconnect";
 
 	public string SettingsTitle => "Settings";
@@ -133,11 +134,26 @@ public class EnglishLocalization : ILocalization
 	public string ReadWrite => "ReadWrite";
 
 	public string LoadingPermissions => "Loading permissions...";
+	public string LoadingClusterStatus => "Loading cluster status...";
 	public string LoadingUsers => "Loading users...";
 	public string LoadingRoles => "Loading roles...";
 	public string NoRolesFound => "No roles found.";
 	public string NoUsersFound => "No users found.";
 	public string NoPermissionsFound => "No permissions found.";
+	public string NoNodesFound => "No nodes found.";
+	public string TotalNodes => "total nodes";
+	public string NodeName => "Name";
+	public string MemberId => "Member ID";
+	public string Version => "Version";
+	public string Leader => "Is Leader";
+	public string Healthy => "Healthy";
+	public string DbSize => "DB Size";
+	public string DbSizeInUse => "In Use";
+	public string PercentageNotInUse => "% Not In Use";
+	public string RaftTerm => "Raft Term";
+	public string RaftIndex => "Raft Index";
+	public string RaftAppliedIndex => "Raft Applied Index";
+	public string Errors => "Errors";
 	public string Username => "Username";
 	public string Roles => "Roles";
 	public string Role => "Role";

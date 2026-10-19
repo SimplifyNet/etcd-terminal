@@ -40,6 +40,7 @@ public sealed class ChineseLocalization : ILocalization
 	public string ManageUsers => "管理用户";
 	public string ManageRoles => "管理角色";
 	public string ListPermissions => "权限列表";
+	public string ClusterStatus => "集群状态";
 	public string Disconnect => "断开连接";
 
 	public string SettingsTitle => "设置";
@@ -133,11 +134,26 @@ public sealed class ChineseLocalization : ILocalization
 	public string ReadWrite => "读写";
 
 	public string LoadingPermissions => "正在加载权限...";
+	public string LoadingClusterStatus => "正在加载集群状态...";
 	public string LoadingUsers => "正在加载用户...";
 	public string LoadingRoles => "正在加载角色...";
 	public string NoRolesFound => "未找到角色。";
 	public string NoUsersFound => "未找到用户。";
 	public string NoPermissionsFound => "未找到权限。";
+	public string NoNodesFound => "未找到节点。";
+	public string TotalNodes => "个节点";
+	public string NodeName => "名称";
+	public string MemberId => "成员 ID";
+	public string Version => "版本";
+	public string Leader => "是否为主节点";
+	public string Healthy => "健康";
+	public string DbSize => "数据库大小";
+	public string DbSizeInUse => "已使用";
+	public string PercentageNotInUse => "未使用百分比";
+	public string RaftTerm => "Raft 任期";
+	public string RaftIndex => "Raft 索引";
+	public string RaftAppliedIndex => "Raft 已应用索引";
+	public string Errors => "错误";
 	public string Username => "用户名";
 	public string Roles => "角色";
 	public string Role => "角色";

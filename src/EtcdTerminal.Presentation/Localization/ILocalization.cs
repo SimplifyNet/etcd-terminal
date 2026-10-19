@@ -38,6 +38,7 @@ public interface ILocalization
 	string ManageUsers { get; }
 	string ManageRoles { get; }
 	string ListPermissions { get; }
+	string ClusterStatus { get; }
 	string Disconnect { get; }
 
 	string SettingsTitle { get; }
@@ -131,11 +132,26 @@ public interface ILocalization
 	string ReadWrite { get; }
 
 	string LoadingPermissions { get; }
+	string LoadingClusterStatus { get; }
 	string LoadingUsers { get; }
 	string LoadingRoles { get; }
 	string NoRolesFound { get; }
 	string NoUsersFound { get; }
 	string NoPermissionsFound { get; }
+	string NoNodesFound { get; }
+	string TotalNodes { get; }
+	string NodeName { get; }
+	string MemberId { get; }
+	string Version { get; }
+	string Leader { get; }
+	string Healthy { get; }
+	string DbSize { get; }
+	string DbSizeInUse { get; }
+	string PercentageNotInUse { get; }
+	string RaftTerm { get; }
+	string RaftIndex { get; }
+	string RaftAppliedIndex { get; }
+	string Errors { get; }
 	string Username { get; }
 	string Roles { get; }
 	string Role { get; }

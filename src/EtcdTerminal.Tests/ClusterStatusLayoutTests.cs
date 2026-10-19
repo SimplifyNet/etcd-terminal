@@ -23,8 +23,8 @@ public sealed class ClusterStatusLayoutTests
 				IsLeader = true,
 				IsHealthy = true,
 				HasStatus = true,
-				DbSize = 2048,
-				DbSizeInUse = 1024,
+				DbSize = 2000,
+				DbSizeInUse = 1000,
 				RaftTerm = 5,
 				RaftIndex = 100,
 				RaftAppliedIndex = 99,
@@ -63,7 +63,7 @@ public sealed class ClusterStatusLayoutTests
 			Assert.That(layout.Headers().Select(span => span.Role), Is.All.EqualTo(TextRole.Accent));
 			Assert.That(Texts(rows[0]), Is.EqualTo(new[]
 			{
-				"node/[a]", "Yes", "1234", "3.7.1", "Yes", "2 KiB", "1 KiB", "50.0%", "5", "100", "99", "none"
+				"node/[a]", "Yes", "1234", "3.7.1", "Yes", "2 KB", "1 KB", "50.0%", "5", "100", "99", "none"
 			}));
 			Assert.That(Texts(rows[1]), Is.EqualTo(new[]
 			{
@@ -98,6 +98,26 @@ public sealed class ClusterStatusLayoutTests
 			Assert.That(row[7].Text, Is.EqualTo("none"), "a zero database size has no usage percentage");
 			Assert.That(row[11].Text, Is.EqualTo("disk\u23CEfull; slow\u2192apply"));
 		});
+	}
+
+	[Test]
+	public void PercentageNotInUse_KeepsOneDecimalPlace()
+	{
+		var layout = new ClusterStatusLayout(new LocalizationCatalog());
+		var members = new[]
+		{
+			new EtcdClusterMember
+			{
+				Name = "node",
+				HasStatus = true,
+				DbSize = 827,
+				DbSizeInUse = 823
+			}
+		};
+
+		var row = layout.Rows(members).Single();
+
+		Assert.That(row[7].Text, Is.EqualTo("0.5%"));
 	}
 
 	private static IReadOnlyList<string> Texts(IReadOnlyList<StyledText> spans) =>

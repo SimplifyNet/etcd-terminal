@@ -8,5 +8,6 @@ public enum MainMenuAction
 	ManageUsers,
 	ManageRoles,
 	ListPermissions,
+	ClusterStatus,
 	Disconnect
 }

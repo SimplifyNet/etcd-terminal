@@ -40,6 +40,7 @@ public sealed class RussianLocalization : ILocalization
 	public string ManageUsers => "Управление пользователями";
 	public string ManageRoles => "Управление ролями";
 	public string ListPermissions => "Список разрешений";
+	public string ClusterStatus => "Состояние кластера";
 	public string Disconnect => "Отключиться";
 
 	public string SettingsTitle => "Настройки";
@@ -133,11 +134,26 @@ public sealed class RussianLocalization : ILocalization
 	public string ReadWrite => "Чтение и запись";
 
 	public string LoadingPermissions => "Загрузка разрешений...";
+	public string LoadingClusterStatus => "Загрузка состояния кластера...";
 	public string LoadingUsers => "Загрузка пользователей...";
 	public string LoadingRoles => "Загрузка ролей...";
 	public string NoRolesFound => "Роли не найдены.";
 	public string NoUsersFound => "Пользователи не найдены.";
 	public string NoPermissionsFound => "Разрешения не найдены.";
+	public string NoNodesFound => "Узлы не найдены.";
+	public string TotalNodes => "всего узлов";
+	public string NodeName => "Название";
+	public string MemberId => "ID участника";
+	public string Version => "Версия";
+	public string Leader => "Лидер";
+	public string Healthy => "Работоспособен";
+	public string DbSize => "Размер БД";
+	public string DbSizeInUse => "Использовано";
+	public string PercentageNotInUse => "% не используется";
+	public string RaftTerm => "Raft терм";
+	public string RaftIndex => "Raft индекс";
+	public string RaftAppliedIndex => "Применённый Raft индекс";
+	public string Errors => "Ошибки";
 	public string Username => "Имя пользователя";
 	public string Roles => "Роли";
 	public string Role => "Роль";
