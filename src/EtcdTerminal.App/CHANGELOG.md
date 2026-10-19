@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2] - Unreleased
+
+### Added
+
+- Cluster status page
+
 ## [1.1] - 2026-10-14
 
 ### Added
