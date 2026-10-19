@@ -31,6 +31,10 @@
 - **Permission overview** — browse the effective user-to-role-to-permission assignments
 - Authentication management is available when authentication is disabled or the connected account has the etcd root role; key actions are limited to the permissions of the connected account
 
+### Cluster monitoring
+- **Cluster status** — view every etcd member as a table with health, node ID, version, leader flag, database size and usage, raft term/index/applied index, and reported errors
+- Health is derived from each member's status response; unreachable members are marked unhealthy
+
 ### Preferences
 - Choose the interface language: English, Russian, or Chinese
 - Choose from the built-in color themes
@@ -87,6 +91,7 @@ read your home directory.
 
 - Key browsing loads all keys readable by the connected account before filtering and pagination. On large keyspaces, loading and local search may be slow.
 - User and role listings make one etcd request per listed entry in addition to the initial list request.
+- Cluster status queries each member's advertised client URL for its status; a member that does not answer within a few seconds is shown as unhealthy.
 - Import writes keys individually. If it is cancelled or an entry fails, earlier successful writes are not rolled back.
 
 ## Installation
