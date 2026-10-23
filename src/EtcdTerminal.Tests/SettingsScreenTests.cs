@@ -105,6 +105,7 @@ public sealed class SettingsScreenTests
 				"Solarized (Dark)",
 				"Dark Violet (Dark)",
 				"Matrix (Dark)",
+				"Yellow Dark (Dark)",
 				"Ruby (Dark)",
 				"Reddy (Light)",
 				"VS Code (Light)",
