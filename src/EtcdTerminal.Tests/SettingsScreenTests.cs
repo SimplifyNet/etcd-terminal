@@ -97,7 +97,7 @@ public sealed class SettingsScreenTests
 			Assert.That(harness.Answers.Prompt<string>(1).Items.Select(item => item.Label), Is.EqualTo(
 			[
 				"Reddy (Dark)",
-				"Etcd Dark (Dark)",
+				"Etcd (Dark)",
 				"Etcd Blue (Dark)",
 				"Ubuntu (Dark)",
 				"Manjaro (Dark)",

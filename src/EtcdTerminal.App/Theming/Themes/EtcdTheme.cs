@@ -5,7 +5,7 @@ namespace EtcdTerminal.App.Theming.Themes;
 public sealed class EtcdDarkTheme : ITheme
 {
 	public string Id => "EtcdDark";
-	public string Name => "Etcd Dark";
+	public string Name => "Etcd";
 	public string Variant => "Dark";
 
 	public RgbColor WindowBackground { get; } = new(10, 10, 10);
