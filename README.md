@@ -19,7 +19,7 @@
 
 ### Key and value management
 - **Browse** — view readable keys in a paginated list; available keys respect the connected account's permissions
-- **Search** — filter the loaded list locally by key or value, without case sensitivity
+- **Search** — filter the loaded list locally by key or value; matching is case-insensitive unless case sensitive search is enabled in preferences
 - **Create** — add a key and value
 - **Edit / delete** — change or remove a selected key when the account has write access to it
 - **Import JSON** — paste a JSON object or array, choose a key separator and optional prefix, preview the resulting keys, then confirm import; nested objects and arrays are flattened into keys
@@ -38,7 +38,7 @@
 ### Preferences
 - Choose the interface language: English, Russian, or Chinese
 - Choose from the built-in color themes
-- Set the page size (1-500 items) and whether input values are trimmed
+- Set the page size (1-500 items), whether input values are trimmed, and whether search is case sensitive
 - Preferences are saved alongside connection configuration
 
 ## Screenshots
