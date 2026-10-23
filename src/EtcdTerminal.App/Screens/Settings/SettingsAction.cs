@@ -5,5 +5,6 @@ public enum SettingsAction
 	SelectLanguage,
 	SelectTheme,
 	EditPageSize,
-	ToggleTrimInputValues
+	ToggleTrimInputValues,
+	ToggleCaseSensitiveSearch
 }

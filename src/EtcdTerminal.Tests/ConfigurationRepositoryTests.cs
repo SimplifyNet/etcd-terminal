@@ -68,6 +68,26 @@ public sealed class ConfigurationRepositoryTests
 	}
 
 	[Test]
+	public void SettingsSave_RoundTripsCaseSensitiveSearch()
+	{
+		var (_, _, settings) = CreateRepositories();
+
+		settings.Save(new AppSettings { CaseSensitiveSearch = true });
+
+		Assert.That(settings.Load().CaseSensitiveSearch, Is.True);
+	}
+
+	[Test]
+	public void SettingsLoad_WithoutCaseSensitiveSearch_DefaultsToOff()
+	{
+		var (configPath, _, settings) = CreateRepositories();
+
+		File.WriteAllText(configPath, "{\"Settings\":{\"PageSize\":30}}");
+
+		Assert.That(settings.Load().CaseSensitiveSearch, Is.False);
+	}
+
+	[Test]
 	public void SettingsSave_PreservesInstancesAndOtherSections()
 	{
 		var (configPath, connections, settings) = CreateRepositories();

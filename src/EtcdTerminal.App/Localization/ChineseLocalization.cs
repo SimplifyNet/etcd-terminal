@@ -48,6 +48,7 @@ public sealed class ChineseLocalization : ILocalization
 	public string TrimInputValuesItem => "去除输入首尾空格";
 	public string PageSizeLabel => "每页条数";
 	public string TrimInputValuesLabel => "去除输入首尾空格";
+	public string CaseSensitiveSearchLabel => "区分大小写搜索";
 	public string EnterPageSize => "输入每页条数（1-500）：";
 	public string InvalidPageSize => "页面大小无效。请输入 1 到 500 之间的数字。";
 	public string SettingsSaved => "设置已保存！";

@@ -35,7 +35,8 @@ public sealed class SettingsScreenTests
 				"Language (English)",
 				"Theme (Reddy (Dark))",
 				"Items per page (30)",
-				"Trim input values (On)"
+				"Trim input values (On)",
+				"Case sensitive search (Off)"
 			}));
 			Assert.That(harness.Canvas.NewScreenCount, Is.EqualTo(1));
 		});
@@ -55,6 +56,24 @@ public sealed class SettingsScreenTests
 		{
 			Assert.That(harness.Settings.Current.TrimInputValues, Is.False);
 			Assert.That(harness.Repository.Saved?.TrimInputValues, Is.False);
+			Assert.That(harness.Answers.Prompts, Has.Count.EqualTo(2), "the menu is composed again after the action");
+		});
+	}
+
+	[Test]
+	public void Show_ToggleCaseSensitiveSearch_PersistsAndOffersTheMenuAgain()
+	{
+		var harness = new Harness();
+
+		harness.Answers.Answer(SettingsAction.ToggleCaseSensitiveSearch);
+		harness.Answers.Cancel();
+
+		harness.Screen.Show();
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(harness.Settings.Current.CaseSensitiveSearch, Is.True);
+			Assert.That(harness.Repository.Saved?.CaseSensitiveSearch, Is.True);
 			Assert.That(harness.Answers.Prompts, Has.Count.EqualTo(2), "the menu is composed again after the action");
 		});
 	}
@@ -223,7 +242,7 @@ public sealed class SettingsScreenTests
 			var writer = new SettingsWriter(Settings, message, localization);
 			Language = new LanguagePreferenceEditor(menu, writer, Languages);
 			Theme = new ThemePreferenceEditor(menu, writer, Themes, Languages);
-			Screen = new SettingsScreen(menu, [Language, Theme, new PageSizeEditor(new UserInput(prompt, Settings), writer, message, localization), new TrimInputValuesEditor(writer, localization)], localization);
+			Screen = new SettingsScreen(menu, [Language, Theme, new PageSizeEditor(new UserInput(prompt, Settings), writer, message, localization), new TrimInputValuesEditor(writer, localization), new CaseSensitiveSearchEditor(writer, localization)], localization);
 		}
 	}
 

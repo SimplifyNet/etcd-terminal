@@ -48,6 +48,7 @@ public sealed class RussianLocalization : ILocalization
 	public string TrimInputValuesItem => "Обрезать пробелы во вводе";
 	public string PageSizeLabel => "Элементов на странице";
 	public string TrimInputValuesLabel => "Обрезать пробелы во вводе";
+	public string CaseSensitiveSearchLabel => "Поиск с учётом регистра";
 	public string EnterPageSize => "Введите количество элементов на странице (1-500):";
 	public string InvalidPageSize => "Недопустимый размер страницы. Введите число от 1 до 500.";
 	public string SettingsSaved => "Настройки сохранены!";

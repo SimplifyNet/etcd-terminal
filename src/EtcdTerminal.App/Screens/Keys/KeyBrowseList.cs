@@ -25,7 +25,7 @@ public sealed class KeyBrowseList(IReadableKeysProvider _readableKeys, IConnecti
 	{
 		await LoadKeysAsync();
 
-		_pager.Filter(_control.SearchQuery);
+		_pager.Filter(_control.SearchQuery, _settings.Current.CaseSensitiveSearch);
 		_control.ClampPage(_pager.GetTotalPages(_settings.Current.PageSize));
 	}
 
@@ -52,7 +52,7 @@ public sealed class KeyBrowseList(IReadableKeysProvider _readableKeys, IConnecti
 
 	private void ApplyFilter()
 	{
-		_pager.Filter(_control.SearchQuery);
+		_pager.Filter(_control.SearchQuery, _settings.Current.CaseSensitiveSearch);
 		_control.ResetNavigation();
 	}
 

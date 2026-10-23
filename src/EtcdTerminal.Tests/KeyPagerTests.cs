@@ -12,9 +12,19 @@ public sealed class KeyPagerTests
 	{
 		var pager = CreatePager([new EtcdKeyValue { Key = "/App/Name", Value = "x" }, new EtcdKeyValue { Key = "/other", Value = "y" }]);
 
-		pager.Filter("app");
+		pager.Filter("app", false);
 
 		Assert.That(pager.GetPage(0, 10).Select(kv => kv.Key), Is.EquivalentTo(["/App/Name"]));
+	}
+
+	[Test]
+	public void Filter_CaseSensitive_MatchesOnlyExactCase()
+	{
+		var pager = CreatePager([new EtcdKeyValue { Key = "/app", Value = "x" }, new EtcdKeyValue { Key = "/App", Value = "y" }]);
+
+		pager.Filter("app", true);
+
+		Assert.That(pager.GetPage(0, 10).Select(kv => kv.Key), Is.EqualTo(["/app"]));
 	}
 
 	[Test]
@@ -22,7 +32,7 @@ public sealed class KeyPagerTests
 	{
 		var pager = CreatePager([new EtcdKeyValue { Key = "/a", Value = "needle-here" }, new EtcdKeyValue { Key = "/b", Value = "plain" }]);
 
-		pager.Filter("needle");
+		pager.Filter("needle", false);
 
 		Assert.That(pager.GetPage(0, 10).Select(kv => kv.Key), Is.EquivalentTo(["/a"]));
 	}

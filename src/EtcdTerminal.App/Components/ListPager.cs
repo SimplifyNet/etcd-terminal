@@ -11,10 +11,10 @@ public sealed class ListPager<T>(IReadOnlyList<T> source, Func<T, string> match)
 
 	public int FilteredCount => _filtered.Count;
 
-	public void Filter(string query) =>
+	public void Filter(string query, bool caseSensitive) =>
 		_filtered = string.IsNullOrEmpty(query)
 			? [.. source]
-			: [.. source.Where(item => match(item).Contains(query, StringComparison.OrdinalIgnoreCase))];
+			: [.. source.Where(item => match(item).Contains(query, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))];
 
 	public IReadOnlyList<T> GetPage(int page, int pageSize) =>
 		[.. _filtered.Skip(page * pageSize).Take(pageSize)];

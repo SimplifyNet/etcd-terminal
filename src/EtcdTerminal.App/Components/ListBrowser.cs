@@ -69,7 +69,7 @@ public sealed class ListBrowser(
 						if (query.Length > 0)
 						{
 							query = query[..^1];
-							pager.Filter(query);
+							pager.Filter(query, _settings.Current.CaseSensitiveSearch);
 							page = 0;
 							changed = true;
 						}
@@ -78,7 +78,7 @@ public sealed class ListBrowser(
 						if (!char.IsControl(key.KeyChar))
 						{
 							query += key.KeyChar;
-							pager.Filter(query);
+							pager.Filter(query, _settings.Current.CaseSensitiveSearch);
 							page = 0;
 							changed = true;
 						}

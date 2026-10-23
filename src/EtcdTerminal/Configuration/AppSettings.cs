@@ -4,6 +4,7 @@ public sealed record AppSettings
 {
 	public int PageSize { get; init; } = 30;
 	public bool TrimInputValues { get; init; } = true;
+	public bool CaseSensitiveSearch { get; init; }
 	public string? LanguageCode { get; init; }
 	public string? ThemeId { get; init; }
 }

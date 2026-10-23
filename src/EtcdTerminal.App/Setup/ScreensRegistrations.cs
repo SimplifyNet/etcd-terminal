@@ -43,6 +43,7 @@ public static class ScreensRegistrations
 		.Register<ThemePreferenceEditor>(LifetimeType.Transient)
 		.Register<PageSizeEditor>(LifetimeType.Transient)
 		.Register<TrimInputValuesEditor>(LifetimeType.Transient)
+		.Register<CaseSensitiveSearchEditor>(LifetimeType.Transient)
 		.Register<PermissionTypeSelector>(LifetimeType.Transient)
 		.Register<PermissionScopeSelector>(LifetimeType.Transient)
 		.Register<PermissionTargetPrompt>(LifetimeType.Transient)
@@ -84,7 +85,8 @@ public static class ScreensRegistrations
 			c.Resolve<LanguagePreferenceEditor>(),
 			c.Resolve<ThemePreferenceEditor>(),
 			c.Resolve<PageSizeEditor>(),
-			c.Resolve<TrimInputValuesEditor>()
+			c.Resolve<TrimInputValuesEditor>(),
+			c.Resolve<CaseSensitiveSearchEditor>()
 		], LifetimeType.Transient)
 		.Register<IEnumerable<IMenuCommand<RoleMenuAction>>>(c =>
 		[

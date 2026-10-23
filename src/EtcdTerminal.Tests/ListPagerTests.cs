@@ -11,7 +11,18 @@ public sealed class ListPagerTests
 	{
 		var pager = CreatePager([["user alice", "dev"], ["user bob", "ops"]]);
 
-		pager.Filter("ALICE");
+		pager.Filter("ALICE", false);
+
+		Assert.That(pager.FilteredCount, Is.EqualTo(1));
+		Assert.That(pager.GetPage(0, 10).Select(row => row[0]), Is.EqualTo(new[] { "user alice" }));
+	}
+
+	[Test]
+	public void Filter_CaseSensitive_MatchesOnlyExactCase()
+	{
+		var pager = CreatePager([["user alice"], ["user Alice"]]);
+
+		pager.Filter("alice", true);
 
 		Assert.That(pager.FilteredCount, Is.EqualTo(1));
 		Assert.That(pager.GetPage(0, 10).Select(row => row[0]), Is.EqualTo(new[] { "user alice" }));
@@ -22,8 +33,8 @@ public sealed class ListPagerTests
 	{
 		var pager = CreatePager([["one"], ["two"]]);
 
-		pager.Filter("tw");
-		pager.Filter("");
+		pager.Filter("tw", false);
+		pager.Filter("", false);
 
 		Assert.That(pager.FilteredCount, Is.EqualTo(2));
 	}

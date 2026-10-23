@@ -48,6 +48,7 @@ public class EnglishLocalization : ILocalization
 	public string TrimInputValuesItem => "TrimInputValues";
 	public string PageSizeLabel => "Items per page";
 	public string TrimInputValuesLabel => "Trim input values";
+	public string CaseSensitiveSearchLabel => "Case sensitive search";
 	public string EnterPageSize => "Enter items per page (1-500):";
 	public string InvalidPageSize => "Invalid page size. Must be a number from 1 to 500.";
 	public string SettingsSaved => "Settings saved!";

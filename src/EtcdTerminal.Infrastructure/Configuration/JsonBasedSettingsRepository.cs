@@ -8,6 +8,7 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 	private const string SettingsSection = "Settings";
 	private const string PageSizeProperty = "PageSize";
 	private const string TrimInputValuesProperty = "TrimInputValues";
+	private const string CaseSensitiveSearchProperty = "CaseSensitiveSearch";
 	private const string LanguageCodeProperty = "LanguageCode";
 	private const string ThemeIdProperty = "ThemeId";
 
@@ -27,6 +28,9 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 		if (settings[TrimInputValuesProperty] is JsonValue trimValue && trimValue.TryGetValue<bool>(out var trim))
 			appSettings = appSettings with { TrimInputValues = trim };
 
+		if (settings[CaseSensitiveSearchProperty] is JsonValue caseSensitiveValue && caseSensitiveValue.TryGetValue<bool>(out var caseSensitive))
+			appSettings = appSettings with { CaseSensitiveSearch = caseSensitive };
+
 		if (settings[LanguageCodeProperty] is JsonValue languageValue && languageValue.TryGetValue<string>(out var languageCode))
 			appSettings = appSettings with { LanguageCode = languageCode };
 
@@ -44,6 +48,7 @@ public sealed class JsonBasedSettingsRepository(JsonConfigFile _configFile) : IA
 		{
 			[PageSizeProperty] = appSettings.PageSize,
 			[TrimInputValuesProperty] = appSettings.TrimInputValues,
+			[CaseSensitiveSearchProperty] = appSettings.CaseSensitiveSearch,
 			[LanguageCodeProperty] = appSettings.LanguageCode,
 			[ThemeIdProperty] = appSettings.ThemeId
 		};

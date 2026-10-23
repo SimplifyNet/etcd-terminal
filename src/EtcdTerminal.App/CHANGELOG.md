@@ -5,6 +5,7 @@
 ### Added
 
 - Cluster status page
+- Case sensitive search setting (disabled by default); when enabled, filtering on every page respects character case
 
 ## [1.1] - 2026-10-14
 

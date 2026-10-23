@@ -46,6 +46,7 @@ public interface ILocalization
 	string TrimInputValuesItem { get; }
 	string PageSizeLabel { get; }
 	string TrimInputValuesLabel { get; }
+	string CaseSensitiveSearchLabel { get; }
 	string EnterPageSize { get; }
 	string InvalidPageSize { get; }
 	string SettingsSaved { get; }

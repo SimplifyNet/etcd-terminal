@@ -15,14 +15,16 @@ public sealed class KeyPager
 		_filtered = [.. keys];
 	}
 
-	public void Filter(string query)
+	public void Filter(string query, bool caseSensitive)
 	{
+		var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+
 		if (string.IsNullOrEmpty(query))
 			_filtered = [.. _source];
 		else
 			_filtered = [.. _source.Where(kv =>
-				kv.Key.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-				kv.Value.Contains(query, StringComparison.OrdinalIgnoreCase))];
+				kv.Key.Contains(query, comparison) ||
+				kv.Value.Contains(query, comparison))];
 	}
 
 	public IReadOnlyList<EtcdKeyValue> GetPage(int page, int pageSize) =>
