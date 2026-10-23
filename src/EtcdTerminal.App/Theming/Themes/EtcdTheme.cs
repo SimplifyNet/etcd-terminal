@@ -4,7 +4,7 @@ namespace EtcdTerminal.App.Theming.Themes;
 
 public sealed class EtcdDarkTheme : ITheme
 {
-	public string Id => "EtcdDark";
+	public string Id => "Etcd";
 	public string Name => "Etcd";
 	public string Variant => "Dark";
 
