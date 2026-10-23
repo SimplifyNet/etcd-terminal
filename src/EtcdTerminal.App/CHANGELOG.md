@@ -9,6 +9,7 @@
 - Yellow Dark theme with accent color #f5a742
 - Aquamarine Blue theme with accent color #0099a1
 - Andaman theme with accent color #077367
+- Etcd Light theme
 
 ### Changed
 

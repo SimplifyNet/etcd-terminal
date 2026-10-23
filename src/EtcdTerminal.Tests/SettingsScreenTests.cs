@@ -104,18 +104,19 @@ public sealed class SettingsScreenTests
 				"Pop! OS (Dark)",
 				"Solarized (Dark)",
 				"Matrix (Dark)",
-				"Ruby (Dark)",
 				"Yellow (Dark)",
 				"Aquamarine Blue (Dark)",
 				"Andaman (Dark)",
 				"Dark Violet (Dark)",
+				"Ruby (Dark)",
 				"Reddy (Light)",
-				"VS Code (Light)",
+				"Etcd (Light)",
+				"Pop! OS (Light)",
 				"Solarized (Light)",
+				"VS Code (Light)",
 				"GitHub (Light)",
 				"Catppuccin (Light)",
-				"Rosé Pine (Light)",
-				"Pop! OS (Light)"
+				"Rosé Pine (Light)"
 			]));
 			Assert.That(harness.Answers.Prompt<SettingsAction>(2).Items[1].Label, Is.EqualTo("Theme (Etcd Blue (Dark))"));
 		});

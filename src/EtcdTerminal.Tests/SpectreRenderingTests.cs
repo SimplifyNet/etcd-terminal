@@ -42,6 +42,7 @@ public sealed class SpectreRenderingTests
 				Assert.That(Contrast(foreground, background), Is.GreaterThanOrEqualTo(4.5), $"{foreground} on {background}");
 	}
 
+	[TestCase("EtcdLight")]
 	[TestCase("VsCodeLight")]
 	[TestCase("SolarizedLight")]
 	[TestCase("GitHubLight")]
