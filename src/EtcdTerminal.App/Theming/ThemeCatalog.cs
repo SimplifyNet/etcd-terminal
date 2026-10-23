@@ -18,6 +18,8 @@ public sealed class ThemeCatalog : IThemeCatalog
 		new MatrixTheme(),
 		new RubyTheme(),
 		new YellowDarkTheme(),
+		new AquamarineBlueTheme(),
+		new AndamanTheme(),
 		new ReddyLightTheme(),
 		new VsCodeLightTheme(),
 		new SolarizedLightTheme(),

@@ -1,0 +1,23 @@
+using EtcdTerminal.Presentation.Theming;
+
+namespace EtcdTerminal.App.Theming.Themes;
+
+public sealed class AndamanTheme : ITheme
+{
+	public string Id => "Andaman";
+	public string Name => "Andaman";
+	public string Variant => "Dark";
+
+	public RgbColor WindowBackground { get; } = new(10, 10, 10);
+	public RgbColor BandBackground { get; } = new(27, 28, 30);
+	public RgbColor ActionPanelTitleBackground { get; } = new(21, 22, 24);
+	public RgbColor Primary { get; } = new(255, 255, 255);
+	public RgbColor Secondary { get; } = new(0, 180, 180);
+	public RgbColor Success { get; } = new(0, 200, 0);
+	public RgbColor Danger { get; } = new(220, 50, 50);
+	public RgbColor Warning { get; } = new(255, 200, 0);
+	public RgbColor Muted { get; } = new(128, 128, 128);
+	public RgbColor Subtle { get; } = new(80, 80, 80);
+	public RgbColor Accent { get; } = new(0, 150, 135);
+	public RgbColor Banner { get; } = new(20, 160, 140);
+}

@@ -7,6 +7,8 @@
 - Cluster status page
 - Case sensitive search setting (disabled by default); when enabled, filtering on every page respects character case
 - Yellow Dark theme with accent color #f5a742
+- Aquamarine Blue theme with accent color #0099a1
+- Andaman theme with accent color #077367
 
 ## [1.1] - 2026-10-14
 
