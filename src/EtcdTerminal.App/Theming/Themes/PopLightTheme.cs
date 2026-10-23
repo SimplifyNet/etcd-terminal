@@ -10,7 +10,7 @@ public sealed class PopLightTheme : ITheme
 
 	public RgbColor WindowBackground { get; } = new(255, 255, 255);
 	public RgbColor BandBackground { get; } = new(228, 228, 228);
-	public RgbColor ActionPanelTitleBackground { get; } = new(230, 230, 230);
+	public RgbColor ActionPanelTitleBackground { get; } = new(237, 237, 237);
 	public RgbColor Primary { get; } = new(22, 22, 22);
 	public RgbColor Secondary { get; } = new(0, 82, 90);
 	public RgbColor Success { get; } = new(0, 87, 44);
