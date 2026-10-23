@@ -10,6 +10,10 @@
 - Aquamarine Blue theme with accent color #0099a1
 - Andaman theme with accent color #077367
 
+### Changed
+
+- Manjaro and Pop! OS themes align with official colors
+
 ## [1.1] - 2026-10-14
 
 ### Added

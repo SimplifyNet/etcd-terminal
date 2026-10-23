@@ -8,16 +8,16 @@ public sealed class ManjaroTheme : ITheme
 	public string Name => "Manjaro";
 	public string Variant => "Dark";
 
-	public RgbColor WindowBackground { get; } = new(30, 33, 38);
-	public RgbColor BandBackground { get; } = new(45, 49, 56);
-	public RgbColor ActionPanelTitleBackground { get; } = new(38, 42, 48);
-	public RgbColor Primary { get; } = new(235, 238, 240);
-	public RgbColor Secondary { get; } = new(110, 175, 235);
-	public RgbColor Success { get; } = new(96, 206, 128);
-	public RgbColor Danger { get; } = new(235, 85, 85);
-	public RgbColor Warning { get; } = new(243, 196, 72);
-	public RgbColor Muted { get; } = new(150, 156, 162);
-	public RgbColor Subtle { get; } = new(110, 116, 122);
+	public RgbColor WindowBackground { get; } = new(27, 34, 36);
+	public RgbColor BandBackground { get; } = new(48, 59, 62);
+	public RgbColor ActionPanelTitleBackground { get; } = new(34, 43, 46);
+	public RgbColor Primary { get; } = new(204, 215, 212);
+	public RgbColor Secondary { get; } = new(109, 218, 196);
+	public RgbColor Success { get; } = new(46, 179, 152);
+	public RgbColor Danger { get; } = new(252, 65, 56);
+	public RgbColor Warning { get; } = new(242, 120, 53);
+	public RgbColor Muted { get; } = new(171, 185, 182);
+	public RgbColor Subtle { get; } = new(107, 113, 115);
 	public RgbColor Accent { get; } = new(53, 191, 164);
-	public RgbColor Banner { get; } = new(80, 214, 194);
+	public RgbColor Banner { get; } = new(53, 203, 172);
 }
