@@ -113,7 +113,7 @@ sudo pacman -U etcd-terminal-bin-<version>-1-x86_64.pkg.tar.zst
 
 ### Debian / Ubuntu
 
-The recommended way to install is from the PPA:
+The recommended way to install is from the PPA. Packages are published for Ubuntu 26.10 (Stonking Stingray), 26.04 LTS (Resolute Raccoon), and 24.04 LTS (Noble Numbat):
 
 ```bash
 sudo add-apt-repository ppa:simplifynet/etcd-terminal
@@ -121,7 +121,7 @@ sudo apt update
 sudo apt install etcd-terminal
 ```
 
-Alternatively, each release includes prebuilt `.deb` packages for amd64. Use the file matching your Ubuntu series, for example `~resolute` or `~noble`:
+Alternatively, each release includes prebuilt `.deb` packages for amd64. Use the file matching your Ubuntu series, for example `~stonking`, `~resolute`, or `~noble`:
 
 ```bash
 sudo apt install ./etcd-terminal_<version>-1~ppa1~<series>_amd64.deb

@@ -184,7 +184,7 @@ jobs:
           PPA_SERIES: ${{ vars.PPA_SERIES }}
         run: |
           set -euo pipefail
-          series_list="${PPA_SERIES:-resolute,noble}"
+          series_list="${PPA_SERIES:-stonking,resolute,noble}"
           IFS=',' read -r -a series_array <<< "${series_list}"
 
           if [[ "${#series_array[@]}" -eq 0 ]]; then
