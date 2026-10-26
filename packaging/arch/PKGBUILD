@@ -1,0 +1,22 @@
+# Maintainer: SimplifyNet <https://github.com/SimplifyNet>
+pkgname=etcd-terminal-bin
+_tag=1.2
+pkgver=1.2
+pkgrel=1
+pkgdesc='Interactive terminal client for managing etcd v3+ clusters'
+arch=('x86_64')
+url='https://github.com/SimplifyNet/etcd-terminal'
+license=('GPL-3.0-only')
+depends=('glibc' 'icu' 'krb5' 'libgcc' 'libstdc++' 'openssl')
+provides=('etcd-terminal')
+conflicts=('etcd-terminal')
+options=('!strip' '!debug')
+source=("etcd-terminal-linux-x64-self-contained.tar.gz::${url}/releases/download/${_tag}/etcd-terminal-linux-x64-self-contained.tar.gz")
+sha256sums=('2f27d1271d03399e46d2df40ac008d72f85bd272ae84ce30067c2cf811ed568d')
+
+package() {
+	install -d "${pkgdir}/usr/lib/${pkgname}" "${pkgdir}/usr/bin"
+
+	cp -a "${srcdir}/." "${pkgdir}/usr/lib/${pkgname}/"
+	ln -s "/usr/lib/${pkgname}/etcd-terminal" "${pkgdir}/usr/bin/etcd-terminal"
+}

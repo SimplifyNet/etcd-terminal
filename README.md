@@ -103,7 +103,15 @@ Prebuilt binaries for Linux and Windows are available on the [Releases page](htt
 - **Self-contained** archives (suffixed `-self-contained`) include the .NET runtime and need no extra installation.
 - **Framework-dependent** archives (without the suffix) require the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
-Help packaging the app for Linux package managers (deb/rpm/AppImage/etc.) is very welcome!
+### Arch Linux
+
+Each release includes a prebuilt package (`etcd-terminal-bin-<version>-1-x86_64.pkg.tar.zst`), which can be installed directly:
+
+```bash
+sudo pacman -U etcd-terminal-bin-<version>-1-x86_64.pkg.tar.zst
+```
+
+Help packaging the app for other Linux package managers (deb/rpm/AppImage/etc.) is very welcome!
 
 ## Requirements
 

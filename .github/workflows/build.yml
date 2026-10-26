@@ -80,9 +80,75 @@ jobs:
             etcd-terminal-linux-x64-self-contained.tar.gz
             etcd-terminal-win-x64-self-contained.zip
 
+  arch:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: artifacts
+
+      - name: Resolve package version
+        id: version
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/EtcdTerminal.App/EtcdTerminal.App.csproj)"
+          fi
+          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+]*$ ]]; then
+            echo "Invalid package version: ${version}" >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build Arch package
+        env:
+          PKGVER: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -e PKGVER \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            archlinux:latest \
+            bash -c '
+              set -euo pipefail
+              pacman -Sy --noconfirm archlinux-keyring >/dev/null
+              pacman -Syu --noconfirm --needed base-devel >/dev/null
+              useradd -m builder
+
+              rm -rf /tmp/pkg
+              mkdir -p /tmp/pkg
+              cp -r /work/packaging/arch/. /tmp/pkg/
+              cp /work/etcd-terminal-linux-x64-self-contained.tar.gz /tmp/pkg/
+
+              sha256="$(sha256sum /tmp/pkg/etcd-terminal-linux-x64-self-contained.tar.gz)"
+              sha256="${sha256%% *}"
+
+              sed -i -e "s/^_tag=.*/_tag=${PKGVER}/" \
+                     -e "s/^pkgver=.*/pkgver=${PKGVER}/" \
+                     -e "s/^sha256sums=.*/sha256sums=('${sha256}')/" /tmp/pkg/PKGBUILD
+              chown -R builder:builder /tmp/pkg
+              su - builder -c "cd /tmp/pkg && makepkg --nodeps --noconfirm --cleanbuild"
+
+              cp /tmp/pkg/*.pkg.tar.zst /work/
+            '
+
+      - name: Upload Arch package
+        uses: actions/upload-artifact@v7
+        with:
+          name: arch-package
+          path: "*.pkg.tar.zst"
+
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs: [build, arch]
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -94,6 +160,11 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: artifacts
+
+      - name: Download Arch package
+        uses: actions/download-artifact@v7
+        with:
+          name: arch-package
 
       - name: Extract changelog entry
         run: |
@@ -111,4 +182,99 @@ jobs:
             etcd-terminal-linux-x64.tar.gz \
             etcd-terminal-win-x64.zip \
             etcd-terminal-linux-x64-self-contained.tar.gz \
-            etcd-terminal-win-x64-self-contained.zip
+            etcd-terminal-win-x64-self-contained.zip \
+            *.pkg.tar.zst
+
+  aur:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build, arch, release]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check AUR credentials
+        id: aur-credentials
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        run: |
+          if [[ -n "${AUR_SSH_PRIVATE_KEY}" ]]; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "AUR_SSH_PRIVATE_KEY is not configured; skipping AUR push" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Download artifacts
+        if: steps.aur-credentials.outputs.enabled == 'true'
+        uses: actions/download-artifact@v7
+        with:
+          name: artifacts
+
+      - name: Prepare AUR files
+        if: steps.aur-credentials.outputs.enabled == 'true'
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${VERSION#v}"
+          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+]*$ ]]; then
+            echo "Invalid package version: ${version}" >&2
+            exit 1
+          fi
+
+          sha256="$(sha256sum etcd-terminal-linux-x64-self-contained.tar.gz | cut -d' ' -f1)"
+
+          mkdir -p aur
+          sed -e "s/^_tag=.*/_tag=${VERSION}/" \
+              -e "s/^pkgver=.*/pkgver=${version}/" \
+              -e "s/^sha256sums=.*/sha256sums=('${sha256}')/" \
+              packaging/arch/PKGBUILD > aur/PKGBUILD
+
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}/aur:/aur" \
+            archlinux:latest \
+            bash -c '
+              set -euo pipefail
+              pacman -Sy --noconfirm archlinux-keyring >/dev/null
+              pacman -Syu --noconfirm --needed base-devel >/dev/null
+              useradd -m builder
+
+              mkdir -p /tmp/aur
+              cp /aur/PKGBUILD /tmp/aur/
+              chown -R builder:builder /tmp/aur
+              su - builder -c "cd /tmp/aur && makepkg --printsrcinfo"
+            ' > aur/.SRCINFO
+
+      - name: Push to AUR
+        if: steps.aur-credentials.outputs.enabled == 'true'
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${AUR_SSH_PRIVATE_KEY}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+
+          export GIT_SSH_COMMAND="ssh -i ${HOME}/.ssh/aur -o IdentitiesOnly=yes"
+
+          rm -rf /tmp/aur-repo
+          if ! git -c init.defaultBranch=master clone ssh://aur@aur.archlinux.org/etcd-terminal-bin.git /tmp/aur-repo; then
+            rm -rf /tmp/aur-repo
+            git -c init.defaultBranch=master init /tmp/aur-repo
+            git -C /tmp/aur-repo remote add origin ssh://aur@aur.archlinux.org/etcd-terminal-bin.git
+          fi
+
+          cp aur/PKGBUILD aur/.SRCINFO /tmp/aur-repo/
+          git -C /tmp/aur-repo config user.name "github-actions[bot]"
+          git -C /tmp/aur-repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C /tmp/aur-repo add PKGBUILD .SRCINFO
+
+          if git -C /tmp/aur-repo diff --cached --quiet; then
+            echo "AUR package is already up to date"
+          else
+            git -C /tmp/aur-repo commit -m "Update to ${VERSION#v}"
+            git -C /tmp/aur-repo push origin master
+          fi
