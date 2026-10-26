@@ -113,10 +113,18 @@ sudo pacman -U etcd-terminal-bin-<version>-1-x86_64.pkg.tar.zst
 
 ### Debian / Ubuntu
 
-Each release includes a prebuilt `.deb` package for amd64:
+The recommended way to install is from the PPA:
 
 ```bash
-sudo apt install ./etcd-terminal_<version>-1~ppa1~resolute_amd64.deb
+sudo add-apt-repository ppa:simplifynet/etcd-terminal
+sudo apt update
+sudo apt install etcd-terminal
+```
+
+Alternatively, each release includes prebuilt `.deb` packages for amd64. Use the file matching your Ubuntu series, for example `~resolute` or `~noble`:
+
+```bash
+sudo apt install ./etcd-terminal_<version>-1~ppa1~<series>_amd64.deb
 ```
 
 Help packaging the app for other Linux package managers (rpm/AppImage/etc.) is very welcome!
