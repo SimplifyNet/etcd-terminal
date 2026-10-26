@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: etcd-terminal
+Source: https://github.com/SimplifyNet/etcd-terminal
+
+Files: *
+Copyright: 2026 SimplifyNet
+License: GPL-3.0-only
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in /usr/share/common-licenses/GPL-3.
+Comment: The self-contained application bundle in app/ also includes
+ Microsoft .NET runtime components, which are licensed under the MIT
+ License. See https://github.com/dotnet/runtime/blob/main/LICENSE.TXT.

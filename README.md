@@ -111,7 +111,15 @@ Each release includes a prebuilt package (`etcd-terminal-bin-<version>-1-x86_64.
 sudo pacman -U etcd-terminal-bin-<version>-1-x86_64.pkg.tar.zst
 ```
 
-Help packaging the app for other Linux package managers (deb/rpm/AppImage/etc.) is very welcome!
+### Debian / Ubuntu
+
+Each release includes a prebuilt `.deb` package for amd64:
+
+```bash
+sudo apt install ./etcd-terminal_<version>-1~ppa1~resolute_amd64.deb
+```
+
+Help packaging the app for other Linux package managers (rpm/AppImage/etc.) is very welcome!
 
 ## Requirements
 

@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+override_dh_auto_build:
+override_dh_auto_test:
+
+override_dh_auto_install:
+	install -d $(CURDIR)/debian/etcd-terminal/usr/lib/etcd-terminal
+	install -d $(CURDIR)/debian/etcd-terminal/usr/bin
+	cp -a $(CURDIR)/app/. $(CURDIR)/debian/etcd-terminal/usr/lib/etcd-terminal/
+	ln -s /usr/lib/etcd-terminal/etcd-terminal $(CURDIR)/debian/etcd-terminal/usr/bin/etcd-terminal
+
+override_dh_strip:
+override_dh_dwz:
+override_dh_makeshlibs:
+override_dh_shlibdeps:

@@ -146,9 +146,183 @@ jobs:
           name: arch-package
           path: "*.pkg.tar.zst"
 
+  debian:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: artifacts
+
+      - name: Resolve package version
+        id: version
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/EtcdTerminal.App/EtcdTerminal.App.csproj)"
+          fi
+          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+]*$ ]]; then
+            echo "Invalid package version: ${version}" >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install Debian build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper devscripts dpkg-dev dput fakeroot
+
+      - name: Build .deb and source package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PPA_SERIES: ${{ vars.PPA_SERIES }}
+        run: |
+          set -euo pipefail
+          series="${PPA_SERIES:-resolute}"
+          if [[ ! "${series}" =~ ^[a-z][a-z0-9]*$ ]]; then
+            echo "Invalid PPA series: ${series}" >&2
+            exit 1
+          fi
+          debversion="${VERSION}-1~ppa1~${series}"
+          root="${RUNNER_TEMP}/deb"
+          src="${root}/etcd-terminal-${VERSION}"
+
+          rm -rf "${root}"
+          mkdir -p "${root}" "${src}/app"
+          tar xzf etcd-terminal-linux-x64-self-contained.tar.gz -C "${src}/app"
+          cp -r packaging/debian "${src}/debian"
+
+          {
+            printf 'etcd-terminal (%s) %s; urgency=medium\n\n' "${debversion}" "${series}"
+            printf '  * Release %s.\n\n' "${VERSION}"
+            printf ' -- Alexanderius <alexander.krylkov@gmail.com>  %s\n' "$(date -R)"
+          } > "${src}/debian/changelog"
+
+          cd "${root}"
+          tar --exclude="etcd-terminal-${VERSION}/debian" \
+            -czf "etcd-terminal_${VERSION}.orig.tar.gz" "etcd-terminal-${VERSION}"
+
+          cd "${src}"
+          dpkg-buildpackage -S -sa -us -uc
+          dpkg-buildpackage -b -us -uc
+
+          mkdir -p "${GITHUB_WORKSPACE}/dist/deb" "${GITHUB_WORKSPACE}/dist/source"
+          cp "${root}"/*.deb "${GITHUB_WORKSPACE}/dist/deb/"
+          cp "${root}"/*.dsc "${root}"/*.orig.tar.gz "${root}"/*.debian.tar.xz \
+             "${root}"/*_source.changes "${root}"/*_source.buildinfo \
+             "${GITHUB_WORKSPACE}/dist/source/"
+
+      - name: Upload .deb
+        uses: actions/upload-artifact@v7
+        with:
+          name: deb-package
+          path: dist/deb/*.deb
+
+      - name: Upload Debian source package
+        uses: actions/upload-artifact@v7
+        with:
+          name: deb-source
+          path: dist/source/*
+
+  ppa:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: debian
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download source package
+        uses: actions/download-artifact@v7
+        with:
+          name: deb-source
+          path: source
+
+      - name: Check PPA credentials
+        id: ppa-credentials
+        env:
+          PPA_GPG_PRIVATE_KEY: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+        run: |
+          if [[ -n "${PPA_GPG_PRIVATE_KEY}" ]]; then
+            echo "enabled=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "PPA_GPG_PRIVATE_KEY is not configured; skipping PPA upload" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Install signing tools
+        if: steps.ppa-credentials.outputs.enabled == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts dput gnupg gnupg-utils
+
+      - name: Sign and upload to PPA
+        if: steps.ppa-credentials.outputs.enabled == 'true'
+        env:
+          PPA_GPG_PRIVATE_KEY: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+          PPA_GPG_KEY_ID: ${{ secrets.PPA_GPG_KEY_ID }}
+          PPA_GPG_PASSPHRASE: ${{ secrets.PPA_GPG_PASSPHRASE }}
+          PPA_TARGET: ${{ vars.PPA_TARGET }}
+        run: |
+          set -euo pipefail
+          export GNUPGHOME="$(mktemp -d)"
+          chmod 700 "${GNUPGHOME}"
+          printf '%s\n' "${PPA_GPG_PRIVATE_KEY}" | gpg --batch --import
+
+          keyid="${PPA_GPG_KEY_ID:-}"
+          if [[ -z "${keyid}" ]]; then
+            keyid="$(gpg --batch --with-colons --list-secret-keys | awk -F: '/^fpr:/{print $10; exit}')"
+          fi
+          if [[ -z "${keyid}" ]]; then
+            echo "No PPA signing key found" >&2
+            exit 1
+          fi
+
+          if [[ -n "${PPA_GPG_PASSPHRASE:-}" ]]; then
+            printf 'allow-loopback-pinentry\nallow-preset-passphrase\n' > "${GNUPGHOME}/gpg-agent.conf"
+            gpg-connect-agent reloadagent /bye >/dev/null
+
+            gpg_preset="$(command -v gpg-preset-passphrase || true)"
+            if [[ -z "${gpg_preset}" ]]; then
+              for candidate in /usr/lib/gnupg/gpg-preset-passphrase /usr/lib/gnupg2/gpg-preset-passphrase; do
+                if [[ -x "${candidate}" ]]; then
+                  gpg_preset="${candidate}"
+                  break
+                fi
+              done
+            fi
+            if [[ -z "${gpg_preset}" ]]; then
+              echo "gpg-preset-passphrase not found" >&2
+              exit 1
+            fi
+
+            keygrip="$(gpg --batch --with-colons --list-secret-keys "${keyid}" | awk -F: '/^grp:/{print $10; exit}')"
+            if [[ -z "${keygrip}" ]]; then
+              echo "No keygrip found for ${keyid}" >&2
+              exit 1
+            fi
+            printf '%s\n' "${PPA_GPG_PASSPHRASE}" | "${gpg_preset}" --homedir "${GNUPGHOME}" --preset "${keygrip}"
+          fi
+
+          target="${PPA_TARGET:-ppa:simplifynet/etcd-terminal}"
+          changes="$(find source -maxdepth 1 -name '*_source.changes' -print -quit)"
+          if [[ -z "${changes}" ]]; then
+            echo "No source .changes file found" >&2
+            exit 1
+          fi
+
+          debsign -k "${keyid}" "${changes}"
+          dput "${target}" "${changes}"
+
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build, arch]
+    needs: [build, arch, debian]
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -165,6 +339,11 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: arch-package
+
+      - name: Download .deb
+        uses: actions/download-artifact@v7
+        with:
+          name: deb-package
 
       - name: Extract changelog entry
         run: |
@@ -183,7 +362,8 @@ jobs:
             etcd-terminal-win-x64.zip \
             etcd-terminal-linux-x64-self-contained.tar.gz \
             etcd-terminal-win-x64-self-contained.zip \
-            *.pkg.tar.zst
+            *.pkg.tar.zst \
+            *.deb
 
   aur:
     if: startsWith(github.ref, 'refs/tags/')

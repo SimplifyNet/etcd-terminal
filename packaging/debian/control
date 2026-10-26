@@ -1,0 +1,16 @@
+Source: etcd-terminal
+Section: admin
+Priority: optional
+Maintainer: Alexanderius <alexander.krylkov@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.0
+Homepage: https://github.com/SimplifyNet/etcd-terminal
+Rules-Requires-Root: no
+
+Package: etcd-terminal
+Architecture: amd64
+Depends: libc6, libgcc-s1, libstdc++6, libicu78 | libicu76 | libicu74 | libicu72 | libicu70, libssl3t64 | libssl3, libgssapi-krb5-2
+Description: interactive terminal client for managing etcd v3+ clusters
+ etcd-terminal is an interactive terminal client for managing etcd v3+
+ clusters. It supports browsing and editing keys and values, user and role
+ management, permission management, and cluster status monitoring.
