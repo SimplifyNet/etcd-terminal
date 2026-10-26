@@ -232,7 +232,7 @@ jobs:
 
   ppa:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: debian
+    needs: [debian, release]
     runs-on: ubuntu-latest
 
     steps:
