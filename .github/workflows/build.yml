@@ -133,7 +133,7 @@ jobs:
 
               sed -i -e "s/^_tag=.*/_tag=${PKGVER}/" \
                      -e "s/^pkgver=.*/pkgver=${PKGVER}/" \
-                     -e "s/^sha256sums=.*/sha256sums=('${sha256}')/" /tmp/pkg/PKGBUILD
+                     -e "s/^sha256sums=.*/sha256sums=(\"${sha256}\")/" /tmp/pkg/PKGBUILD
               chown -R builder:builder /tmp/pkg
               su - builder -c "cd /tmp/pkg && makepkg --nodeps --noconfirm --cleanbuild"
 
