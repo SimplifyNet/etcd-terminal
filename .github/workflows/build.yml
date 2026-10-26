@@ -201,6 +201,8 @@ jobs:
           done
 
           root="${RUNNER_TEMP}/deb"
+          artifact="${GITHUB_WORKSPACE}/etcd-terminal-linux-x64-self-contained.tar.gz"
+          debian_dir="${GITHUB_WORKSPACE}/packaging/debian"
           rm -rf "${root}"
           mkdir -p "${root}" "${GITHUB_WORKSPACE}/dist/deb" "${GITHUB_WORKSPACE}/dist/source"
 
@@ -211,8 +213,8 @@ jobs:
             src="${series_root}/etcd-terminal-${VERSION}"
 
             mkdir -p "${series_root}" "${src}/app"
-            tar xzf etcd-terminal-linux-x64-self-contained.tar.gz -C "${src}/app"
-            cp -r packaging/debian "${src}/debian"
+            tar xzf "${artifact}" -C "${src}/app"
+            cp -r "${debian_dir}" "${src}/debian"
 
             {
               printf 'etcd-terminal (%s) %s; urgency=medium\n\n' "${debversion}" "${series}"
