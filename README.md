@@ -7,6 +7,8 @@
 [![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
 [![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
 
+![Key browse](images/screenshots/key-browse.png)
+
 ## Table of contents
 
 - [Features](#features)
@@ -27,8 +29,6 @@
   - [Debian / Ubuntu](#debian--ubuntu)
 - [Requirements](#requirements)
 - [Building](#building)
-
-![Key browse](images/screenshots/key-browse.png)
 
 ## Features
 
