@@ -204,7 +204,13 @@ jobs:
           artifact="${GITHUB_WORKSPACE}/etcd-terminal-linux-x64-self-contained.tar.gz"
           debian_dir="${GITHUB_WORKSPACE}/packaging/debian"
           rm -rf "${root}"
-          mkdir -p "${root}" "${GITHUB_WORKSPACE}/dist/deb" "${GITHUB_WORKSPACE}/dist/source"
+          mkdir -p "${root}/orig/etcd-terminal-${VERSION}/app" "${GITHUB_WORKSPACE}/dist/deb" "${GITHUB_WORKSPACE}/dist/source"
+
+          # Launchpad requires one identical .orig.tar.gz per upstream version across all series.
+          tar xzf "${artifact}" -C "${root}/orig/etcd-terminal-${VERSION}/app"
+          orig="${root}/etcd-terminal_${VERSION}.orig.tar.gz"
+          tar -C "${root}/orig" --sort=name --owner=0 --group=0 --numeric-owner \
+            -cf - "etcd-terminal-${VERSION}" | gzip -n > "${orig}"
 
           for series in "${series_array[@]}"; do
             series="${series//[[:space:]]/}"
@@ -212,8 +218,9 @@ jobs:
             series_root="${root}/${series}"
             src="${series_root}/etcd-terminal-${VERSION}"
 
-            mkdir -p "${series_root}" "${src}/app"
-            tar xzf "${artifact}" -C "${src}/app"
+            mkdir -p "${series_root}"
+            cp "${orig}" "${series_root}/"
+            tar xzf "${orig}" -C "${series_root}"
             cp -r "${debian_dir}" "${src}/debian"
 
             {
@@ -221,10 +228,6 @@ jobs:
               printf '  * Release %s.\n\n' "${VERSION}"
               printf ' -- Alexanderius <alexander.krylkov@gmail.com>  %s\n' "$(date -R)"
             } > "${src}/debian/changelog"
-
-            cd "${series_root}"
-            tar --exclude="etcd-terminal-${VERSION}/debian" \
-              -czf "etcd-terminal_${VERSION}.orig.tar.gz" "etcd-terminal-${VERSION}"
 
             cd "${src}"
             dpkg-buildpackage -S -sa -us -uc
