@@ -7,6 +7,27 @@
 [![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
 [![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
 
+## Table of contents
+
+- [Features](#features)
+  - [Connection management](#connection-management)
+  - [Key and value management](#key-and-value-management)
+  - [User and role management (RBAC)](#user-and-role-management-rbac)
+  - [Cluster monitoring](#cluster-monitoring)
+  - [Preferences](#preferences)
+- [Screenshots](#screenshots)
+  - [Instance selection](#instance-selection)
+  - [Main menu](#main-menu)
+  - [Users](#users)
+  - [Roles](#roles)
+- [Configuration](#configuration)
+- [Performance notes](#performance-notes)
+- [Installation](#installation)
+  - [Arch Linux](#arch-linux)
+  - [Debian / Ubuntu](#debian--ubuntu)
+- [Requirements](#requirements)
+- [Building](#building)
+
 ![Key browse](images/screenshots/key-browse.png)
 
 ## Features
