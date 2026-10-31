@@ -20,6 +20,7 @@
 - [Screenshots](#screenshots)
   - [Instance selection](#instance-selection)
   - [Main menu](#main-menu)
+  - [Cluster status](#cluster-status)
   - [Users](#users)
   - [Roles](#roles)
 - [Configuration](#configuration)
@@ -71,6 +72,10 @@
 ### Main menu
 
 ![Main menu](images/screenshots/main-menu.png)
+
+### Cluster status
+
+![Cluster status](images/screenshots/cluster-status.png)
 
 ### Users
 
