@@ -7,7 +7,7 @@
 [![current release](https://img.shields.io/github/release/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/releases)
 [![license](https://img.shields.io/github/license/SimplifyNet/etcd-terminal.svg)](https://github.com/SimplifyNet/etcd-terminal/blob/master/LICENSE)
 
-![Key browse](images/screenshots/key-browse.png)
+![Main Screenshot](images/screenshots/main.png)
 
 ## Table of contents
 
@@ -20,6 +20,7 @@
 - [Screenshots](#screenshots)
   - [Instance selection](#instance-selection)
   - [Main menu](#main-menu)
+  - [Browse keys](#browse-keys)
   - [Cluster status](#cluster-status)
   - [Users](#users)
   - [Roles](#roles)
@@ -72,6 +73,10 @@
 ### Main menu
 
 ![Main menu](images/screenshots/main-menu.png)
+
+### Browse keys
+
+![Browse keys](images/screenshots/browse-keys.png)
 
 ### Cluster status
 
