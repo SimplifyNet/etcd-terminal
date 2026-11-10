@@ -29,6 +29,7 @@
 - [Installation](#installation)
   - [Arch Linux](#arch-linux)
   - [Debian / Ubuntu](#debian--ubuntu)
+  - [macOS](#macos)
 - [Requirements](#requirements)
 - [Building](#building)
 
@@ -127,10 +128,10 @@ read your home directory.
 
 ## Installation
 
-Prebuilt binaries for Linux and Windows are available on the [Releases page](https://github.com/SimplifyNet/etcd-terminal/releases).
+Prebuilt binaries for Linux, Windows and macOS are available on the [Releases page](https://github.com/SimplifyNet/etcd-terminal/releases).
 
 - Download the archive matching your platform and extract it.
-- Run `etcd-terminal` (Linux) or `etcd-terminal.exe` (Windows).
+- Run `etcd-terminal` (Linux, macOS) or `etcd-terminal.exe` (Windows).
 - **Self-contained** archives (suffixed `-self-contained`) include the .NET runtime and need no extra installation.
 - **Framework-dependent** archives (without the suffix) require the [.NET 10.0 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
@@ -160,6 +161,21 @@ sudo apt install ./etcd-terminal_<version>-1~ppa1~<series>_amd64.deb
 
 Help packaging the app for other Linux package managers (rpm/AppImage/etc.) is very welcome!
 
+### macOS
+
+Each release includes archives for Apple Silicon (`osx-arm64`) and Intel (`osx-x64`). Extract the one matching your Mac and run the executable:
+
+```bash
+tar xzf etcd-terminal-osx-arm64-self-contained.tar.gz
+./etcd-terminal
+```
+
+The binaries are not notarized; if macOS refuses to start the extracted executable, clear the quarantine attribute:
+
+```bash
+xattr -d com.apple.quarantine ./etcd-terminal
+```
+
 ## Requirements
 
 - etcd v3+ cluster
@@ -172,4 +188,13 @@ Requires the [.NET 10.0 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
 dotnet build src/EtcdTerminal.slnx
+```
+
+macOS builds must be produced on macOS so the SDK can ad-hoc sign the app host:
+
+```bash
+dotnet publish src/EtcdTerminal.App/ \
+  --configuration Release \
+  --runtime osx-arm64 \
+  --self-contained true
 ```
