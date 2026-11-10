@@ -144,6 +144,7 @@ jobs:
             etcd-terminal-osx-x64-self-contained.tar.gz
 
   arch:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') || !contains(github.ref_name, '-') }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -210,6 +211,7 @@ jobs:
           path: "*.pkg.tar.zst"
 
   debian:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') || !contains(github.ref_name, '-') }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -316,7 +318,7 @@ jobs:
           path: dist/source/
 
   ppa:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-') }}
     needs: [debian, release]
     runs-on: ubuntu-latest
 
@@ -456,7 +458,7 @@ jobs:
           done < pending-uploads.txt
 
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-') }}
     needs: [build, macos, arch, debian]
     permissions:
       contents: write
@@ -510,7 +512,7 @@ jobs:
             *.deb
 
   aur:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-') }}
     needs: [build, arch, release]
     runs-on: ubuntu-latest
 
