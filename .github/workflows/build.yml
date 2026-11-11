@@ -144,7 +144,6 @@ jobs:
             etcd-terminal-osx-x64-self-contained.tar.gz
 
   arch:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') || !contains(github.ref_name, '-') }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -165,7 +164,7 @@ jobs:
           else
             version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/EtcdTerminal.App/EtcdTerminal.App.csproj)"
           fi
-          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+]*$ ]]; then
+          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+-]*$ ]]; then
             echo "Invalid package version: ${version}" >&2
             exit 1
           fi
@@ -194,9 +193,10 @@ jobs:
 
               sha256="$(sha256sum /tmp/pkg/etcd-terminal-linux-x64-self-contained.tar.gz)"
               sha256="${sha256%% *}"
+              pkgver="${PKGVER//-/_}"
 
               sed -i -e "s/^_tag=.*/_tag=${PKGVER}/" \
-                     -e "s/^pkgver=.*/pkgver=${PKGVER}/" \
+                     -e "s/^pkgver=.*/pkgver=${pkgver}/" \
                      -e "s/^sha256sums=.*/sha256sums=(\"${sha256}\")/" /tmp/pkg/PKGBUILD
               chown -R builder:builder /tmp/pkg
               su - builder -c "cd /tmp/pkg && makepkg --nodeps --noconfirm --cleanbuild"
@@ -211,7 +211,6 @@ jobs:
           path: "*.pkg.tar.zst"
 
   debian:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') || !contains(github.ref_name, '-') }}
     needs: build
     runs-on: ubuntu-latest
 
@@ -232,7 +231,7 @@ jobs:
           else
             version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/EtcdTerminal.App/EtcdTerminal.App.csproj)"
           fi
-          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+]*$ ]]; then
+          if [[ ! "${version}" =~ ^[0-9][A-Za-z0-9._+-]*$ ]]; then
             echo "Invalid package version: ${version}" >&2
             exit 1
           fi
