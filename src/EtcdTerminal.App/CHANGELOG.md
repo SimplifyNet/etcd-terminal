@@ -4,7 +4,7 @@
 
 ### Added
 
-- Export JSON: enter a key prefix, review the list of matching key names, confirm with Yes selected by default, and the exported JSON object is copied to the clipboard through the terminal (OSC 52)
+- Export JSON: enter a key prefix, review the list of matching key names, confirm with Yes selected by default, and the exported JSON object is copied to the clipboard; the copy uses the platform clipboard tool (`clip` on Windows, `pbcopy` on macOS, `wl-copy`/`xclip`/`xsel` on Linux) and falls back to the terminal's OSC 52 support for SSH sessions
 - Added spacing between some text
 
 ## [1.2] - 2026-10-23

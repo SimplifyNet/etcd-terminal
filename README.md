@@ -47,7 +47,7 @@
 - **Create** — add a key and value
 - **Edit / delete** — change or remove a selected key when the account has write access to it
 - **Import JSON** — paste a JSON object or array, choose a key separator and optional prefix, preview the resulting keys, then confirm import; nested objects and arrays are flattened into keys
-- **Export JSON** — enter a key prefix, review the matching key names, confirm, and the keys with their values are copied to the clipboard as a JSON object (through the terminal's OSC 52 clipboard support)
+- **Export JSON** — enter a key prefix, review the matching key names, confirm, and the keys with their values are copied to the clipboard as a JSON object; the copy uses the platform clipboard tool (`clip` on Windows, `pbcopy` on macOS, `wl-copy`/`xclip`/`xsel` on Linux) and falls back to the terminal's OSC 52 clipboard support, which is the path that works over SSH
 
 ### User and role management (RBAC)
 - **Users** — list, create, delete, change passwords, and assign or remove roles

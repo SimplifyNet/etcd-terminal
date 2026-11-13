@@ -1,9 +1,10 @@
 namespace EtcdTerminal.Clipboard;
 
 /// <summary>
-/// Puts text on the clipboard of the terminal the application runs in.
-/// A terminal may refuse or ignore the request, so callers report a false
-/// result instead of assuming the copy happened.
+/// Puts text on the clipboard of the machine the user is working at.
+/// A platform may have no clipboard tool at all or the terminal may ignore
+/// the request, so callers report a false result instead of assuming the
+/// copy happened.
 /// </summary>
 public interface IClipboard
 {

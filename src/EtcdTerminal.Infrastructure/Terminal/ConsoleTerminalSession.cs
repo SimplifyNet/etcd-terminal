@@ -79,8 +79,10 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	/// <summary>
 	/// Copies through OSC 52: the terminal performs the copy, so the text can
 	/// reach the clipboard of the machine the user is sitting at even when the
-	/// application runs over SSH. The terminal is free to ignore the request;
-	/// true only means the escape sequence was written.
+	/// application runs over SSH. This is the fallback behind the platform
+	/// clipboard tools; the terminal is free to ignore the request (VTE-based
+	/// terminals such as GNOME Terminal do), and true only means the escape
+	/// sequence was written.
 	/// </summary>
 	public bool Copy(string text)
 	{

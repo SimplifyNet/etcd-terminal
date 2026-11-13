@@ -82,11 +82,11 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 | `OSC 112 BEL` | reset the cursor color |
 | `DECSET 1007` on | alternate scroll: the mouse wheel is reported as arrow keys inside the alternate buffer, which is how a page scrolls |
 | `DECSET 1007` off | restore normal wheel behavior |
-| `OSC 52;c;<base64> BEL` | copy the JSON export to the clipboard of the terminal the user is sitting at |
+| `OSC 52;c;<base64> BEL` | copy the JSON export to the clipboard of the terminal the user is sitting at; the fallback behind the platform clipboard tools in `ProcessClipboard` |
 
 **Spectre API checked (0.57.2):** `AnsiConsole.AlternateScreen(...)`, `AnsiWriter.EnterAltScreen()`, `HideCursor()`, `ShowCursor()`, `EraseInDisplay(int)`, `CursorHome()` exist; nothing in the public surface exposes a scroll region, an OSC 11/111 window background, DECSET 1007 or clipboard access. All other writes in this file go through `IAnsiConsole.WriteAnsi(AnsiWriter)`.
 
-**Justification:** the footer rows must survive body scrolling and the wheel must scroll the page — neither has a Spectre API. OSC 52 is the only clipboard path that works over SSH and needs no external program; the terminal may ignore it, which is why a failed copy is reported rather than silently assumed.
+**Justification:** the footer rows must survive body scrolling and the wheel must scroll the page — neither has a Spectre API. OSC 52 is the only clipboard path that works over SSH and needs no external program; it is tried after the platform clipboard tools (`clip`, `pbcopy`, `wl-copy`, `xclip`, `xsel`) because VTE-based terminals such as GNOME Terminal ignore it, which is why a failed copy is reported rather than silently assumed.
 
 **Removal condition:** Spectre exposes scroll regions, window background (OSC 11), alternate scroll mode and clipboard writing. Then the sequences become API calls and this file keeps only the lifecycle and resize handling.
 
