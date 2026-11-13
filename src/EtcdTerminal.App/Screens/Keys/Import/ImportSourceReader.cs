@@ -1,4 +1,5 @@
 using EtcdTerminal.App.Components;
+using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;
 
 namespace EtcdTerminal.App.Screens.Keys.Import;
@@ -21,6 +22,8 @@ public sealed class ImportSourceReader(Screen _screen, UserInput _input, MultiLi
 
 		if (prefix is null)
 			return null;
+
+		_screen.Write(TextBlock.Blank());
 
 		var json = await _pasteReader.ReadAsync(_localizations.Current.PasteJson);
 

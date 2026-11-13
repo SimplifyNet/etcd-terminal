@@ -30,6 +30,7 @@ public sealed class ExportPreview(Menu _menu, ILocalizationCatalog _localization
 		List<Block> preview =
 		[
 			TextBlock.Line(new StyledText(string.Format(_localizations.Current.ExportPreviewTitle, keys.Count), TextRole.Primary)),
+			TextBlock.Blank(),
 			TextBlock.Line(
 				new StyledText(_localizations.Current.KeyPrefix + " ", TextRole.Muted),
 				new StyledText(prefix.Length is 0 ? _localizations.Current.AllKeys : DisplayText.Sanitize(prefix), TextRole.Accent)),
@@ -47,6 +48,7 @@ public sealed class ExportPreview(Menu _menu, ILocalizationCatalog _localization
 
 		preview.Add(TextBlock.Blank());
 		preview.Add(TextBlock.Line(new StyledText(_localizations.Current.ConfirmExport, TextRole.Primary)));
+		preview.Add(TextBlock.Blank());
 
 		return preview;
 	}

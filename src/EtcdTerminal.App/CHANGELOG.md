@@ -5,6 +5,7 @@
 ### Added
 
 - Export JSON: enter a key prefix, review the list of matching key names, confirm with Yes selected by default, and the exported JSON object is copied to the clipboard through the terminal (OSC 52)
+- Added spacing between some text
 
 ## [1.2] - 2026-10-23
 

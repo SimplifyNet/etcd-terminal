@@ -62,6 +62,7 @@ public sealed class ImportPreview(Menu _menu, Message _message, ILocalizationCat
 
 		preview.Add(TextBlock.Blank());
 		preview.Add(TextBlock.Line(new StyledText(_localizations.Current.ConfirmImport, TextRole.Primary)));
+		preview.Add(TextBlock.Blank());
 
 		return preview;
 	}
