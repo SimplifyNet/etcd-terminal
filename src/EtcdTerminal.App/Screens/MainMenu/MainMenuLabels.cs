@@ -9,6 +9,7 @@ public sealed class MainMenuLabels(ILocalizationCatalog _localizations)
 		MainMenuAction.BrowseKeys => _localizations.Current.BrowseKeys,
 		MainMenuAction.CreateKey => _localizations.Current.CreateKey,
 		MainMenuAction.ImportJson => _localizations.Current.ImportJson,
+		MainMenuAction.ExportJson => _localizations.Current.ExportJson,
 		MainMenuAction.ManageUsers => _localizations.Current.ManageUsers,
 		MainMenuAction.ManageRoles => _localizations.Current.ManageRoles,
 		MainMenuAction.ListPermissions => _localizations.Current.ListPermissions,

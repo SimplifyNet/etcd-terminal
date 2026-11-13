@@ -176,6 +176,7 @@ public sealed class ChineseLocalization : ILocalization
 	public string StatusBack => "返回";
 
 	public string ImportJson => "导入 JSON";
+	public string ExportJson => "导出 JSON";
 	public string EnterSeparator => "输入键分隔符：";
 	public string EnterPrefix => "输入键前缀：";
 	public string PasteJson => "粘贴 JSON，然后按 Enter 导入（Esc 取消）：";
@@ -194,5 +195,15 @@ public sealed class ChineseLocalization : ILocalization
 	public string ImportingKeys => "正在导入 {0} 个键...";
 	public string InvalidJson => "JSON 无效：{0}";
 	public string NoKeysInJson => "JSON 中未找到键。";
+	public string EnterExportPrefix => "输入要导出的键前缀（留空导出所有键）：";
+	public string LoadingExportKeys => "正在加载要导出的键...";
+	public string ExportPreviewTitle => "以下 {0} 个键将导出为 JSON：";
+	public string ExportPreviewMore => "...还有 {0} 个";
+	public string ConfirmExport => "将这些键以 JSON 复制到剪贴板？";
+	public string ExportNoKeys => "所选前缀下未找到键。";
+	public string ExportCancelled => "导出已取消。";
+	public string ExportResult => "已导出 {0} 个键，JSON 已复制到剪贴板。";
+	public string ExportClipboardUnavailable => "无法将 JSON 复制到剪贴板。终端可能不支持剪贴板访问。";
+	public string ExportFailed => "导出键失败：{0}";
 	public string MoreChoices => "（上下移动以查看更多）";
 }

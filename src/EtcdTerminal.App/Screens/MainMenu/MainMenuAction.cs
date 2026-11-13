@@ -5,6 +5,7 @@ public enum MainMenuAction
 	BrowseKeys,
 	CreateKey,
 	ImportJson,
+	ExportJson,
 	ManageUsers,
 	ManageRoles,
 	ListPermissions,

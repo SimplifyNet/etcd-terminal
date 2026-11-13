@@ -34,6 +34,21 @@ public sealed class TerminalSessionTests
 	}
 
 	[Test]
+	public void Copy_WritesAnOsc52ClipboardSequenceForTheText()
+	{
+		var console = new TestConsole();
+		var session = new ConsoleTerminalSession(console, Themes());
+
+		var copied = session.Copy("hello");
+
+		Assert.Multiple(() =>
+		{
+			Assert.That(copied, Is.True);
+			Assert.That(console.Output, Does.Contain("\u001b]52;c;aGVsbG8=\u0007"));
+		});
+	}
+
+	[Test]
 	public void ThemeChange_UpdatesTheConsoleBackgroundAndRedrawsTheScreen()
 	{
 		var console = new TestConsole();

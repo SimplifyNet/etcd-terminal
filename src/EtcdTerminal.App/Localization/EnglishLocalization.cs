@@ -176,6 +176,7 @@ public class EnglishLocalization : ILocalization
 	public string StatusBack => "back";
 
 	public string ImportJson => "Import JSON";
+	public string ExportJson => "Export JSON";
 	public string EnterSeparator => "Enter key separator:";
 	public string EnterPrefix => "Enter key prefix:";
 	public string PasteJson => "Paste JSON, then press Enter to import (Esc to cancel):";
@@ -194,5 +195,15 @@ public class EnglishLocalization : ILocalization
 	public string ImportingKeys => "Importing {0} keys...";
 	public string InvalidJson => "Invalid JSON: {0}";
 	public string NoKeysInJson => "No keys found in JSON.";
+	public string EnterExportPrefix => "Enter key prefix to export (leave empty for all keys):";
+	public string LoadingExportKeys => "Loading keys for export...";
+	public string ExportPreviewTitle => "The following {0} keys will be exported as JSON:";
+	public string ExportPreviewMore => "... and {0} more";
+	public string ConfirmExport => "Copy these keys as JSON to the clipboard?";
+	public string ExportNoKeys => "No keys found for the selected prefix.";
+	public string ExportCancelled => "Export cancelled.";
+	public string ExportResult => "Exported {0} keys as JSON to the clipboard.";
+	public string ExportClipboardUnavailable => "Could not copy the JSON to the clipboard. The terminal may not support clipboard access.";
+	public string ExportFailed => "Failed to export keys: {0}";
 	public string MoreChoices => "(move up and down to reveal more)";
 }

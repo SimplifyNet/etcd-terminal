@@ -2,6 +2,7 @@ using EtcdTerminal.App.Components;
 using EtcdTerminal.App.Screens.Cluster;
 using EtcdTerminal.App.Screens.Connections;
 using EtcdTerminal.App.Screens.Keys;
+using EtcdTerminal.App.Screens.Keys.Export;
 using EtcdTerminal.App.Screens.Keys.Import;
 using EtcdTerminal.App.Screens.MainMenu;
 using EtcdTerminal.App.Screens.Permissions;
@@ -31,6 +32,11 @@ public static class ScreensRegistrations
 		.Register<KeyBrowseScreen>(LifetimeType.Transient)
 		.Register<KeyCreateScreen>(LifetimeType.Transient)
 		.Register<KeyImportJsonScreen>(LifetimeType.Transient)
+		.Register<KeyExportJsonScreen>(LifetimeType.Transient)
+		.Register<ExportSourceReader>(LifetimeType.Transient)
+		.Register<ExportKeysLoader>(LifetimeType.Transient)
+		.Register<ExportPreview>(LifetimeType.Transient)
+		.Register<ExportReport>(LifetimeType.Transient)
 		.Register<UsersManagementScreen>(LifetimeType.Transient)
 		.Register<RolesManagementScreen>(LifetimeType.Transient)
 		.Register<PermissionListScreen>(LifetimeType.Transient)
@@ -75,6 +81,7 @@ public static class ScreensRegistrations
 			c.Resolve<KeyBrowseScreen>(),
 			c.Resolve<KeyCreateScreen>(),
 			c.Resolve<KeyImportJsonScreen>(),
+			c.Resolve<KeyExportJsonScreen>(),
 			c.Resolve<UsersManagementScreen>(),
 			c.Resolve<RolesManagementScreen>(),
 			c.Resolve<PermissionListScreen>(),

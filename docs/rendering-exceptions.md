@@ -68,9 +68,9 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 
 **File:** `src/EtcdTerminal.Infrastructure/Terminal/ConsoleTerminalSession.cs`
 
-**What it does:** the only class allowed to talk to `System.Console` and to raw sequences. It enters the alternate buffer, sets the scroll region to the rows above the footer, paints the window background, turns alternate scroll on and mirrors every theme change to the terminal background.
+**What it does:** the only class allowed to talk to `System.Console` and to raw sequences. It enters the alternate buffer, sets the scroll region to the rows above the footer, paints the window background, turns alternate scroll on and mirrors every theme change to the terminal background. It also asks the terminal to copy JSON exports through OSC 52.
 
-**Sequences Spectre cannot emit in 0.57.2** (the eight listed in the class):
+**Sequences Spectre cannot emit in 0.57.2** (the nine listed in the class):
 
 | Sequence | Purpose |
 | --- | --- |
@@ -82,12 +82,13 @@ Nothing outside this list may generate ANSI, place the cursor by absolute row, c
 | `OSC 112 BEL` | reset the cursor color |
 | `DECSET 1007` on | alternate scroll: the mouse wheel is reported as arrow keys inside the alternate buffer, which is how a page scrolls |
 | `DECSET 1007` off | restore normal wheel behavior |
+| `OSC 52;c;<base64> BEL` | copy the JSON export to the clipboard of the terminal the user is sitting at |
 
-**Spectre API checked (0.57.2):** `AnsiConsole.AlternateScreen(...)`, `AnsiWriter.EnterAltScreen()`, `HideCursor()`, `ShowCursor()`, `EraseInDisplay(int)`, `CursorHome()` exist; nothing in the public surface exposes a scroll region, an OSC 11/111 window background or DECSET 1007. All other writes in this file go through `IAnsiConsole.WriteAnsi(AnsiWriter)`.
+**Spectre API checked (0.57.2):** `AnsiConsole.AlternateScreen(...)`, `AnsiWriter.EnterAltScreen()`, `HideCursor()`, `ShowCursor()`, `EraseInDisplay(int)`, `CursorHome()` exist; nothing in the public surface exposes a scroll region, an OSC 11/111 window background, DECSET 1007 or clipboard access. All other writes in this file go through `IAnsiConsole.WriteAnsi(AnsiWriter)`.
 
-**Justification:** the footer rows must survive body scrolling and the wheel must scroll the page — neither has a Spectre API.
+**Justification:** the footer rows must survive body scrolling and the wheel must scroll the page — neither has a Spectre API. OSC 52 is the only clipboard path that works over SSH and needs no external program; the terminal may ignore it, which is why a failed copy is reported rather than silently assumed.
 
-**Removal condition:** Spectre exposes scroll regions, window background (OSC 11) and alternate scroll mode. Then the six sequences become API calls and this file keeps only the lifecycle and resize handling.
+**Removal condition:** Spectre exposes scroll regions, window background (OSC 11), alternate scroll mode and clipboard writing. Then the sequences become API calls and this file keeps only the lifecycle and resize handling.
 
 ---
 

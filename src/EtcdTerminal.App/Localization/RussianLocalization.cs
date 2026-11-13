@@ -176,6 +176,7 @@ public sealed class RussianLocalization : ILocalization
 	public string StatusBack => "назад";
 
 	public string ImportJson => "Импорт JSON";
+	public string ExportJson => "Экспорт JSON";
 	public string EnterSeparator => "Введите разделитель ключей:";
 	public string EnterPrefix => "Введите префикс ключа:";
 	public string PasteJson => "Вставьте JSON и нажмите Enter для импорта (Esc для отмены):";
@@ -194,5 +195,15 @@ public sealed class RussianLocalization : ILocalization
 	public string ImportingKeys => "Импорт ключей: {0}...";
 	public string InvalidJson => "Недопустимый JSON: {0}";
 	public string NoKeysInJson => "В JSON не найдены ключи.";
+	public string EnterExportPrefix => "Введите префикс ключей для экспорта (пусто — все ключи):";
+	public string LoadingExportKeys => "Загрузка ключей для экспорта...";
+	public string ExportPreviewTitle => "Следующие ключи ({0}) будут экспортированы в JSON:";
+	public string ExportPreviewMore => "... и ещё {0}";
+	public string ConfirmExport => "Скопировать эти ключи в JSON в буфер обмена?";
+	public string ExportNoKeys => "По выбранному префиксу ключи не найдены.";
+	public string ExportCancelled => "Экспорт отменён.";
+	public string ExportResult => "Экспортировано ключей: {0}. JSON скопирован в буфер обмена.";
+	public string ExportClipboardUnavailable => "Не удалось скопировать JSON в буфер обмена. Возможно, терминал не поддерживает доступ к буферу обмена.";
+	public string ExportFailed => "Не удалось экспортировать ключи: {0}";
 	public string MoreChoices => "(перемещайтесь вверх и вниз, чтобы увидеть остальные)";
 }

@@ -1,3 +1,5 @@
+using System.Text;
+using EtcdTerminal.Clipboard;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Theming;
 using Spectre.Console;
@@ -12,7 +14,7 @@ namespace EtcdTerminal.Infrastructure.Terminal;
 /// It also watches the window size: when it changes, the split is redone
 /// for the new height and the resize handlers run.
 /// </summary>
-public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog _themes) : ITerminalSession
+public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog _themes) : ITerminalSession, IClipboard
 {
 	private const int FooterRows = 3;
 
@@ -23,9 +25,11 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	private Timer? _sizeWatch;
 	private (int Width, int Height) _size;
 
-	// The eight sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
+	// The sequences Spectre cannot emit. Alternate scroll (DECSET 1007)
 	// makes the terminal report the mouse wheel as arrow keys inside the
 	// alternate buffer, which is how a page gets scrolled by the wheel.
+	// OSC 52 asks the terminal itself to copy; over SSH the clip lands on the
+	// user's terminal rather than on the machine the application runs on.
 	private const string ResetScrollRegionSequence = "\u001b[r";
 	private const string ResetBackgroundSequence = "\u001b]111\u0007";
 	private const string ResetCursorColorSequence = "\u001b]112\u0007";
@@ -71,6 +75,24 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	};
 
 	public void OnResize(Action handler) => _resizeHandlers.Add(handler);
+
+	/// <summary>
+	/// Copies through OSC 52: the terminal performs the copy, so the text can
+	/// reach the clipboard of the machine the user is sitting at even when the
+	/// application runs over SSH. The terminal is free to ignore the request;
+	/// true only means the escape sequence was written.
+	/// </summary>
+	public bool Copy(string text)
+	{
+		if (!_console.Profile.Capabilities.Ansi)
+			return false;
+
+		var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+
+		_console.WriteAnsi(writer => writer.Write(ClipboardSequence(payload)));
+
+		return true;
+	}
 
 	private (int Width, int Height) CurrentSize() => (_console.Profile.Width, _console.Profile.Height);
 
@@ -148,4 +170,6 @@ public sealed class ConsoleTerminalSession(IAnsiConsole _console, IThemeCatalog 
 	private static string CursorColorSequence(RgbColor c) => $"\u001b]12;#{c.R:X2}{c.G:X2}{c.B:X2}\u0007";
 
 	private static string BackgroundSequence(RgbColor c) => $"\u001b]11;#{c.R:X2}{c.G:X2}{c.B:X2}\u0007";
+
+	private static string ClipboardSequence(string payload) => $"\u001b]52;c;{payload}\u0007";
 }

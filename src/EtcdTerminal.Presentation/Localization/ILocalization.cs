@@ -174,6 +174,7 @@ public interface ILocalization
 	string StatusBack { get; }
 
 	string ImportJson { get; }
+	string ExportJson { get; }
 	string EnterSeparator { get; }
 	string EnterPrefix { get; }
 	string PasteJson { get; }
@@ -192,5 +193,15 @@ public interface ILocalization
 	string ImportingKeys { get; }
 	string InvalidJson { get; }
 	string NoKeysInJson { get; }
+	string EnterExportPrefix { get; }
+	string LoadingExportKeys { get; }
+	string ExportPreviewTitle { get; }
+	string ExportPreviewMore { get; }
+	string ConfirmExport { get; }
+	string ExportNoKeys { get; }
+	string ExportCancelled { get; }
+	string ExportResult { get; }
+	string ExportClipboardUnavailable { get; }
+	string ExportFailed { get; }
 	string MoreChoices { get; }
 }

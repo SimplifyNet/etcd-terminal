@@ -1,5 +1,6 @@
 using EtcdTerminal.App.Localization;
 using EtcdTerminal.App.Theming;
+using EtcdTerminal.Clipboard;
 using EtcdTerminal.Infrastructure.Terminal;
 using EtcdTerminal.Presentation;
 using EtcdTerminal.Presentation.Localization;
@@ -14,6 +15,7 @@ public static class TerminalRegistrations
 	public static IDIRegistrator RegisterTerminal(this IDIRegistrator registrator) => registrator
 		.Register<ITextInput, SpectreTextInput>(LifetimeType.Singleton)
 		.Register<ITerminalSession, ConsoleTerminalSession>(LifetimeType.Singleton)
+		.Register(c => (IClipboard)c.Resolve<ITerminalSession>(), LifetimeType.Singleton)
 		.Register<IScreenCanvas, SpectreScreenCanvas>(LifetimeType.Singleton)
 		.Register<IKeyReader, SpectreKeyReader>(LifetimeType.Singleton)
 		.Register<ISelectionPrompt, SpectreSelectionPrompt>(LifetimeType.Singleton)
