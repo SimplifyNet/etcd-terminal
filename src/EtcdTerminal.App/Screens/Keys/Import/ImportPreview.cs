@@ -43,6 +43,7 @@ public sealed class ImportPreview(Menu _menu, Message _message, ILocalizationCat
 		List<Block> preview =
 		[
 			pastedStatus,
+			TextBlock.Blank(),
 			TextBlock.Line(new StyledText(string.Format(_localizations.Current.ImportPreviewTitle, entries.Count), TextRole.Primary)),
 			TextBlock.Blank()
 		];
