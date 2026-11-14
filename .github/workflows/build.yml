@@ -320,6 +320,9 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-') }}
     needs: [debian, release]
     runs-on: ubuntu-latest
+    concurrency:
+      group: ppa-upload
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v7
@@ -392,7 +395,7 @@ jobs:
           fi
 
       - name: Install signing tools
-        if: steps.ppa-credentials.outputs.enabled == 'true'
+        if: steps.ppa-credentials.outputs.enabled == 'true' && steps.ppa-existing.outputs.any == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends devscripts dput gnupg gnupg-utils
@@ -454,6 +457,41 @@ jobs:
             echo "Uploading ${changes} to ${target}"
             debsign -k "${keyid}" "${changes}"
             dput "${target}" "${changes}"
+          done < pending-uploads.txt
+
+      - name: Wait for uploads to appear in the PPA
+        if: steps.ppa-credentials.outputs.enabled == 'true' && steps.ppa-existing.outputs.any == 'true'
+        env:
+          PPA_TARGET: ${{ vars.PPA_TARGET }}
+        run: |
+          set -euo pipefail
+          target="${PPA_TARGET:-ppa:simplifynet/etcd-terminal}"
+          [[ "${target}" =~ ^ppa:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)$ ]]
+          owner="${BASH_REMATCH[1]}"
+          archive="${BASH_REMATCH[2]}"
+
+          while IFS= read -r changes; do
+            [[ -n "${changes}" ]] || continue
+
+            version="$(sed -n 's/^Version: //p' "${changes}" | head -n 1)"
+            encoded="$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "${version}")"
+            url="https://api.launchpad.net/1.0/~${owner}/+archive/ubuntu/${archive}?ws.op=getPublishedSources&exact_match=true&source_name=etcd-terminal&version=${encoded}"
+            found=false
+
+            for _ in $(seq 1 60); do
+              count="$(curl -fsSL --retry 3 "${url}" | python3 -c 'import json, sys; print(len(json.load(sys.stdin).get("entries", [])))')"
+              if [[ "${count}" -gt 0 ]]; then
+                found=true
+                break
+              fi
+              sleep 30
+            done
+
+            if [[ "${found}" == "true" ]]; then
+              echo "${version} is now registered in ${target}"
+            else
+              echo "::warning::${version} did not appear in ${target} within 30 minutes; it may have been rejected"
+            fi
           done < pending-uploads.txt
 
   release:
