@@ -246,6 +246,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           PPA_SERIES: ${{ vars.PPA_SERIES }}
+          PPA_TARGET: ${{ vars.PPA_TARGET }}
         run: |
           set -euo pipefail
           series_list="${PPA_SERIES:-stonking,resolute,noble}"
@@ -271,10 +272,42 @@ jobs:
           mkdir -p "${root}/orig/etcd-terminal-${VERSION}/app" "${GITHUB_WORKSPACE}/dist/deb" "${GITHUB_WORKSPACE}/dist/source"
 
           # Launchpad requires one identical .orig.tar.gz per upstream version across all series.
-          tar xzf "${artifact}" -C "${root}/orig/etcd-terminal-${VERSION}/app"
           orig="${root}/etcd-terminal_${VERSION}.orig.tar.gz"
-          tar -C "${root}/orig" --sort=name --owner=0 --group=0 --numeric-owner \
-            -cf - "etcd-terminal-${VERSION}" | gzip -n > "${orig}"
+          target="${PPA_TARGET:-ppa:simplifynet/etcd-terminal}"
+          existing_orig=""
+          if [[ "${target}" =~ ^ppa:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)$ ]]; then
+            existing_orig="$(python3 - "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${VERSION}" <<'EOF'
+          import json, sys, time, urllib.request
+          owner, archive, version = sys.argv[1:4]
+          name = f"etcd-terminal_{version}.orig.tar.gz"
+          url = (f"https://api.launchpad.net/1.0/~{owner}/+archive/ubuntu/{archive}"
+                 f"?ws.op=getPublishedSources&source_name=etcd-terminal&exact_match=true&ws.size=300&_={int(time.time())}")
+          headers = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
+          def get(u):
+              with urllib.request.urlopen(urllib.request.Request(u, headers=headers), timeout=60) as r:
+                  return json.load(r)
+          while url:
+              data = get(url)
+              for entry in data.get("entries", []):
+                  if not entry["source_package_version"].startswith(f"{version}-"):
+                      continue
+                  for file_url in get(entry["self_link"] + "?ws.op=sourceFileUrls"):
+                      if file_url.endswith("/" + name):
+                          print(file_url)
+                          sys.exit(0)
+              url = data.get("next_collection_link")
+          EOF
+            )"
+          fi
+
+          if [[ -n "${existing_orig}" ]]; then
+            echo "Reusing ${existing_orig}"
+            curl -fsSL --retry 3 -o "${orig}" "${existing_orig}"
+          else
+            tar xzf "${artifact}" -C "${root}/orig/etcd-terminal-${VERSION}/app"
+            tar -C "${root}/orig" --sort=name --owner=0 --group=0 --numeric-owner \
+              -cf - "etcd-terminal-${VERSION}" | gzip -n > "${orig}"
+          fi
 
           for series in "${series_array[@]}"; do
             series="${series//[[:space:]]/}"
