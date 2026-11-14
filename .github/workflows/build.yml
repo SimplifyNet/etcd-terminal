@@ -360,6 +360,22 @@ jobs:
           owner="${BASH_REMATCH[1]}"
           archive="${BASH_REMATCH[2]}"
 
+          python3 - "${owner}" "${archive}" > existing-versions.txt <<'EOF'
+          import json, sys, time, urllib.request
+          owner, archive = sys.argv[1], sys.argv[2]
+          url = (f"https://api.launchpad.net/1.0/~{owner}/+archive/ubuntu/{archive}"
+                 f"?ws.op=getPublishedSources&source_name=etcd-terminal&ws.size=300&_={int(time.time())}")
+          while url:
+              request = urllib.request.Request(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"})
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  data = json.load(response)
+              for entry in data.get("entries", []):
+                  print(entry["source_package_version"])
+              url = data.get("next_collection_link")
+          EOF
+          echo "Versions already in ${target}:"
+          cat existing-versions.txt
+
           : > pending-uploads.txt
           for dir in source/*/; do
             [[ -d "${dir}" ]] || continue
@@ -376,11 +392,7 @@ jobs:
               exit 1
             fi
 
-            encoded="$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "${version}")"
-            url="https://api.launchpad.net/1.0/~${owner}/+archive/ubuntu/${archive}?ws.op=getPublishedSources&exact_match=true&source_name=etcd-terminal&version=${encoded}"
-            count="$(curl -fsSL --retry 3 "${url}" | python3 -c 'import json, sys; print(len(json.load(sys.stdin).get("entries", [])))')"
-
-            if [[ "${count}" -gt 0 ]]; then
+            if grep -qxF -- "${version}" existing-versions.txt; then
               echo "$(basename "${dir}") ${version} already exists in ${target}; skipping" >> "${GITHUB_STEP_SUMMARY}"
             else
               printf '%s\n' "${changes}" >> pending-uploads.txt
@@ -451,13 +463,29 @@ jobs:
           fi
 
           target="${PPA_TARGET:-ppa:simplifynet/etcd-terminal}"
+          failed=false
           while IFS= read -r changes; do
             [[ -n "${changes}" ]] || continue
 
             echo "Uploading ${changes} to ${target}"
             debsign -k "${keyid}" "${changes}"
-            dput "${target}" "${changes}"
+
+            uploaded=false
+            for attempt in 1 2 3; do
+              if dput -f "${target}" "${changes}"; then
+                uploaded=true
+                break
+              fi
+              echo "dput attempt ${attempt} failed; retrying in 60s" >&2
+              sleep 60
+            done
+            if [[ "${uploaded}" != "true" ]]; then
+              echo "::error::Failed to upload ${changes}"
+              failed=true
+            fi
           done < pending-uploads.txt
+
+          [[ "${failed}" != "true" ]]
 
       - name: Wait for uploads to appear in the PPA
         if: steps.ppa-credentials.outputs.enabled == 'true' && steps.ppa-existing.outputs.any == 'true'
@@ -479,7 +507,7 @@ jobs:
             found=false
 
             for _ in $(seq 1 60); do
-              count="$(curl -fsSL --retry 3 "${url}" | python3 -c 'import json, sys; print(len(json.load(sys.stdin).get("entries", [])))')"
+              count="$(curl -fsSL --retry 3 -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "${url}&_=$(date +%s%N)" | python3 -c 'import json, sys; print(len(json.load(sys.stdin).get("entries", [])))')"
               if [[ "${count}" -gt 0 ]]; then
                 found=true
                 break
